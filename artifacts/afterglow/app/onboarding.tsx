@@ -1,0 +1,637 @@
+import { useApp } from "@/context/AppContext";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React, { useRef, useState } from "react";
+import {
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+type RelType = "crush" | "situationship" | "relationship" | "ex";
+
+interface FormData {
+  userName: string;
+  userBirthDate: Date;
+  userBirthTime: string;
+  partnerName: string;
+  partnerBirthDate: Date;
+  relationshipType: RelType;
+}
+
+const MONTHS = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+
+const ITEM_H = 52;
+
+function WheelPicker({
+  items,
+  selectedIndex,
+  onSelect,
+  width = 90,
+}: {
+  items: string[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+  width?: number;
+}) {
+  const scrollRef = useRef<ScrollView>(null);
+  const PADDING = 2;
+  const totalItems = items.length;
+
+  React.useEffect(() => {
+    scrollRef.current?.scrollTo({
+      y: selectedIndex * ITEM_H,
+      animated: false,
+    });
+  }, []);
+
+  return (
+    <View style={{ width, height: ITEM_H * 5, overflow: "hidden" }}>
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: ITEM_H * 2,
+          zIndex: 10,
+          backgroundColor: "transparent",
+        }}
+      >
+        <LinearGradient
+          colors={["rgba(8,6,17,0.95)", "rgba(8,6,17,0)"]}
+          style={{ flex: 1 }}
+        />
+      </View>
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: ITEM_H * 2,
+          zIndex: 10,
+        }}
+      >
+        <LinearGradient
+          colors={["rgba(8,6,17,0)", "rgba(8,6,17,0.95)"]}
+          style={{ flex: 1 }}
+        />
+      </View>
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          top: ITEM_H * 2,
+          left: 0,
+          right: 0,
+          height: ITEM_H,
+          borderTopWidth: 1,
+          borderBottomWidth: 1,
+          borderColor: "rgba(232,92,122,0.3)",
+          zIndex: 5,
+        }}
+      />
+      <ScrollView
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
+        snapToInterval={ITEM_H}
+        decelerationRate="fast"
+        contentContainerStyle={{ paddingVertical: ITEM_H * 2 }}
+        onMomentumScrollEnd={(e) => {
+          const index = Math.round(e.nativeEvent.contentOffset.y / ITEM_H);
+          const clamped = Math.max(0, Math.min(totalItems - 1, index));
+          onSelect(clamped);
+          Haptics.selectionAsync();
+        }}
+      >
+        {items.map((item, i) => (
+          <View
+            key={i}
+            style={{
+              height: ITEM_H,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 16,
+                color:
+                  i === selectedIndex
+                    ? "#F0EBF8"
+                    : "rgba(240,235,248,0.35)",
+                fontFamily: "Inter_500Medium",
+              }}
+            >
+              {item}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+function DatePicker({
+  value,
+  onChange,
+}: {
+  value: Date;
+  onChange: (d: Date) => void;
+}) {
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 60 }, (_, i) =>
+    String(currentYear - 15 - i)
+  );
+  const days = Array.from({ length: 31 }, (_, i) =>
+    String(i + 1).padStart(2, "0")
+  );
+
+  const monthIndex = value.getMonth();
+  const dayIndex = value.getDate() - 1;
+  const yearIndex = years.indexOf(String(value.getFullYear()));
+
+  const update = (m: number, d: number, y: number) => {
+    const maxDay = new Date(Number(years[y]), m + 1, 0).getDate();
+    const clampedDay = Math.min(d, maxDay - 1);
+    onChange(new Date(Number(years[y]), m, clampedDay + 1));
+  };
+
+  return (
+    <View style={{ flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" }}>
+      <WheelPicker
+        items={MONTHS}
+        selectedIndex={monthIndex}
+        onSelect={(i) => update(i, dayIndex, yearIndex >= 0 ? yearIndex : 0)}
+        width={120}
+      />
+      <WheelPicker
+        items={days}
+        selectedIndex={dayIndex}
+        onSelect={(i) => update(monthIndex, i, yearIndex >= 0 ? yearIndex : 0)}
+        width={60}
+      />
+      <WheelPicker
+        items={years}
+        selectedIndex={yearIndex >= 0 ? yearIndex : 20}
+        onSelect={(i) => update(monthIndex, dayIndex, i)}
+        width={80}
+      />
+    </View>
+  );
+}
+
+const TOTAL_STEPS = 7;
+
+export default function Onboarding() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { completeOnboarding } = useApp();
+
+  const [step, setStep] = useState(0);
+  const [calculating, setCalculating] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const defaultDate = new Date(1998, 5, 15);
+  const [form, setForm] = useState<FormData>({
+    userName: "",
+    userBirthDate: defaultDate,
+    userBirthTime: "",
+    partnerName: "",
+    partnerBirthDate: defaultDate,
+    relationshipType: "crush",
+  });
+
+  const transitionTo = (next: number) => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: -30, duration: 200, useNativeDriver: true }),
+    ]).start(() => {
+      setStep(next);
+      slideAnim.setValue(30);
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 250, useNativeDriver: true }),
+      ]).start();
+    });
+  };
+
+  const next = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (step === TOTAL_STEPS - 2) {
+      setCalculating(true);
+      transitionTo(step + 1);
+      await completeOnboarding(
+        {
+          name: form.userName,
+          birthDate: form.userBirthDate.toISOString(),
+          birthTime: form.userBirthTime || undefined,
+        },
+        {
+          name: form.partnerName,
+          birthDate: form.partnerBirthDate.toISOString(),
+          relationshipType: form.relationshipType,
+        }
+      );
+      setTimeout(() => {
+        router.replace("/(tabs)/home");
+      }, 2800);
+    } else {
+      transitionTo(step + 1);
+    }
+  };
+
+  const canProceed = (): boolean => {
+    if (step === 1) return form.userName.trim().length >= 2;
+    if (step === 4) return form.partnerName.trim().length >= 2;
+    return true;
+  };
+
+  const relTypes: { key: RelType; label: string; desc: string }[] = [
+    { key: "crush", label: "Crush", desc: "Feelings not yet spoken" },
+    { key: "situationship", label: "Situationship", desc: "Feelings without a label" },
+    { key: "relationship", label: "Relationship", desc: "Official and intentional" },
+    { key: "ex", label: "Ex", desc: "Something that ended" },
+  ];
+
+  const steps = [
+    // Step 0: Welcome
+    <View key={0} style={styles.stepContainer}>
+      <Text style={styles.welcomeEye}>◉</Text>
+      <Text style={styles.appName}>Afterglow</Text>
+      <Text style={styles.tagline}>
+        Understand the emotional truth{"\n"}of your connection
+      </Text>
+      <Text style={styles.subTagline}>
+        Not astrology. Not horoscopes.{"\n"}Emotional intelligence.
+      </Text>
+    </View>,
+
+    // Step 1: Your name
+    <View key={1} style={styles.stepContainer}>
+      <Text style={styles.stepLabel}>First, who are you?</Text>
+      <Text style={styles.stepSub}>Your name helps personalize every insight</Text>
+      <TextInput
+        style={styles.textInput}
+        value={form.userName}
+        onChangeText={(t) => setForm((f) => ({ ...f, userName: t }))}
+        placeholder="Your first name"
+        placeholderTextColor="rgba(240,235,248,0.25)"
+        autoFocus
+        maxLength={30}
+      />
+    </View>,
+
+    // Step 2: Your birthday
+    <View key={2} style={styles.stepContainer}>
+      <Text style={styles.stepLabel}>When were you born?</Text>
+      <Text style={styles.stepSub}>Your birth date shapes your emotional blueprint</Text>
+      <DatePicker
+        value={form.userBirthDate}
+        onChange={(d) => setForm((f) => ({ ...f, userBirthDate: d }))}
+      />
+    </View>,
+
+    // Step 3: Birth time (optional)
+    <View key={3} style={styles.stepContainer}>
+      <Text style={styles.stepLabel}>What time were you born?</Text>
+      <Text style={styles.stepSub}>Optional — adds depth to your reading</Text>
+      <TextInput
+        style={styles.textInput}
+        value={form.userBirthTime}
+        onChangeText={(t) => setForm((f) => ({ ...f, userBirthTime: t }))}
+        placeholder="e.g. 3:45 PM  (optional)"
+        placeholderTextColor="rgba(240,235,248,0.25)"
+        keyboardType="default"
+      />
+      <TouchableOpacity onPress={next} style={styles.skipBtn}>
+        <Text style={styles.skipText}>Skip this</Text>
+      </TouchableOpacity>
+    </View>,
+
+    // Step 4: Partner name
+    <View key={4} style={styles.stepContainer}>
+      <Text style={styles.stepLabel}>
+        Now, who are you thinking about?
+      </Text>
+      <Text style={styles.stepSub}>Their first name is enough</Text>
+      <TextInput
+        style={styles.textInput}
+        value={form.partnerName}
+        onChangeText={(t) => setForm((f) => ({ ...f, partnerName: t }))}
+        placeholder="Their first name"
+        placeholderTextColor="rgba(240,235,248,0.25)"
+        autoFocus
+        maxLength={30}
+      />
+    </View>,
+
+    // Step 5: Partner birthday
+    <View key={5} style={styles.stepContainer}>
+      <Text style={styles.stepLabel}>When is {form.partnerName || "their"} birthday?</Text>
+      <Text style={styles.stepSub}>Approximate is fine if you're not sure</Text>
+      <DatePicker
+        value={form.partnerBirthDate}
+        onChange={(d) => setForm((f) => ({ ...f, partnerBirthDate: d }))}
+      />
+    </View>,
+
+    // Step 6: Relationship type
+    <View key={6} style={[styles.stepContainer, { gap: 12 }]}>
+      <Text style={styles.stepLabel}>What is this?</Text>
+      <Text style={styles.stepSub}>Be honest — it shapes everything</Text>
+      {relTypes.map((r) => (
+        <TouchableOpacity
+          key={r.key}
+          onPress={() => {
+            Haptics.selectionAsync();
+            setForm((f) => ({ ...f, relationshipType: r.key }));
+          }}
+          style={[
+            styles.relTypeCard,
+            form.relationshipType === r.key && styles.relTypeCardSelected,
+          ]}
+        >
+          <Text style={[styles.relTypeLabel, form.relationshipType === r.key && { color: "#E85C7A" }]}>
+            {r.label}
+          </Text>
+          <Text style={styles.relTypeDesc}>{r.desc}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>,
+
+    // Step 7: Calculating
+    <View key={7} style={[styles.stepContainer, { gap: 20 }]}>
+      <CalcAnimation name={form.partnerName} />
+    </View>,
+  ];
+
+  return (
+    <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={[
+            styles.container,
+            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 40 },
+          ]}
+          keyboardShouldPersistTaps="handled"
+        >
+          {step > 0 && step < TOTAL_STEPS && (
+            <View style={styles.progressRow}>
+              {Array.from({ length: TOTAL_STEPS - 1 }).map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.progressDot,
+                    i < step && styles.progressDotActive,
+                    i === step - 1 && styles.progressDotCurrent,
+                  ]}
+                />
+              ))}
+            </View>
+          )}
+
+          <Animated.View
+            style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], flex: 1 }}
+          >
+            {steps[step]}
+          </Animated.View>
+
+          {step < TOTAL_STEPS - 1 && (
+            <Pressable
+              onPress={next}
+              disabled={!canProceed()}
+              style={[styles.nextBtn, !canProceed() && { opacity: 0.4 }]}
+            >
+              <LinearGradient
+                colors={["#E85C7A", "#C4306E"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.nextBtnGradient}
+              >
+                <Text style={styles.nextBtnText}>
+                  {step === 0 ? "Begin" : step === TOTAL_STEPS - 2 ? "Reveal" : "Continue"}
+                </Text>
+                {step > 0 && (
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                )}
+              </LinearGradient>
+            </Pressable>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
+  );
+}
+
+function CalcAnimation({ name }: { name: string }) {
+  const pulseAnim = useRef(new Animated.Value(0.6)).current;
+  const [dots, setDots] = useState(0);
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0.6, duration: 800, useNativeDriver: true }),
+      ])
+    ).start();
+
+    const interval = setInterval(() => setDots((d) => (d + 1) % 4), 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <View style={{ alignItems: "center", gap: 24 }}>
+      <Animated.View style={{ opacity: pulseAnim }}>
+        <LinearGradient
+          colors={["#E85C7A", "#B855E0", "#7C52C8"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.calcOrb}
+        />
+      </Animated.View>
+      <Text style={styles.calcTitle}>Reading your connection{".".repeat(dots)}</Text>
+      <Text style={styles.calcSub}>
+        Mapping emotional patterns with {name}
+      </Text>
+      <Text style={styles.calcSub2}>
+        Analyzing attachment dynamics{"\n"}communication frequencies{"\n"}emotional resonance
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: 28,
+    gap: 24,
+  },
+  stepContainer: {
+    flex: 1,
+    gap: 16,
+    paddingTop: 20,
+    minHeight: 300,
+    justifyContent: "center",
+  },
+  progressRow: {
+    flexDirection: "row",
+    gap: 6,
+    alignSelf: "center",
+  },
+  progressDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(240,235,248,0.15)",
+  },
+  progressDotActive: {
+    backgroundColor: "rgba(232,92,122,0.5)",
+  },
+  progressDotCurrent: {
+    backgroundColor: "#E85C7A",
+    width: 20,
+  },
+  welcomeEye: {
+    fontSize: 48,
+    textAlign: "center",
+    color: "#E85C7A",
+    marginBottom: 8,
+  },
+  appName: {
+    fontSize: 42,
+    fontFamily: "Inter_700Bold",
+    color: "#F0EBF8",
+    textAlign: "center",
+    letterSpacing: 2,
+  },
+  tagline: {
+    fontSize: 18,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.8)",
+    textAlign: "center",
+    lineHeight: 28,
+  },
+  subTagline: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.4)",
+    textAlign: "center",
+    marginTop: 8,
+  },
+  stepLabel: {
+    fontSize: 26,
+    fontFamily: "Inter_700Bold",
+    color: "#F0EBF8",
+    lineHeight: 34,
+  },
+  stepSub: {
+    fontSize: 15,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.5)",
+  },
+  textInput: {
+    backgroundColor: "rgba(26,22,48,0.8)",
+    borderWidth: 1,
+    borderColor: "rgba(232,92,122,0.3)",
+    borderRadius: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    fontSize: 20,
+    fontFamily: "Inter_500Medium",
+    color: "#F0EBF8",
+    marginTop: 8,
+  },
+  skipBtn: {
+    alignSelf: "center",
+    padding: 8,
+  },
+  skipText: {
+    fontSize: 14,
+    color: "rgba(240,235,248,0.35)",
+    fontFamily: "Inter_400Regular",
+  },
+  relTypeCard: {
+    backgroundColor: "rgba(26,22,48,0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(240,235,248,0.1)",
+    borderRadius: 14,
+    padding: 18,
+    gap: 4,
+  },
+  relTypeCardSelected: {
+    borderColor: "rgba(232,92,122,0.5)",
+    backgroundColor: "rgba(232,92,122,0.08)",
+  },
+  relTypeLabel: {
+    fontSize: 17,
+    fontFamily: "Inter_600SemiBold",
+    color: "#F0EBF8",
+  },
+  relTypeDesc: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.4)",
+  },
+  nextBtn: {
+    marginTop: 8,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  nextBtnGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
+    gap: 8,
+  },
+  nextBtnText: {
+    fontSize: 17,
+    fontFamily: "Inter_600SemiBold",
+    color: "#fff",
+  },
+  calcOrb: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  calcTitle: {
+    fontSize: 22,
+    fontFamily: "Inter_700Bold",
+    color: "#F0EBF8",
+    textAlign: "center",
+  },
+  calcSub: {
+    fontSize: 15,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.5)",
+    textAlign: "center",
+  },
+  calcSub2: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(232,92,122,0.6)",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+});

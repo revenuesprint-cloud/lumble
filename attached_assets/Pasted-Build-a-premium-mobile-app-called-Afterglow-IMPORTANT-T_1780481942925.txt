@@ -1,0 +1,303 @@
+Build a premium mobile app called “Afterglow”.
+
+IMPORTANT:
+This is NOT a traditional astrology app.
+This is NOT a horoscope app.
+This is NOT a chatbot app.
+
+This is a modern relationship insight app focused on:
+- emotional compatibility
+- attraction dynamics
+- attachment psychology
+- relationship patterns
+- emotional tension
+- relationship guidance
+
+Astrology should work silently in the background.
+The app should feel emotionally intelligent and deeply personal.
+
+The app must feel:
+- addictive
+- emotionally immersive
+- cinematic
+- premium
+- mysterious
+- intimate
+- highly shareable
+
+The entire experience should feel designed for Gen Z users who:
+- overthink relationships
+- constantly check emotional signals
+- want clarity about crushes/exes/partners
+- enjoy emotionally intense content
+
+---------------------------------------------------
+MAIN USER FLOW
+---------------------------------------------------
+
+Users enter:
+- their birth details
+- their crush/partner/ex birth details
+
+The app generates:
+- emotional compatibility
+- attraction intensity
+- attachment balance
+- communication chemistry
+- emotional tension analysis
+- hidden relationship patterns
+- emotional strengths and weaknesses
+
+The outputs should feel:
+- highly personal
+- emotionally believable
+- psychologically accurate
+- screenshot-worthy
+- addictive to read
+
+---------------------------------------------------
+ONBOARDING EXPERIENCE
+---------------------------------------------------
+
+Create a beautiful step-by-step onboarding flow.
+
+Collect:
+- user name
+- birth date
+- birth time (optional)
+- partner/crush name
+- partner birth date
+- relationship type:
+  - crush
+  - situationship
+  - relationship
+  - ex
+
+The onboarding should feel:
+- smooth
+- emotional
+- premium
+- cinematic
+
+---------------------------------------------------
+HOME SCREEN
+---------------------------------------------------
+
+The home screen should show:
+- daily relationship energy
+- emotional compatibility updates
+- relationship insights
+- trending emotional patterns
+- recent guidance conversations
+- emotional status cards
+
+The app should encourage users to open it multiple times daily.
+
+---------------------------------------------------
+MOST IMPORTANT SCREEN
+---------------------------------------------------
+
+Compatibility Results Screen.
+
+This screen should feel magical and emotionally intense.
+
+Generate sections like:
+- Emotional Chemistry
+- Communication Energy
+- Attachment Dynamics
+- Emotional Tension
+- Long-Term Potential
+- Why This Feels Addictive
+- Hidden Relationship Pattern
+
+Example writing style:
+“You seek emotional reassurance while they emotionally withdraw during conflict, creating a magnetic push-pull dynamic.”
+
+IMPORTANT:
+The writing must feel:
+- emotionally intelligent
+- modern
+- deeply personal
+- psychologically insightful
+
+Avoid:
+- generic zodiac descriptions
+- horoscope-style writing
+- mystical clichés
+- overly spiritual language
+
+---------------------------------------------------
+CORE VIRAL FEATURES
+---------------------------------------------------
+
+Build these highly addictive features:
+
+1. Who Falls Harder?
+2. Who Gets Attached First?
+3. Emotional Dependency Index
+4. Ghosting Probability
+5. Reunion Potential
+6. Toxic or Soulmate?
+7. Why You Can’t Let Go
+8. Emotional Red Flags
+9. Emotional Green Flags
+10. What Keeps Pulling You Back
+
+Each feature should generate:
+- beautiful animated result cards
+- screenshot-friendly layouts
+- shareable visuals for Instagram stories
+
+---------------------------------------------------
+DAILY RETENTION SYSTEM
+---------------------------------------------------
+
+Create a “Daily Relationship Energy” feature.
+
+Every day the app updates:
+- emotional closeness
+- attraction intensity
+- communication energy
+- reconnection possibility
+- emotional tension
+
+Example:
+“Today there may be unresolved emotional tension between you.”
+
+This feature should encourage:
+- compulsive checking
+- daily opens
+- emotional curiosity
+
+---------------------------------------------------
+PUSH NOTIFICATION EXPERIENCE
+---------------------------------------------------
+
+Create emotionally engaging notifications.
+
+Examples:
+- “Your emotional compatibility shifted today.”
+- “Something feels unresolved in this connection.”
+- “Their emotional energy toward you changed today.”
+- “Today may be emotionally important for this relationship.”
+
+Notifications should:
+- trigger curiosity
+- increase retention
+- create emotional suspense
+
+---------------------------------------------------
+RELATIONSHIP GUIDANCE FEATURE
+---------------------------------------------------
+
+Create a relationship guidance conversation feature.
+
+Users can ask:
+- “Why did they pull away?”
+- “Why can’t I move on?”
+- “Do they still think about me?”
+- “Why does this relationship feel addictive?”
+- “Why do we misunderstand each other?”
+
+The responses should feel:
+- emotionally supportive
+- psychologically insightful
+- warm
+- personal
+- believable
+
+The app should remember:
+- previous conversations
+- emotional patterns
+- relationship history
+- recurring emotional struggles
+
+This memory system should make users feel:
+“This app understands my relationship.”
+
+---------------------------------------------------
+SUBSCRIPTION EXPERIENCE
+---------------------------------------------------
+
+Free users get:
+- limited insights
+- limited guidance messages
+- partial compatibility analysis
+
+Premium users unlock:
+- deep emotional analysis
+- unlimited guidance
+- advanced relationship dynamics
+- future relationship insights
+- detailed emotional patterns
+- unlimited daily updates
+
+IMPORTANT:
+Show subscription prompts after emotionally intense moments.
+
+Examples:
+- before revealing hidden emotional patterns
+- after “Who Falls Harder?”
+- after emotionally suspenseful insights
+
+---------------------------------------------------
+DESIGN DIRECTION
+---------------------------------------------------
+
+The app should feel:
+- emotionally immersive
+- luxurious
+- dark and cinematic
+- intimate
+- mysterious
+- premium
+
+Use:
+- soft glow effects
+- floating cards
+- smooth transitions
+- emotional typography
+- beautiful gradients
+- calming animations
+
+Every screen should feel:
+- screenshot-worthy
+- social-media friendly
+- emotionally addictive
+
+---------------------------------------------------
+IMPORTANT PRODUCT RULES
+---------------------------------------------------
+
+DO NOT:
+- mention AI anywhere
+- look like traditional astrology apps
+- overload users with zodiac jargon
+- use fake mystical language
+- make outputs generic
+- make the app feel scammy
+
+DO:
+- maximize emotional engagement
+- maximize curiosity
+- maximize retention
+- maximize screenshots/sharing
+- create emotional suspense loops
+- make users repeatedly reopen the app
+
+---------------------------------------------------
+FINAL GOAL
+---------------------------------------------------
+
+Build a viral-ready premium relationship app that feels like:
+- an emotional companion
+- a relationship decoder
+- a modern self-discovery app
+
+The app should make users:
+- emotionally attached to the experience
+- constantly check for updates
+- share results socially
+- subscribe impulsively during emotional moments
+
+The final product should feel highly polished, emotionally immersive, and dangerously addictive.
