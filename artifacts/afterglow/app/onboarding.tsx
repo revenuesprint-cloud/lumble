@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -187,6 +188,7 @@ export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { completeOnboarding } = useApp();
+  const { setSessionDirect } = useAuth();
 
   const [step, setStep] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -241,6 +243,7 @@ export default function Onboarding() {
           relationshipType: form.relationshipType,
         }
       );
+      await setSessionDirect();
       setTimeout(() => {
         router.replace("/(tabs)/home");
       }, 2800);
@@ -277,6 +280,7 @@ export default function Onboarding() {
             { name: "Alex", birthDate: new Date(1997, 3, 12).toISOString() },
             { name: "Jordan", birthDate: new Date(1996, 7, 25).toISOString(), relationshipType: "situationship" }
           );
+          await setSessionDirect();
           router.replace("/(tabs)/home");
         }}
         style={styles.demoBtn}

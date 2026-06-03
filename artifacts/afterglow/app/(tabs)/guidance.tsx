@@ -19,50 +19,45 @@ import {
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const SUGGESTIONS = [
-  "Why did they pull away?",
-  "Why can't I move on?",
-  "Do they still think about me?",
-  "Why does this feel addictive?",
-  "Why do we misunderstand each other?",
-  "Should I reach out?",
+// ─── Suggestion cards shown in empty state ────────────────────────────────────
+
+const SUGGESTION_CARDS = [
+  { q: "Why did they pull away?",      category: "distance",    icon: "🌙" },
+  { q: "Do they still feel something?",category: "feelings",    icon: "✦" },
+  { q: "Should I reach out?",          category: "action",      icon: "◎" },
+  { q: "Why can't I move on?",         category: "healing",     icon: "⟡" },
+  { q: "Are we compatible?",           category: "insight",     icon: "◈" },
+  { q: "What does the future hold?",   category: "future",      icon: "✧" },
 ];
 
-function MessageBubble({ message }: { message: GuidanceMessage }) {
-  const isUser = message.role === "user";
-  return (
-    <View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowBot]}>
-      {!isUser && (
-        <View style={styles.botAvatar}>
-          <Text style={styles.botAvatarText}>◉</Text>
-        </View>
-      )}
-      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
-        <Text style={isUser ? styles.bubbleUserText : styles.bubbleBotText}>
-          {message.text}
-        </Text>
-      </View>
-    </View>
-  );
-}
+const QUICK_CHIPS = [
+  "Why did they pull away?",
+  "Do they miss me?",
+  "Should I text?",
+  "Why do we fight?",
+  "Will it work out?",
+];
+
+// ─── Typing indicator ─────────────────────────────────────────────────────────
 
 function TypingIndicator() {
-  const dot1 = useRef(new Animated.Value(0)).current;
-  const dot2 = useRef(new Animated.Value(0)).current;
-  const dot3 = useRef(new Animated.Value(0)).current;
+  const dots = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
 
   useEffect(() => {
-    const animateDot = (dot: Animated.Value, delay: number) =>
+    dots.forEach((dot, i) => {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(dot, { toValue: 1, duration: 300, delay, useNativeDriver: true }),
-          Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
-          Animated.delay(300),
+          Animated.delay(i * 160),
+          Animated.timing(dot, { toValue: 1, duration: 300, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0.2, duration: 300, useNativeDriver: true }),
+          Animated.delay(320),
         ])
-      );
-    animateDot(dot1, 0).start();
-    animateDot(dot2, 200).start();
-    animateDot(dot3, 400).start();
+      ).start();
+    });
   }, []);
 
   return (
@@ -71,29 +66,116 @@ function TypingIndicator() {
         <Text style={styles.botAvatarText}>◉</Text>
       </View>
       <View style={styles.typingBubble}>
-        {[dot1, dot2, dot3].map((dot, i) => (
-          <Animated.View
-            key={i}
-            style={[
-              styles.typingDot,
-              {
-                opacity: dot,
-                transform: [
-                  {
-                    scale: dot.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.7, 1],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          />
+        {dots.map((dot, i) => (
+          <Animated.View key={i} style={[styles.typingDot, { opacity: dot }]} />
         ))}
       </View>
     </View>
   );
 }
+
+// ─── Message bubble ───────────────────────────────────────────────────────────
+
+function MessageBubble({ message, index }: { message: GuidanceMessage; index: number }) {
+  const isUser = message.role === "user";
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(isUser ? 12 : -12)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 280, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 280, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  return (
+    <Animated.View
+      style={[
+        styles.bubbleRow,
+        isUser ? styles.bubbleRowUser : styles.bubbleRowBot,
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+      ]}
+    >
+      {!isUser && (
+        <View style={styles.botAvatar}>
+          <Text style={styles.botAvatarText}>◉</Text>
+        </View>
+      )}
+      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
+        {!isUser && (
+          <View style={styles.botLabel}>
+            <Text style={styles.botLabelText}>Afterglow Guide</Text>
+          </View>
+        )}
+        <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextBot]}>
+          {message.text}
+        </Text>
+      </View>
+    </Animated.View>
+  );
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+
+function EmptyState({ onSelect }: { onSelect: (q: string) => void }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, delay: 100, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, delay: 100, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  return (
+    <Animated.View style={[styles.emptyState, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+      {/* Oracle sigil */}
+      <View style={styles.oracleContainer}>
+        <LinearGradient
+          colors={["rgba(232,92,122,0.15)", "rgba(184,85,224,0.08)", "transparent"]}
+          style={styles.oracleOrb}
+        >
+          <Text style={styles.oracleGlyph}>◉</Text>
+        </LinearGradient>
+        <Text style={styles.oracleLabel}>ORACLE</Text>
+      </View>
+
+      <View style={styles.emptyTextGroup}>
+        <Text style={styles.emptyTitle}>What's on your mind?</Text>
+        <Text style={styles.emptySub}>
+          Ask anything about this connection.{"\n"}Your answers are read from the stars.
+        </Text>
+      </View>
+
+      {/* Question cards */}
+      <View style={styles.cardGrid}>
+        {SUGGESTION_CARDS.map((card, i) => (
+          <TouchableOpacity
+            key={i}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              onSelect(card.q);
+            }}
+            activeOpacity={0.75}
+            style={styles.suggestionCard}
+          >
+            <LinearGradient
+              colors={["rgba(26,22,48,0.9)", "rgba(17,15,30,0.95)"]}
+              style={styles.suggestionCardInner}
+            >
+              <Text style={styles.suggestionCardIcon}>{card.icon}</Text>
+              <Text style={styles.suggestionCardQ}>{card.q}</Text>
+              <Text style={styles.suggestionCardCat}>{card.category}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </Animated.View>
+  );
+}
+
+// ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function GuidanceScreen() {
   const insets = useSafeAreaInsets();
@@ -101,370 +183,414 @@ export default function GuidanceScreen() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
-  const freeMessageCount = guidanceMessages.filter((m) => m.role === "user").length;
-  const hitLimit = !isPremium && freeMessageCount >= 5;
+  const userMessages = guidanceMessages.filter((m) => m.role === "user").length;
+  const hitLimit = !isPremium && userMessages >= 5;
 
   if (!user || !partner) return null;
 
   const sendMessage = async (text: string) => {
-    if (!text.trim() || hitLimit) return;
+    if (!text.trim() || hitLimit || isTyping) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-    const userMsg: GuidanceMessage = {
-      id,
-      role: "user",
-      text: text.trim(),
-      timestamp: Date.now(),
-    };
-    addGuidanceMessage(userMsg);
+    addGuidanceMessage({ id, role: "user", text: text.trim(), timestamp: Date.now() });
     setInput("");
     setIsTyping(true);
 
-    await new Promise((r) => setTimeout(r, 1200 + Math.random() * 900));
+    const delay = 900 + Math.random() * 800 + text.length * 8;
+    await new Promise((r) => setTimeout(r, delay));
 
     const responseText = getOracleResponse(
-      text,
-      user.name, user.birthDate,
+      text, user.name, user.birthDate,
       partner.name, partner.birthDate,
       partner.relationshipType
     );
-    const botMsg: GuidanceMessage = {
-      id: id + "_bot",
-      role: "assistant",
-      text: responseText,
-      timestamp: Date.now(),
-    };
-    addGuidanceMessage(botMsg);
+    addGuidanceMessage({ id: id + "_bot", role: "assistant", text: responseText, timestamp: Date.now() });
     setIsTyping(false);
   };
 
-  const allMessages = [...guidanceMessages];
-
-  const renderEmpty = () => (
-    <View style={styles.emptyState}>
-      <Text style={styles.emptyIcon}>◉</Text>
-      <Text style={styles.emptyTitle}>What's on your mind?</Text>
-      <Text style={styles.emptySub}>
-        Ask anything about this connection. Everything stays private.
-      </Text>
-      <View style={styles.suggestionsGrid}>
-        {SUGGESTIONS.map((s, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => sendMessage(s)}
-            style={styles.suggestionChip}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.suggestionText}>{s}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-
-  const renderFooter = () => (
-    <>
-      {isTyping && <TypingIndicator />}
-      {hitLimit && (
-        <View style={styles.limitBanner}>
-          <Text style={styles.limitText}>
-            Upgrade to Premium for unlimited guidance conversations
-          </Text>
-        </View>
-      )}
-    </>
-  );
+  const hasMessages = guidanceMessages.length > 0;
 
   return (
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={0}>
-        {/* Header */}
-        <View
-          style={[
-            styles.header,
-            { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) },
-          ]}
-        >
-          <View>
-            <Text style={styles.headerTitle}>Guidance</Text>
-            <Text style={styles.headerSub}>Understanding {partner.name}</Text>
+
+        {/* ── Header ── */}
+        <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
+          <View style={styles.headerLeft}>
+            <View style={styles.headerOrbSmall}>
+              <Text style={styles.headerOrbText}>◉</Text>
+            </View>
+            <View>
+              <Text style={styles.headerTitle}>Guide</Text>
+              <Text style={styles.headerSub}>
+                {user.name} · {partner.name}
+              </Text>
+            </View>
           </View>
-          <View style={styles.headerTag}>
-            <Text style={styles.headerTagText}>
-              {isPremium ? "Unlimited" : `${5 - freeMessageCount} left`}
+          <View style={[styles.headerPill, hitLimit && styles.headerPillWarn]}>
+            <View style={[styles.headerPillDot, hitLimit && { backgroundColor: "#E85C7A" }]} />
+            <Text style={[styles.headerPillText, hitLimit && { color: "#E85C7A" }]}>
+              {isPremium ? "Unlimited" : hitLimit ? "Limit reached" : `${5 - userMessages} left`}
             </Text>
           </View>
         </View>
 
-        {/* Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={allMessages}
-          keyExtractor={(m) => m.id}
-          style={{ flex: 1 }}
-          contentContainerStyle={styles.messageList}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-          ListHeaderComponent={allMessages.length === 0 ? renderEmpty() : null}
-          ListFooterComponent={renderFooter()}
-          renderItem={({ item }) => <MessageBubble message={item} />}
-        />
+        {/* ── Message list / empty state ── */}
+        {!hasMessages ? (
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={[styles.emptyScroll, { paddingBottom: insets.bottom + 120 }]}
+            showsVerticalScrollIndicator={false}
+          >
+            <EmptyState onSelect={sendMessage} />
+          </ScrollView>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={guidanceMessages}
+            keyExtractor={(m) => m.id}
+            style={{ flex: 1 }}
+            contentContainerStyle={[styles.messageList, { paddingBottom: isTyping ? 8 : 16 }]}
+            showsVerticalScrollIndicator={false}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            renderItem={({ item, index }) => <MessageBubble message={item} index={index} />}
+            ListFooterComponent={
+              <>
+                {isTyping && <TypingIndicator />}
+                {hitLimit && (
+                  <View style={styles.limitCard}>
+                    <Text style={styles.limitIcon}>◈</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.limitTitle}>Unlock Unlimited Guidance</Text>
+                      <Text style={styles.limitSub}>Continue this conversation with Premium</Text>
+                    </View>
+                    <Feather name="chevron-right" size={16} color="rgba(232,92,122,0.5)" />
+                  </View>
+                )}
+              </>
+            }
+          />
+        )}
 
-        {/* Input area */}
-        <View
-          style={[
-            styles.inputContainer,
-            { paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 12) },
-          ]}
-        >
-          {!hitLimit && allMessages.length > 0 && (
+        {/* ── Input area ── */}
+        <View style={[
+          styles.inputArea,
+          { paddingBottom: insets.bottom + (Platform.OS === "web" ? 30 : 12) },
+        ]}>
+          {/* Quick chips (only when conversation started) */}
+          {hasMessages && !hitLimit && (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              style={{ flexGrow: 0 }}
+              style={styles.chipsScroll}
+              contentContainerStyle={styles.chipsContent}
             >
-              {SUGGESTIONS.slice(0, 3).map((s, i) => (
+              {QUICK_CHIPS.map((chip, i) => (
                 <TouchableOpacity
                   key={i}
-                  onPress={() => sendMessage(s)}
-                  style={styles.inputChip}
-                  activeOpacity={0.8}
+                  onPress={() => sendMessage(chip)}
+                  disabled={isTyping}
+                  style={[styles.chip, isTyping && { opacity: 0.4 }]}
+                  activeOpacity={0.75}
                 >
-                  <Text style={styles.inputChipText}>{s}</Text>
+                  <Text style={styles.chipText}>{chip}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           )}
+
+          {/* Text row */}
           <View style={styles.inputRow}>
             <TextInput
-              style={styles.input}
+              style={styles.inputField}
               value={input}
               onChangeText={setInput}
-              placeholder={hitLimit ? "Upgrade for more" : "Ask about this connection..."}
-              placeholderTextColor="rgba(240,235,248,0.25)"
-              editable={!hitLimit}
+              placeholder={
+                hitLimit ? "Upgrade for more guidance"
+                : isTyping ? "Reading your chart…"
+                : "Ask about this connection…"
+              }
+              placeholderTextColor="rgba(240,235,248,0.22)"
+              editable={!hitLimit && !isTyping}
               multiline
               maxLength={300}
+              onSubmitEditing={() => sendMessage(input)}
             />
             <Pressable
               onPress={() => sendMessage(input)}
-              disabled={!input.trim() || hitLimit}
-              style={[styles.sendBtn, (!input.trim() || hitLimit) && { opacity: 0.4 }]}
+              disabled={!input.trim() || hitLimit || isTyping}
+              style={({ pressed }) => [
+                styles.sendBtn,
+                (!input.trim() || hitLimit || isTyping) && { opacity: 0.3 },
+                pressed && { transform: [{ scale: 0.94 }] },
+              ]}
             >
               <LinearGradient
                 colors={["#E85C7A", "#B855E0"]}
-                style={styles.sendGradient}
+                style={styles.sendBtnGrad}
               >
-                <Feather name="send" size={16} color="#fff" />
+                <Feather name="send" size={15} color="#fff" />
               </LinearGradient>
             </Pressable>
           </View>
         </View>
+
       </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
+  // Header
   header: {
     paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingBottom: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
     borderBottomWidth: 1,
     borderBottomColor: "rgba(240,235,248,0.05)",
   },
-  headerTitle: {
-    fontSize: 28,
-    fontFamily: "Inter_700Bold",
-    color: "#F0EBF8",
-  },
-  headerSub: {
-    fontSize: 13,
-    fontFamily: "Inter_400Regular",
-    color: "rgba(240,235,248,0.4)",
-    marginTop: 2,
-  },
-  headerTag: {
-    backgroundColor: "rgba(124,82,200,0.15)",
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+  headerOrbSmall: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(232,92,122,0.1)",
     borderWidth: 1,
-    borderColor: "rgba(124,82,200,0.3)",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    borderColor: "rgba(232,92,122,0.25)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  headerTagText: {
+  headerOrbText: { fontSize: 17, color: "#E85C7A" },
+  headerTitle: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
+  headerSub: { fontSize: 12, fontFamily: "Inter_400Regular", color: "rgba(240,235,248,0.35)", marginTop: 1 },
+  headerPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(124,82,200,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(124,82,200,0.25)",
+    borderRadius: 20,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+  },
+  headerPillWarn: {
+    backgroundColor: "rgba(232,92,122,0.1)",
+    borderColor: "rgba(232,92,122,0.25)",
+  },
+  headerPillDot: {
+    width: 5, height: 5, borderRadius: 2.5,
+    backgroundColor: "#B855E0",
+  },
+  headerPillText: {
     fontSize: 12,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Inter_600SemiBold",
     color: "#B855E0",
   },
+
+  // Empty state
+  emptyScroll: { flexGrow: 1, paddingHorizontal: 20 },
+  emptyState: { paddingTop: 20, gap: 28, alignItems: "center" },
+  oracleContainer: { alignItems: "center", gap: 8 },
+  oracleOrb: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(232,92,122,0.15)",
+  },
+  oracleGlyph: { fontSize: 36, color: "#E85C7A" },
+  oracleLabel: {
+    fontSize: 10,
+    fontFamily: "Inter_700Bold",
+    color: "rgba(232,92,122,0.4)",
+    letterSpacing: 3,
+  },
+  emptyTextGroup: { alignItems: "center", gap: 8 },
+  emptyTitle: { fontSize: 24, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
+  emptySub: {
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.4)",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+
+  // Card grid
+  cardGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, width: "100%" },
+  suggestionCard: {
+    width: "47.5%",
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(240,235,248,0.07)",
+  },
+  suggestionCardInner: { padding: 16, gap: 8, minHeight: 110 },
+  suggestionCardIcon: { fontSize: 22 },
+  suggestionCardQ: {
+    flex: 1,
+    fontSize: 14,
+    fontFamily: "Inter_600SemiBold",
+    color: "#F0EBF8",
+    lineHeight: 20,
+  },
+  suggestionCardCat: {
+    fontSize: 10,
+    fontFamily: "Inter_500Medium",
+    color: "rgba(232,92,122,0.5)",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+
+  // Messages
   messageList: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 8,
-    gap: 16,
+    gap: 14,
   },
-  bubbleRow: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "flex-end",
-  },
+  bubbleRow: { flexDirection: "row", gap: 10, alignItems: "flex-end" },
   bubbleRowUser: { justifyContent: "flex-end" },
   bubbleRowBot: { justifyContent: "flex-start" },
   botAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(232,92,122,0.12)",
+    backgroundColor: "rgba(232,92,122,0.1)",
     borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.3)",
+    borderColor: "rgba(232,92,122,0.25)",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    marginBottom: 2,
   },
-  botAvatarText: { fontSize: 14, color: "#E85C7A" },
-  bubble: { maxWidth: "78%", borderRadius: 18, padding: 14 },
+  botAvatarText: { fontSize: 13, color: "#E85C7A" },
+  bubble: { maxWidth: "80%", borderRadius: 18, padding: 14, gap: 6 },
   bubbleUser: {
-    backgroundColor: "rgba(232,92,122,0.18)",
+    backgroundColor: "rgba(232,92,122,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.3)",
-    borderBottomRightRadius: 4,
+    borderColor: "rgba(232,92,122,0.22)",
+    borderBottomRightRadius: 5,
   },
   bubbleBot: {
-    backgroundColor: "#1A1630",
+    backgroundColor: "#141128",
     borderWidth: 1,
     borderColor: "rgba(240,235,248,0.07)",
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: 5,
   },
-  bubbleUserText: {
+  botLabel: { marginBottom: 2 },
+  botLabelText: {
+    fontSize: 10,
+    fontFamily: "Inter_600SemiBold",
+    color: "rgba(232,92,122,0.5)",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+  bubbleText: { lineHeight: 24 },
+  bubbleTextUser: {
     fontSize: 15,
     fontFamily: "Inter_400Regular",
     color: "#F0EBF8",
-    lineHeight: 22,
   },
-  bubbleBotText: {
+  bubbleTextBot: {
     fontSize: 15,
     fontFamily: "Inter_400Regular",
-    color: "rgba(240,235,248,0.85)",
-    lineHeight: 24,
+    color: "rgba(240,235,248,0.88)",
   },
+
+  // Typing
   typingRow: {
     flexDirection: "row",
     gap: 10,
     alignItems: "flex-end",
-    paddingTop: 8,
     paddingHorizontal: 16,
+    paddingTop: 4,
   },
   typingBubble: {
-    backgroundColor: "#1A1630",
+    backgroundColor: "#141128",
     borderRadius: 18,
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: 5,
     borderWidth: 1,
     borderColor: "rgba(240,235,248,0.07)",
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     flexDirection: "row",
-    gap: 5,
+    gap: 6,
     alignItems: "center",
   },
   typingDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    width: 7, height: 7, borderRadius: 3.5,
     backgroundColor: "#E85C7A",
   },
-  emptyState: {
+
+  // Limit card
+  limitCard: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingTop: 40,
     gap: 14,
-    paddingHorizontal: 8,
-  },
-  emptyIcon: { fontSize: 40, color: "#E85C7A" },
-  emptyTitle: {
-    fontSize: 22,
-    fontFamily: "Inter_700Bold",
-    color: "#F0EBF8",
-  },
-  emptySub: {
-    fontSize: 14,
-    fontFamily: "Inter_400Regular",
-    color: "rgba(240,235,248,0.45)",
-    textAlign: "center",
-    lineHeight: 22,
-    maxWidth: 280,
-  },
-  suggestionsGrid: { gap: 8, width: "100%", marginTop: 8 },
-  suggestionChip: {
-    backgroundColor: "rgba(26,22,48,0.8)",
-    borderWidth: 1,
-    borderColor: "rgba(240,235,248,0.1)",
-    borderRadius: 14,
-    padding: 14,
-  },
-  suggestionText: {
-    fontSize: 14,
-    fontFamily: "Inter_400Regular",
-    color: "rgba(240,235,248,0.7)",
-  },
-  limitBanner: {
     marginHorizontal: 16,
-    marginTop: 12,
-    backgroundColor: "rgba(232,92,122,0.08)",
+    marginTop: 14,
+    backgroundColor: "rgba(232,92,122,0.06)",
     borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.2)",
-    borderRadius: 12,
-    padding: 14,
+    borderColor: "rgba(232,92,122,0.18)",
+    borderRadius: 16,
+    padding: 16,
   },
-  limitText: {
-    fontSize: 13,
-    fontFamily: "Inter_400Regular",
-    color: "rgba(232,92,122,0.8)",
-    textAlign: "center",
-  },
-  inputContainer: {
+  limitIcon: { fontSize: 22, color: "#E85C7A" },
+  limitTitle: { fontSize: 14, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
+  limitSub: { fontSize: 12, fontFamily: "Inter_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 2 },
+
+  // Input area
+  inputArea: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: "rgba(240,235,248,0.05)",
-    gap: 8,
-    backgroundColor: "rgba(8,6,17,0.95)",
+    gap: 10,
+    backgroundColor: "rgba(8,6,17,0.96)",
   },
-  inputChip: {
+  chipsScroll: { flexGrow: 0 },
+  chipsContent: { gap: 8, paddingRight: 8 },
+  chip: {
     backgroundColor: "rgba(26,22,48,0.8)",
     borderWidth: 1,
-    borderColor: "rgba(124,82,200,0.25)",
+    borderColor: "rgba(184,85,224,0.2)",
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    marginRight: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
   },
-  inputChipText: {
-    fontSize: 12,
+  chipText: {
+    fontSize: 13,
     fontFamily: "Inter_400Regular",
-    color: "rgba(240,235,248,0.6)",
+    color: "rgba(240,235,248,0.55)",
   },
   inputRow: {
     flexDirection: "row",
     gap: 10,
     alignItems: "flex-end",
   },
-  input: {
+  inputField: {
     flex: 1,
-    backgroundColor: "#1A1630",
+    backgroundColor: "#141128",
     borderWidth: 1,
     borderColor: "rgba(240,235,248,0.08)",
     borderRadius: 16,
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 13,
+    paddingBottom: 13,
     fontSize: 15,
     fontFamily: "Inter_400Regular",
     color: "#F0EBF8",
     maxHeight: 100,
   },
   sendBtn: { borderRadius: 14, overflow: "hidden" },
-  sendGradient: {
+  sendBtnGrad: {
     width: 46,
     height: 46,
     alignItems: "center",

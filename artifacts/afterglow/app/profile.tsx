@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -10,6 +11,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -65,13 +67,178 @@ function ActionRow({
   );
 }
 
+function SetPasswordModal({
+  visible,
+  onClose,
+  currentEmail,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  currentEmail: string | null;
+}) {
+  const { register } = useAuth();
+  const [email, setEmail] = useState(currentEmail || "");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  if (!visible) return null;
+
+  const handleSave = async () => {
+    setError("");
+    if (!email.includes("@")) { setError("Enter a valid email."); return; }
+    if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
+    if (password !== confirm) { setError("Passwords don't match."); return; }
+    setLoading(true);
+    const result = await register(email, password);
+    setLoading(false);
+    if (result.success) {
+      setSuccess(true);
+      setTimeout(onClose, 1200);
+    } else {
+      setError(result.error || "Something went wrong.");
+    }
+  };
+
+  return (
+    <View style={pwStyles.overlay}>
+      <Pressable style={pwStyles.backdrop} onPress={onClose} />
+      <View style={pwStyles.sheet}>
+        <View style={pwStyles.handle} />
+        <Text style={pwStyles.title}>Set up account password</Text>
+        <Text style={pwStyles.sub}>
+          Lets you sign back in after logging out.{"\n"}Stored only on this device.
+        </Text>
+        {success ? (
+          <View style={pwStyles.successRow}>
+            <Feather name="check-circle" size={18} color="#4CAF50" />
+            <Text style={pwStyles.successText}>Password saved!</Text>
+          </View>
+        ) : (
+          <>
+            <TextInput
+              style={pwStyles.input}
+              value={email}
+              onChangeText={(t) => { setEmail(t); setError(""); }}
+              placeholder="Email address"
+              placeholderTextColor="rgba(240,235,248,0.25)"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={pwStyles.input}
+              value={password}
+              onChangeText={(t) => { setPassword(t); setError(""); }}
+              placeholder="New password (min. 6 chars)"
+              placeholderTextColor="rgba(240,235,248,0.25)"
+              secureTextEntry
+            />
+            <TextInput
+              style={pwStyles.input}
+              value={confirm}
+              onChangeText={(t) => { setConfirm(t); setError(""); }}
+              placeholder="Confirm password"
+              placeholderTextColor="rgba(240,235,248,0.25)"
+              secureTextEntry
+            />
+            {error ? <Text style={pwStyles.error}>{error}</Text> : null}
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={loading}
+              activeOpacity={0.85}
+              style={[pwStyles.saveBtn, loading && { opacity: 0.6 }]}
+            >
+              <LinearGradient
+                colors={["#E85C7A", "#B855E0"]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={pwStyles.saveBtnGrad}
+              >
+                <Text style={pwStyles.saveBtnText}>{loading ? "Saving…" : "Save Password"}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const pwStyles = StyleSheet.create({
+  overlay: { ...StyleSheet.absoluteFillObject, zIndex: 100, justifyContent: "flex-end" },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.6)" },
+  sheet: {
+    backgroundColor: "#110F1E",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+    gap: 14,
+    borderTopWidth: 1,
+    borderColor: "rgba(240,235,248,0.07)",
+  },
+  handle: {
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: "rgba(240,235,248,0.12)",
+    alignSelf: "center",
+    marginBottom: 6,
+  },
+  title: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
+  sub: {
+    fontSize: 13, fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.4)", lineHeight: 20,
+  },
+  input: {
+    backgroundColor: "#1A1735",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(240,235,248,0.08)",
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    fontSize: 15,
+    fontFamily: "Inter_400Regular",
+    color: "#F0EBF8",
+  },
+  error: { fontSize: 13, fontFamily: "Inter_400Regular", color: "#E85C7A" },
+  saveBtn: { borderRadius: 14, overflow: "hidden" },
+  saveBtnGrad: {
+    alignItems: "center", justifyContent: "center",
+    paddingVertical: 16,
+  },
+  saveBtnText: { fontSize: 16, fontFamily: "Inter_700Bold", color: "#fff" },
+  successRow: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "center", padding: 16 },
+  successText: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#4CAF50" },
+});
+
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, partner, isPremium, upgradeToPremium, resetApp } = useApp();
+  const { logout, currentEmail } = useAuth();
   const [showPremiumGate, setShowPremiumGate] = useState(false);
+  const [showSetPassword, setShowSetPassword] = useState(false);
 
   if (!user || !partner) return null;
+
+  const handleSignOut = () => {
+    Alert.alert(
+      "Sign out?",
+      "You'll need your email and password to sign back in.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: async () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            await logout();
+            router.replace("/login");
+          },
+        },
+      ]
+    );
+  };
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -210,6 +377,13 @@ export default function ProfileScreen() {
         {/* Actions */}
         <Section title="Account">
           <ActionRow
+            icon="key"
+            label="Set up account password"
+            sublabel={currentEmail ? `Signed in as ${currentEmail}` : "Secure your profile with a password"}
+            onPress={() => setShowSetPassword(true)}
+          />
+          <View style={styles.separator} />
+          <ActionRow
             icon="refresh-cw"
             label="Change connection"
             sublabel="Update who you're analyzing"
@@ -226,16 +400,28 @@ export default function ProfileScreen() {
           />
         </Section>
 
+        {/* Sign out */}
+        <TouchableOpacity onPress={handleSignOut} activeOpacity={0.75} style={styles.signOutBtn}>
+          <Feather name="log-out" size={16} color="rgba(232,92,122,0.7)" />
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+
         {/* App info */}
         <View style={styles.appInfo}>
           <Text style={styles.appInfoText}>Afterglow · Version 1.0</Text>
-          <Text style={styles.appInfoText}>Emotional intelligence, not astrology</Text>
+          <Text style={styles.appInfoText}>Your data stays on this device</Text>
         </View>
       </ScrollView>
 
       <PremiumGate
         visible={showPremiumGate}
         onClose={() => setShowPremiumGate(false)}
+      />
+
+      <SetPasswordModal
+        visible={showSetPassword}
+        onClose={() => setShowSetPassword(false)}
+        currentEmail={currentEmail}
       />
     </LinearGradient>
   );
@@ -461,6 +647,22 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     color: "rgba(240,235,248,0.35)",
     marginTop: 1,
+  },
+  signOutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    backgroundColor: "rgba(232,92,122,0.06)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(232,92,122,0.15)",
+    paddingVertical: 15,
+  },
+  signOutText: {
+    fontSize: 15,
+    fontFamily: "Inter_600SemiBold",
+    color: "rgba(232,92,122,0.7)",
   },
   appInfo: {
     alignItems: "center",
