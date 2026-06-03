@@ -268,10 +268,7 @@ export default function Onboarding() {
       <Text style={styles.welcomeEye}>◉</Text>
       <Text style={styles.appName}>Afterglow</Text>
       <Text style={styles.tagline}>
-        Understand the emotional truth{"\n"}of your connection
-      </Text>
-      <Text style={styles.subTagline}>
-        Not astrology. Not horoscopes.{"\n"}Emotional intelligence.
+        Relationship insights backed{"\n"}by ancient astrology
       </Text>
     </View>,
 
