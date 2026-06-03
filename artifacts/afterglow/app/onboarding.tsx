@@ -270,6 +270,19 @@ export default function Onboarding() {
       <Text style={styles.tagline}>
         Relationship insights backed{"\n"}by ancient astrology
       </Text>
+      <TouchableOpacity
+        onPress={async () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          await completeOnboarding(
+            { name: "Alex", birthDate: new Date(1997, 3, 12).toISOString() },
+            { name: "Jordan", birthDate: new Date(1996, 7, 25).toISOString(), relationshipType: "situationship" }
+          );
+          router.replace("/(tabs)/home");
+        }}
+        style={styles.demoBtn}
+      >
+        <Text style={styles.demoBtnText}>Skip · Quick demo</Text>
+      </TouchableOpacity>
     </View>,
 
     // Step 1: Your name
@@ -557,6 +570,21 @@ const styles = StyleSheet.create({
     color: "rgba(240,235,248,0.4)",
     textAlign: "center",
     marginTop: 8,
+  },
+  demoBtn: {
+    alignSelf: "center",
+    marginTop: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(240,235,248,0.1)",
+    backgroundColor: "rgba(240,235,248,0.04)",
+  },
+  demoBtnText: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.35)",
   },
   stepLabel: {
     fontSize: 26,
