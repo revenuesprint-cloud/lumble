@@ -1,6 +1,7 @@
 import { GlowCard } from "@/components/GlowCard";
 import { useApp } from "@/context/AppContext";
 import { getDailyEnergy } from "@/utils/compatibility";
+import { getDailyFocus, getDailyQuote } from "@/utils/quotes";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -88,6 +89,8 @@ export default function HomeScreen() {
   if (!user || !partner) return null;
 
   const energy = getDailyEnergy(user.birthDate, partner.birthDate);
+  const dailyQuote = getDailyQuote(user.name);
+  const dailyFocus = getDailyFocus(user.name);
 
   const energyBars = [
     { label: "Emotional closeness", value: energy.closeness, color: "#E85C7A" },
@@ -156,6 +159,29 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Today's Reflection */}
+        <GlowCard style={styles.quoteCard} glowColor="rgba(184,85,224,0.15)">
+          <LinearGradient colors={["#1A1035", "#110F1E"]} style={styles.quoteInner}>
+            <View style={styles.quoteTopRow}>
+              <Text style={styles.quoteCategoryLabel}>
+                {dailyQuote.category === "self" ? "self-worth"
+                  : dailyQuote.category === "communication" ? "honesty"
+                  : dailyQuote.category}
+              </Text>
+              <Text style={styles.quoteStar}>✦</Text>
+            </View>
+            <Text style={styles.quoteText}>"{dailyQuote.text}"</Text>
+            {dailyQuote.author ? (
+              <Text style={styles.quoteAuthor}>— {dailyQuote.author}</Text>
+            ) : null}
+            <View style={styles.quoteDivider} />
+            <View style={styles.focusRow}>
+              <Feather name="sun" size={13} color="#F5A623" />
+              <Text style={styles.focusText}>{dailyFocus}</Text>
+            </View>
+          </LinearGradient>
+        </GlowCard>
 
         {/* Daily energy card */}
         <GlowCard style={styles.dailyCard} intensity="high" glowColor="rgba(232,92,122,0.2)">
@@ -326,6 +352,28 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: "#E85C7A",
   },
+  quoteCard: { borderRadius: 20 },
+  quoteInner: { borderRadius: 20, padding: 20, gap: 12 },
+  quoteTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  quoteCategoryLabel: {
+    fontSize: 10, fontFamily: "Inter_600SemiBold", letterSpacing: 1.5,
+    textTransform: "uppercase", color: "#B855E0",
+  },
+  quoteStar: { fontSize: 14, color: "rgba(184,85,224,0.5)" },
+  quoteText: {
+    fontSize: 17, fontFamily: "Inter_400Regular", color: "rgba(240,235,248,0.9)",
+    lineHeight: 26, fontStyle: "italic",
+  },
+  quoteAuthor: {
+    fontSize: 12, fontFamily: "Inter_500Medium", color: "rgba(240,235,248,0.35)",
+  },
+  quoteDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
+  focusRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  focusText: {
+    flex: 1, fontSize: 13, fontFamily: "Inter_400Regular",
+    color: "rgba(240,235,248,0.5)", lineHeight: 20,
+  },
+
   dailyCard: {
     borderRadius: 20,
   },

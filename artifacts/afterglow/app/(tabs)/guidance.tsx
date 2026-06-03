@@ -1,5 +1,5 @@
 import { GuidanceMessage, useApp } from "@/context/AppContext";
-import { getGuidanceResponse } from "@/utils/compatibility";
+import { getOracleResponse } from "@/utils/oracle";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -123,7 +123,12 @@ export default function GuidanceScreen() {
 
     await new Promise((r) => setTimeout(r, 1200 + Math.random() * 900));
 
-    const responseText = getGuidanceResponse(text, partner.name, partner.relationshipType);
+    const responseText = getOracleResponse(
+      text,
+      user.name, user.birthDate,
+      partner.name, partner.birthDate,
+      partner.relationshipType
+    );
     const botMsg: GuidanceMessage = {
       id: id + "_bot",
       role: "assistant",
