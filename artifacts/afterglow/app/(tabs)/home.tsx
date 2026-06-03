@@ -140,7 +140,21 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>Good to see you,</Text>
             <Text style={styles.userName}>{user.name}</Text>
           </View>
-          <HeartPulse />
+          <View style={styles.headerRight}>
+            <HeartPulse />
+            <TouchableOpacity
+              onPress={() => router.push("/profile")}
+              activeOpacity={0.75}
+              style={styles.profileBtn}
+            >
+              <LinearGradient
+                colors={["#E85C7A", "#B855E0"]}
+                style={styles.profileBtnGradient}
+              >
+                <Text style={styles.profileBtnInitial}>{user.name[0]}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Daily energy card */}
@@ -276,6 +290,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 4,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  profileBtn: {
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  profileBtnGradient: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileBtnInitial: {
+    fontSize: 17,
+    fontFamily: "Inter_700Bold",
+    color: "#fff",
   },
   greeting: {
     fontSize: 14,

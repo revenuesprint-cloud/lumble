@@ -30,6 +30,10 @@ function RootLayoutNav() {
         name="feature-detail"
         options={{ headerShown: false, presentation: "modal" }}
       />
+      <Stack.Screen
+        name="profile"
+        options={{ headerShown: false, presentation: "modal" }}
+      />
       <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>
   );

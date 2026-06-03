@@ -48,7 +48,6 @@ function WheelPicker({
   width?: number;
 }) {
   const scrollRef = useRef<ScrollView>(null);
-  const PADDING = 2;
   const totalItems = items.length;
 
   React.useEffect(() => {
@@ -69,7 +68,6 @@ function WheelPicker({
           right: 0,
           height: ITEM_H * 2,
           zIndex: 10,
-          backgroundColor: "transparent",
         }}
       >
         <LinearGradient
@@ -123,11 +121,7 @@ function WheelPicker({
         {items.map((item, i) => (
           <View
             key={i}
-            style={{
-              height: ITEM_H,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            style={{ height: ITEM_H, alignItems: "center", justifyContent: "center" }}
           >
             <Text
               style={{
@@ -148,20 +142,10 @@ function WheelPicker({
   );
 }
 
-function DatePicker({
-  value,
-  onChange,
-}: {
-  value: Date;
-  onChange: (d: Date) => void;
-}) {
+function DatePicker({ value, onChange }: { value: Date; onChange: (d: Date) => void }) {
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 60 }, (_, i) =>
-    String(currentYear - 15 - i)
-  );
-  const days = Array.from({ length: 31 }, (_, i) =>
-    String(i + 1).padStart(2, "0")
-  );
+  const years = Array.from({ length: 60 }, (_, i) => String(currentYear - 15 - i));
+  const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
 
   const monthIndex = value.getMonth();
   const dayIndex = value.getDate() - 1;
@@ -205,7 +189,6 @@ export default function Onboarding() {
   const { completeOnboarding } = useApp();
 
   const [step, setStep] = useState(0);
-  const [calculating, setCalculating] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -219,24 +202,32 @@ export default function Onboarding() {
     relationshipType: "crush",
   });
 
-  const transitionTo = (next: number) => {
+  const transitionTo = (next: number, direction: "forward" | "back" = "forward") => {
+    const outX = direction === "forward" ? -30 : 30;
+    const inX = direction === "forward" ? 30 : -30;
+
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: -30, duration: 200, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: outX, duration: 180, useNativeDriver: true }),
     ]).start(() => {
       setStep(next);
-      slideAnim.setValue(30);
+      slideAnim.setValue(inX);
       Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
-        Animated.timing(slideAnim, { toValue: 0, duration: 250, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 220, useNativeDriver: true }),
       ]).start();
     });
+  };
+
+  const goBack = () => {
+    if (step === 0) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    transitionTo(step - 1, "back");
   };
 
   const next = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (step === TOTAL_STEPS - 2) {
-      setCalculating(true);
       transitionTo(step + 1);
       await completeOnboarding(
         {
@@ -328,9 +319,7 @@ export default function Onboarding() {
 
     // Step 4: Partner name
     <View key={4} style={styles.stepContainer}>
-      <Text style={styles.stepLabel}>
-        Now, who are you thinking about?
-      </Text>
+      <Text style={styles.stepLabel}>Who are you thinking about?</Text>
       <Text style={styles.stepSub}>Their first name is enough</Text>
       <TextInput
         style={styles.textInput}
@@ -345,7 +334,9 @@ export default function Onboarding() {
 
     // Step 5: Partner birthday
     <View key={5} style={styles.stepContainer}>
-      <Text style={styles.stepLabel}>When is {form.partnerName || "their"} birthday?</Text>
+      <Text style={styles.stepLabel}>
+        {form.partnerName ? `When is ${form.partnerName}'s birthday?` : "When is their birthday?"}
+      </Text>
       <Text style={styles.stepSub}>Approximate is fine if you're not sure</Text>
       <DatePicker
         value={form.partnerBirthDate}
@@ -383,6 +374,8 @@ export default function Onboarding() {
     </View>,
   ];
 
+  const isCalculating = step === TOTAL_STEPS - 1;
+
   return (
     <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -392,22 +385,35 @@ export default function Onboarding() {
         <ScrollView
           contentContainerStyle={[
             styles.container,
-            { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 40 },
+            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 40 },
           ]}
           keyboardShouldPersistTaps="handled"
         >
-          {step > 0 && step < TOTAL_STEPS && (
-            <View style={styles.progressRow}>
-              {Array.from({ length: TOTAL_STEPS - 1 }).map((_, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.progressDot,
-                    i < step && styles.progressDotActive,
-                    i === step - 1 && styles.progressDotCurrent,
-                  ]}
-                />
-              ))}
+          {/* Top nav row — back button + progress */}
+          {!isCalculating && (
+            <View style={styles.topNav}>
+              {step > 0 ? (
+                <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}>
+                  <Ionicons name="chevron-back" size={22} color="rgba(240,235,248,0.6)" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.backBtnPlaceholder} />
+              )}
+              {step > 0 && (
+                <View style={styles.progressRow}>
+                  {Array.from({ length: TOTAL_STEPS - 1 }).map((_, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.progressDot,
+                        i < step && styles.progressDotActive,
+                        i === step - 1 && styles.progressDotCurrent,
+                      ]}
+                    />
+                  ))}
+                </View>
+              )}
+              <View style={styles.backBtnPlaceholder} />
             </View>
           )}
 
@@ -417,7 +423,7 @@ export default function Onboarding() {
             {steps[step]}
           </Animated.View>
 
-          {step < TOTAL_STEPS - 1 && (
+          {!isCalculating && (
             <Pressable
               onPress={next}
               disabled={!canProceed()}
@@ -432,9 +438,7 @@ export default function Onboarding() {
                 <Text style={styles.nextBtnText}>
                   {step === 0 ? "Begin" : step === TOTAL_STEPS - 2 ? "Reveal" : "Continue"}
                 </Text>
-                {step > 0 && (
-                  <Ionicons name="arrow-forward" size={20} color="#fff" />
-                )}
+                {step > 0 && <Ionicons name="arrow-forward" size={20} color="#fff" />}
               </LinearGradient>
             </Pressable>
           )}
@@ -455,7 +459,6 @@ function CalcAnimation({ name }: { name: string }) {
         Animated.timing(pulseAnim, { toValue: 0.6, duration: 800, useNativeDriver: true }),
       ])
     ).start();
-
     const interval = setInterval(() => setDots((d) => (d + 1) % 4), 500);
     return () => clearInterval(interval);
   }, []);
@@ -471,9 +474,7 @@ function CalcAnimation({ name }: { name: string }) {
         />
       </Animated.View>
       <Text style={styles.calcTitle}>Reading your connection{".".repeat(dots)}</Text>
-      <Text style={styles.calcSub}>
-        Mapping emotional patterns with {name}
-      </Text>
+      <Text style={styles.calcSub}>Mapping emotional patterns with {name}</Text>
       <Text style={styles.calcSub2}>
         Analyzing attachment dynamics{"\n"}communication frequencies{"\n"}emotional resonance
       </Text>
@@ -484,33 +485,54 @@ function CalcAnimation({ name }: { name: string }) {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    paddingHorizontal: 28,
-    gap: 24,
+    paddingHorizontal: 24,
+    gap: 20,
   },
-  stepContainer: {
-    flex: 1,
-    gap: 16,
-    paddingTop: 20,
-    minHeight: 300,
+  topNav: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(240,235,248,0.06)",
+    alignItems: "center",
     justifyContent: "center",
+  },
+  backBtnPlaceholder: {
+    width: 40,
+    height: 40,
   },
   progressRow: {
     flexDirection: "row",
-    gap: 6,
-    alignSelf: "center",
+    gap: 5,
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
   },
   progressDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "rgba(240,235,248,0.15)",
+    backgroundColor: "rgba(240,235,248,0.12)",
   },
   progressDotActive: {
-    backgroundColor: "rgba(232,92,122,0.5)",
+    backgroundColor: "rgba(232,92,122,0.45)",
   },
   progressDotCurrent: {
     backgroundColor: "#E85C7A",
-    width: 20,
+    width: 18,
+    borderRadius: 3,
+  },
+  stepContainer: {
+    flex: 1,
+    gap: 14,
+    paddingTop: 16,
+    minHeight: 280,
+    justifyContent: "center",
   },
   welcomeEye: {
     fontSize: 48,
