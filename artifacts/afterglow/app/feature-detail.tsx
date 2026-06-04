@@ -1,10 +1,12 @@
 import { useApp } from "@/context/AppContext";
+import { getAstrologyReading } from "@/utils/astrology";
 import { getAllViralFeatures } from "@/utils/compatibility";
+import { getPersonalizedFeatureText } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Animated, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -60,16 +62,49 @@ export default function FeatureDetail() {
     ]).start();
   }, []);
 
-  if (!user || !partner || !featureKey) return null;
+  const reading = useMemo(() => {
+    if (!user || !partner) return null;
+    return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+  }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
-  const features = getAllViralFeatures(
-    user.birthDate,
-    partner.birthDate,
-    user.name,
-    partner.name
-  );
-  const feature = features.find((f) => f.key === featureKey);
-  if (!feature) return null;
+  if (!user || !partner || !featureKey || !reading) {
+    return (
+      <LinearGradient colors={["#080611", "#0D0A1E", "#080611"]} style={{ flex: 1 }}>
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn}>
+            <Feather name="chevron-left" size={24} color="rgba(240,235,248,0.7)" />
+          </Pressable>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.errorState}>
+          <Text style={styles.errorGlyph}>◈</Text>
+          <Text style={styles.errorTitle}>Insight unavailable</Text>
+          <Text style={styles.errorSub}>Complete your profile to unlock this reading.</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  const baseFeatures = getAllViralFeatures(user.birthDate, partner.birthDate, user.name, partner.name);
+  const baseFeature  = baseFeatures.find((f) => f.key === featureKey);
+  if (!baseFeature) {
+    return (
+      <LinearGradient colors={["#080611", "#0D0A1E", "#080611"]} style={{ flex: 1 }}>
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+          <Pressable onPress={() => router.back()} style={styles.backBtn}>
+            <Feather name="chevron-left" size={24} color="rgba(240,235,248,0.7)" />
+          </Pressable>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.errorState}>
+          <Text style={styles.errorGlyph}>◈</Text>
+          <Text style={styles.errorTitle}>Insight not found</Text>
+          <Text style={styles.errorSub}>This reading doesn't exist. Go back and try another.</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+  const feature = { ...baseFeature, text: getPersonalizedFeatureText(featureKey, reading, user.name, partner.name) };
 
   const color = CARD_COLORS[featureKey] || "#E85C7A";
 
@@ -77,7 +112,7 @@ export default function FeatureDetail() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await Share.share({
-        message: `${feature.title}\n\n${feature.text}\n\n— Afterglow app`,
+        message: `${feature.title}\n\n${feature.text}\n\n— Lumble app`,
         title: feature.title,
       });
     } catch {}
@@ -194,13 +229,13 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 28,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     textAlign: "center",
   },
   featureSub: {
     fontSize: 14,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.35)",
   },
   ring: {
@@ -223,11 +258,11 @@ const styles = StyleSheet.create({
   },
   ringScore: {
     fontSize: 48,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
   },
   ringLabel: {
     fontSize: 11,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.35)",
     textTransform: "uppercase",
     letterSpacing: 0.8,
@@ -242,7 +277,7 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 17,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.9)",
     lineHeight: 28,
   },
@@ -260,22 +295,38 @@ const styles = StyleSheet.create({
   },
   shareCardTitle: {
     fontSize: 14,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.6)",
   },
   shareCardSub: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.3)",
     marginTop: 1,
   },
   contextNote: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.2)",
     textAlign: "center",
     lineHeight: 18,
     paddingHorizontal: 20,
     marginTop: 8,
+  },
+  errorState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    paddingHorizontal: 40,
+  },
+  errorGlyph: { fontSize: 48, color: "rgba(232,92,122,0.35)" },
+  errorTitle: { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#F0EBF8", textAlign: "center" },
+  errorSub: {
+    fontSize: 14,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.35)",
+    textAlign: "center",
+    lineHeight: 22,
   },
 });

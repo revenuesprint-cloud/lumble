@@ -5,6 +5,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+import type { RelationshipType } from "@/context/AppContext";
 import {
   Alert,
   Pressable,
@@ -184,9 +185,9 @@ const pwStyles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 6,
   },
-  title: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
+  title: { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
   sub: {
-    fontSize: 13, fontFamily: "Inter_400Regular",
+    fontSize: 13, fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)", lineHeight: 20,
   },
   input: {
@@ -197,19 +198,127 @@ const pwStyles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 13,
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "#F0EBF8",
   },
-  error: { fontSize: 13, fontFamily: "Inter_400Regular", color: "#E85C7A" },
+  error: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#E85C7A" },
   saveBtn: { borderRadius: 14, overflow: "hidden" },
   saveBtnGrad: {
     alignItems: "center", justifyContent: "center",
     paddingVertical: 16,
   },
-  saveBtnText: { fontSize: 16, fontFamily: "Inter_700Bold", color: "#fff" },
+  saveBtnText: { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
   successRow: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "center", padding: 16 },
-  successText: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#4CAF50" },
+  successText: { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#4CAF50" },
 });
+
+// ─── Edit Profile Modal ────────────────────────────────────────────────────────
+
+const REL_TYPES: { key: RelationshipType; label: string }[] = [
+  { key: "crush",         label: "Crush" },
+  { key: "situationship", label: "Situationship" },
+  { key: "relationship",  label: "Relationship" },
+  { key: "ex",            label: "Ex" },
+];
+
+function EditProfileModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const { user, partner, completeOnboarding, syncProfileToServer } = useApp();
+  const { jwtToken } = useAuth();
+
+  const [userName,         setUserName]         = useState(user?.name ?? "");
+  const [userBirthDate,    setUserBirthDate]    = useState(user?.birthDate?.slice(0, 10) ?? "");
+  const [userBirthTime,    setUserBirthTime]    = useState(user?.birthTime ?? "");
+  const [partnerName,      setPartnerName]      = useState(partner?.name ?? "");
+  const [partnerBirthDate, setPartnerBirthDate] = useState(partner?.birthDate?.slice(0, 10) ?? "");
+  const [relType,          setRelType]          = useState<RelationshipType>(partner?.relationshipType ?? "crush");
+  const [error,            setError]            = useState("");
+  const [saving,           setSaving]           = useState(false);
+
+  if (!visible) return null;
+
+  const handleSave = async () => {
+    if (userName.trim().length < 2)      { setError("Your name must be at least 2 characters."); return; }
+    if (!userBirthDate)                   { setError("Your birth date is required."); return; }
+    if (partnerName.trim().length < 2)   { setError("Their name must be at least 2 characters."); return; }
+    if (!partnerBirthDate)                { setError("Their birth date is required."); return; }
+
+    setSaving(true);
+    const updatedUser    = { name: userName.trim(), birthDate: new Date(userBirthDate).toISOString(), birthTime: userBirthTime.trim() || undefined };
+    const updatedPartner = { name: partnerName.trim(), birthDate: new Date(partnerBirthDate).toISOString(), relationshipType: relType };
+    await completeOnboarding(updatedUser, updatedPartner);
+    if (jwtToken) syncProfileToServer(jwtToken, updatedUser, updatedPartner).catch(() => {});
+    setSaving(false);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    onClose();
+  };
+
+  return (
+    <View style={editStyles.overlay}>
+      <Pressable style={editStyles.backdrop} onPress={onClose} />
+      <ScrollView style={editStyles.sheet} contentContainerStyle={editStyles.sheetContent} keyboardShouldPersistTaps="handled">
+        <View style={editStyles.handle} />
+        <Text style={editStyles.title}>Edit Connection</Text>
+
+        <Text style={editStyles.sectionLabel}>YOU</Text>
+        <TextInput style={editStyles.input} value={userName} onChangeText={(t) => { setUserName(t); setError(""); }} placeholder="Your first name" placeholderTextColor="rgba(240,235,248,0.25)" />
+        <TextInput style={editStyles.input} value={userBirthDate} onChangeText={(t) => { setUserBirthDate(t); setError(""); }} placeholder="Your birth date (YYYY-MM-DD)" placeholderTextColor="rgba(240,235,248,0.25)" keyboardType="numbers-and-punctuation" />
+        <TextInput style={editStyles.input} value={userBirthTime} onChangeText={(t) => { setUserBirthTime(t); setError(""); }} placeholder="Birth time (optional, e.g. 3:45 PM)" placeholderTextColor="rgba(240,235,248,0.25)" />
+
+        <Text style={[editStyles.sectionLabel, { marginTop: 8 }]}>THEIR INFO</Text>
+        <TextInput style={editStyles.input} value={partnerName} onChangeText={(t) => { setPartnerName(t); setError(""); }} placeholder="Their first name" placeholderTextColor="rgba(240,235,248,0.25)" />
+        <TextInput style={editStyles.input} value={partnerBirthDate} onChangeText={(t) => { setPartnerBirthDate(t); setError(""); }} placeholder="Their birth date (YYYY-MM-DD)" placeholderTextColor="rgba(240,235,248,0.25)" keyboardType="numbers-and-punctuation" />
+
+        <Text style={[editStyles.sectionLabel, { marginTop: 8 }]}>RELATIONSHIP TYPE</Text>
+        <View style={editStyles.relRow}>
+          {REL_TYPES.map((r) => (
+            <TouchableOpacity
+              key={r.key}
+              onPress={() => setRelType(r.key)}
+              style={[editStyles.relChip, relType === r.key && editStyles.relChipActive]}
+            >
+              <Text style={[editStyles.relChipText, relType === r.key && editStyles.relChipTextActive]}>{r.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {error ? <Text style={editStyles.error}>{error}</Text> : null}
+
+        <TouchableOpacity onPress={handleSave} disabled={saving} activeOpacity={0.85} style={[editStyles.saveBtn, saving && { opacity: 0.6 }]}>
+          <LinearGradient colors={["#E85C7A", "#B855E0"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={editStyles.saveGrad}>
+            <Text style={editStyles.saveBtnText}>{saving ? "Saving…" : "Save Changes"}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onClose} style={editStyles.cancelBtn}>
+          <Text style={editStyles.cancelText}>Cancel</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
+  );
+}
+
+const editStyles = StyleSheet.create({
+  overlay:      { ...StyleSheet.absoluteFillObject, zIndex: 200, justifyContent: "flex-end" },
+  backdrop:     { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.6)" },
+  sheet:        { backgroundColor: "#110F1E", borderTopLeftRadius: 24, borderTopRightRadius: 24, borderTopWidth: 1, borderColor: "rgba(240,235,248,0.07)", maxHeight: "92%" },
+  sheetContent: { padding: 24, paddingBottom: 48, gap: 12 },
+  handle:       { width: 36, height: 4, borderRadius: 2, backgroundColor: "rgba(240,235,248,0.12)", alignSelf: "center", marginBottom: 8 },
+  title:        { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8", marginBottom: 4 },
+  sectionLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.35)", letterSpacing: 1, textTransform: "uppercase" },
+  input:        { backgroundColor: "#1A1735", borderRadius: 12, borderWidth: 1, borderColor: "rgba(240,235,248,0.08)", paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, fontFamily: "Nunito_400Regular", color: "#F0EBF8" },
+  relRow:       { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  relChip:      { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(240,235,248,0.1)", backgroundColor: "rgba(26,22,48,0.6)" },
+  relChipActive:{ borderColor: "rgba(232,92,122,0.5)", backgroundColor: "rgba(232,92,122,0.08)" },
+  relChipText:  { fontSize: 14, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.5)" },
+  relChipTextActive: { color: "#E85C7A" },
+  error:        { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#E85C7A" },
+  saveBtn:      { borderRadius: 14, overflow: "hidden", marginTop: 4 },
+  saveGrad:     { alignItems: "center", justifyContent: "center", paddingVertical: 16 },
+  saveBtnText:  { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
+  cancelBtn:    { alignItems: "center", padding: 8 },
+  cancelText:   { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.35)" },
+});
+
+// ─── Profile Screen ────────────────────────────────────────────────────────────
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -218,6 +327,7 @@ export default function ProfileScreen() {
   const { logout, currentEmail } = useAuth();
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showSetPassword, setShowSetPassword] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   if (!user || !partner) return null;
 
@@ -232,8 +342,8 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            await logout();
             router.replace("/login");
+            await logout();
           },
         },
       ]
@@ -254,8 +364,8 @@ export default function ProfileScreen() {
 
   const handleReset = () => {
     Alert.alert(
-      "Reset connection?",
-      "This will clear all your data and take you back to onboarding. This can't be undone.",
+      "Reset everything?",
+      "This will clear all your data — profile, connection, and chat history — and take you back to onboarding. This can't be undone.",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -263,8 +373,12 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            await resetApp();
+            // Navigate first — resetApp sets user/partner to null which triggers
+            // the null-guard on this screen and unmounts it before router.replace
+            // can fire. Navigating first keeps the component mounted through the
+            // transition, then clears state in the background.
             router.replace("/onboarding");
+            await resetApp();
           },
         },
       ]
@@ -292,7 +406,7 @@ export default function ProfileScreen() {
             colors={["#E85C7A", "#B855E0"]}
             style={styles.avatar}
           >
-            <Text style={styles.avatarInitial}>{user.name[0]}</Text>
+            <Text style={styles.avatarInitial}>{user.name.charAt(0) || "?"}</Text>
           </LinearGradient>
           <Text style={styles.userName}>{user.name}</Text>
           {isPremium ? (
@@ -317,13 +431,18 @@ export default function ProfileScreen() {
               <InfoRow label="Birth time" value={user.birthTime} />
             </>
           ) : null}
+          <View style={styles.separator} />
+          <TouchableOpacity onPress={() => setShowEditProfile(true)} activeOpacity={0.7} style={styles.editRow}>
+            <Feather name="edit-2" size={14} color="#E85C7A" />
+            <Text style={styles.editRowText}>Edit profile & connection</Text>
+          </TouchableOpacity>
         </Section>
 
         {/* Partner info */}
         <Section title="Your Connection">
           <View style={styles.partnerRow}>
             <View style={styles.partnerAvatar}>
-              <Text style={styles.partnerInitial}>{partner.name[0]}</Text>
+              <Text style={styles.partnerInitial}>{partner.name.charAt(0) || "?"}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.partnerName}>{partner.name}</Text>
@@ -387,7 +506,7 @@ export default function ProfileScreen() {
             icon="refresh-cw"
             label="Change connection"
             sublabel="Update who you're analyzing"
-            onPress={handleReset}
+            onPress={() => setShowEditProfile(true)}
           />
           <View style={styles.separator} />
           <ActionRow
@@ -408,7 +527,7 @@ export default function ProfileScreen() {
 
         {/* App info */}
         <View style={styles.appInfo}>
-          <Text style={styles.appInfoText}>Afterglow · Version 1.0</Text>
+          <Text style={styles.appInfoText}>Lumble · Version 1.0</Text>
           <Text style={styles.appInfoText}>Your data stays on this device</Text>
         </View>
       </ScrollView>
@@ -422,6 +541,11 @@ export default function ProfileScreen() {
         visible={showSetPassword}
         onClose={() => setShowSetPassword(false)}
         currentEmail={currentEmail}
+      />
+
+      <EditProfileModal
+        visible={showEditProfile}
+        onClose={() => setShowEditProfile(false)}
       />
     </LinearGradient>
   );
@@ -445,7 +569,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   scroll: {
@@ -467,12 +591,12 @@ const styles = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: 34,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
   userName: {
     fontSize: 24,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   premiumBadge: {
@@ -485,7 +609,7 @@ const styles = StyleSheet.create({
   },
   premiumBadgeText: {
     fontSize: 12,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#E85C7A",
   },
   freeBadge: {
@@ -498,7 +622,7 @@ const styles = StyleSheet.create({
   },
   freeBadgeText: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.35)",
   },
   section: {
@@ -506,7 +630,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 12,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.35)",
     letterSpacing: 0.8,
     textTransform: "uppercase",
@@ -528,18 +652,30 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.55)",
   },
   infoValue: {
     fontSize: 15,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "#F0EBF8",
   },
   separator: {
     height: 1,
     backgroundColor: "rgba(240,235,248,0.05)",
     marginHorizontal: 18,
+  },
+  editRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 13,
+  },
+  editRowText: {
+    fontSize: 14,
+    fontFamily: "Nunito_500Medium",
+    color: "#E85C7A",
   },
   partnerRow: {
     flexDirection: "row",
@@ -560,17 +696,17 @@ const styles = StyleSheet.create({
   },
   partnerInitial: {
     fontSize: 18,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#B855E0",
   },
   partnerName: {
     fontSize: 17,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   partnerType: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     marginTop: 2,
   },
@@ -588,17 +724,17 @@ const styles = StyleSheet.create({
   },
   upgradeTitle: {
     fontSize: 16,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   upgradeSub: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.45)",
   },
   upgradePrice: {
     fontSize: 15,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#E85C7A",
   },
   premiumActiveCard: {
@@ -614,12 +750,12 @@ const styles = StyleSheet.create({
   },
   premiumActiveTitle: {
     fontSize: 16,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   premiumActiveSub: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     marginTop: 2,
   },
@@ -639,12 +775,12 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     fontSize: 15,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "#F0EBF8",
   },
   actionSublabel: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.35)",
     marginTop: 1,
   },
@@ -661,7 +797,7 @@ const styles = StyleSheet.create({
   },
   signOutText: {
     fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(232,92,122,0.7)",
   },
   appInfo: {
@@ -671,7 +807,7 @@ const styles = StyleSheet.create({
   },
   appInfoText: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.2)",
   },
 });

@@ -1,8 +1,8 @@
 kind = "mobile"
 previewPath = "/"
-title = "Afterglow"
+title = "LUMBLE"
 version = "1.0.0"
-id = "artifacts/afterglow"
+id = "artifacts/LUMBLE"
 router = "expo-domain"
 
 [[integratedSkills]]
@@ -16,11 +16,11 @@ paths = [ "/" ]
 localPort = 19837
 
 [services.development]
-run = "pnpm --filter @workspace/afterglow run dev"
+run = "pnpm --filter @workspace/LUMBLE run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/afterglow", "run", "build" ]
-run = [ "pnpm", "--filter", "@workspace/afterglow", "run", "serve" ]
+build = [ "pnpm", "--filter", "@workspace/LUMBLE", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/LUMBLE", "run", "serve" ]
 
 [services.env]
 PORT = "19837"

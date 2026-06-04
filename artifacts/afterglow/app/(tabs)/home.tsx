@@ -1,11 +1,16 @@
 import { GlowCard } from "@/components/GlowCard";
 import { useApp } from "@/context/AppContext";
-import { getDailyEnergy } from "@/utils/compatibility";
-import { getDailyFocus, getDailyQuote } from "@/utils/quotes";
+import { getAstrologyReading } from "@/utils/astrology";
+import {
+  getDailyEnergyPersonalized,
+  getPersonalizedFocus,
+  getPersonalizedQuoteCategory,
+} from "@/utils/personalization";
+import { getQuoteByCategory } from "@/utils/quotes";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   Animated,
   Platform,
@@ -86,11 +91,19 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user, partner } = useApp();
 
-  if (!user || !partner) return null;
+  const reading = useMemo(() => {
+    if (!user || !partner) return null;
+    return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+  }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
-  const energy = getDailyEnergy(user.birthDate, partner.birthDate);
-  const dailyQuote = getDailyQuote(user.name);
-  const dailyFocus = getDailyFocus(user.name);
+  if (!user || !partner || !reading) return null;
+
+  const energy     = getDailyEnergyPersonalized(reading, user ? reading.user.dasha.current : "Chandra");
+  const quoteCategory = getPersonalizedQuoteCategory(reading.user.moonRashi, reading.user.dasha.current);
+  const today      = new Date();
+  const quoteSeed  = today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate();
+  const dailyQuote = getQuoteByCategory(quoteCategory, quoteSeed + reading.user.nakshatra);
+  const dailyFocus = getPersonalizedFocus(user.name, reading.user.moonRashi, reading.user.dasha.current, partner.relationshipType);
 
   const energyBars = [
     { label: "Emotional closeness", value: energy.closeness, color: "#E85C7A" },
@@ -154,7 +167,7 @@ export default function HomeScreen() {
                 colors={["#E85C7A", "#B855E0"]}
                 style={styles.profileBtnGradient}
               >
-                <Text style={styles.profileBtnInitial}>{user.name[0]}</Text>
+                <Text style={styles.profileBtnInitial}>{user.name.charAt(0) || "?"}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -223,7 +236,7 @@ export default function HomeScreen() {
           >
             <View style={styles.connectionRow}>
               <View style={styles.personBubble}>
-                <Text style={styles.personInitial}>{user.name[0]}</Text>
+                <Text style={styles.personInitial}>{user.name.charAt(0) || "?"}</Text>
               </View>
               <View style={styles.connectionLine}>
                 <LinearGradient
@@ -234,7 +247,7 @@ export default function HomeScreen() {
                 />
               </View>
               <View style={[styles.personBubble, { backgroundColor: "rgba(184,85,224,0.15)", borderColor: "rgba(184,85,224,0.4)" }]}>
-                <Text style={styles.personInitial}>{partner.name[0]}</Text>
+                <Text style={styles.personInitial}>{partner.name.charAt(0) || "?"}</Text>
               </View>
             </View>
             <View style={styles.namesRow}>
@@ -335,17 +348,17 @@ const styles = StyleSheet.create({
   },
   profileBtnInitial: {
     fontSize: 17,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
   greeting: {
     fontSize: 14,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.45)",
   },
   userName: {
     fontSize: 26,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   pulse: {
@@ -356,21 +369,21 @@ const styles = StyleSheet.create({
   quoteInner: { borderRadius: 20, padding: 20, gap: 12 },
   quoteTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   quoteCategoryLabel: {
-    fontSize: 10, fontFamily: "Inter_600SemiBold", letterSpacing: 1.5,
+    fontSize: 10, fontFamily: "Nunito_600SemiBold", letterSpacing: 1.5,
     textTransform: "uppercase", color: "#B855E0",
   },
   quoteStar: { fontSize: 14, color: "rgba(184,85,224,0.5)" },
   quoteText: {
-    fontSize: 17, fontFamily: "Inter_400Regular", color: "rgba(240,235,248,0.9)",
+    fontSize: 17, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.9)",
     lineHeight: 26, fontStyle: "italic",
   },
   quoteAuthor: {
-    fontSize: 12, fontFamily: "Inter_500Medium", color: "rgba(240,235,248,0.35)",
+    fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.35)",
   },
   quoteDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
   focusRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
   focusText: {
-    flex: 1, fontSize: 13, fontFamily: "Inter_400Regular",
+    flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.5)", lineHeight: 20,
   },
 
@@ -389,14 +402,14 @@ const styles = StyleSheet.create({
   },
   dailyTitle: {
     fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.55)",
     letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   dailyDate: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.3)",
     marginTop: 2,
   },
@@ -417,19 +430,19 @@ const styles = StyleSheet.create({
   },
   liveText: {
     fontSize: 11,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#E85C7A",
   },
   dailyMessage: {
     fontSize: 16,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.85)",
     lineHeight: 24,
     fontStyle: "italic",
   },
   withText: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.3)",
   },
   barsContainer: {
@@ -438,12 +451,12 @@ const styles = StyleSheet.create({
   },
   barLabel: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.5)",
   },
   barValue: {
     fontSize: 12,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
   },
   barTrack: {
     height: 5,
@@ -456,7 +469,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.4)",
     letterSpacing: 0.5,
     textTransform: "uppercase",
@@ -489,7 +502,7 @@ const styles = StyleSheet.create({
   },
   personInitial: {
     fontSize: 22,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   connectionLine: {
@@ -507,12 +520,12 @@ const styles = StyleSheet.create({
   },
   personName: {
     fontSize: 14,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   relTypeBadge: {
     fontSize: 11,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "rgba(232,92,122,0.8)",
     backgroundColor: "rgba(232,92,122,0.1)",
     paddingHorizontal: 10,
@@ -545,12 +558,12 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   insightSub: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     marginTop: 2,
   },
@@ -567,12 +580,12 @@ const styles = StyleSheet.create({
   },
   guidanceTeaserTitle: {
     fontSize: 17,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   guidanceTeaserSub: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.45)",
   },
   guidanceSuggestions: {
@@ -591,7 +604,7 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.7)",
   },
 });

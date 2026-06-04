@@ -56,7 +56,7 @@ function WheelPicker({
       y: selectedIndex * ITEM_H,
       animated: false,
     });
-  }, []);
+  }, [selectedIndex]);
 
   return (
     <View style={{ width, height: ITEM_H * 5, overflow: "hidden" }}>
@@ -131,7 +131,7 @@ function WheelPicker({
                   i === selectedIndex
                     ? "#F0EBF8"
                     : "rgba(240,235,248,0.35)",
-                fontFamily: "Inter_500Medium",
+                fontFamily: "Nunito_500Medium",
               }}
             >
               {item}
@@ -182,13 +182,13 @@ function DatePicker({ value, onChange }: { value: Date; onChange: (d: Date) => v
   );
 }
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { completeOnboarding } = useApp();
-  const { setSessionDirect } = useAuth();
+  const { completeOnboarding, syncProfileToServer } = useApp();
+  const { setSessionDirect, jwtToken } = useAuth();
 
   const [step, setStep] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -231,19 +231,12 @@ export default function Onboarding() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (step === TOTAL_STEPS - 2) {
       transitionTo(step + 1);
-      await completeOnboarding(
-        {
-          name: form.userName,
-          birthDate: form.userBirthDate.toISOString(),
-          birthTime: form.userBirthTime || undefined,
-        },
-        {
-          name: form.partnerName,
-          birthDate: form.partnerBirthDate.toISOString(),
-          relationshipType: form.relationshipType,
-        }
-      );
+      const newUser    = { name: form.userName, birthDate: form.userBirthDate.toISOString(), birthTime: form.userBirthTime || undefined };
+      const newPartner = { name: form.partnerName, birthDate: form.partnerBirthDate.toISOString(), relationshipType: form.relationshipType };
+      await completeOnboarding(newUser, newPartner);
       await setSessionDirect();
+      // Push profile to backend if user is already authenticated (has JWT from registration)
+      if (jwtToken) syncProfileToServer(jwtToken, newUser, newPartner).catch(() => {});
       setTimeout(() => {
         router.replace("/(tabs)/home");
       }, 2800);
@@ -269,18 +262,18 @@ export default function Onboarding() {
     // Step 0: Welcome
     <View key={0} style={styles.stepContainer}>
       <Text style={styles.welcomeEye}>◉</Text>
-      <Text style={styles.appName}>Afterglow</Text>
+      <Text style={styles.appName}>Lumble</Text>
       <Text style={styles.tagline}>
         Relationship insights backed{"\n"}by ancient astrology
       </Text>
       <TouchableOpacity
         onPress={async () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          await completeOnboarding(
-            { name: "Alex", birthDate: new Date(1997, 3, 12).toISOString() },
-            { name: "Jordan", birthDate: new Date(1996, 7, 25).toISOString(), relationshipType: "situationship" }
-          );
+          const demoUser    = { name: "Alex",   birthDate: new Date(1997, 3, 12).toISOString() };
+          const demoPartner = { name: "Jordan", birthDate: new Date(1996, 7, 25).toISOString(), relationshipType: "situationship" as const };
+          await completeOnboarding(demoUser, demoPartner);
           await setSessionDirect();
+          if (jwtToken) syncProfileToServer(jwtToken, demoUser, demoPartner).catch(() => {});
           router.replace("/(tabs)/home");
         }}
         style={styles.demoBtn}
@@ -556,21 +549,21 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: 42,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     textAlign: "center",
     letterSpacing: 2,
   },
   tagline: {
     fontSize: 18,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.8)",
     textAlign: "center",
     lineHeight: 28,
   },
   subTagline: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     textAlign: "center",
     marginTop: 8,
@@ -587,18 +580,18 @@ const styles = StyleSheet.create({
   },
   demoBtnText: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.35)",
   },
   stepLabel: {
     fontSize: 26,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     lineHeight: 34,
   },
   stepSub: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.5)",
   },
   textInput: {
@@ -609,7 +602,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 18,
     fontSize: 20,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "#F0EBF8",
     marginTop: 8,
   },
@@ -620,7 +613,7 @@ const styles = StyleSheet.create({
   skipText: {
     fontSize: 14,
     color: "rgba(240,235,248,0.35)",
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
   },
   relTypeCard: {
     backgroundColor: "rgba(26,22,48,0.6)",
@@ -636,12 +629,12 @@ const styles = StyleSheet.create({
   },
   relTypeLabel: {
     fontSize: 17,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   relTypeDesc: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
   },
   nextBtn: {
@@ -658,7 +651,7 @@ const styles = StyleSheet.create({
   },
   nextBtnText: {
     fontSize: 17,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#fff",
   },
   calcOrb: {
@@ -668,19 +661,19 @@ const styles = StyleSheet.create({
   },
   calcTitle: {
     fontSize: 22,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     textAlign: "center",
   },
   calcSub: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.5)",
     textAlign: "center",
   },
   calcSub2: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(232,92,122,0.6)",
     textAlign: "center",
     lineHeight: 22,

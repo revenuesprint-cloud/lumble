@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Afterglow",
-    "slug": "afterglow",
+    "name": "Lumble",
+    "slug": "lumble",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "afterglow",
+    "scheme": "lumble",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.afterglow.app"
+      "bundleIdentifier": "com.lumble.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,12 +27,7 @@
       "favicon": "./assets/images/icon.png"
     },
     "plugins": [
-      [
-        "expo-router",
-        {
-          "origin": "https://replit.com/"
-        }
-      ],
+      "expo-router",
       "expo-font",
       "expo-web-browser"
     ],

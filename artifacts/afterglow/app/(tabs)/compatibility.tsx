@@ -2,9 +2,12 @@ import { AnimatedBar } from "@/components/AnimatedBar";
 import { GlowCard } from "@/components/GlowCard";
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/context/AppContext";
+import { getAstrologyReading } from "@/utils/astrology";
 import { calculateCompatibility, CompatibilitySection } from "@/utils/compatibility";
+import { getCompatibilityTexts } from "@/utils/personalization";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef, useState } from "react";
+import { KundliLoading } from "@/components/KundliLoading";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Platform,
@@ -16,21 +19,24 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// score is 0–36 (actual guna total)
 function OverallScore({ score }: { score: number }) {
   const countAnim = useRef(new Animated.Value(0)).current;
   const [display, setDisplay] = useState(0);
   const scaleAnim = useRef(new Animated.Value(0.7)).current;
 
   useEffect(() => {
+    countAnim.setValue(0);
+    const listenerId = countAnim.addListener(({ value }) => setDisplay(Math.round(value)));
     Animated.parallel([
       Animated.timing(countAnim, { toValue: score, duration: 1400, delay: 200, useNativeDriver: false }),
       Animated.spring(scaleAnim, { toValue: 1, friction: 6, tension: 40, delay: 200, useNativeDriver: true }),
     ]).start();
-    countAnim.addListener(({ value }) => setDisplay(Math.round(value)));
-    return () => countAnim.removeAllListeners();
+    return () => countAnim.removeListener(listenerId);
   }, [score]);
 
-  const color = score >= 80 ? "#E85C7A" : score >= 65 ? "#F5A623" : "#7C52C8";
+  const color = score >= 28 ? "#52C8B8" : score >= 21 ? "#F5A623" : "#E85C7A";
+  const verdict = score >= 28 ? "Excellent" : score >= 21 ? "Good" : score >= 18 ? "Average" : "Challenging";
 
   return (
     <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }] }}>
@@ -38,8 +44,9 @@ function OverallScore({ score }: { score: number }) {
         colors={["rgba(232,92,122,0.15)", "rgba(184,85,224,0.08)", "transparent"]}
         style={styles.scoreOrb}
       >
-        <Text style={[styles.scoreNumber, { color }]}>{display}</Text>
-        <Text style={styles.scoreLabel}>Compatibility</Text>
+        <Text style={[styles.scoreNumber, { color }]}>{display}<Text style={styles.scoreMax}>/36</Text></Text>
+        <Text style={styles.scoreLabel}>Guna Milan</Text>
+        <Text style={[styles.scoreVerdict, { color }]}>{verdict}</Text>
       </LinearGradient>
     </Animated.View>
   );
@@ -114,15 +121,40 @@ export default function CompatibilityScreen() {
   const { user, partner, isPremium } = useApp();
   const [showGate, setShowGate] = useState(false);
 
-  if (!user || !partner) return null;
+  const reading = useMemo(() => {
+    if (!user || !partner) return null;
+    return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+  }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
-  const data = calculateCompatibility(
-    user.birthDate,
-    partner.birthDate,
-    user.name,
-    partner.name,
-    partner.relationshipType
-  );
+  if (!user || !partner) return null;
+  if (!reading) return <KundliLoading label="Calculating emotional chemistry…" />;
+
+  // Build compatibility sections using actual guna breakdown texts
+  const personalizedTexts = getCompatibilityTexts(reading, partner.relationshipType);
+  const baseData = calculateCompatibility(user.birthDate, partner.birthDate, user.name, partner.name, partner.relationshipType);
+  // Override section texts with kundli-derived versions
+  const data = {
+    ...baseData,
+    overall: reading.guna.total, // Real guna total 0–36
+    sections: baseData.sections.map((s) => ({
+      ...s,
+      text: personalizedTexts[s.label] ?? s.text,
+      score: (() => {
+        // Map each section to its actual koota score
+        const kootaMap: Record<string, string> = {
+          "Emotional Chemistry":       "Graha Maitri",
+          "Communication Energy":      "Gana",
+          "Attachment Dynamics":       "Yoni",
+          "Emotional Tension":         "Nadi",
+          "Long-Term Potential":       "Bhakoot",
+          "Why This Feels Addictive":  "Tara",
+          "Hidden Relationship Pattern":"Vashya",
+        };
+        const koota = reading.guna.breakdown.find((k) => k.name === kootaMap[s.label]);
+        return koota ? Math.round((koota.score / koota.max) * 100) : s.score;
+      })(),
+    })),
+  };
 
   return (
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
@@ -195,12 +227,12 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     fontSize: 28,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   screenSub: {
     fontSize: 14,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     marginTop: -8,
   },
@@ -217,14 +249,24 @@ const styles = StyleSheet.create({
   },
   scoreNumber: {
     fontSize: 56,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
+  },
+  scoreMax: {
+    fontSize: 28,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.4)",
   },
   scoreLabel: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     letterSpacing: 1,
     textTransform: "uppercase",
+  },
+  scoreVerdict: {
+    fontSize: 14,
+    fontFamily: "Nunito_700Bold",
+    marginTop: 2,
   },
   tagRow: {
     flexDirection: "row",
@@ -242,7 +284,7 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 12,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "#E85C7A",
     textTransform: "capitalize",
   },
@@ -277,16 +319,16 @@ const styles = StyleSheet.create({
   sectionLabel: {
     flex: 1,
     fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   sectionScore: {
     fontSize: 22,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
   },
   sectionText: {
     fontSize: 14,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.65)",
     lineHeight: 22,
   },
@@ -304,7 +346,7 @@ const styles = StyleSheet.create({
   },
   lockedText: {
     fontSize: 13,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "rgba(240,235,248,0.3)",
   },
   upgradeTeaser: {
@@ -319,12 +361,12 @@ const styles = StyleSheet.create({
   },
   upgradeTeaserTitle: {
     fontSize: 17,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   upgradeTeaserSub: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.45)",
   },
 });

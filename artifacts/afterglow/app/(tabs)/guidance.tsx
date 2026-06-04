@@ -1,9 +1,11 @@
 import { GuidanceMessage, useApp } from "@/context/AppContext";
+import { getAstrologyReading } from "@/utils/astrology";
 import { getOracleResponse } from "@/utils/oracle";
+import { getPersonalizedChips, getPersonalizedSuggestions } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
@@ -19,24 +21,16 @@ import {
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// ─── Suggestion cards shown in empty state ────────────────────────────────────
-
-const SUGGESTION_CARDS = [
-  { q: "Why did they pull away?",      category: "distance",    icon: "🌙" },
-  { q: "Do they still feel something?",category: "feelings",    icon: "✦" },
-  { q: "Should I reach out?",          category: "action",      icon: "◎" },
-  { q: "Why can't I move on?",         category: "healing",     icon: "⟡" },
-  { q: "Are we compatible?",           category: "insight",     icon: "◈" },
-  { q: "What does the future hold?",   category: "future",      icon: "✧" },
+// Fallback cards used before kundli is ready
+const FALLBACK_CARDS = [
+  { q: "Why did they pull away?",      category: "distance", icon: "🌙" },
+  { q: "Do they still feel something?",category: "feelings", icon: "✦" },
+  { q: "Should I reach out?",          category: "action",   icon: "◎" },
+  { q: "Why can't I move on?",         category: "healing",  icon: "⟡" },
+  { q: "Are we compatible?",           category: "insight",  icon: "◈" },
+  { q: "What does the future hold?",   category: "future",   icon: "✧" },
 ];
-
-const QUICK_CHIPS = [
-  "Why did they pull away?",
-  "Do they miss me?",
-  "Should I text?",
-  "Why do we fight?",
-  "Will it work out?",
-];
+const FALLBACK_CHIPS = ["Why did they pull away?","Do they miss me?","Should I text?","Why do we fight?","Will it work out?"];
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
 
@@ -48,16 +42,19 @@ function TypingIndicator() {
   ];
 
   useEffect(() => {
-    dots.forEach((dot, i) => {
-      Animated.loop(
+    const loops = dots.map((dot, i) => {
+      const loop = Animated.loop(
         Animated.sequence([
           Animated.delay(i * 160),
           Animated.timing(dot, { toValue: 1, duration: 300, useNativeDriver: true }),
           Animated.timing(dot, { toValue: 0.2, duration: 300, useNativeDriver: true }),
           Animated.delay(320),
         ])
-      ).start();
+      );
+      loop.start();
+      return loop;
     });
+    return () => loops.forEach((l) => l.stop());
   }, []);
 
   return (
@@ -104,7 +101,7 @@ function MessageBubble({ message, index }: { message: GuidanceMessage; index: nu
       <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
         {!isUser && (
           <View style={styles.botLabel}>
-            <Text style={styles.botLabelText}>Afterglow Guide</Text>
+            <Text style={styles.botLabelText}>Lumble Guide</Text>
           </View>
         )}
         <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextBot]}>
@@ -117,7 +114,7 @@ function MessageBubble({ message, index }: { message: GuidanceMessage; index: nu
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyState({ onSelect }: { onSelect: (q: string) => void }) {
+function EmptyState({ onSelect, cards }: { onSelect: (q: string) => void; cards: { q: string; category: string; icon: string }[] }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -150,7 +147,7 @@ function EmptyState({ onSelect }: { onSelect: (q: string) => void }) {
 
       {/* Question cards */}
       <View style={styles.cardGrid}>
-        {SUGGESTION_CARDS.map((card, i) => (
+        {cards.map((card, i) => (
           <TouchableOpacity
             key={i}
             onPress={() => {
@@ -179,35 +176,67 @@ function EmptyState({ onSelect }: { onSelect: (q: string) => void }) {
 
 export default function GuidanceScreen() {
   const insets = useSafeAreaInsets();
-  const { user, partner, guidanceMessages, addGuidanceMessage, isPremium } = useApp();
+  const { user, partner, guidanceMessages, addGuidanceMessage, clearGuidanceMessages, isPremium } = useApp();
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const isTypingRef = useRef(false);
   const userMessages = guidanceMessages.filter((m) => m.role === "user").length;
   const hitLimit = !isPremium && userMessages >= 5;
 
-  if (!user || !partner) return null;
+  const reading = useMemo(() => {
+    if (!user || !partner) return null;
+    return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+  }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || hitLimit || isTyping) return;
+  const suggestionCards = useMemo(() =>
+    reading && partner ? getPersonalizedSuggestions(reading, partner.relationshipType) : FALLBACK_CARDS,
+  [reading, partner?.relationshipType]);
+
+  const quickChips = useMemo(() =>
+    reading && partner ? getPersonalizedChips(reading, partner.relationshipType) : FALLBACK_CHIPS,
+  [reading, partner?.relationshipType]);
+
+  // Keep a ref so the async sendMessage always reads the latest isTyping value
+  useEffect(() => { isTypingRef.current = isTyping; }, [isTyping]);
+
+  const sendMessage = useCallback(async (text: string) => {
+    if (!user || !partner) return;
+    if (!text.trim() || isTypingRef.current) return;
+    const currentUserMessages = guidanceMessages.filter((m) => m.role === "user").length;
+    if (!isPremium && currentUserMessages >= 5) return;
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
     addGuidanceMessage({ id, role: "user", text: text.trim(), timestamp: Date.now() });
     setInput("");
     setIsTyping(true);
+    isTypingRef.current = true;
 
-    const delay = 900 + Math.random() * 800 + text.length * 8;
-    await new Promise((r) => setTimeout(r, delay));
+    try {
+      const delay = 900 + Math.random() * 800 + text.length * 8;
+      await new Promise((r) => setTimeout(r, delay));
 
-    const responseText = getOracleResponse(
-      text, user.name, user.birthDate,
-      partner.name, partner.birthDate,
-      partner.relationshipType
-    );
-    addGuidanceMessage({ id: id + "_bot", role: "assistant", text: responseText, timestamp: Date.now() });
-    setIsTyping(false);
-  };
+      const responseText = getOracleResponse(
+        text, user.name, user.birthDate,
+        partner.name, partner.birthDate,
+        partner.relationshipType
+      );
+      addGuidanceMessage({ id: id + "_bot", role: "assistant", text: responseText, timestamp: Date.now() });
+    } catch {
+      addGuidanceMessage({
+        id: id + "_bot",
+        role: "assistant",
+        text: "The stars are quiet right now. Ask again in a moment.",
+        timestamp: Date.now(),
+      });
+    } finally {
+      setIsTyping(false);
+      isTypingRef.current = false;
+    }
+  }, [user, partner, guidanceMessages, addGuidanceMessage, isPremium]);
+
+  if (!user || !partner) return null;
 
   const hasMessages = guidanceMessages.length > 0;
 
@@ -228,11 +257,25 @@ export default function GuidanceScreen() {
               </Text>
             </View>
           </View>
-          <View style={[styles.headerPill, hitLimit && styles.headerPillWarn]}>
-            <View style={[styles.headerPillDot, hitLimit && { backgroundColor: "#E85C7A" }]} />
-            <Text style={[styles.headerPillText, hitLimit && { color: "#E85C7A" }]}>
-              {isPremium ? "Unlimited" : hitLimit ? "Limit reached" : `${5 - userMessages} left`}
-            </Text>
+          <View style={styles.headerRight}>
+            {hasMessages && (
+              <TouchableOpacity
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  clearGuidanceMessages();
+                }}
+                style={styles.clearBtn}
+                activeOpacity={0.7}
+              >
+                <Feather name="trash-2" size={15} color="rgba(240,235,248,0.35)" />
+              </TouchableOpacity>
+            )}
+            <View style={[styles.headerPill, hitLimit && styles.headerPillWarn]}>
+              <View style={[styles.headerPillDot, hitLimit && { backgroundColor: "#E85C7A" }]} />
+              <Text style={[styles.headerPillText, hitLimit && { color: "#E85C7A" }]}>
+                {isPremium ? "Unlimited" : hitLimit ? "Limit reached" : `${5 - userMessages} left`}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -243,7 +286,7 @@ export default function GuidanceScreen() {
             contentContainerStyle={[styles.emptyScroll, { paddingBottom: insets.bottom + 120 }]}
             showsVerticalScrollIndicator={false}
           >
-            <EmptyState onSelect={sendMessage} />
+            <EmptyState onSelect={sendMessage} cards={suggestionCards} />
           </ScrollView>
         ) : (
           <FlatList
@@ -286,7 +329,7 @@ export default function GuidanceScreen() {
               style={styles.chipsScroll}
               contentContainerStyle={styles.chipsContent}
             >
-              {QUICK_CHIPS.map((chip, i) => (
+              {quickChips.map((chip, i) => (
                 <TouchableOpacity
                   key={i}
                   onPress={() => sendMessage(chip)}
@@ -366,8 +409,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerOrbText: { fontSize: 17, color: "#E85C7A" },
-  headerTitle: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
-  headerSub: { fontSize: 12, fontFamily: "Inter_400Regular", color: "rgba(240,235,248,0.35)", marginTop: 1 },
+  headerTitle: { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  headerSub: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.35)", marginTop: 1 },
   headerPill: {
     flexDirection: "row",
     alignItems: "center",
@@ -389,8 +432,17 @@ const styles = StyleSheet.create({
   },
   headerPillText: {
     fontSize: 12,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#B855E0",
+  },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  clearBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(240,235,248,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   // Empty state
@@ -409,15 +461,15 @@ const styles = StyleSheet.create({
   oracleGlyph: { fontSize: 36, color: "#E85C7A" },
   oracleLabel: {
     fontSize: 10,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "rgba(232,92,122,0.4)",
     letterSpacing: 3,
   },
   emptyTextGroup: { alignItems: "center", gap: 8 },
-  emptyTitle: { fontSize: 24, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
+  emptyTitle: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
   emptySub: {
     fontSize: 14,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     textAlign: "center",
     lineHeight: 22,
@@ -437,13 +489,13 @@ const styles = StyleSheet.create({
   suggestionCardQ: {
     flex: 1,
     fontSize: 14,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
     lineHeight: 20,
   },
   suggestionCardCat: {
     fontSize: 10,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "rgba(232,92,122,0.5)",
     textTransform: "uppercase",
     letterSpacing: 0.8,
@@ -487,7 +539,7 @@ const styles = StyleSheet.create({
   botLabel: { marginBottom: 2 },
   botLabelText: {
     fontSize: 10,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(232,92,122,0.5)",
     letterSpacing: 0.5,
     textTransform: "uppercase",
@@ -495,12 +547,12 @@ const styles = StyleSheet.create({
   bubbleText: { lineHeight: 24 },
   bubbleTextUser: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "#F0EBF8",
   },
   bubbleTextBot: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.88)",
   },
 
@@ -543,8 +595,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   limitIcon: { fontSize: 22, color: "#E85C7A" },
-  limitTitle: { fontSize: 14, fontFamily: "Inter_700Bold", color: "#F0EBF8" },
-  limitSub: { fontSize: 12, fontFamily: "Inter_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 2 },
+  limitTitle: { fontSize: 14, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  limitSub: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 2 },
 
   // Input area
   inputArea: {
@@ -567,7 +619,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.55)",
   },
   inputRow: {
@@ -585,7 +637,7 @@ const styles = StyleSheet.create({
     paddingTop: 13,
     paddingBottom: 13,
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "#F0EBF8",
     maxHeight: 100,
   },

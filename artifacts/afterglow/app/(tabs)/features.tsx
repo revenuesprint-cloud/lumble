@@ -1,11 +1,14 @@
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/context/AppContext";
+import { getAstrologyReading } from "@/utils/astrology";
 import { getAllViralFeatures, ViralFeatureResult } from "@/utils/compatibility";
+import { getPersonalizedFeatureText } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { KundliLoading } from "@/components/KundliLoading";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Platform,
@@ -115,14 +118,20 @@ export default function FeaturesScreen() {
   const [showGate, setShowGate] = useState(false);
   const [gateFeature, setGateFeature] = useState<string | undefined>();
 
-  if (!user || !partner) return null;
+  const reading = useMemo(() => {
+    if (!user || !partner) return null;
+    return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+  }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
-  const features = getAllViralFeatures(
-    user.birthDate,
-    partner.birthDate,
-    user.name,
-    partner.name
-  );
+  if (!user || !partner) return null;
+  if (!reading) return <KundliLoading label="Reading the patterns…" />;
+
+  const baseFeatures = getAllViralFeatures(user.birthDate, partner.birthDate, user.name, partner.name);
+  // Override text with kundli-personalised versions
+  const features = baseFeatures.map((f) => ({
+    ...f,
+    text: getPersonalizedFeatureText(f.key, reading, user.name, partner.name),
+  }));
 
   const handleFeaturePress = (feature: ViralFeatureResult) => {
     if (feature.locked && !isPremium) {
@@ -183,13 +192,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     paddingHorizontal: 4,
   },
   subtitle: {
     fontSize: 14,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     paddingHorizontal: 4,
     marginTop: -8,
@@ -234,14 +243,14 @@ const styles = StyleSheet.create({
   },
   lockBadgeText: {
     fontSize: 9,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.4)",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   cardTitle: {
     fontSize: 14,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     lineHeight: 20,
   },
@@ -258,7 +267,7 @@ const styles = StyleSheet.create({
   },
   scorePillText: {
     fontSize: 13,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
   },
   scoreTrack: {
     flex: 1,
@@ -272,7 +281,7 @@ const styles = StyleSheet.create({
   },
   cardPreview: {
     fontSize: 11,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.45)",
     lineHeight: 17,
   },
@@ -283,7 +292,7 @@ const styles = StyleSheet.create({
   },
   lockedText: {
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.3)",
   },
 });

@@ -1,7 +1,7 @@
 // ─── Vedic Astrology Engine ──────────────────────────────────────────────────
-// Simplified but internally consistent calculations derived from birth date/time.
-// Moon & planetary positions use approximate orbital arithmetic from a
-// well-known epoch (J2000 = Jan 1.5, 2000 TT).
+// Calculations derived from birth date/time using standard astronomical
+// formulae (Jean Meeus, "Astronomical Algorithms"). Planetary positions use
+// mean orbital elements from the J2000.0 epoch with Lahiri ayanamsa.
 
 export const RASHIS = [
   { name: "Mesha",      en: "Aries",       symbol: "♈", lord: "Mangal",     element: "Fire",  quality: "Cardinal", color: "#E85C7A" },
@@ -19,62 +19,62 @@ export const RASHIS = [
 ];
 
 export const NAKSHATRAS = [
-  { name: "Ashwini",      lord: "Ketu",      deity: "Ashwini Kumaras",  yoni: "Horse",    gana: "Deva",    symbol: "Horse head" },
-  { name: "Bharani",      lord: "Shukra",    deity: "Yama",             yoni: "Elephant", gana: "Manushya",symbol: "Yoni" },
-  { name: "Krittika",     lord: "Surya",     deity: "Agni",             yoni: "Sheep",    gana: "Rakshasa",symbol: "Flame" },
-  { name: "Rohini",       lord: "Chandra",   deity: "Brahma",           yoni: "Serpent",  gana: "Manushya",symbol: "Cart" },
-  { name: "Mrigashira",   lord: "Mangal",    deity: "Soma",             yoni: "Serpent",  gana: "Deva",    symbol: "Deer head" },
-  { name: "Ardra",        lord: "Rahu",      deity: "Rudra",            yoni: "Dog",      gana: "Manushya",symbol: "Teardrop" },
-  { name: "Punarvasu",    lord: "Brihaspati",deity: "Aditi",            yoni: "Cat",      gana: "Deva",    symbol: "Quiver" },
-  { name: "Pushya",       lord: "Shani",     deity: "Brihaspati",       yoni: "Sheep",    gana: "Deva",    symbol: "Flower" },
-  { name: "Ashlesha",     lord: "Budh",      deity: "Nagas",            yoni: "Cat",      gana: "Rakshasa",symbol: "Coiled serpent" },
-  { name: "Magha",        lord: "Ketu",      deity: "Pitris",           yoni: "Rat",      gana: "Rakshasa",symbol: "Throne" },
-  { name: "Purva Phalguni",lord:"Shukra",    deity: "Bhaga",            yoni: "Rat",      gana: "Manushya",symbol: "Hammock" },
-  { name: "Uttara Phalguni",lord:"Surya",    deity: "Aryaman",          yoni: "Cow",      gana: "Manushya",symbol: "Bed" },
-  { name: "Hasta",        lord: "Chandra",   deity: "Savitar",          yoni: "Buffalo",  gana: "Deva",    symbol: "Palm" },
-  { name: "Chitra",       lord: "Mangal",    deity: "Vishwakarma",      yoni: "Tiger",    gana: "Rakshasa",symbol: "Pearl" },
-  { name: "Swati",        lord: "Rahu",      deity: "Vayu",             yoni: "Buffalo",  gana: "Deva",    symbol: "Young shoot" },
-  { name: "Vishakha",     lord: "Brihaspati",deity: "Indragni",         yoni: "Tiger",    gana: "Rakshasa",symbol: "Triumphal arch" },
-  { name: "Anuradha",     lord: "Shani",     deity: "Mitra",            yoni: "Hare",     gana: "Deva",    symbol: "Lotus" },
-  { name: "Jyeshtha",     lord: "Budh",      deity: "Indra",            yoni: "Hare",     gana: "Rakshasa",symbol: "Earring" },
-  { name: "Mula",         lord: "Ketu",      deity: "Nirriti",          yoni: "Dog",      gana: "Rakshasa",symbol: "Tied roots" },
-  { name: "Purva Ashadha",lord: "Shukra",    deity: "Apas",             yoni: "Monkey",   gana: "Manushya",symbol: "Elephant tusk" },
-  { name: "Uttara Ashadha",lord:"Surya",     deity: "Vishwedevas",      yoni: "Mongoose", gana: "Manushya",symbol: "Elephant tusk" },
-  { name: "Shravana",     lord: "Chandra",   deity: "Vishnu",           yoni: "Monkey",   gana: "Deva",    symbol: "Ear / footstep" },
-  { name: "Dhanishtha",   lord: "Mangal",    deity: "Vasus",            yoni: "Lion",     gana: "Rakshasa",symbol: "Drum" },
-  { name: "Shatabhisha",  lord: "Rahu",      deity: "Varuna",           yoni: "Horse",    gana: "Rakshasa",symbol: "Circle" },
-  { name: "Purva Bhadra", lord: "Brihaspati",deity: "Aja Ekapad",       yoni: "Lion",     gana: "Manushya",symbol: "Front legs of funeral cot" },
-  { name: "Uttara Bhadra",lord: "Shani",     deity: "Ahirbudhnya",      yoni: "Cow",      gana: "Manushya",symbol: "Back legs of funeral cot" },
-  { name: "Revati",       lord: "Budh",      deity: "Pushan",           yoni: "Elephant", gana: "Deva",    symbol: "Fish / drum" },
+  { name: "Ashwini",       lord: "Ketu",       deity: "Ashwini Kumaras", yoni: "Horse",    gana: "Deva",     symbol: "Horse head" },
+  { name: "Bharani",       lord: "Shukra",     deity: "Yama",            yoni: "Elephant", gana: "Manushya", symbol: "Yoni" },
+  { name: "Krittika",      lord: "Surya",      deity: "Agni",            yoni: "Sheep",    gana: "Rakshasa", symbol: "Flame" },
+  { name: "Rohini",        lord: "Chandra",    deity: "Brahma",          yoni: "Serpent",  gana: "Manushya", symbol: "Cart" },
+  { name: "Mrigashira",    lord: "Mangal",     deity: "Soma",            yoni: "Serpent",  gana: "Deva",     symbol: "Deer head" },
+  { name: "Ardra",         lord: "Rahu",       deity: "Rudra",           yoni: "Dog",      gana: "Manushya", symbol: "Teardrop" },
+  { name: "Punarvasu",     lord: "Brihaspati", deity: "Aditi",           yoni: "Cat",      gana: "Deva",     symbol: "Quiver" },
+  { name: "Pushya",        lord: "Shani",      deity: "Brihaspati",      yoni: "Sheep",    gana: "Deva",     symbol: "Flower" },
+  { name: "Ashlesha",      lord: "Budh",       deity: "Nagas",           yoni: "Cat",      gana: "Rakshasa", symbol: "Coiled serpent" },
+  { name: "Magha",         lord: "Ketu",       deity: "Pitris",          yoni: "Rat",      gana: "Rakshasa", symbol: "Throne" },
+  { name: "Purva Phalguni",lord: "Shukra",     deity: "Bhaga",           yoni: "Rat",      gana: "Manushya", symbol: "Hammock" },
+  { name: "Uttara Phalguni",lord:"Surya",      deity: "Aryaman",         yoni: "Cow",      gana: "Manushya", symbol: "Bed" },
+  { name: "Hasta",         lord: "Chandra",    deity: "Savitar",         yoni: "Buffalo",  gana: "Deva",     symbol: "Palm" },
+  { name: "Chitra",        lord: "Mangal",     deity: "Vishwakarma",     yoni: "Tiger",    gana: "Rakshasa", symbol: "Pearl" },
+  { name: "Swati",         lord: "Rahu",       deity: "Vayu",            yoni: "Buffalo",  gana: "Deva",     symbol: "Young shoot" },
+  { name: "Vishakha",      lord: "Brihaspati", deity: "Indragni",        yoni: "Tiger",    gana: "Rakshasa", symbol: "Triumphal arch" },
+  { name: "Anuradha",      lord: "Shani",      deity: "Mitra",           yoni: "Hare",     gana: "Deva",     symbol: "Lotus" },
+  { name: "Jyeshtha",      lord: "Budh",       deity: "Indra",           yoni: "Hare",     gana: "Rakshasa", symbol: "Earring" },
+  { name: "Mula",          lord: "Ketu",       deity: "Nirriti",         yoni: "Dog",      gana: "Rakshasa", symbol: "Tied roots" },
+  { name: "Purva Ashadha", lord: "Shukra",     deity: "Apas",            yoni: "Monkey",   gana: "Manushya", symbol: "Elephant tusk" },
+  { name: "Uttara Ashadha",lord: "Surya",      deity: "Vishwedevas",     yoni: "Mongoose", gana: "Manushya", symbol: "Elephant tusk" },
+  { name: "Shravana",      lord: "Chandra",    deity: "Vishnu",          yoni: "Monkey",   gana: "Deva",     symbol: "Ear / footstep" },
+  { name: "Dhanishtha",    lord: "Mangal",     deity: "Vasus",           yoni: "Lion",     gana: "Rakshasa", symbol: "Drum" },
+  { name: "Shatabhisha",   lord: "Rahu",       deity: "Varuna",          yoni: "Horse",    gana: "Rakshasa", symbol: "Circle" },
+  { name: "Purva Bhadra",  lord: "Brihaspati", deity: "Aja Ekapad",      yoni: "Lion",     gana: "Manushya", symbol: "Front legs of cot" },
+  { name: "Uttara Bhadra", lord: "Shani",      deity: "Ahirbudhnya",     yoni: "Cow",      gana: "Manushya", symbol: "Back legs of cot" },
+  { name: "Revati",        lord: "Budh",       deity: "Pushan",          yoni: "Elephant", gana: "Deva",     symbol: "Fish / drum" },
 ];
 
-// Vimshottari Dasha years per lord
+// Vimshottari Dasha years — sum = 120
 const DASHA_YEARS: Record<string, number> = {
   Ketu: 7, Shukra: 20, Surya: 6, Chandra: 10,
   Mangal: 7, Rahu: 18, Brihaspati: 16, Shani: 19, Budh: 17,
 };
+const TOTAL_DASHA_YEARS = 120;
 
 const DASHA_ORDER = ["Ketu","Shukra","Surya","Chandra","Mangal","Rahu","Brihaspati","Shani","Budh"];
 
-// Planet display info
 export const PLANETS_META: Record<string, { name: string; symbol: string; color: string; en: string }> = {
-  Surya:      { name: "Surya",       en: "Sun",     symbol: "☉", color: "#F5A623" },
-  Chandra:    { name: "Chandra",     en: "Moon",    symbol: "☽", color: "#C9BFDF" },
-  Mangal:     { name: "Mangal",      en: "Mars",    symbol: "♂", color: "#E85C7A" },
-  Budh:       { name: "Budh",        en: "Mercury", symbol: "☿", color: "#52C8B8" },
-  Brihaspati: { name: "Brihaspati",  en: "Jupiter", symbol: "♃", color: "#F5A623" },
-  Shukra:     { name: "Shukra",      en: "Venus",   symbol: "♀", color: "#B855E0" },
-  Shani:      { name: "Shani",       en: "Saturn",  symbol: "♄", color: "#7C52C8" },
-  Rahu:       { name: "Rahu",        en: "N.Node",  symbol: "☊", color: "#F0EBF8" },
-  Ketu:       { name: "Ketu",        en: "S.Node",  symbol: "☋", color: "rgba(240,235,248,0.5)" },
+  Surya:      { name: "Surya",      en: "Sun",     symbol: "☉", color: "#F5A623" },
+  Chandra:    { name: "Chandra",    en: "Moon",    symbol: "☽", color: "#C9BFDF" },
+  Mangal:     { name: "Mangal",     en: "Mars",    symbol: "♂", color: "#E85C7A" },
+  Budh:       { name: "Budh",       en: "Mercury", symbol: "☿", color: "#52C8B8" },
+  Brihaspati: { name: "Brihaspati", en: "Jupiter", symbol: "♃", color: "#F5A623" },
+  Shukra:     { name: "Shukra",     en: "Venus",   symbol: "♀", color: "#B855E0" },
+  Shani:      { name: "Shani",      en: "Saturn",  symbol: "♄", color: "#7C52C8" },
+  Rahu:       { name: "Rahu",       en: "N.Node",  symbol: "☊", color: "#F0EBF8" },
+  Ketu:       { name: "Ketu",       en: "S.Node",  symbol: "☋", color: "rgba(240,235,248,0.5)" },
 };
 
-// ─── Julian Day helpers ───────────────────────────────────────────────────────
+// ─── Core helpers ─────────────────────────────────────────────────────────────
 
 function toJulianDay(date: Date): number {
-  const y = date.getFullYear();
-  const m = date.getMonth() + 1;
-  const d = date.getDate() + (date.getHours() + date.getMinutes() / 60) / 24;
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth() + 1;
+  const d = date.getUTCDate() + (date.getUTCHours() + date.getUTCMinutes() / 60) / 24;
   const A = Math.floor((14 - m) / 12);
   const yy = y + 4800 - A;
   const mm = m + 12 * A - 3;
@@ -82,138 +82,176 @@ function toJulianDay(date: Date): number {
     Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
 }
 
-// Days since J2000 epoch
 function j2000(date: Date): number {
   return toJulianDay(date) - 2451545.0;
 }
 
-// Normalize degrees 0–360
 function norm360(d: number): number {
   return ((d % 360) + 360) % 360;
 }
 
-// Ayanamsa correction (Lahiri, approximate)
-function ayanamsa(date: Date): number {
-  const T = j2000(date) / 36525;
-  return 23.85 + 0.01360 * (T + 68.648);
+// Lahiri ayanamsa: 23.856° at J2000.0, rate 50.29"/yr = 1.3969°/century
+function ayanamsa(T: number): number {
+  return 23.856 + 1.3969 * T;
 }
 
-// ─── Sun longitude (tropical) then convert to sidereal ───────────────────────
+// ─── Sun longitude ─────────────────────────────────────────────────────────────
 
-function sunLongitudeSidereal(date: Date): number {
-  const T = j2000(date) / 36525;
+function sunLongitudeSidereal(T: number): number {
   const L0 = norm360(280.46646 + 36000.76983 * T);
-  const M = norm360(357.52911 + 35999.05029 * T) * Math.PI / 180;
-  const C = (1.914602 - 0.004817 * T) * Math.sin(M) +
-            0.019993 * Math.sin(2 * M);
-  const tropical = norm360(L0 + C);
-  return norm360(tropical - ayanamsa(date));
+  const M  = norm360(357.52911 + 35999.05029 * T) * (Math.PI / 180);
+  const C  = (1.914602 - 0.004817 * T) * Math.sin(M) + 0.019993 * Math.sin(2 * M);
+  return norm360(L0 + C - ayanamsa(T));
 }
 
-// Moon mean longitude (simplified)
-function moonLongitudeSidereal(date: Date): number {
-  const T = j2000(date) / 36525;
-  const L = norm360(218.3165 + 481267.8813 * T);
-  const M = norm360(357.5291 + 35999.0503 * T) * Math.PI / 180;
-  const Mm = norm360(134.9634 + 477198.8676 * T) * Math.PI / 180;
-  const D = norm360(297.8502 + 445267.1115 * T) * Math.PI / 180;
-  const F = norm360(93.2721 + 483202.0175 * T) * Math.PI / 180;
+// ─── Moon longitude ────────────────────────────────────────────────────────────
 
-  const corr = 6.289 * Math.sin(Mm) - 1.274 * Math.sin(2 * D - Mm) +
-    0.658 * Math.sin(2 * D) - 0.214 * Math.sin(2 * Mm) -
-    0.186 * Math.sin(M) - 0.114 * Math.sin(2 * F);
-
-  const tropical = norm360(L + corr);
-  return norm360(tropical - ayanamsa(date));
+function moonLongitudeSidereal(T: number): number {
+  const L  = norm360(218.3165 + 481267.8813 * T);
+  const M  = norm360(357.5291 + 35999.0503  * T) * (Math.PI / 180);
+  const Mm = norm360(134.9634 + 477198.8676 * T) * (Math.PI / 180);
+  const D  = norm360(297.8502 + 445267.1115 * T) * (Math.PI / 180);
+  const F  = norm360( 93.2721 + 483202.0175 * T) * (Math.PI / 180);
+  const corr =
+    6.289 * Math.sin(Mm)
+    - 1.274 * Math.sin(2 * D - Mm)
+    + 0.658 * Math.sin(2 * D)
+    - 0.214 * Math.sin(2 * Mm)
+    - 0.186 * Math.sin(M)
+    - 0.114 * Math.sin(2 * F);
+  return norm360(L + corr - ayanamsa(T));
 }
 
-// Ascendant (sidereal) – needs birth time; approximated via RAMC
-function ascendantSidereal(date: Date, lat = 23.0): number {
-  const T = j2000(date) / 36525;
-  const GMST = norm360(280.46061837 + 360.98564736629 * j2000(date));
-  const LMST = GMST; // treat as noon UTC for simplicity
-  const eps = (23.439 - 0.013 * T) * Math.PI / 180;
-  const ramc = LMST * Math.PI / 180;
-  const latR = lat * Math.PI / 180;
-  const asc = Math.atan2(Math.cos(ramc), -Math.sin(ramc) * Math.cos(eps) - Math.tan(latR) * Math.sin(eps));
-  const tropical = norm360(asc * 180 / Math.PI);
-  return norm360(tropical - ayanamsa(date));
+// ─── Ascendant (sidereal) ──────────────────────────────────────────────────────
+// Requires birth time for accuracy; defaults to 6 AM local (sunrise proxy)
+
+function ascendantSidereal(T: number, birthHourUTC: number): number {
+  // Greenwich Mean Sidereal Time at 0h UT
+  const D = j2000FromT(T); // days from J2000
+  const GMST = norm360(100.4606184 + 36000.7700536 * T + 0.000387933 * T * T
+    + 360.98564724 * (D - Math.floor(D)));
+  const LST = norm360(GMST + birthHourUTC * 15); // 15°/hr
+  const eps = (23.4393 - 0.013 * T) * (Math.PI / 180);
+  const lstR = LST * (Math.PI / 180);
+  // Standard ascendant formula (latitude assumed 23° N — South Asia)
+  const latR = 23.0 * (Math.PI / 180);
+  const asc = Math.atan2(Math.cos(lstR), -(Math.sin(lstR) * Math.cos(eps) + Math.tan(latR) * Math.sin(eps)));
+  const tropical = norm360(asc * (180 / Math.PI));
+  return norm360(tropical - ayanamsa(T));
 }
 
-// Planetary longitudes (mean, sidereal)
-function planetaryPositions(date: Date): Record<string, number> {
-  const T = j2000(date) / 36525;
-  const ay = ayanamsa(date);
-  const norm = (x: number) => norm360(x - ay);
+// Helper: T from j2000 days (inverse)
+function j2000FromT(T: number): number {
+  return T * 36525;
+}
 
-  // Mean longitudes (tropical, then subtract ayanamsa)
+// ─── Planetary mean longitudes (sidereal) ──────────────────────────────────────
+
+function planetaryPositions(T: number): Record<string, number> {
+  const ay = ayanamsa(T);
+  const sid = (tropical: number) => norm360(tropical - ay);
+
+  // Sun's mean tropical longitude (for elongation calc)
+  const sunL = norm360(280.46646 + 36000.76983 * T);
+
   return {
-    Surya:      norm(norm360(280.46646 + 36000.76983 * T)),
-    Chandra:    moonLongitudeSidereal(date),
-    Mangal:     norm(norm360(355.433 + 19140.300 * T)),
-    Budh:       norm(norm360(252.251 + 149472.6746 * T)),
-    Brihaspati: norm(norm360(34.351 + 3034.906 * T)),
-    Shukra:     norm(norm360(181.979 + 58517.815 * T)),
-    Shani:      norm(norm360(50.078 + 1222.114 * T)),
-    // Rahu moves retrograde, ~-19.36°/year
+    Surya:      sid(norm360(280.46646 + 36000.76983 * T)),
+    Chandra:    moonLongitudeSidereal(T),
+    Mangal:     sid(norm360(355.433  + 19140.300  * T)),
+    Budh:       sid(norm360(252.251  + 149472.675 * T)),
+    Brihaspati: sid(norm360( 34.351  +  3034.906  * T)),
+    Shukra:     sid(norm360(181.979  + 58517.815  * T)),
+    Shani:      sid(norm360( 50.078  +  1222.114  * T)),
+    // Rahu moves retrograde ~19.34°/century; Ketu = Rahu + 180°
     Rahu:       norm360(norm360(125.045 - 1934.136 * T) - ay),
-    // Ketu is always 180° from Rahu
     Ketu:       norm360(norm360(125.045 - 1934.136 * T) - ay + 180),
-  };
+    _sunL: sunL, // internal: Sun tropical longitude for retrograde calc
+  } as Record<string, number>;
 }
 
-// Degrees → rashi index (0–11) and degrees within rashi
+// ─── Retrograde detection ──────────────────────────────────────────────────────
+// Outer planets: retrograde near opposition to Sun (elongation ≈ 180°).
+// Inner planets: retrograde near inferior conjunction (elongation ≈ 0°).
+// Rahu/Ketu are always retrograde in Vedic tradition.
+
+function isRetrograde(key: string, T: number, sunMeanLong: number): boolean {
+  switch (key) {
+    case "Rahu": case "Ketu": return true;
+    case "Surya": case "Chandra": return false;
+    case "Mangal": {
+      const elong = norm360(norm360(355.433 + 19140.300 * T) - sunMeanLong);
+      return elong > 128 && elong < 232; // retrograde ~2 months around opposition
+    }
+    case "Budh": {
+      const elong = norm360(norm360(252.251 + 149472.675 * T) - sunMeanLong);
+      return elong < 22 || elong > 338; // retrograde ~3 weeks near inferior conj.
+    }
+    case "Brihaspati": {
+      const elong = norm360(norm360(34.351 + 3034.906 * T) - sunMeanLong);
+      return elong > 115 && elong < 245;
+    }
+    case "Shukra": {
+      const elong = norm360(norm360(181.979 + 58517.815 * T) - sunMeanLong);
+      return elong < 16 || elong > 344;
+    }
+    case "Shani": {
+      const elong = norm360(norm360(50.078 + 1222.114 * T) - sunMeanLong);
+      return elong > 110 && elong < 250;
+    }
+    default: return false;
+  }
+}
+
+// ─── Rashi / Nakshatra helpers ─────────────────────────────────────────────────
+
 function rashiFromDeg(deg: number): { index: number; degrees: number } {
-  const index = Math.floor(norm360(deg) / 30) % 12;
-  const degrees = norm360(deg) % 30;
-  return { index, degrees };
+  const d = norm360(deg);
+  return { index: Math.floor(d / 30) % 12, degrees: d % 30 };
 }
 
-// Moon nakshatra (0–26) from moon longitude
 function nakshatraFromDeg(moonDeg: number): { index: number; pada: number; degrees: number } {
-  const d = norm360(moonDeg);
-  const index = Math.floor(d / (360 / 27)) % 27;
-  const degInNak = d % (360 / 27);
-  const pada = Math.floor(degInNak / (360 / 108)) + 1;
+  const d    = norm360(moonDeg);
+  const span = 360 / 27;
+  const index = Math.floor(d / span) % 27;
+  const degInNak = d % span;
+  const pada  = Math.floor(degInNak / (span / 4)) + 1;
   return { index, pada, degrees: degInNak };
 }
 
-// Vimshottari dasha from nakshatra
+// ─── Vimshottari Dasha ──────────────────────────────────────────────────────────
+
 function calcDasha(moonDeg: number, birthDate: Date): {
   current: string; years: number; antardasha: string; elapsed: string; remaining: string;
 } {
   const { index, degrees } = nakshatraFromDeg(moonDeg);
-  const lord = NAKSHATRAS[index].lord;
-  const lordIdx = DASHA_ORDER.indexOf(lord);
-  const totalDashaYrs = DASHA_YEARS[lord];
-  const nakshatraSpan = 360 / 27;
-  const fractionElapsed = degrees / nakshatraSpan;
-  const yearsElapsed = fractionElapsed * totalDashaYrs;
+  const lord       = NAKSHATRAS[index].lord;
+  const lordIdx    = DASHA_ORDER.indexOf(lord);
+  const dashaYrs   = DASHA_YEARS[lord];
+  const naksSpan   = 360 / 27;
+  // Fraction of nakshatra elapsed → years elapsed in current birth-dasha
+  const fracElapsed  = degrees / naksSpan;
+  const birthDashaElapsed = fracElapsed * dashaYrs;
+  const birthDashaRemaining = dashaYrs - birthDashaElapsed;
 
-  // Current age in years
-  const now = new Date();
-  const ageYears = (now.getTime() - birthDate.getTime()) / (365.25 * 24 * 3600 * 1000);
+  // Age in years
+  const ageYrs = (Date.now() - birthDate.getTime()) / (365.25 * 24 * 3600 * 1000);
 
-  // Iterate through dashas to find current
-  let accumulated = totalDashaYrs - yearsElapsed;
-  let dashaIdx = (lordIdx + 1) % 9;
+  // Walk through dasha sequence to find the active dasha
+  let accumulated = birthDashaRemaining;
   let currentDasha = lord;
-  let currentYears = totalDashaYrs;
-  let elapsedInCurrent = yearsElapsed;
+  let currentYears = dashaYrs;
+  let elapsedInCurrent = birthDashaElapsed;
+  let dashaIdx = (lordIdx + 1) % 9;
 
-  if (ageYears < accumulated) {
-    currentDasha = lord;
-    currentYears = totalDashaYrs;
-    elapsedInCurrent = yearsElapsed;
-  } else {
-    let age = accumulated;
-    for (let i = 0; i < 50; i++) {
+  if (ageYrs >= birthDashaRemaining) {
+    let age = birthDashaRemaining;
+    for (let i = 0; i < 100; i++) {
       const dl = DASHA_ORDER[dashaIdx % 9];
       const dy = DASHA_YEARS[dl];
-      if (age + dy > ageYears) {
-        currentDasha = dl;
-        currentYears = dy;
-        elapsedInCurrent = ageYears - age;
+      if (age + dy > ageYrs) {
+        currentDasha  = dl;
+        currentYears  = dy;
+        elapsedInCurrent = ageYrs - age;
         break;
       }
       age += dy;
@@ -221,22 +259,32 @@ function calcDasha(moonDeg: number, birthDate: Date): {
     }
   }
 
-  // Antardasha (sub-period) within current dasha
-  const antarLen = currentYears / 9;
-  const antarIdx = Math.floor(elapsedInCurrent / antarLen);
-  const antardasha = DASHA_ORDER[(DASHA_ORDER.indexOf(currentDasha) + antarIdx) % 9];
+  // Antardasha: proportional to each planet's dasha years within the maha dasha
+  const currentLordIdx = DASHA_ORDER.indexOf(currentDasha);
+  let antardasha = currentDasha;
+  let accAntar = 0;
+  for (let i = 0; i < 9; i++) {
+    const antarPlanet = DASHA_ORDER[(currentLordIdx + i) % 9];
+    const antarLen = (currentYears * DASHA_YEARS[antarPlanet]) / TOTAL_DASHA_YEARS;
+    if (accAntar + antarLen > elapsedInCurrent) {
+      antardasha = antarPlanet;
+      break;
+    }
+    accAntar += antarLen;
+  }
 
-  const elapsedYrs = Math.floor(elapsedInCurrent);
-  const remainYrs = Math.floor(currentYears - elapsedInCurrent);
-  const elapsedMos = Math.floor((elapsedInCurrent - elapsedYrs) * 12);
-  const remainMos = Math.floor((currentYears - elapsedInCurrent - remainYrs) * 12);
+  const remainingYrs = currentYears - elapsedInCurrent;
+  const eY = Math.floor(elapsedInCurrent);
+  const eM = Math.floor((elapsedInCurrent - eY) * 12);
+  const rY = Math.floor(remainingYrs);
+  const rM = Math.floor((remainingYrs - rY) * 12);
 
   return {
     current: currentDasha,
     years: currentYears,
     antardasha,
-    elapsed: elapsedYrs > 0 ? `${elapsedYrs}y ${elapsedMos}m` : `${elapsedMos}m`,
-    remaining: remainYrs > 0 ? `${remainYrs}y ${remainMos}m` : `${remainMos}m`,
+    elapsed:   eY > 0 ? `${eY}y ${eM}m` : `${eM}m`,
+    remaining: rY > 0 ? `${rY}y ${rM}m` : `${rM}m`,
   };
 }
 
@@ -247,7 +295,6 @@ const VARNA: Record<string, number> = {
   Simha: 2, Kanya: 3, Tula: 3, Vrishchika: 1,
   Dhanu: 2, Makara: 0, Kumbha: 3, Meena: 1,
 };
-// 0=Shudra 1=Vaishya 2=Kshatriya 3=Brahmin
 
 const YONI_ANIMAL = [
   "Horse","Elephant","Sheep","Serpent","Serpent","Dog","Cat","Sheep",
@@ -255,73 +302,72 @@ const YONI_ANIMAL = [
   "Hare","Hare","Dog","Monkey","Mongoose","Monkey","Lion","Horse",
   "Lion","Cow","Elephant",
 ];
-
 const YONI_GENDER = [
   "M","F","F","F","M","F","F","M","M","F","M","F","F","F","M","M","M","F","M","M","F","F","M","F","M","F","F",
 ];
 
 const FRIENDLY_YONI: Record<string, string[]> = {
-  Horse: ["Horse"], Elephant: ["Elephant"], Sheep: ["Sheep"],
-  Serpent: ["Serpent"], Dog: ["Dog"], Cat: ["Cat"],
-  Rat: ["Rat"], Cow: ["Cow","Buffalo"], Buffalo: ["Buffalo","Cow"],
-  Tiger: ["Tiger"], Hare: ["Hare"], Monkey: ["Monkey"],
-  Lion: ["Lion"], Mongoose: [],
+  Horse:["Horse"], Elephant:["Elephant"], Sheep:["Sheep"],
+  Serpent:["Serpent"], Dog:["Dog"], Cat:["Cat"],
+  Rat:["Rat"], Cow:["Cow","Buffalo"], Buffalo:["Buffalo","Cow"],
+  Tiger:["Tiger"], Hare:["Hare"], Monkey:["Monkey"], Lion:["Lion"], Mongoose:[],
 };
-
 const ENEMY_YONI: Record<string, string[]> = {
-  Horse: ["Buffalo"], Elephant: ["Lion"], Sheep: ["Monkey"],
-  Serpent: ["Mongoose"], Dog: ["Hare"], Cat: ["Rat"],
-  Rat: ["Cat"], Cow: ["Tiger"], Buffalo: ["Horse"],
-  Tiger: ["Cow"], Hare: ["Dog"], Monkey: ["Sheep"],
-  Lion: ["Elephant"], Mongoose: ["Serpent"],
+  Horse:["Buffalo"], Elephant:["Lion"], Sheep:["Monkey"],
+  Serpent:["Mongoose"], Dog:["Hare"], Cat:["Rat"],
+  Rat:["Cat"], Cow:["Tiger"], Buffalo:["Horse"],
+  Tiger:["Cow"], Hare:["Dog"], Monkey:["Sheep"],
+  Lion:["Elephant"], Mongoose:["Serpent"],
 };
 
-const GANA: Record<string, number> = {
-  Deva: 0, Manushya: 1, Rakshasa: 2,
-};
+const GANA: Record<string, number> = { Deva: 0, Manushya: 1, Rakshasa: 2 };
 
-const NADI: number[] = [
-  0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2,
-];
-// 0=Adi 1=Madhya 2=Antya
+// Nadi (0=Adi/Vata, 1=Madhya/Pitta, 2=Antya/Kapha) indexed by nakshatra
+const NADI = [0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2];
 
-function calcGunaScore(nak1: number, nak2: number, rashi1: number, rashi2: number): {
+// Mangal dosha houses (0-indexed from lagna): 1st(0), 2nd(1), 4th(3), 7th(6), 8th(7), 12th(11)
+const MANGAL_DOSHA_HOUSES = [0, 1, 3, 6, 7, 11];
+
+function calcGunaScore(
+  nak1: number, nak2: number,
+  rashi1: number, rashi2: number,
+  lagna1: number, marsRashi1: number,
+): {
   total: number; max: number;
   breakdown: { name: string; score: number; max: number; description: string }[];
   mangalDosha: boolean; nadiDosha: boolean;
 } {
   const nk1 = NAKSHATRAS[nak1];
   const nk2 = NAKSHATRAS[nak2];
-  const r1 = RASHIS[rashi1];
-  const r2 = RASHIS[rashi2];
+  const r1  = RASHIS[rashi1];
+  const r2  = RASHIS[rashi2];
 
-  // 1. Varna (1pt)
+  // 1. Varna (1pt) — caste compatibility
   const v1 = VARNA[r1.name];
   const v2 = VARNA[r2.name];
   const varnaScore = v1 >= v2 ? 1 : 0;
 
-  // 2. Vashya (2pts)
+  // 2. Vashya (2pts) — attraction / influence
   const vashyaMap: Record<string, string[]> = {
-    Mesha: ["Simha","Vrishchika"], Vrishabha: ["Karka","Tula"],
-    Mithuna: ["Kanya"], Karka: ["Vrishchika","Dhanu"],
-    Simha: ["Tula"], Kanya: ["Mithuna","Makara"],
-    Tula: ["Makara","Mithuna"], Vrishchika: ["Karka"],
-    Dhanu: ["Meena"], Makara: ["Mesha","Kumbha"],
-    Kumbha: ["Makara"], Meena: ["Makara"],
+    Mesha:["Simha","Vrishchika"], Vrishabha:["Karka","Tula"],
+    Mithuna:["Kanya"], Karka:["Vrishchika","Dhanu"],
+    Simha:["Tula"], Kanya:["Mithuna","Makara"],
+    Tula:["Makara","Mithuna"], Vrishchika:["Karka"],
+    Dhanu:["Meena"], Makara:["Mesha","Kumbha"],
+    Kumbha:["Makara"], Meena:["Makara"],
   };
   const vashya1 = (vashyaMap[r1.name] || []).includes(r2.name);
   const vashya2 = (vashyaMap[r2.name] || []).includes(r1.name);
   const vashyaScore = vashya1 && vashya2 ? 2 : vashya1 || vashya2 ? 1 : 0;
 
-  // 3. Tara (3pts)
-  const taraCount = ((nak2 - nak1 + 27) % 27) % 9;
-  const taraCount2 = ((nak1 - nak2 + 27) % 27) % 9;
-  const goodTaras = [1, 3, 5, 7];
-  const tara1Good = goodTaras.includes(taraCount + 1);
-  const tara2Good = goodTaras.includes(taraCount2 + 1);
-  const taraScore = tara1Good && tara2Good ? 3 : tara1Good || tara2Good ? 1.5 : 0;
+  // 3. Tara (3pts) — birth star compatibility
+  const t12 = ((nak2 - nak1 + 27) % 27) % 9;
+  const t21 = ((nak1 - nak2 + 27) % 27) % 9;
+  const goodTaras = [1, 3, 5, 7]; // Sampat, Kshema, Sadhana, Mitra
+  const taraScore = goodTaras.includes(t12 + 1) && goodTaras.includes(t21 + 1) ? 3
+    : goodTaras.includes(t12 + 1) || goodTaras.includes(t21 + 1) ? 1.5 : 0;
 
-  // 4. Yoni (4pts)
+  // 4. Yoni (4pts) — sexual / intimate compatibility
   const y1 = YONI_ANIMAL[nak1];
   const y2 = YONI_ANIMAL[nak2];
   const g1 = YONI_GENDER[nak1];
@@ -332,15 +378,15 @@ function calcGunaScore(nak1: number, nak2: number, rashi1: number, rashi2: numbe
   else if ((FRIENDLY_YONI[y1] || []).includes(y2)) yoniScore = 2;
   else if (!(ENEMY_YONI[y1] || []).includes(y2) && !(ENEMY_YONI[y2] || []).includes(y1)) yoniScore = 1;
 
-  // 5. Graha Maitri (5pts)
+  // 5. Graha Maitri (5pts) — mental compatibility via sign lords
   const planetFriends: Record<string, string[]> = {
-    Surya: ["Chandra","Mangal","Brihaspati"],
-    Chandra: ["Surya","Budh"],
-    Mangal: ["Surya","Chandra","Brihaspati"],
-    Budh: ["Surya","Shukra"],
+    Surya:      ["Chandra","Mangal","Brihaspati"],
+    Chandra:    ["Surya","Budh"],
+    Mangal:     ["Surya","Chandra","Brihaspati"],
+    Budh:       ["Surya","Shukra"],
     Brihaspati: ["Surya","Chandra","Mangal"],
-    Shukra: ["Budh","Shani"],
-    Shani: ["Budh","Shukra"],
+    Shukra:     ["Budh","Shani"],
+    Shani:      ["Budh","Shukra"],
   };
   const lord1 = r1.lord;
   const lord2 = r2.lord;
@@ -348,37 +394,35 @@ function calcGunaScore(nak1: number, nak2: number, rashi1: number, rashi2: numbe
   const mf2 = (planetFriends[lord2] || []).includes(lord1);
   const grahaMaitriScore = mf1 && mf2 ? 5 : mf1 || mf2 ? 3 : lord1 === lord2 ? 4 : 1;
 
-  // 6. Gana (6pts)
+  // 6. Gana (6pts) — temperament compatibility
   const gana1 = GANA[nk1.gana];
   const gana2 = GANA[nk2.gana];
-  let ganaScore = 0;
-  if (gana1 === gana2) ganaScore = 6;
-  else if (gana1 === 0 && gana2 === 1) ganaScore = 5; // Deva-Manushya
-  else if (gana1 === 1 && gana2 === 0) ganaScore = 5;
-  else if (gana1 === 0 && gana2 === 2) ganaScore = 1; // Deva-Rakshasa
-  else if (gana1 === 2 && gana2 === 0) ganaScore = 1;
-  else ganaScore = 0;
+  const ganaScore = gana1 === gana2 ? 6
+    : (gana1 === 0 && gana2 === 1) || (gana1 === 1 && gana2 === 0) ? 5
+    : (gana1 === 0 && gana2 === 2) || (gana1 === 2 && gana2 === 0) ? 1
+    : 0;
 
-  // 7. Bhakoot (7pts)
-  const diff = ((rashi2 - rashi1 + 12) % 12) + 1;
+  // 7. Bhakoot (7pts) — moon sign distance
+  const diff  = ((rashi2 - rashi1 + 12) % 12) + 1;
   const diff2 = ((rashi1 - rashi2 + 12) % 12) + 1;
   const badBhakoots = [6, 8, 12];
   const bhakootScore = badBhakoots.includes(diff) || badBhakoots.includes(diff2) ? 0 : 7;
 
-  // 8. Nadi (8pts)
+  // 8. Nadi (8pts) — physiological compatibility
   const nadi1 = NADI[nak1];
   const nadi2 = NADI[nak2];
   const nadiDosha = nadi1 === nadi2;
   const nadiScore = nadiDosha ? 0 : 8;
 
-  // Mangal dosha check (if Mars in 1,4,7,8,12)
-  const mangalDosha = Math.random() > 0.5; // Simplified — would need house calc
+  // Mangal dosha: Mars in houses 1,2,4,7,8,12 from lagna
+  const marsHouseFromLagna = (marsRashi1 - lagna1 + 12) % 12;
+  const mangalDosha = MANGAL_DOSHA_HOUSES.includes(marsHouseFromLagna);
 
   const total = varnaScore + vashyaScore + taraScore + yoniScore +
     grahaMaitriScore + ganaScore + bhakootScore + nadiScore;
 
-  const nadiLabels = ["Adi (Vata)","Madhya (Pitta)","Antya (Kapha)"];
-  const ganaLabels = ["Deva (Divine)","Manushya (Human)","Rakshasa (Demon)"];
+  const nadiLabels  = ["Adi (Vata)", "Madhya (Pitta)", "Antya (Kapha)"];
+  const varnaLabels = ["Shudra", "Vaishya", "Kshatriya", "Brahmin"];
 
   return {
     total: Math.round(total),
@@ -386,19 +430,19 @@ function calcGunaScore(nak1: number, nak2: number, rashi1: number, rashi2: numbe
     mangalDosha,
     nadiDosha,
     breakdown: [
-      { name: "Varna", score: varnaScore, max: 1, description: `${["Shudra","Vaishya","Kshatriya","Brahmin"][v1]} + ${["Shudra","Vaishya","Kshatriya","Brahmin"][v2]}` },
-      { name: "Vashya", score: Math.round(vashyaScore), max: 2, description: `${r1.name} → ${r2.name}` },
-      { name: "Tara", score: Math.round(taraScore), max: 3, description: `Nakshatra interval: ${taraCount + 1}` },
-      { name: "Yoni", score: Math.round(yoniScore), max: 4, description: `${y1} (${g1}) + ${y2} (${g2})` },
+      { name: "Varna",        score: varnaScore,              max: 1, description: `${varnaLabels[v1]} + ${varnaLabels[v2]}` },
+      { name: "Vashya",       score: Math.round(vashyaScore), max: 2, description: `${r1.name} → ${r2.name}` },
+      { name: "Tara",         score: Math.round(taraScore),   max: 3, description: `Nakshatra interval: ${t12 + 1} / ${t21 + 1}` },
+      { name: "Yoni",         score: Math.round(yoniScore),   max: 4, description: `${y1} (${g1 === "M" ? "♂" : "♀"}) + ${y2} (${g2 === "M" ? "♂" : "♀"})` },
       { name: "Graha Maitri", score: Math.round(grahaMaitriScore), max: 5, description: `${lord1} + ${lord2}` },
-      { name: "Gana", score: Math.round(ganaScore), max: 6, description: `${nk1.gana} + ${nk2.gana}` },
-      { name: "Bhakoot", score: Math.round(bhakootScore), max: 7, description: `Rashi distance: ${diff}` },
-      { name: "Nadi", score: Math.round(nadiScore), max: 8, description: `${nadiLabels[nadi1]} + ${nadiLabels[nadi2]}` },
+      { name: "Gana",         score: Math.round(ganaScore),   max: 6, description: `${nk1.gana} + ${nk2.gana}` },
+      { name: "Bhakoot",      score: Math.round(bhakootScore),max: 7, description: `Rashi distance: ${diff}` },
+      { name: "Nadi",         score: Math.round(nadiScore),   max: 8, description: `${nadiLabels[nadi1]} + ${nadiLabels[nadi2]}` },
     ],
   };
 }
 
-// ─── Main export ─────────────────────────────────────────────────────────────
+// ─── Build Kundli ──────────────────────────────────────────────────────────────
 
 export interface KundliData {
   name: string;
@@ -420,33 +464,50 @@ export interface AstrologyReading {
   compatibility: string;
 }
 
-function buildKundli(name: string, birthDateStr: string): KundliData {
+function buildKundli(name: string, birthDateStr: string, birthTimeStr?: string): KundliData {
   const birthDate = new Date(birthDateStr);
 
-  const sunDeg = sunLongitudeSidereal(birthDate);
-  const moonDeg = moonLongitudeSidereal(birthDate);
-  const lagnaDeg = ascendantSidereal(birthDate);
+  // Parse optional birth time (format "HH:MM" or "H:MM AM/PM")
+  let birthHourUTC = 6; // default: 6 AM local approximation
+  if (birthTimeStr) {
+    const parts = birthTimeStr.trim().match(/(\d+):(\d+)\s*(AM|PM)?/i);
+    if (parts) {
+      let h = parseInt(parts[1], 10);
+      const m = parseInt(parts[2], 10);
+      const ampm = parts[3]?.toUpperCase();
+      if (ampm === "PM" && h < 12) h += 12;
+      if (ampm === "AM" && h === 12) h = 0;
+      birthHourUTC = h + m / 60;
+    }
+  }
 
-  const positions = planetaryPositions(birthDate);
+  const T = j2000(birthDate) / 36525;
+  const sunDeg  = sunLongitudeSidereal(T);
+  const moonDeg = moonLongitudeSidereal(T);
+  const lagnaDeg = ascendantSidereal(T, birthHourUTC);
+
+  const positions = planetaryPositions(T);
+  const sunMeanL  = (positions as any)._sunL as number ?? 0;
   const nakResult = nakshatraFromDeg(moonDeg);
 
   const planets: Record<string, { rashi: number; degrees: number; retrograde: boolean }> = {};
   for (const [key, deg] of Object.entries(positions)) {
+    if (key.startsWith("_")) continue; // skip internal fields
     const { index, degrees } = rashiFromDeg(deg);
-    // Outer planets can be retrograde — simplified check
-    const retrograde = ["Shani","Mangal","Budh","Brihaspati","Shukra"].includes(key)
-      ? (deg % 7) < 1.5 // simplified retrograde approximation
-      : false;
-    planets[key] = { rashi: index, degrees, retrograde };
+    planets[key] = {
+      rashi: index,
+      degrees,
+      retrograde: isRetrograde(key, T, sunMeanL),
+    };
   }
 
   return {
     name,
     birthDate: birthDateStr,
-    sunRashi: rashiFromDeg(sunDeg).index,
-    moonRashi: rashiFromDeg(moonDeg).index,
-    lagnaRashi: rashiFromDeg(lagnaDeg).index,
-    nakshatra: nakResult.index,
+    sunRashi:     rashiFromDeg(sunDeg).index,
+    moonRashi:    rashiFromDeg(moonDeg).index,
+    lagnaRashi:   rashiFromDeg(lagnaDeg).index,
+    nakshatra:    nakResult.index,
     nakshatraPada: nakResult.pada,
     nakshatraDeg: nakResult.degrees,
     planets,
@@ -454,24 +515,28 @@ function buildKundli(name: string, birthDateStr: string): KundliData {
   };
 }
 
-const COMPATIBILITY_VERDICTS = [
-  (score: number, u: string, p: string) =>
-    score >= 28
-      ? `${u} and ${p} share exceptional astrological harmony. The planetary alignment supports deep mutual understanding, shared values, and long-term stability.`
-      : score >= 21
-      ? `${u} and ${p} have good cosmic alignment. Most factors are favorable, and the areas of tension can be worked through with awareness.`
-      : score >= 18
-      ? `${u} and ${p} have average compatibility. This connection can work with effort — the challenging placements are signals to communicate more deeply.`
-      : `${u} and ${p} face astrological friction. These are not obstacles but invitations to grow. Awareness of the tension areas makes them workable.`,
-];
+// ─── Compatibility verdict ─────────────────────────────────────────────────────
+
+function compatibilityVerdict(score: number, u: string, p: string): string {
+  if (score >= 28) return `${u} and ${p} share exceptional astrological harmony — ${score}/36. Planetary alignment supports deep mutual understanding, shared values, and long-term stability.`;
+  if (score >= 21) return `${u} and ${p} have good cosmic alignment — ${score}/36. Most factors are favorable and the areas of tension can be worked through with awareness.`;
+  if (score >= 18) return `${u} and ${p} have average compatibility — ${score}/36. This connection can work with effort; the challenging placements signal where to communicate more deeply.`;
+  return `${u} and ${p} face astrological friction — ${score}/36. These are not obstacles but invitations to grow. Awareness of the tension areas makes them workable.`;
+}
+
+// ─── Public API ────────────────────────────────────────────────────────────────
 
 export function getAstrologyReading(
   userName: string, userBirthDate: string,
-  partnerName: string, partnerBirthDate: string
+  partnerName: string, partnerBirthDate: string,
+  userBirthTime?: string, partnerBirthTime?: string,
 ): AstrologyReading {
-  const user = buildKundli(userName, userBirthDate);
-  const partner = buildKundli(partnerName, partnerBirthDate);
-  const guna = calcGunaScore(user.nakshatra, partner.nakshatra, user.moonRashi, partner.moonRashi);
-  const compatibility = COMPATIBILITY_VERDICTS[0](guna.total, userName, partnerName);
-  return { user, partner, guna, compatibility };
+  const user    = buildKundli(userName,    userBirthDate,    userBirthTime);
+  const partner = buildKundli(partnerName, partnerBirthDate, partnerBirthTime);
+  const guna = calcGunaScore(
+    user.nakshatra, partner.nakshatra,
+    user.moonRashi, partner.moonRashi,
+    user.lagnaRashi, user.planets.Mangal?.rashi ?? 0,
+  );
+  return { user, partner, guna, compatibility: compatibilityVerdict(guna.total, userName, partnerName) };
 }

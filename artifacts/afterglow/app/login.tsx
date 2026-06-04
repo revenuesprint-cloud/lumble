@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, setSessionDirect } = useAuth();
   const { user, hasCompletedOnboarding } = useApp();
 
   const [email, setEmail] = useState("");
@@ -84,7 +84,7 @@ export default function LoginScreen() {
             >
               <Text style={styles.logoGlyph}>◉</Text>
             </LinearGradient>
-            <Text style={styles.appName}>Afterglow</Text>
+            <Text style={styles.appName}>Lumble</Text>
             <Text style={styles.tagline}>
               {user?.name ? `Welcome back, ${user.name}` : "Welcome back"}
             </Text>
@@ -172,7 +172,10 @@ export default function LoginScreen() {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                onPress={() => router.replace("/(tabs)/home")}
+                onPress={async () => {
+                  await setSessionDirect();
+                  router.replace("/(tabs)/home");
+                }}
                 style={styles.secondaryBtn}
               >
                 <Text style={styles.secondaryBtnText}>Continue without password</Text>
@@ -214,13 +217,13 @@ const styles = StyleSheet.create({
   logoGlyph: { fontSize: 32, color: "#E85C7A" },
   appName: {
     fontSize: 32,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     letterSpacing: -0.5,
   },
   tagline: {
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
   },
 
@@ -228,7 +231,7 @@ const styles = StyleSheet.create({
   fieldGroup: { gap: 8 },
   fieldLabel: {
     fontSize: 12,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.4)",
     letterSpacing: 0.8,
     textTransform: "uppercase",
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 15,
     fontSize: 16,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "#F0EBF8",
   },
   eyeBtn: { padding: 4 },
@@ -266,7 +269,7 @@ const styles = StyleSheet.create({
   errorText: {
     flex: 1,
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "#E85C7A",
   },
 
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
   },
   loginBtnText: {
     fontSize: 17,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
 
@@ -288,7 +291,7 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1, height: 1, backgroundColor: "rgba(240,235,248,0.07)" },
   dividerText: {
     fontSize: 13,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.25)",
   },
 
@@ -307,14 +310,14 @@ const styles = StyleSheet.create({
   },
   secondaryBtnText: {
     fontSize: 14,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Nunito_500Medium",
     color: "rgba(240,235,248,0.45)",
   },
 
   bottomNote: {
     textAlign: "center",
     fontSize: 12,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.2)",
     lineHeight: 20,
   },

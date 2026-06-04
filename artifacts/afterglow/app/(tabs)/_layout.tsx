@@ -31,7 +31,7 @@ export default function TabLayout() {
           ) : null,
         tabBarLabelStyle: {
           fontSize: 10,
-          fontFamily: "Inter_500Medium",
+          fontFamily: "Nunito_500Medium",
         },
       }}
     >
