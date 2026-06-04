@@ -93,8 +93,8 @@ export function getDailyEnergyPersonalized(
   const reconnection  = dailyMod(reconnectionBase, baseSeed + 3);
   const tension       = Math.min(85, dailyMod(tensionBase, baseSeed + 4));
 
-  const moonU = RASHIS[reading.user.moonRashi].name;
-  const moonP = RASHIS[reading.partner.moonRashi].name;
+  const moonU = RASHIS[reading.user.moonRashi].en;
+  const moonP = RASHIS[reading.partner.moonRashi].en;
   const dc    = DASHA_CHAPTERS[userDasha];
 
   const MESSAGES = [
@@ -140,7 +140,7 @@ export function getPersonalizedFocus(
 
   const pool = [
     dc.lessonForLove,
-    `Your ${RASHIS[moonRashiIdx].name} moon needs ${mp.need ?? mp.needsToHear} today. Ask yourself if you're asking for it clearly.`,
+    `Your ${RASHIS[moonRashiIdx].en} moon needs ${mp.need ?? mp.needsToHear} today. Ask yourself if you're asking for it clearly.`,
     mp.emotion ? `You ${mp.emotion}. Notice when that pattern shows up with them today.` : mp.blindspot,
     relFocus[relType],
     mp.give ? `You ${mp.give}. That's your love language — is it landing the way you intend?` : mp.insight,
@@ -319,22 +319,23 @@ export function getPersonalizedSuggestions(
   const weakest = sk[0];
 
   // Build candidate pool with deterministic weights
+  // category values are shown to users — keep them plain English
   type Card = { q: string; category: string; icon: string; w: number };
   const pool: Card[] = [
-    { q: (dc?.theme ?? dc?.headline) ? `Why does my ${user.dasha.current} period feel heavy in this connection?` : "What does this connection need from me right now?", category: "dasha", icon: "⟡", w: 10 },
-    { q: `My ${uMoon} moon needs something they're not giving — what is it?`, category: "needs", icon: "✦", w: 9 },
-    { q: rtd?.keyQuestion ?? "What does the future hold for us?", category: "core", icon: "◉", w: 9 },
-    { q: weakest && weakest.score / weakest.max < 0.3 ? "Why do we keep clashing over the same thing?" : "Why does this connection feel this way?", category: "friction", icon: "◈", w: weakest && weakest.score / weakest.max < 0.3 ? 9 : 5 },
-    { q: `${uNak} meets ${pNak} — what does that mean for how we feel?`, category: "nakshatra", icon: "🌙", w: 8 },
-    ...(guna.mangalDosha ? [{ q: "Why does this feel so intense and sometimes unsafe?", category: "dosha", icon: "◎", w: 9 }] : []),
-    ...(guna.nadiDosha   ? [{ q: "Why do I feel drained even when I love them?",         category: "nadi",  icon: "◈", w: 9 }] : []),
-    ...(kootaScore(guna,"Bhakoot") === 0 ? [{ q: "Why does this feel like one step forward, two steps back?", category: "bhakoot", icon: "🌙", w: 10 }] : []),
-    ...(relType === "ex"           ? [{ q: "Do they still think about this connection?", category: "ex",    icon: "✦", w: 9 }, { q: "Is there a real chance we could work now?", category: "reunion", icon: "◎", w: 8 }] : []),
-    ...(relType === "crush"        ? [{ q: "Do they feel what I feel, or is this one-sided?", category: "crush", icon: "◈", w: 9 }, { q: "Should I say something or wait for a sign?", category: "timing", icon: "⟡", w: 8 }] : []),
-    ...(relType === "situationship"? [{ q: "Why won't they define what this is?", category: "labels", icon: "◉", w: 9 }, { q: "Am I reading too much into this?", category: "clarity", icon: "✧", w: 7 }] : []),
-    { q: "What's the real reason I can't let go?",    category: "healing", icon: "⟡", w: 5 },
-    { q: "Are we actually compatible?",               category: "insight", icon: "◈", w: 4 },
-    { q: "What does the future hold for us?",         category: "future",  icon: "✧", w: 4 },
+    { q: "What does this connection need from me right now?",                                                                                      category: "right now",   icon: "⟡", w: 10 },
+    { q: "What am I actually looking for in this connection?",                                                                                     category: "needs",       icon: "✦", w: 9  },
+    { q: rtd?.keyQuestion ?? "What does the future hold for us?",                                                                                  category: "core",        icon: "◉", w: 9  },
+    { q: weakest && weakest.score / weakest.max < 0.3 ? "Why do we keep clashing over the same thing?" : "Why does this connection feel this way?",category: "friction",    icon: "◈", w: weakest && weakest.score / weakest.max < 0.3 ? 9 : 5 },
+    { q: "What do our stars say about how we feel around each other?",                                                                             category: "chemistry",   icon: "🌙", w: 8 },
+    ...(guna.mangalDosha ? [{ q: "Why does this feel so intense and sometimes unsafe?",                    category: "intensity", icon: "◎", w: 9 }] : []),
+    ...(guna.nadiDosha   ? [{ q: "Why do I feel drained even when I love them?",                           category: "energy",    icon: "◈", w: 9 }] : []),
+    ...(kootaScore(guna,"Bhakoot") === 0 ? [{ q: "Why does this feel like one step forward, two steps back?", category: "push-pull", icon: "🌙", w: 10 }] : []),
+    ...(relType === "ex"           ? [{ q: "Do they still think about this connection?",         category: "feelings", icon: "✦", w: 9 }, { q: "Is there a real chance we could work now?",  category: "reunion",  icon: "◎", w: 8 }] : []),
+    ...(relType === "crush"        ? [{ q: "Do they feel what I feel, or is this one-sided?",   category: "one-sided",icon: "◈", w: 9 }, { q: "Should I say something or wait for a sign?", category: "timing",   icon: "⟡", w: 8 }] : []),
+    ...(relType === "situationship"? [{ q: "Why won't they define what this is?",                category: "labels",   icon: "◉", w: 9 }, { q: "Am I reading too much into this?",            category: "clarity",  icon: "✧", w: 7 }] : []),
+    { q: "What's the real reason I can't let go?",    category: "healing",    icon: "⟡", w: 5 },
+    { q: "Are we actually compatible?",               category: "compatible", icon: "◈", w: 4 },
+    { q: "What does the future hold for us?",         category: "future",     icon: "✧", w: 4 },
   ];
 
   // Stable sort: by weight desc, then by question text for tie-breaking (no Math.random)
@@ -359,12 +360,12 @@ export function getPersonalizedChips(
 ): string[] {
   const { guna, user } = reading;
   const dasha  = user.dasha.current;
-  const uMoon  = RASHIS[user.moonRashi].name;
+  const uMoon  = RASHIS[user.moonRashi].en;   // English name
   const dc     = DASHA_CHAPTERS[dasha];
 
   type Chip = { text: string; w: number };
   const pool: Chip[] = [
-    { text: (dc?.theme ?? dc?.headline) ? `Why does my ${dasha} dasha make this so difficult?` : "What is this connection teaching me?", w: 10 },
+    { text: dc?.headline ? "Why does this period of my life make love feel so heavy?" : "What is this connection teaching me?", w: 10 },
     { text: `Why does my ${uMoon} moon make this harder?`, w: 8 },
     { text: guna.nadiDosha ? "Why do I feel drained even when I love them?" : "Why does this feel so easy sometimes?", w: 8 },
     { text: kootaScore(guna,"Bhakoot") === 0 ? "Why one step forward, two steps back?" : "Will this actually last?", w: 7 },

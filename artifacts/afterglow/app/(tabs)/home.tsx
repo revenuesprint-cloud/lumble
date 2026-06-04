@@ -178,8 +178,11 @@ export default function HomeScreen() {
           <LinearGradient colors={["#1A1035", "#110F1E"]} style={styles.quoteInner}>
             <View style={styles.quoteTopRow}>
               <Text style={styles.quoteCategoryLabel}>
-                {dailyQuote.category === "self" ? "self-worth"
+                {dailyQuote.category === "self"          ? "self-worth"
                   : dailyQuote.category === "communication" ? "honesty"
+                  : dailyQuote.category === "intuition"     ? "inner knowing"
+                  : dailyQuote.category === "patience"      ? "timing"
+                  : dailyQuote.category === "healing"       ? "healing"
                   : dailyQuote.category}
               </Text>
               <Text style={styles.quoteStar}>✦</Text>

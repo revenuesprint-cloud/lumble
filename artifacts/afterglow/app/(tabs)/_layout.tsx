@@ -62,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="astrology"
         options={{
-          title: "Kundli",
+          title: "Stars",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="sparkles" tintColor={color} size={22} />

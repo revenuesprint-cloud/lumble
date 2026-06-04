@@ -67,22 +67,23 @@ function fillTemplate(template: string, ctx: Record<string, string>): string {
 
 // ─── Moon style lookup ─────────────────────────────────────────────────────────
 
+// Keyed by English sign name (en field from RASHIS)
 const MOON_STYLES: Record<string, string> = {
-  Mesha:"quick action and direct expression", Vrishabha:"slow, tactile reassurance",
-  Mithuna:"talking through it", Karka:"withdrawal and inner processing",
-  Simha:"creative expression and being seen", Kanya:"analysis and problem-solving",
-  Tula:"seeking balance and mirroring others", Vrishchika:"deep intensity and silence",
-  Dhanu:"reframing through philosophy", Makara:"containment and practical action",
-  Kumbha:"intellectual detachment", Meena:"emotional merging and intuition",
+  Aries:"quick action and direct expression", Taurus:"slow, physical reassurance",
+  Gemini:"talking through it", Cancer:"withdrawal and inner processing",
+  Leo:"creative expression and being seen", Virgo:"analysis and problem-solving",
+  Libra:"seeking balance and mirroring others", Scorpio:"deep intensity and silence",
+  Sagittarius:"reframing through philosophy", Capricorn:"containment and practical action",
+  Aquarius:"intellectual detachment", Pisces:"emotional merging and intuition",
 };
 
 const LAGNA_LOVE: Record<string, string> = {
-  Mesha:"you love with urgency and directness", Vrishabha:"you love through consistency and loyalty",
-  Mithuna:"you love through words and mental connection", Karka:"you love through nurturing and safety",
-  Simha:"you love with generosity and need to be seen", Kanya:"you love through acts of service",
-  Tula:"you love through partnership and harmony", Vrishchika:"you love with total intensity",
-  Dhanu:"you love through shared expansion", Makara:"you love through commitment and action",
-  Kumbha:"you love through friendship and vision", Meena:"you love by dissolving boundaries",
+  Aries:"you love with urgency and directness", Taurus:"you love through consistency and loyalty",
+  Gemini:"you love through words and mental connection", Cancer:"you love through nurturing and safety",
+  Leo:"you love with generosity and need to be seen", Virgo:"you love through acts of service",
+  Libra:"you love through partnership and harmony", Scorpio:"you love with total intensity",
+  Sagittarius:"you love through shared expansion", Capricorn:"you love through commitment and action",
+  Aquarius:"you love through friendship and vision", Pisces:"you love by dissolving boundaries",
 };
 
 // ─── Build oracle context from kundli data ────────────────────────────────────
@@ -122,19 +123,19 @@ function buildContext(
   const nadiK       = guna.breakdown.find((k) => k.name === "Nadi");
   const ganaK       = guna.breakdown.find((k) => k.name === "Gana");
 
-  const gunaVerdict = guna.total >= 28 ? "exceptional resonance across most kootas"
-    : guna.total >= 21 ? "solid alignment with some intentional areas"
-    : guna.total >= 18 ? "workable — with focused attention on friction areas"
-    : "significant friction in several kootas, requiring self-awareness from both people";
+  const gunaVerdict = guna.total >= 28 ? "strong natural alignment on most factors"
+    : guna.total >= 21 ? "solid foundation with some areas that need work"
+    : guna.total >= 18 ? "workable — with honest attention to the friction points"
+    : "real friction on several levels — awareness is what makes it workable";
 
   return {
     u:                  userName,
     p:                  partnerName,
-    uMoon:              uRashi.name,
-    pMoon:              pRashi.name,
-    uLagna:             uLagna.name,
-    pLagna:             pLagna.name,
-    uNak:               uNak.name,
+    uMoon:              uRashi.en,      // English: "Scorpio" not "Vrishchika"
+    pMoon:              pRashi.en,
+    uLagna:             uLagna.en,
+    pLagna:             pLagna.en,
+    uNak:               uNak.name,      // Nakshatra names kept — they're credibility anchors
     pNak:               pNak.name,
     uNakLord:           uNak.lord,
     pNakLord:           pNak.lord,

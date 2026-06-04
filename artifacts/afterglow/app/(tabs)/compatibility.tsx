@@ -36,7 +36,9 @@ function OverallScore({ score }: { score: number }) {
   }, [score]);
 
   const color = score >= 28 ? "#52C8B8" : score >= 21 ? "#F5A623" : "#E85C7A";
-  const verdict = score >= 28 ? "Excellent" : score >= 21 ? "Good" : score >= 18 ? "Average" : "Challenging";
+  const pct   = Math.round((score / 36) * 100);
+  const displayPct = Math.round((display / 36) * 100);
+  const verdict = score >= 28 ? "Strong" : score >= 21 ? "Good" : score >= 18 ? "Average" : "Challenging";
 
   return (
     <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }] }}>
@@ -44,8 +46,8 @@ function OverallScore({ score }: { score: number }) {
         colors={["rgba(232,92,122,0.15)", "rgba(184,85,224,0.08)", "transparent"]}
         style={styles.scoreOrb}
       >
-        <Text style={[styles.scoreNumber, { color }]}>{display}<Text style={styles.scoreMax}>/36</Text></Text>
-        <Text style={styles.scoreLabel}>Guna Milan</Text>
+        <Text style={[styles.scoreNumber, { color }]}>{displayPct}<Text style={styles.scoreMax}>%</Text></Text>
+        <Text style={styles.scoreLabel}>Connection Score</Text>
         <Text style={[styles.scoreVerdict, { color }]}>{verdict}</Text>
       </LinearGradient>
     </Animated.View>
