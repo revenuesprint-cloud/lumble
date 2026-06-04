@@ -8,10 +8,12 @@ import {
   getPersonalizedQuoteCategory,
 } from "@/utils/personalization";
 import { getQuoteByCategory } from "@/utils/quotes";
+import { fetchDailyContent, type DailyContent } from "@/utils/dbContent";
+import { extractKundliAttributes } from "@/utils/challenges";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Platform,
@@ -99,6 +101,16 @@ export default function HomeScreen() {
     return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
   }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
+  const [dbContent, setDbContent] = useState<DailyContent | null>(null);
+
+  // Fetch DB content (quote + affirmation + daily message) — enriches local fallbacks
+  useEffect(() => {
+    if (!reading) return;
+    const attrs = extractKundliAttributes(reading, partner?.relationshipType ?? "relationship");
+    const tags = Object.entries(attrs).map(([k, v]) => `${k}:${v}`).filter(Boolean);
+    fetchDailyContent(tags).then((data) => { if (data) setDbContent(data); });
+  }, [reading]);
+
   // Trigger challenge fetch once reading is ready and challenges haven't been loaded yet
   useEffect(() => {
     if (reading && challenges.length === 0 && !challengesLoading) {
@@ -114,8 +126,15 @@ export default function HomeScreen() {
   const quoteCategory = getPersonalizedQuoteCategory(reading.user.moonRashi, reading.user.dasha.current);
   const today      = new Date();
   const quoteSeed  = today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate();
-  const dailyQuote = getQuoteByCategory(quoteCategory, quoteSeed + reading.user.nakshatra);
+  const localQuote = getQuoteByCategory(quoteCategory, quoteSeed + reading.user.nakshatra);
   const dailyFocus = getPersonalizedFocus(user.name, reading.user.moonRashi, reading.user.dasha.current, partner.relationshipType);
+  // DB content overrides local when available
+  const quoteText   = dbContent?.quote?.body ?? `"${localQuote.text}"`;
+  const quoteAuthor = dbContent?.quote?.meta?.author as string | undefined ?? localQuote.author;
+  const quoteLabel  = (dbContent?.quote?.meta?.category as string | undefined) ?? localQuote.category;
+  const affirmation = dbContent?.affirmation?.body ?? null;
+  const dailyMsgTitle = dbContent?.message?.title ?? null;
+  const dailyMsgBody  = dbContent?.message?.body ?? null;
 
   const energyBars = [
     { label: "Emotional closeness", value: energy.closeness, color: "#E85C7A" },
@@ -185,31 +204,44 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Today's Reflection */}
+        {/* Today's Reflection — content from DB with local fallback */}
         <GlowCard style={styles.quoteCard} glowColor="rgba(184,85,224,0.15)">
           <LinearGradient colors={["#1A1035", "#110F1E"]} style={styles.quoteInner}>
             <View style={styles.quoteTopRow}>
               <Text style={styles.quoteCategoryLabel}>
-                {dailyQuote.category === "self"          ? "self-worth"
-                  : dailyQuote.category === "communication" ? "honesty"
-                  : dailyQuote.category === "intuition"     ? "inner knowing"
-                  : dailyQuote.category === "patience"      ? "timing"
-                  : dailyQuote.category === "healing"       ? "healing"
-                  : dailyQuote.category}
+                {quoteLabel === "self"          ? "self-worth"
+                  : quoteLabel === "communication" ? "honesty"
+                  : quoteLabel === "intuition"     ? "inner knowing"
+                  : quoteLabel === "patience"      ? "timing"
+                  : quoteLabel === "healing"       ? "healing"
+                  : quoteLabel ?? "reflection"}
               </Text>
               <Text style={styles.quoteStar}>✦</Text>
             </View>
-            <Text style={styles.quoteText}>"{dailyQuote.text}"</Text>
-            {dailyQuote.author ? (
-              <Text style={styles.quoteAuthor}>— {dailyQuote.author}</Text>
+            <Text style={styles.quoteText}>{quoteText.startsWith('"') ? quoteText : `"${quoteText}"`}</Text>
+            {quoteAuthor ? (
+              <Text style={styles.quoteAuthor}>— {quoteAuthor}</Text>
             ) : null}
             <View style={styles.quoteDivider} />
             <View style={styles.focusRow}>
               <Feather name="sun" size={13} color="#F5A623" />
-              <Text style={styles.focusText}>{dailyFocus}</Text>
+              <Text style={styles.focusText}>{dailyMsgBody ?? dailyFocus}</Text>
             </View>
           </LinearGradient>
         </GlowCard>
+
+        {/* Daily Affirmation — from DB */}
+        {affirmation && (
+          <GlowCard style={styles.affirmCard} glowColor="rgba(82,200,184,0.12)">
+            <LinearGradient colors={["#0C1A17", "#110F1E"]} style={styles.affirmInner}>
+              <View style={styles.affirmTopRow}>
+                <Feather name="star" size={11} color="#52C8B8" />
+                <Text style={styles.affirmLabel}>{dailyMsgTitle ?? "Today's Affirmation"}</Text>
+              </View>
+              <Text style={styles.affirmText}>{affirmation}</Text>
+            </LinearGradient>
+          </GlowCard>
+        )}
 
         {/* Daily energy card */}
         <GlowCard style={styles.dailyCard} intensity="high" glowColor="rgba(232,92,122,0.2)">
@@ -676,6 +708,11 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.7)",
   },
+  affirmCard: { borderRadius: 16 },
+  affirmInner: { borderRadius: 16, padding: 16, gap: 8 },
+  affirmTopRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  affirmLabel: { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#52C8B8", letterSpacing: 1, textTransform: "uppercase" },
+  affirmText: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.85)", lineHeight: 23, fontStyle: "italic" },
   challengesCard: { borderRadius: 20 },
   challengesInner: { borderRadius: 20, padding: 18, gap: 14 },
   challengesHeader: { flexDirection: "row", alignItems: "flex-start" },

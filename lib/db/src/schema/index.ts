@@ -70,3 +70,41 @@ export interface ProblemSolution {
   type: "practical" | "communication" | "spiritual" | "ritual" | "professional";
   isPremium: boolean;
 }
+
+// ─── Content ──────────────────────────────────────────────────────────────────
+// Universal content table for all app copy: quotes, affirmations, daily
+// messages, oracle responses, suggestion cards, feature insights.
+// Tags work the same as problems — match by kundli attributes.
+
+export const contentTable = pgTable("content", {
+  id:        uuid("id").primaryKey().defaultRandom(),
+  type:      text("type").notNull(), // "quote" | "affirmation" | "daily_message" | "oracle_response" | "suggestion_card" | "feature_insight"
+  title:     text("title"),
+  body:      text("body").notNull(),
+  meta:      jsonb("meta").default({}), // author, category, icon, intent, etc.
+  tags:      text("tags").array().notNull().default([]),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive:  boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type ContentItem = typeof contentTable.$inferSelect;
+
+// ─── User Challenge States ─────────────────────────────────────────────────────
+// Tracks how a user has engaged with each challenge — the "acknowledge & heal" journey.
+
+export const challengeStateEnum = pgEnum("challenge_state", [
+  "resonates", "working_on", "resolved",
+]);
+
+export const userChallengeStatesTable = pgTable("user_challenge_states", {
+  id:        uuid("id").primaryKey().defaultRandom(),
+  userId:    uuid("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
+  problemId: uuid("problem_id").notNull().references(() => problemsTable.id, { onDelete: "cascade" }),
+  state:     challengeStateEnum("state").notNull(),
+  notes:     text("notes"), // optional private note from user
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type UserChallengeState = typeof userChallengeStatesTable.$inferSelect;
