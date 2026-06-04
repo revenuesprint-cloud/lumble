@@ -51,15 +51,16 @@ router.post("/match", async (req, res) => {
   try {
     // Score each problem by how many of its tags appear in the user's attribute set,
     // then sort deterministically: score DESC, sort_order ASC.
-    // This guarantees: the same kundli always returns the same problems in the same order,
-    // even as new problems are added (they get higher sort_order values).
+    // Use ARRAY[...] syntax — passing a JS array directly creates a row constructor
+    // ($1,$2,...) which Postgres cannot cast to text[].
+    const attrList = sql.join(attrs.map((a) => sql`${a}`), sql`, `);
     const rows = await db.execute(sql`
       SELECT
         id, title, description, category, severity, tags, solutions, sort_order,
         (
           SELECT COUNT(*)::int
           FROM unnest(tags) t
-          WHERE t = ANY(${attrs}::text[])
+          WHERE t = ANY(ARRAY[${attrList}])
         ) AS match_score
       FROM problems
       ORDER BY match_score DESC, sort_order ASC
