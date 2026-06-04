@@ -41,12 +41,22 @@ function isTokenExpired(token: string): boolean {
 
 // ─── Context type ─────────────────────────────────────────────────────────────
 
+export interface ServerProfile {
+  userName: string;
+  userBirthDate: string;
+  userBirthTime?: string | null;
+  partnerName: string;
+  partnerBirthDate: string;
+  relationshipType: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   isAuthLoading:   boolean;
   currentEmail:    string | null;
   jwtToken:        string | null;
-  login:    (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  // profile is null for brand-new users who haven't completed onboarding
+  login:    (email: string, password: string) => Promise<{ success: boolean; error?: string; profile?: ServerProfile | null }>;
   logout:   () => Promise<void>;
   register: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
 }
@@ -131,19 +141,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (API_URL) {
       try {
-        const data = await apiPost<{ token: string; email: string }>("/auth/login", { email: trimEmail, password });
+        const data = await apiPost<{ token: string; email: string; profile: ServerProfile | null }>(
+          "/auth/login", { email: trimEmail, password }
+        );
         await AsyncStorage.setItem(TOKEN_KEY, data.token);
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
         setCurrentEmail(data.email);
-        return { success: true };
+        return { success: true, profile: data.profile ?? null };
       } catch (e: any) {
         return { success: false, error: e.message ?? "Something went wrong." };
       }
     }
 
-    // Local-only fallback
+    // Local-only fallback (dev mode — no API server)
     try {
       const raw = await AsyncStorage.getItem("@lumble_creds");
       if (!raw) return { success: false, error: "No account found. Please create one first." };
@@ -153,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ isLoggedIn: true, email: trimEmail }));
       setIsAuthenticated(true);
       setCurrentEmail(trimEmail);
-      return { success: true };
+      return { success: true, profile: null };
     } catch {
       return { success: false, error: "Something went wrong. Please try again." };
     }

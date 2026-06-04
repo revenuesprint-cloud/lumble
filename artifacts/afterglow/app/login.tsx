@@ -1,5 +1,5 @@
 import { useApp } from "@/context/AppContext";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, type ServerProfile } from "@/context/AuthContext";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -24,7 +24,7 @@ export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router  = useRouter();
   const { login, register } = useAuth();
-  const { user, hasCompletedOnboarding } = useApp();
+  const { user, completeOnboarding, resetApp } = useApp();
 
   const [mode,         setMode]         = useState<Mode>("signin");
   const [email,        setEmail]        = useState("");
@@ -55,16 +55,6 @@ export default function LoginScreen() {
     setConfirm("");
   };
 
-  // After successful auth, go to home if profile exists, else onboarding
-  const afterAuth = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    if (hasCompletedOnboarding) {
-      router.replace("/(tabs)/home");
-    } else {
-      router.replace("/onboarding");
-    }
-  };
-
   const handleSubmit = async () => {
     if (!email.trim() || !password) {
       setError("Please fill in all fields.");
@@ -88,16 +78,43 @@ export default function LoginScreen() {
     setError("");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    const result = mode === "signin"
-      ? await login(email.trim(), password)
-      : await register(email.trim(), password);
+    if (mode === "register") {
+      const result = await register(email.trim(), password);
+      setLoading(false);
+      if (result.success) {
+        // New account — always clear any stale local profile data and go through onboarding
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        await resetApp();
+        router.replace("/onboarding");
+      } else {
+        setError(result.error ?? "Registration failed.");
+        shake();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+      return;
+    }
 
+    // Sign-in: server tells us if the user has a profile
+    const result = await login(email.trim(), password);
     setLoading(false);
 
     if (result.success) {
-      afterAuth();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      const serverProfile = result.profile as ServerProfile | null | undefined;
+      if (serverProfile) {
+        // Existing user with a profile — sync server data to local, go home
+        await completeOnboarding(
+          { name: serverProfile.userName, birthDate: serverProfile.userBirthDate, birthTime: serverProfile.userBirthTime ?? undefined },
+          { name: serverProfile.partnerName, birthDate: serverProfile.partnerBirthDate, relationshipType: serverProfile.relationshipType as any },
+        );
+        router.replace("/(tabs)/home");
+      } else {
+        // Account exists but no profile yet — clear stale local data, go to onboarding
+        await resetApp();
+        router.replace("/onboarding");
+      }
     } else {
-      setError(result.error ?? (mode === "signin" ? "Sign in failed." : "Registration failed."));
+      setError(result.error ?? "Sign in failed.");
       shake();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
