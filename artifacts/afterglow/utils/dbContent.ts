@@ -74,6 +74,67 @@ export async function fetchDailyContent(tags: string[]): Promise<DailyContent | 
   }
 }
 
+// ─── Browsable questions ──────────────────────────────────────────────────────
+
+export interface QuestionItem {
+  id: string;
+  title: string;
+  body: string;
+  meta: { question: string; shortAnswer: string; category: string; icon: string };
+  tags: string[];
+  match_score: number;
+}
+
+export interface QuestionsResult {
+  about_them:  QuestionItem[];
+  about_you:   QuestionItem[];
+  what_to_do:  QuestionItem[];
+  patterns:    QuestionItem[];
+  big_picture: QuestionItem[];
+}
+
+const CACHE_KEY_QUESTIONS = "@lumble_questions";
+const CACHE_TTL_QUESTIONS = 24 * 60 * 60 * 1000; // 24 hours
+
+export async function fetchQuestions(tags: string[]): Promise<QuestionsResult | null> {
+  // Try cache first
+  try {
+    const cached = await AsyncStorage.getItem(CACHE_KEY_QUESTIONS);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.fetchedAt < CACHE_TTL_QUESTIONS) {
+        return parsed.data as QuestionsResult;
+      }
+    }
+  } catch {}
+
+  if (!API_URL) return null;
+
+  try {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(`${API_URL}/api/content/questions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tags }),
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const result: QuestionsResult = {
+      about_them:  data.questions?.about_them  ?? [],
+      about_you:   data.questions?.about_you   ?? [],
+      what_to_do:  data.questions?.what_to_do  ?? [],
+      patterns:    data.questions?.patterns    ?? [],
+      big_picture: data.questions?.big_picture ?? [],
+    };
+    await AsyncStorage.setItem(CACHE_KEY_QUESTIONS, JSON.stringify({ data: result, fetchedAt: Date.now() }));
+    return result;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Batch content by type ────────────────────────────────────────────────────
 
 export async function fetchContentBatch(

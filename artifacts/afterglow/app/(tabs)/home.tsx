@@ -220,7 +220,7 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.quoteText}>{quoteText.startsWith('"') ? quoteText : `"${quoteText}"`}</Text>
             {quoteAuthor ? (
-              <Text style={styles.quoteAuthor}>— {quoteAuthor}</Text>
+              <Text style={styles.quoteAuthor}>by {quoteAuthor}</Text>
             ) : null}
             <View style={styles.quoteDivider} />
             <View style={styles.focusRow}>

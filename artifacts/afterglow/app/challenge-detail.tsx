@@ -261,7 +261,7 @@ export default function ChallengeDetailScreen() {
             <View style={styles.matchRow}>
               <Feather name="target" size={12} color="rgba(184,85,224,0.6)" />
               <Text style={styles.matchText}>
-                Matched {challenge.match_score ?? "—"} kundli indicator{challenge.match_score !== 1 ? "s" : ""}
+                Matched {challenge.match_score ?? "?"} birth chart indicator{challenge.match_score !== 1 ? "s" : ""}
               </Text>
             </View>
           </LinearGradient>
@@ -328,7 +328,7 @@ export default function ChallengeDetailScreen() {
         <View style={styles.noteCard}>
           <Feather name="info" size={13} color="rgba(184,85,224,0.5)" style={{ marginTop: 1 }} />
           <Text style={styles.noteText}>
-            These patterns are derived from your Vedic birth chart. Astrological guidance complements — it doesn't replace — personal effort and professional support when needed.
+            These patterns come from your Vedic birth chart reading. Astrological guidance supports your personal effort. It does not replace professional help when you need it.
           </Text>
         </View>
       </ScrollView>

@@ -24,59 +24,59 @@ function score(rng: () => number, min = 62, max = 97): number {
 // ─── Text libraries ─────────────────────────────────────────────────────────
 
 const emotionalChemistryTexts = [
-  "You share a rare emotional frequency — the kind that makes silence feel like conversation. Your energies pull toward each other instinctively, often before your minds catch up.",
-  "There's a gravitational pull here that neither of you fully controls. Your emotional rhythms sync in ways that feel almost uncanny, like you've known each other in a different time.",
-  "You speak each other's emotional language fluently, even when you're not speaking at all. This depth of feeling recognition is something most people search a lifetime for.",
-  "Your emotional worlds overlap in the most magnetic places — where their sensitivity meets your intensity, something almost electric is created.",
-  "The chemistry between you is complex — not simple attraction, but an entangled emotional resonance. When you're connected, it's unmistakably felt by everyone around you.",
+  "You have a rare connection. Even silence between you feels comfortable. Your hearts seem to find each other without trying.",
+  "There is a natural pull between you two. Your emotions match in a way that feels almost magical. People around you can feel it too.",
+  "You understand each other on a deep level, even without many words. This kind of connection is something most people spend their whole life looking for.",
+  "When your feelings meet, something electric happens. The way you both feel things deeply makes the bond between you very strong.",
+  "Your connection goes beyond just being attracted to each other. There is a real emotional bond here that keeps drawing you back.",
 ];
 
 const communicationTexts = [
-  "You tend to lead with emotion while they lead with logic, creating beautiful tension in how you exchange meaning. When aligned, your conversations go deeper than most relationships ever reach.",
-  "There's a push-pull in how you communicate — moments of stunning understanding followed by frustrating disconnect. This friction, paradoxically, is what keeps things interesting.",
-  "Your communication styles are complementary in the most surprising way. What you leave unsaid, they hear. What they don't know how to express, you feel intuitively.",
-  "You both communicate in layers — the words you use rarely say everything. This creates depth, but also the risk of misreading each other. Clarifying without explaining everything is your art.",
-  "Words matter less between you than tone and timing. You're both attuned to emotional subtext, which makes your exchanges rich — but also vulnerable to overthinking.",
+  "One of you leads with feelings and the other with logic. This can create small misunderstandings, but when you are on the same page, your conversations go very deep.",
+  "You communicate in waves. Sometimes you understand each other perfectly. Other times you miss each other completely. Learning to slow down will help a lot.",
+  "What one of you cannot say out loud, the other can feel. This unspoken understanding is a rare gift. Use it well.",
+  "You both say a lot without using many words. This creates depth in your conversations. But it also means you can sometimes misread each other.",
+  "Tone and timing matter more to you both than the exact words used. This makes your conversations rich but also easy to overthink.",
 ];
 
 const attachmentTexts = [
-  "You seek emotional reassurance while they emotionally withdraw during conflict, creating a magnetic push-pull dynamic that feels simultaneously frustrating and addictive.",
-  "Your attachment styles dance around each other — one reaches, the other distances, then reverses. This cycle creates intense emotional peaks that make the connection feel irreplaceable.",
-  "You're both emotionally self-sufficient in different ways, but with each other, old vulnerabilities surface. This can feel destabilizing — or like finally being truly seen.",
-  "There's an anxious-avoidant undertone to how you bond. The moments of closeness feel extraordinary precisely because of the uncertainty that precedes them.",
-  "You attach deeply and quietly — building emotional investments that neither of you fully acknowledges until they're undeniable. This slow bond is also the hardest to break.",
+  "One of you reaches out when things feel uncertain. The other pulls back. This creates a push and pull pattern that can feel exciting and frustrating at the same time.",
+  "Your ways of getting attached are different. One moves closer, the other creates distance, then it switches. This cycle makes the connection feel intense.",
+  "You are both independent in your own ways. But with each other, old insecurities come up. This can feel scary or it can feel like you are finally being truly seen.",
+  "There is an anxious and avoidant pattern here. The moments of closeness feel so good because of all the uncertainty before them.",
+  "You both get deeply attached but quietly. You build emotional investment without admitting it, until it becomes impossible to ignore.",
 ];
 
 const tensionTexts = [
-  "The tension between you isn't conflict — it's unresolved desire. There are conversations you haven't had yet that hold enormous weight. When they happen, everything shifts.",
-  "There's an emotional charge between you that doesn't fully discharge. You carry a low hum of something unresolved that surfaces in unexpected moments and private thoughts.",
-  "Your tension is creative, not destructive — it pushes you both toward growth, even when it's uncomfortable. The friction is actually a signal of how much you care.",
-  "What sits between you unspoken is the most powerful thing in this dynamic. The tension is real, and it won't dissolve on its own — it needs truth to transform.",
-  "There's an underlying emotional negotiation always happening with you two. Not hostile — more like two forces trying to find their equilibrium. The process is part of the connection.",
+  "The tension between you is not conflict. It is unfinished conversation. There are things that have not been said yet that carry a lot of weight.",
+  "There is something unresolved between you that keeps coming up in unexpected moments. It is not negative. It just needs to be spoken.",
+  "Your tension actually pushes you both to grow. Even when it feels uncomfortable, the friction is a sign of how much you both care.",
+  "What sits unspoken between you is the most powerful thing in this connection. It will not go away on its own. It needs honest words.",
+  "You are both in a constant emotional negotiation. Not hostile, just two people trying to find their balance. This process is part of the bond.",
 ];
 
 const longTermTexts = [
-  "The foundation here has unusual durability — not because things are always easy, but because the emotional pull persists through difficulty. That persistence means something.",
-  "Long-term, this connection asks you both to grow in uncomfortable directions. The ones who do that together become genuinely rare. You have the potential to be one of those pairs.",
-  "There's genuine compatibility beneath the surface complexity. If you can move through the emotional patterns that keep you both guarded, what you could build together is significant.",
-  "This connection has staying power, but it requires emotional honesty neither of you may be used to offering. The potential is real — so is the work.",
-  "Long-term potential is high — but conditional. It depends on whether you both choose presence over comfort and vulnerability over distance. The capacity is there. The choice is ongoing.",
+  "This connection has unusual staying power. Not because things are always easy, but because the emotional pull between you survives the hard times.",
+  "For the long run, this connection will ask both of you to grow in ways that feel uncomfortable. The couples who do that together become something rare.",
+  "There is real compatibility here under the surface. Once you both stop being guarded, what you can build together is something meaningful.",
+  "This connection can last. But it needs emotional honesty that neither of you may be used to giving. The potential is real. So is the work required.",
+  "Lasting potential is high but depends on one thing: will you both choose to be present and vulnerable, or will you choose comfort and distance? The choice is always yours.",
 ];
 
 const addictiveTexts = [
-  "The addictive quality here comes from emotional unpredictability — they make you feel seen in a way that isn't consistent. That inconsistency keeps you returning, hoping for more of the version that felt like everything.",
-  "You're addicted to the emotional version of them that shows up during moments of genuine connection — and the hope of recreating those moments is powerful. That's not weakness; that's chemistry.",
-  "What pulls you back is the feeling of being fully known — rare enough that even partial experiences of it create craving. This isn't toxic; it's recognition hunger.",
-  "The dynamic feels addictive because emotionally, it delivers exactly what you're wired to seek: intensity + uncertainty + moments of deep resonance. That combination is neurologically compelling.",
-  "You keep returning because somewhere in this connection is a version of yourself you only access here. That's what makes it hard to walk away — it's not just them you'd be leaving.",
+  "The addictive feeling comes from emotional unpredictability. They make you feel truly seen but not consistently. That inconsistency keeps you wanting more of those good moments.",
+  "You are drawn back because of those moments when everything clicked. Those moments were real. The hope of getting them back is very powerful.",
+  "What pulls you is the feeling of being fully known by someone. That feeling is rare. Even a small taste of it creates a strong craving.",
+  "This feels hard to stop because it gives you exactly what you are wired to want: deep connection mixed with uncertainty. That combination is very hard to walk away from.",
+  "You keep returning because in this connection, you find a version of yourself that you only access here. Leaving does not just mean leaving them.",
 ];
 
 const hiddenPatternTexts = [
-  "The hidden pattern: you're both emotionally avoidant in different directions. One avoids by withdrawing, one by over-giving. The cycle sustains itself because both patterns feel justified from the inside.",
-  "Beneath the surface, there's a pattern of emotional testing happening — small acts designed to see if the other person will stay. When they do, it creates relief but not resolution.",
-  "The hidden dynamic is that you both idealize the version of each other you first encountered, and the distance between that image and reality creates ongoing emotional work.",
-  "There's a recurring pattern of emotional rupture and repair that keeps both of you bonded. The repair phase feels so good that it unconsciously creates tolerance for the rupture.",
-  "The pattern underneath everything: both of you have more capacity for this connection than you let on. The holding back creates a tension that loops — always close, never quite arrived.",
+  "The hidden pattern: you are both emotionally cautious in different ways. One withdraws, the other over gives. Both patterns feel justified from the inside, which is why the cycle continues.",
+  "Underneath everything, there is a pattern of testing going on. Small actions designed to see if the other person will stay. When they do, it creates relief but not real resolution.",
+  "Both of you hold onto the version of each other you first met. The gap between that image and who you are now creates ongoing emotional work for both of you.",
+  "There is a pattern of breaking and repairing that keeps you both bonded. The making up feels so good that it creates tolerance for the breaking. Both of you know this cycle.",
+  "The pattern underneath: both of you have more capacity for this connection than you show. The holding back creates a tension that loops forever. Always close, never quite there.",
 ];
 
 // ─── Viral Features ──────────────────────────────────────────────────────────
@@ -87,9 +87,9 @@ const viralFeatures = {
     icon: "heart",
     locked: false,
     results: [
-      (u: string, p: string) => `${u} falls harder — and faster. There's an emotional investment pattern here that runs deeper than they show. ${p} catches feelings, but takes longer to let them land.`,
-      (u: string, p: string) => `${p} is the one who falls harder, even if they'd never admit it. ${u} feels deeply, but has unconscious defenses that slow the fall.`,
-      (u: string, _p: string) => `${u} falls harder in the beginning — intensity and openness. As time passes, the dynamic inverts. The initial force fades and the slower builder becomes the stronger anchor.`,
+      (u: string, p: string) => `${u} falls harder and faster. There is a deep emotional investment that runs deeper than they show. ${p} catches feelings too, but takes longer to admit it.`,
+      (u: string, p: string) => `${p} is the one who falls harder, even if they would never say it out loud. ${u} feels deeply but has some walls that slow the fall.`,
+      (u: string, _p: string) => `${u} falls harder at the start, with a lot of openness and intensity. As time passes, this flips. The slower person becomes the stronger anchor.`,
     ],
   },
   "attached-first": {
@@ -97,9 +97,9 @@ const viralFeatures = {
     icon: "link",
     locked: false,
     results: [
-      (u: string, p: string) => `${u} attached first — not because they're more vulnerable, but because they're more honest about it. ${p} was attached shortly after, they just didn't call it that.`,
-      (u: string, p: string) => `${p} attached first. There was a specific moment — they may remember it exactly. For ${u}, it was gradual and then undeniable.`,
-      (u: string, p: string) => `Both of you got attached at the same moment but called it something different. ${u} called it 'interest.' ${p} called it 'enjoying the time.' It was the same thing.`,
+      (u: string, p: string) => `${u} got attached first. Not because they are more vulnerable, but because they are more honest about it. ${p} got attached shortly after, they just did not use that word.`,
+      (u: string, p: string) => `${p} got attached first. There was a specific moment they may remember clearly. For ${u}, it happened slowly and then all at once.`,
+      (u: string, p: string) => `Both of you got attached at the same moment but called it something different. ${u} called it interest. ${p} called it enjoying the time. It was the same thing.`,
     ],
   },
   "dependency-index": {
@@ -107,9 +107,9 @@ const viralFeatures = {
     icon: "activity",
     locked: false,
     results: [
-      (_u: string, p: string) => `Your emotional dependency index is elevated. You've woven them into your internal emotional landscape — ${p} affects your mood, your energy, your sense of possibility.`,
-      (u: string, _p: string) => `${u}'s dependency runs through the mind, not just the heart — constant replay, analysis, interpretation of signals. This is cognitive bonding, and it runs deep.`,
-      (_u: string, _p: string) => `The dependency here is mutual but asymmetric. One is emotionally dependent; the other is situationally dependent. Together, they've created a feedback loop.`,
+      (_u: string, p: string) => `Your emotional dependency is high. You have woven ${p} into your inner world. They affect your mood, your energy, and your sense of what is possible.`,
+      (u: string, _p: string) => `${u}'s attachment runs through the mind, not just the heart. Constant replaying, analysing, reading into signals. This is deep mental bonding.`,
+      (_u: string, _p: string) => `The dependency here is mutual but uneven. One is more emotionally dependent. The other is more situationally dependent. Together they have created a feedback loop.`,
     ],
   },
   "ghosting-probability": {
@@ -117,9 +117,9 @@ const viralFeatures = {
     icon: "eye-off",
     locked: true,
     results: [
-      (_u: string, p: string) => `The ghosting probability is lower than you fear. ${p} has avoidant tendencies but not disappearing ones. What looks like pulling away is usually processing.`,
-      (_u: string, p: string) => `There's a moderate chance of emotional withdrawal — not ghosting, but distance. ${p} retreats when overwhelmed, which can feel like disappearing. It's not abandonment; it's regulation.`,
-      (_u: string, _p: string) => `The likelihood of full ghosting is low — this connection has too much emotional weight for that. What's more likely is inconsistency, which may feel worse.`,
+      (_u: string, p: string) => `The chance of being ghosted is lower than you fear. ${p} has avoidant tendencies but not disappearing ones. What looks like pulling away is usually just processing.`,
+      (_u: string, p: string) => `There is a moderate chance of emotional withdrawal, not full ghosting. ${p} retreats when overwhelmed. It can feel like disappearing but it is not abandonment.`,
+      (_u: string, _p: string) => `The chance of full ghosting is low. This connection carries too much emotional weight for that. What is more likely is inconsistency, which can feel just as bad.`,
     ],
   },
   "reunion-potential": {
@@ -127,9 +127,9 @@ const viralFeatures = {
     icon: "refresh-cw",
     locked: true,
     results: [
-      (_u: string, _p: string) => `Reunion potential is high — not because nothing went wrong, but because the emotional foundation was real. Those don't disappear. They wait.`,
-      (u: string, p: string) => `If ${u} and ${p} reunited, it wouldn't be the same dynamic — it would be the evolved version. Whether that's better depends entirely on what each of you has learned.`,
-      (_u: string, _p: string) => `The pull toward each other has not fully released. Reunion is possible, but it requires a conversation that hasn't happened yet. Until then, the door stays ajar.`,
+      (_u: string, _p: string) => `Reunion potential is high. Not because nothing went wrong, but because the emotional foundation was real. Real things do not just disappear. They wait.`,
+      (u: string, p: string) => `If ${u} and ${p} came back together, it would not be the same as before. It would be the next version of this. Whether better or worse depends on what each person has learned.`,
+      (_u: string, _p: string) => `The pull toward each other has not fully gone away. A reunion is possible, but it needs a conversation that has not happened yet. Until then, the door stays open.`,
     ],
   },
   "toxic-or-soulmate": {
@@ -137,9 +137,9 @@ const viralFeatures = {
     icon: "zap",
     locked: true,
     results: [
-      (_u: string, _p: string) => `Neither purely. This connection lives in the space where intensity becomes hard to distinguish from toxicity. What feels like poison and what feels like soul recognition can originate from the same place.`,
-      (_u: string, _p: string) => `The answer changes depending on which version of you is asking. At your highest, this is a soulmate connection. At your most wounded, it activates patterns that damage you. Both are true.`,
-      (_u: string, _p: string) => `Soulmate — but not in the comfortable sense. Soulmates, at their truest, arrive to crack you open, not comfort you. This connection is doing exactly that.`,
+      (_u: string, _p: string) => `Neither fully. This connection lives in the space where intensity and pain look the same. What feels like a soulmate and what feels like poison can come from the exact same source.`,
+      (_u: string, _p: string) => `The answer changes depending on which version of you is asking. At your best, this is a soulmate connection. At your most hurt, it activates patterns that damage you. Both are true.`,
+      (_u: string, _p: string) => `Soulmate, but not in a comfortable way. Real soulmates arrive to open you up, not to make you comfortable. This connection is doing exactly that.`,
     ],
   },
   "cant-let-go": {
@@ -147,9 +147,9 @@ const viralFeatures = {
     icon: "anchor",
     locked: false,
     results: [
-      (_u: string, p: string) => `You can't let go because ${p} represents the version of love you've always wanted — not always delivered, but convincingly glimpsed. That glimpse is the hook.`,
-      (_u: string, _p: string) => `You can't let go because you're not done learning what this relationship is here to teach you. That's not weakness — it's unfinished emotional work.`,
-      (u: string, _p: string) => `${u} stays because leaving would mean accepting that intensity doesn't equal compatibility. That's a hard truth. It's easier to wait for the intensity to become something stable.`,
+      (_u: string, p: string) => `You cannot let go because ${p} represents the kind of love you always wanted. It was not always there, but you saw it clearly enough to believe in it. That glimpse is the hook.`,
+      (_u: string, _p: string) => `You cannot let go because you have not finished learning what this relationship is here to teach you. That is not weakness. That is unfinished work.`,
+      (u: string, _p: string) => `${u} stays because leaving would mean accepting that intensity does not equal the right match. That is a hard truth. It feels easier to wait for the intensity to become stability.`,
     ],
   },
   "red-flags": {
@@ -157,9 +157,9 @@ const viralFeatures = {
     icon: "flag",
     locked: false,
     results: [
-      (_u: string, p: string) => `${p} has a pattern of emotional inconsistency — fully present one moment, unreachable the next. This isn't malice; it's unhealed avoidance. But it costs you regulation.`,
-      (_u: string, _p: string) => `The red flag here isn't behavior — it's pattern. The cycle of closeness-distance-closeness has repeated enough times to be a design, not an accident.`,
-      (_u: string, _p: string) => `Emotional ambiguity is the main flag. When someone makes you question your own perception of what's happening, that's a signal. Trust what you consistently feel, not what you're told to dismiss.`,
+      (_u: string, p: string) => `${p} has a pattern of being emotionally inconsistent. Fully present one moment, completely unavailable the next. This is not cruelty. It is unhealed avoidance. But it costs you your peace.`,
+      (_u: string, _p: string) => `The red flag here is not a single action. It is a pattern. The cycle of closeness and distance has happened enough times to be a habit, not an accident.`,
+      (_u: string, _p: string) => `The main flag is emotional confusion. When someone makes you question your own sense of what is real, that is a signal. Trust what you consistently feel, not what you are told to ignore.`,
     ],
   },
   "green-flags": {
@@ -167,9 +167,9 @@ const viralFeatures = {
     icon: "check-circle",
     locked: false,
     results: [
-      (u: string, p: string) => `${p} consistently remembers things about ${u} that matter. This is a significant green flag — it signals emotional attentiveness, not performance.`,
-      (_u: string, _p: string) => `The biggest green flag: they've made you feel safe being honest about things you usually hide. Safety to be authentic is the rarest offering in relationships.`,
-      (u: string, p: string) => `${u} and ${p} both move toward resolution rather than away from discomfort. That orientation — toward rather than away — is the foundation of real intimacy.`,
+      (u: string, p: string) => `${p} consistently remembers things about ${u} that matter. This is a big green flag. It shows genuine emotional attention, not performance.`,
+      (_u: string, _p: string) => `The biggest green flag is this: they have made you feel safe being honest about things you normally hide. Safety to be yourself is the rarest gift in a relationship.`,
+      (u: string, p: string) => `${u} and ${p} both move toward fixing things rather than away from discomfort. That direction, toward instead of away, is the foundation of real intimacy.`,
     ],
   },
   "pulling-back": {
@@ -177,9 +177,9 @@ const viralFeatures = {
     icon: "repeat",
     locked: false,
     results: [
-      (_u: string, _p: string) => `You keep returning to the feeling of being fully seen — even briefly. That feeling doesn't happen with everyone. When it does, it creates a gravity that doesn't respect logic or timing.`,
-      (_u: string, p: string) => `${p} shows up, in moments, as exactly the person you need them to be. Those moments are real. They're also rare enough to create a powerful scarcity effect.`,
-      (_u: string, _p: string) => `The emotional frequency between you is unique to this pairing. You've tried to replicate it elsewhere, consciously or not, and it hasn't quite happened. That uniqueness is the pull.`,
+      (_u: string, _p: string) => `You keep returning to the feeling of being fully seen. Even briefly. That feeling does not happen with everyone. When it does, it creates a gravity that logic cannot override.`,
+      (_u: string, p: string) => `${p} shows up, in moments, as exactly the person you need. Those moments are real. They are also rare enough to create a strong pull.`,
+      (_u: string, _p: string) => `The feeling between you is unique to this pairing. You may have tried to find it elsewhere and it was not quite the same. That uniqueness is what keeps pulling you back.`,
     ],
   },
 };
@@ -188,24 +188,24 @@ const viralFeatures = {
 
 const dailyEnergyMessages: Record<string, string[]> = {
   high: [
-    "The emotional connection between you feels amplified today — something is trying to surface.",
-    "Today carries an unusual openness between your energies. If there's something unsaid, now is when it wants to be heard.",
-    "A strong pull exists in the space between you today. You may find yourself thinking about them more than usual.",
+    "The emotional connection between you feels strong today. Something is trying to come to the surface.",
+    "Today there is an unusual openness between your energies. If there is something unsaid, today is a good day to say it.",
+    "There is a strong pull between you today. You may find yourself thinking about them more than usual.",
   ],
   medium: [
-    "The emotional current between you is steady today — present but quiet. A good day to simply let things be.",
-    "There's a calm resonance today. Not dramatic, but stable. Stability in connection is underrated.",
-    "Today's energy is contemplative — you may find yourself revisiting memories or patterns in this connection.",
+    "The energy between you is steady today, present but quiet. A good day to simply be together.",
+    "There is a calm feeling today. Not dramatic, but stable. Stability in a connection is something to appreciate.",
+    "Today feels thoughtful. You may find yourself going back to memories or patterns in this connection.",
   ],
   low: [
-    "There may be some emotional distance today — not disconnection, but space. Let it breathe.",
-    "Today suggests a day of emotional processing rather than reaching. Sometimes distance is part of the pattern.",
-    "The energy feels quieter between you today. This isn't a signal of change — it's a natural ebb.",
+    "There may be some emotional space today, not distance, just breathing room. Let it be.",
+    "Today suggests a day of reflection rather than reaching out. Sometimes space is part of the rhythm.",
+    "The energy feels quieter between you today. This is not a sign of something wrong. It is a natural pause.",
   ],
   tension: [
-    "There's unresolved emotional tension today. Something between you wants acknowledgment, not resolution yet.",
-    "Today there may be friction in how you interpret each other's signals. Pause before reacting to anything.",
-    "A charged emotional undercurrent exists today — the kind that feels like anticipation and anxiety at once.",
+    "There is some unresolved tension today. Something between you wants to be acknowledged, not necessarily resolved yet.",
+    "Today there may be some friction in how you read each other's signals. Pause before reacting to anything.",
+    "There is an emotional charge between you today. It feels like a mix of anticipation and nervousness at the same time.",
   ],
 };
 
@@ -262,7 +262,7 @@ export function calculateCompatibility(
       color: "#B855E0",
     },
     {
-      label: "Attachment Dynamics",
+      label: "Attachment Style",
       score: attachScore,
       text: pick(attachmentTexts, seededRng(seed + 3)),
       color: "#7C52C8",
@@ -274,7 +274,7 @@ export function calculateCompatibility(
       color: "#F5A623",
     },
     {
-      label: "Long-Term Potential",
+      label: "Future Potential",
       score: ltScore,
       text: pick(longTermTexts, seededRng(seed + 5)),
       color: "#52C8B8",
@@ -286,7 +286,7 @@ export function calculateCompatibility(
       color: "#E85C7A",
     },
     {
-      label: "Hidden Relationship Pattern",
+      label: "Hidden Pattern",
       score: patternScore,
       text: pick(hiddenPatternTexts, seededRng(seed + 7)),
       color: "#B855E0",
@@ -397,29 +397,29 @@ export interface GuidanceResponse {
 
 const guidanceResponses: Record<string, string[]> = {
   withdraw: [
-    "When someone pulls away, it's rarely about you — it's almost always about their internal emotional capacity at that moment. Withdrawal is usually self-regulation, not rejection. What looks like distance is often someone trying to find their footing again. The question worth sitting with: is the space temporary, or is it a pattern?",
-    "They pulled away because closeness triggered something — old fear, old pain, or a felt sense of 'too much.' This isn't about you being wrong or too intense. It's about them reaching their emotional threshold. Most people who pull away haven't fully processed what they feel yet.",
+    "When someone pulls away, it is rarely about you. It is almost always about how much they can handle emotionally at that moment. Pulling back is usually a way to calm down, not a rejection. The real question is: is this space temporary, or is it becoming a pattern?",
+    "They pulled away because getting close triggered something in them, maybe an old fear or a feeling of too much. This is not about you being wrong or too intense. It is about them reaching their emotional limit. Most people who pull away have not fully processed what they feel yet.",
   ],
   "move-on": [
-    "You can't move on yet because part of you is still waiting for the version of this that you believed was possible. That version felt real — maybe it was, for a moment. Moving on means accepting that the potential you saw may have been accurate, but circumstances didn't allow it. That's a loss worth grieving.",
-    "Moving on is harder when the connection was real, even if it was incomplete. You're not stuck because you're weak — you're stuck because something genuine happened here, and genuine things leave real marks. The path forward isn't erasing what was real. It's building something alongside it.",
+    "You cannot move on yet because part of you is still waiting for the version of this that you believed was possible. That version felt real, and it may have been for a moment. Moving on means accepting that the potential you saw was real, but the timing or circumstances did not allow it. That is a real loss and it is okay to grieve.",
+    "Moving on is harder when the connection was genuine, even if it was incomplete. You are not stuck because you are weak. You are stuck because something real happened here, and real things leave real marks. Moving forward does not mean erasing what was real. It means building your life alongside it.",
   ],
   "think-about-me": [
-    "Based on the emotional weight of this connection, yes — they think about you. Connections of this depth don't live only in one person. What they do with those thoughts is a different question, and one only they can answer.",
-    "They think about you in the way we all think about unresolved things — not always consciously, but persistently. Something about your dynamic created imprints that don't easily quiet.",
+    "Based on the emotional depth of this connection, yes, they think about you. Connections like this do not live in only one person. What they do with those thoughts is a different question, and only they can answer that.",
+    "They think about you the way we all think about unfinished things. Not always consciously, but consistently. Something about your connection created an impression that does not easily fade.",
   ],
   addictive: [
-    "This relationship feels addictive because it delivers the two most neurologically compelling experiences simultaneously: intense connection and emotional uncertainty. Your brain can't stop seeking resolution, and it keeps mistaking the seeking for love.",
-    "The addiction is really attachment — but the kind with enough inconsistency to keep the seeking alive. You're not addicted to them. You're addicted to the version of this that felt absolutely right, even if it only appeared in flashes.",
+    "This relationship feels addictive because it gives you two very powerful things at the same time: deep connection and emotional uncertainty. Your mind keeps looking for resolution, and it keeps mistaking that search for love.",
+    "The addiction is really attachment, but the kind with enough inconsistency to keep you searching. You are not addicted to them. You are addicted to the version of this that felt completely right, even if it only appeared sometimes.",
   ],
   misunderstand: [
-    "You misunderstand each other because your communication styles operate at different emotional frequencies. You lead with feeling; they lead with meaning. Both are valid forms of honesty, but they often sound like different languages until you slow down enough to translate.",
-    "The misunderstandings happen because you're both protecting something while trying to connect — and protection and openness want opposite things. Learning to name what you're protecting changes everything.",
+    "You misunderstand each other because your communication styles work at different emotional levels. You lead with feelings and they lead with meaning. Both are honest ways of talking, but they can sound like different languages until you slow down enough to really listen.",
+    "The misunderstandings happen because you are both trying to protect something while also trying to connect. Protection and openness want opposite things. Learning to name what you are protecting changes everything.",
   ],
   default: [
-    "What you're feeling makes sense given the emotional complexity of this connection. There's no clean answer, but there is clarity available — it usually comes when you stop trying to decode them and start listening to yourself.",
-    "The fact that you're asking this question means you're already doing the most important emotional work: paying attention. Most people avoid this. You're already further along than it feels.",
-    "This is one of those things that has no quick answer — but your instinct about it is likely more accurate than you're letting yourself believe. Trust that first reading.",
+    "What you are feeling makes complete sense given how complex this connection is. There is no clean answer, but there is clarity available. It usually comes when you stop trying to understand them and start listening to yourself.",
+    "The fact that you are asking this question means you are already doing the most important work: paying attention. Most people avoid this. You are already further ahead than it feels.",
+    "This is one of those things with no quick answer. But your gut feeling about it is probably more accurate than you are allowing yourself to believe. Trust that first instinct.",
   ],
 };
 
@@ -447,10 +447,10 @@ export function getGuidanceResponse(question: string, partnerName: string, relat
   text = text.replace(/\{partner\}/g, partnerName);
 
   const suffix: Record<RelationshipType, string> = {
-    crush: ` With a crush, this stage — before clarity — is often the most emotionally formative.`,
-    situationship: ` In a situationship especially, the absence of a label amplifies every feeling.`,
-    relationship: ` In an established relationship, these patterns become the invisible architecture of daily life.`,
-    ex: ` With an ex, memory edits the past and makes returning feel safer than it may be.`,
+    crush: " With a crush, this stage before clarity is often the most emotionally powerful.",
+    situationship: " In a situationship especially, the lack of a label makes every feeling much stronger.",
+    relationship: " In an established relationship, these patterns become the invisible shape of everyday life.",
+    ex: " With an ex, memory rewrites the past and makes returning feel safer than it may actually be.",
   };
 
   return text + suffix[relationshipType];

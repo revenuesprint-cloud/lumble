@@ -102,6 +102,40 @@ router.post("/daily", async (req, res) => {
   }
 });
 
+// ─── POST /content/questions ──────────────────────────────────────────────────
+// Returns browsable question-answer cards personalized by kundli tags.
+// Groups by category (about_them, about_you, what_to_do, patterns, big_picture).
+// Public — no auth required.
+
+router.post("/questions", async (req, res) => {
+  const { tags = [] } = req.body ?? {};
+  const attrs = Array.isArray(tags) ? tags : [];
+
+  try {
+    const rows = await db.execute(sql`
+      SELECT id, type, title, body, meta, tags, sort_order,
+        (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${attrs}::text[])) AS match_score
+      FROM content
+      WHERE is_active = true AND type = 'question_answer'
+      ORDER BY match_score DESC, sort_order ASC
+      LIMIT 80
+    `);
+
+    // Group by category
+    const grouped: Record<string, unknown[]> = {};
+    for (const row of rows.rows as any[]) {
+      const cat = (row.meta?.category as string) ?? "general";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(row);
+    }
+
+    return res.json({ questions: grouped, total: rows.rows.length });
+  } catch (err) {
+    console.error("content/questions error:", err);
+    return res.status(500).json({ error: "Something went wrong." });
+  }
+});
+
 // ─── PATCH /content/challenges/:problemId/state ───────────────────────────────
 // Save or update a user's acknowledgment state for a challenge.
 // Auth required.

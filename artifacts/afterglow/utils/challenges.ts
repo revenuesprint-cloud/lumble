@@ -96,7 +96,7 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
   if (rt) {
     push({
       title: `${a.userMoonRashi} Moon's need for ${rt.needs} going unmet`,
-      description: `With the Moon in ${a.userMoonRashi}, your emotional core runs on a deep need for ${rt.needs}. When this need is consistently unmet — often because it's never spoken — it shows up as ${rt.shadow} and quiet resentment.`,
+      description: `With the Moon in ${a.userMoonRashi}, your emotional core needs ${rt.needs}. When this need is not met, usually because it is never spoken out loud, it shows up as ${rt.shadow} and quiet resentment.`,
       category: "Emotional Needs", severity: "moderate",
       tags: [`moon_rashi:${a.userMoonRashi}`, "universal"],
       score: 3,
@@ -108,7 +108,7 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
 
     push({
       title: `${a.userMoonRashi} Moon's core fear of ${rt.fear} surfacing in arguments`,
-      description: `The fear of ${rt.fear} is at the root of how ${a.userMoonRashi} Moon people respond in conflict. Arguments that trigger this fear stop being about the topic and become about the fear itself — which your partner can't see.`,
+      description: `The fear of ${rt.fear} is at the root of how ${a.userMoonRashi} Moon people react in arguments. When this fear gets triggered, the fight stops being about the topic. It becomes about the fear. Your partner cannot see this, which makes it harder to resolve.`,
       category: "Conflict", severity: "moderate",
       tags: [`moon_rashi:${a.userMoonRashi}`],
       score: 3,
@@ -141,14 +141,14 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
   const gc = ganaChallenge[a.userGana];
 
   push({
-    title: `${a.userNakshatra} nakshatra's ${a.userGana} temperament creating friction`,
-    description: `Born under ${a.userNakshatra}, you carry ${gc?.tone ?? "complex"} energy. In relationships this ${gc?.challenge ?? "creates unique tensions"}. The ${a.userDashaLord}-flavored sensitivity amplifies this in close quarters.`,
+    title: `${a.userNakshatra} birth star energy creating friction in the relationship`,
+    description: `Born under ${a.userNakshatra}, you carry ${gc?.tone ?? "complex"} energy. In close relationships this ${gc?.challenge ?? "creates unique tensions"}. Your current ${a.userDashaLord} phase makes this even stronger.`,
     category: "Temperament", severity: "moderate",
     tags: [`nakshatra:${a.userNakshatra}`, `gana:${a.userGana}`],
     score: 2,
     solutions: [
-      { title: "Explain your nature, don't apologise for it", description: `Tell your partner: "I'm ${gc?.tone ?? "complex"} by nature. Here's what that actually means for how I love." Understanding removes a lot of conflict.`, type: "communication", isPremium: false },
-      { title: `${a.nakshatraGod} blessing ritual`, description: `Offering prayers to ${a.nakshatraGod}, the presiding deity of ${a.userNakshatra} nakshatra, invites grace into the relationship dimension of this nakshatra's energy.`, type: "ritual", isPremium: true },
+      { title: "Explain your nature, do not apologise for it", description: `Tell your partner: "I am ${gc?.tone ?? "complex"} by nature. This is what that means for how I love." When they understand this, a lot of conflict disappears.`, type: "communication", isPremium: false },
+      { title: `${a.nakshatraGod} blessing ritual`, description: `Offering prayers to ${a.nakshatraGod}, the deity of the ${a.userNakshatra} birth star, brings divine support to this area of your relationship.`, type: "ritual", isPremium: true },
     ],
   });
 
@@ -169,14 +169,14 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
   const dt = dashaThemes[a.userDashaLord];
   if (dt) {
     push({
-      title: `${a.userDashaLord} mahadasha bringing ${dt.keyword} energy into the relationship`,
-      description: `You're currently in ${a.userDashaLord} dasha, and its primary theme of ${dt.keyword} is colouring every experience. The specific relationship challenge this period brings: ${dt.relChallenge}.`,
+      title: `${a.userDashaLord} life phase bringing ${dt.keyword} energy into the relationship`,
+      description: `You are currently in your ${a.userDashaLord} life phase. The main theme of this phase is ${dt.keyword}, and it is affecting your relationships too. The main challenge it brings: ${dt.relChallenge}.`,
       category: "Dasha Timing", severity: "moderate",
       tags: [`dasha:${a.userDashaLord}`],
       score: 2,
       solutions: [
-        { title: "Tell your partner about your dasha", description: `Sharing "I'm in a ${a.userDashaLord} period that tends toward ${dt.keyword}" gives them context to understand your current patterns.`, type: "communication", isPremium: false },
-        { title: `${a.userDashaLord} pacification practice`, description: `Research the specific mantra, colour, and day associated with ${a.userDashaLord} and build a simple weekly practice around it during this dasha period.`, type: "ritual", isPremium: false },
+        { title: "Tell your partner about your current life phase", description: `Say to them: "I am in a ${a.userDashaLord} phase right now which tends to bring ${dt.keyword} into my life." This gives them context to understand your current behavior.`, type: "communication", isPremium: false },
+        { title: `${a.userDashaLord} calming practice`, description: `Find the mantra and day of the week associated with ${a.userDashaLord} and do a simple weekly practice. Even 10 minutes a week helps during this phase.`, type: "ritual", isPremium: false },
       ],
     });
   }
@@ -186,41 +186,41 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
   if (a.mangalDosha) {
     push({
       title: "Mangal dosha creating conflict-prone patterns in this relationship",
-      description: "Mangal (Mars) in a sensitive house in your chart introduces intensity and fire into the way you engage in conflict and close relationships. This isn't a curse — but it does require conscious management of Martian energy.",
+      description: "Mars (Mangal) is placed in a sensitive house in your chart. This brings a lot of intensity and heat into how you handle conflict and close relationships. This is not a curse. But it does need to be managed carefully.",
       category: "Dosha", severity: "severe",
       tags: ["dosha:mangal"],
       score: 4,
       solutions: [
-        { title: "Channel Mars energy outward", description: "Mars energy needs a worthy challenge. Direct it into shared goals, fitness, or ambitious projects — this converts aggression into vitality.", type: "practical", isPremium: false },
-        { title: "Kuja Dosha Nivaran puja", description: "A Mangal Shanti puja performed on a Tuesday can significantly reduce the dosha's relational impact.", type: "ritual", isPremium: true },
-        { title: "10-second pause before responding in conflict", description: "The Martian instinct is immediate reaction. A committed 10-second pause before responding interrupts the pattern.", type: "practical", isPremium: false },
+        { title: "Direct Mars energy into something positive", description: "Mars energy needs a challenge. Put it into shared goals, fitness, or building something together. This turns aggression into positive energy.", type: "practical", isPremium: false },
+        { title: "Kuja Dosha Nivaran puja", description: "A Mangal Shanti puja done on a Tuesday can reduce the impact of this placement on your relationship.", type: "ritual", isPremium: true },
+        { title: "Pause 10 seconds before responding in a fight", description: "The Mars instinct is to react immediately. Committing to a 10 second pause before responding breaks this automatic pattern.", type: "practical", isPremium: false },
       ],
     });
   }
 
   if (a.nadiDosha) {
     push({
-      title: "Nadi dosha — same physiological energy type creating subtle friction",
-      description: "Both partners share the same Nadi (physiological energy type). Classical Vedic astrology considers this a significant factor affecting long-term compatibility and health vitality within the relationship.",
+      title: "Nadi dosha: both partners share the same energy type",
+      description: "Both of you share the same Nadi, which is your body energy type. Traditional Vedic astrology considers this an important factor that can affect your health and compatibility over time.",
       category: "Dosha", severity: "moderate",
       tags: ["dosha:nadi"],
       score: 4,
       solutions: [
         { title: "Nadi dosha puja", description: "A Nadi Nirvana puja with Mahamrityunjaya mantra (1008 recitations) is the classical remedy for this dosha.", type: "ritual", isPremium: true },
-        { title: "Health monitoring practice", description: "Couples with Nadi dosha benefit from proactive health awareness — notice shared stress triggers and manage them before they compound.", type: "practical", isPremium: false },
+        { title: "Health awareness practice", description: "Couples with Nadi dosha do better with proactive health care. Notice the stress triggers you both share and manage them early before they build up.", type: "practical", isPremium: false },
       ],
     });
   }
 
   if (a.bhakootDosha) {
     push({
-      title: "Bhakoot dosha — moon sign distance creating emotional disconnection",
-      description: "Your moon signs are in a challenging Bhakoot position (6-8 or 12-2 relationship). This can manifest as financial friction, health concerns, and difficulty finding emotional wavelength alignment.",
+      title: "Bhakoot dosha: your moon signs are in a challenging position",
+      description: "Your moon signs are in a difficult Bhakoot position. This can show up as money disagreements, health issues, and difficulty getting on the same emotional page as each other.",
       category: "Dosha", severity: "moderate",
       tags: ["dosha:bhakoot"],
       score: 4,
       solutions: [
-        { title: "Shared charity practice", description: "Donating together regularly (especially on Mondays) is a classical Bhakoot remedy — it builds karmic credit for the relationship.", type: "ritual", isPremium: false },
+        { title: "Donate together regularly", description: "Giving to charity together, especially on Mondays, is a traditional Bhakoot remedy. It builds positive energy for the relationship.", type: "ritual", isPremium: false },
         { title: "Chandra puja for moon harmony", description: "Monthly Purnima offerings of white flowers and milk to Chandra help harmonise the moon-sign friction.", type: "ritual", isPremium: true },
       ],
     });
@@ -244,8 +244,8 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
 
   if (a.gunaScore < 18) {
     push({
-      title: `Low Guna score (${a.gunaScore}/36) — fundamental compatibility work needed`,
-      description: `A score below 18 indicates significant astrological friction across multiple Ashtakoot dimensions. This doesn't make love impossible, but it does mean this relationship requires more conscious effort than a higher-scoring match.`,
+      title: `Low compatibility score (${a.gunaScore}/36): this relationship needs extra effort`,
+      description: `A score below 18 means there is significant friction across several areas of your star chart compatibility. This does not make love impossible. It does mean this relationship needs more effort and awareness than most.`,
       category: "Compatibility", severity: "severe",
       tags: ["guna:low"],
       score: 4,
@@ -256,8 +256,8 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
     });
   } else if (a.gunaScore < 28) {
     push({
-      title: `Medium Guna score (${a.gunaScore}/36) — mixed compatibility requiring targeted work`,
-      description: `Your Ashtakoot score is in the moderate range. Some dimensions align well; others present genuine challenges. Knowing which is which is the key to not wasting energy on the wrong problems.`,
+      title: `Medium compatibility score (${a.gunaScore}/36): some areas need attention`,
+      description: `Your star chart score is in the middle range. Some things match well between you. Others need real work. Knowing which areas to focus on saves a lot of wasted energy.`,
       category: "Compatibility", severity: "mild",
       tags: ["guna:medium"],
       score: 2,
@@ -277,8 +277,8 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
       "Earth_Fire":  { desc: "Fire wants to leap; Earth wants to build slowly. Fire finds Earth boring; Earth finds Fire reckless." },
       "Fire_Air":    { desc: "Air fuels Fire's intensity but may feel overwhelmed by the heat it creates." },
       "Air_Fire":    { desc: "Air fuels Fire's intensity but may feel overwhelmed by the heat it creates." },
-      "Water_Earth": { desc: "Water and Earth can be deeply compatible but slip into codependency — Water floods, Earth goes rigid." },
-      "Earth_Water": { desc: "Water and Earth can be deeply compatible but slip into codependency — Water floods, Earth goes rigid." },
+      "Water_Earth": { desc: "Water and Earth can be a very good match but can tip into over dependence on each other. Water can become overwhelming and Earth can become too rigid." },
+      "Earth_Water": { desc: "Water and Earth can be a very good match but can tip into over dependence on each other. Water can become overwhelming and Earth can become too rigid." },
       "Water_Air":   { desc: "Water goes deep into emotion; Air prefers intellectual distance. What feels intimate to Water feels overwhelming to Air." },
       "Air_Water":   { desc: "Water goes deep into emotion; Air prefers intellectual distance. What feels intimate to Water feels overwhelming to Air." },
       "Earth_Air":   { desc: "Earth is tangible and slow. Air is conceptual and quick. They can feel like they're living in different worlds." },
@@ -288,13 +288,13 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
     const ec = elementConflicts[key];
     if (ec) {
       push({
-        title: `${a.userElement}–${a.partnerElement} elemental tension causing pacing differences`,
+        title: `${a.userElement} and ${a.partnerElement} energy: different pace and style`,
         description: ec.desc,
         category: "Elemental Compatibility", severity: "mild",
         tags: [`element_conflict:${[a.userElement, a.partnerElement].sort().join("_")}`],
         score: 2,
         solutions: [
-          { title: "Study your elemental differences", description: `${a.userElement} and ${a.partnerElement} energies have predictable friction points. Understanding them as a pattern — not personal flaws — removes a lot of heat from conflict.`, type: "practical", isPremium: false },
+          { title: "Learn about your elemental differences", description: `${a.userElement} and ${a.partnerElement} energies have natural friction points. When you understand them as a shared pattern rather than personal flaws, a lot of the heat goes out of arguments.`, type: "practical", isPremium: false },
           { title: "Use the complementarity", description: `${a.userElement} brings what ${a.partnerElement} lacks and vice versa. Frame your differences as balance rather than opposition.`, type: "communication", isPremium: false },
         ],
       });
@@ -305,18 +305,18 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
 
   if (a.userGana !== a.partnerGana) {
     const ganaMix: Record<string, string> = {
-      "Deva_Rakshasa":     "The most challenging Gana combination — the gentle, idealistic Deva can feel overwhelmed by Rakshasa intensity, and the Rakshasa may feel their depth is met with avoidance.",
-      "Rakshasa_Deva":     "The most challenging Gana combination — the gentle, idealistic Deva can feel overwhelmed by Rakshasa intensity, and the Rakshasa may feel their depth is met with avoidance.",
-      "Deva_Manushya":     "The idealistic Deva may feel misunderstood by the practically-minded Manushya; the Manushya may struggle to meet the Deva's spiritual expectations.",
-      "Manushya_Deva":     "The idealistic Deva may feel misunderstood by the practically-minded Manushya; the Manushya may struggle to meet the Deva's spiritual expectations.",
-      "Manushya_Rakshasa": "The Rakshasa's intensity can overwhelm the balanced Manushya. The Manushya brings stabilising calm the Rakshasa needs but may resist.",
-      "Rakshasa_Manushya": "The Rakshasa's intensity can overwhelm the balanced Manushya. The Manushya brings stabilising calm the Rakshasa needs but may resist.",
+      "Deva_Rakshasa":     "This is the most challenging personality type combination. The gentle, idealistic Deva can feel overwhelmed by Rakshasa intensity. The Rakshasa may feel that their depth is not being met.",
+      "Rakshasa_Deva":     "This is the most challenging personality type combination. The gentle, idealistic Deva can feel overwhelmed by Rakshasa intensity. The Rakshasa may feel that their depth is not being met.",
+      "Deva_Manushya":     "The idealistic Deva may feel misunderstood by the practical Manushya. The Manushya may struggle to meet the Deva's high spiritual expectations.",
+      "Manushya_Deva":     "The idealistic Deva may feel misunderstood by the practical Manushya. The Manushya may struggle to meet the Deva's high spiritual expectations.",
+      "Manushya_Rakshasa": "The Rakshasa's strong intensity can overwhelm the balanced Manushya. The Manushya brings a calming presence that the Rakshasa needs but may resist.",
+      "Rakshasa_Manushya": "The Rakshasa's strong intensity can overwhelm the balanced Manushya. The Manushya brings a calming presence that the Rakshasa needs but may resist.",
     };
     const combo = `${a.userGana}_${a.partnerGana}`;
     const gd = ganaMix[combo];
     if (gd) {
       push({
-        title: `${a.userGana}–${a.partnerGana} Gana combination creating temperament clash`,
+        title: `${a.userGana} and ${a.partnerGana} personality types creating friction`,
         description: gd,
         category: "Gana Compatibility", severity: a.userGana === "Deva" && a.partnerGana === "Rakshasa" ? "severe" : "moderate",
         tags: [`gana_combo:${[a.userGana, a.partnerGana].sort().join("_")}`],
@@ -334,11 +334,11 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
   const relTypeProblems: Record<string, { title: string; description: string; severity: Challenge["severity"]; solutions: ChallengeSolution[] }[]> = {
     crush: [
       {
-        title: "Not knowing if feelings are returned",
-        description: "The crush phase is defined by uncertainty. You're responding to a version of them you've partly constructed — the real person and the imagined person are still the same image.",
+        title: "Not knowing if your feelings are returned",
+        description: "The crush phase is full of uncertainty. You are partly responding to a version of them that you have created in your head. The real person and the imagined person are not always the same.",
         severity: "mild",
         solutions: [
-          { title: "Make one move to get real information", description: "Not to confess — just to have a real conversation. Information replaces projection.", type: "practical", isPremium: false },
+          { title: "Make one move to get real information", description: "Not to confess. Just to have a real conversation with them. Real information is better than guessing.", type: "practical", isPremium: false },
           { title: "Set a decision timeline", description: "Give yourself a defined window to either act or redirect your energy. Indefinite ambiguity is more painful than a clear no.", type: "practical", isPremium: false },
         ],
       },
@@ -346,10 +346,10 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
     situationship: [
       {
         title: "Emotional investment without a defined structure",
-        description: "Situationships exist in the painful gap between 'just friends' and 'in a relationship.' The ambiguity is often intentional on one side — they get connection without accountability.",
+        description: "This kind of connection lives in the uncomfortable space between just friends and an actual relationship. The lack of definition is often intentional on one side. They get the connection without the responsibility.",
         severity: "moderate",
         solutions: [
-          { title: "Have the defining conversation", description: "Say clearly: 'I need to know what this is. I'm not asking for a lifetime — just whether we're building toward something.' Clarity, even painful clarity, is better than ambiguity.", type: "communication", isPremium: false },
+          { title: "Have the defining conversation", description: "Say clearly: 'I need to know what this is. I am not asking for a forever commitment. I just need to know if we are building toward something.' Knowing is always better than guessing.", type: "communication", isPremium: false },
           { title: "Set an internal deadline", description: "If they can't define the relationship within a timeframe you set privately, that itself is information about what they want.", type: "practical", isPremium: false },
         ],
       },
@@ -357,7 +357,7 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
     relationship: [
       {
         title: "Complacency eroding active love",
-        description: "Commitment solved the uncertainty of early love — and in doing so, removed some of the effort. The relationship now runs on inertia rather than intention.",
+        description: "Commitment removed the uncertainty of early love and with it, some of the effort too. The relationship now runs on habit rather than choice. This is very common and very fixable.",
         severity: "mild",
         solutions: [
           { title: "Annual relationship review", description: "Once a year: what's working, what needs to change, what are our goals for this relationship next year? Structured but meaningful.", type: "practical", isPremium: false },
@@ -368,10 +368,10 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
     ex: [
       {
         title: "Inability to fully move on after the relationship ended",
-        description: "The feelings, patterns, and identity built around this relationship take time to dissolve. Most people rush through this grief and end up carrying it into the next chapter.",
+        description: "The feelings and patterns built around this relationship take time to fade. Most people rush through the grieving and carry the pain into their next chapter without realising it.",
         severity: "moderate",
         solutions: [
-          { title: "Create a no-contact rule with an end date", description: "30-90 days of no contact is typically needed to break the neurological attachment. Give it an end date so it feels less permanent.", type: "practical", isPremium: false },
+          { title: "Set a no contact period with a clear end date", description: "30 to 90 days of no contact is usually what it takes to break a strong emotional attachment. Give it a clear end date so it feels less like forever.", type: "practical", isPremium: false },
           { title: "Grieve it fully", description: "Allow yourself to properly mourn what you lost, what you hoped for, the version of yourself in that relationship. Skipping this means carrying it.", type: "practical", isPremium: false },
         ],
       },
@@ -413,12 +413,12 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
       ],
     },
     {
-      title: "Love felt effortless early on — now it takes work",
-      description: "In the beginning everything flowed naturally. Now even small connection requires effort, and you both wonder if you've lost something permanent.",
+      title: "Love felt easy at the start. Now it takes real effort.",
+      description: "In the beginning everything came naturally. Now even small moments of connection need effort. You both wonder if you have lost something that cannot come back.",
       category: "Attachment", severity: "mild" as const,
       solutions: [
         { title: "Recreate an early ritual", description: "Think of something you did in the first 3 months that you've stopped doing. A specific walk, a meal, a playlist. Bring it back.", type: "practical" as const, isPremium: false },
-        { title: "Venus strengthening on Fridays", description: "Offer white flowers to water on Fridays and wear white or pink — this invites Shukra's energy to refresh the romantic bond.", type: "ritual" as const, isPremium: true },
+        { title: "Venus strengthening on Fridays", description: "Offer white flowers to water on Fridays and wear white or pink. This invites Venus energy to refresh the romantic bond.", type: "ritual" as const, isPremium: true },
       ],
     },
     {
@@ -427,16 +427,16 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
       category: "Conflict", severity: "moderate" as const,
       solutions: [
         { title: "Label the escalation out loud", description: "When the argument starts escalating, say: 'This is escalating. Can we slow down?' Just naming it interrupts the adrenaline cycle.", type: "communication" as const, isPremium: false },
-        { title: "20-minute pause rule", description: "Agree in advance: when voices rise, either person can call a 20-minute pause. The pause is not abandonment — it's regulation.", type: "practical" as const, isPremium: false },
+        { title: "20 minute pause rule", description: "Agree in advance: when voices rise, either person can call a 20 minute pause. The pause is not abandonment. It is giving each other space to calm down.", type: "practical" as const, isPremium: false },
       ],
     },
     {
       title: "Feeling taken for granted",
-      description: "Your efforts go unacknowledged. You cook, plan, listen, show up — and it passes without comment. Over time the invisibility turns into resentment.",
+      description: "Your efforts go unnoticed. You cook, plan, listen, show up. None of it gets commented on. Over time this invisibility turns into quiet resentment.",
       category: "Appreciation", severity: "moderate" as const,
       solutions: [
         { title: "Verbalize what you notice", description: "Both partners practice saying out loud what they silently appreciate: 'I noticed you made my coffee the way I like it today.'", type: "communication" as const, isPremium: false },
-        { title: "Specific daily gratitude exchange", description: "Each evening, name one specific thing your partner did that day. Specificity matters — not 'you're great' but 'you picked up my medicine without being asked.'", type: "practical" as const, isPremium: false },
+        { title: "Specific daily gratitude exchange", description: "Each evening, name one specific thing your partner did that day. Specific is better than general. Not 'you are great' but 'you picked up my medicine without being asked.'", type: "practical" as const, isPremium: false },
       ],
     },
     {
@@ -445,12 +445,12 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
       category: "Patterns", severity: "moderate" as const,
       solutions: [
         { title: "Name the loop as a shared pattern", description: "Together, write down the recurring argument cycle. Naming it as a shared pattern (not each other's fault) is the first step to breaking it.", type: "communication" as const, isPremium: false },
-        { title: "Saturday Shani ritual for karmic loops", description: "Light a ghee lamp on Saturday evenings while reciting 'Om Shanaishcharaya Namah' 19 times to break karmic repetition patterns.", type: "ritual" as const, isPremium: true },
+        { title: "Saturday Saturn ritual to break repetitive patterns", description: "Light a ghee lamp on Saturday evenings and recite 'Om Shanaishcharaya Namah' 19 times. This is a traditional practice to help break repeating patterns.", type: "ritual" as const, isPremium: true },
       ],
     },
     {
       title: "Loneliness even when together",
-      description: "You share a space but feel profoundly alone in it. Your partner is physically present but emotionally unreachable, and the gap is sometimes harder to bear than actual solitude.",
+      description: "You share a space but feel completely alone in it. Your partner is physically there but emotionally far away. This gap is sometimes harder to deal with than being actually alone.",
       category: "Emotional Distance", severity: "severe" as const,
       solutions: [
         { title: "Name it out loud", description: "Saying 'I sometimes feel lonely even when we're together' is terrifying but almost always opens a door. The unspoken loneliness is the problem.", type: "communication" as const, isPremium: false },
@@ -463,7 +463,7 @@ export function generateLocalChallenges(reading: AstrologyReading, relationshipT
       category: "Balance", severity: "moderate" as const,
       solutions: [
         { title: "Rotate the check-in role", description: "Alternate who initiates the weekly emotional check-in. The rotation makes it explicit that both partners share this responsibility.", type: "practical" as const, isPremium: false },
-        { title: "Name the imbalance calmly", description: "Say 'I notice I'm doing most of the emotional reaching out. Can we talk about that?' Use 'I notice' — not 'you never.'", type: "communication" as const, isPremium: false },
+        { title: "Name the imbalance calmly", description: "Say 'I notice I am doing most of the emotional reaching out. Can we talk about that?' Use 'I notice', not 'you never'.", type: "communication" as const, isPremium: false },
       ],
     },
   ];

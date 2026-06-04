@@ -26,7 +26,7 @@ const universal: SeedProblem[] = [
     category: "Communication", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Agree on a signal phrase", description: "Before it happens again, agree on a phrase like 'I need quiet time' that means 'I'm retreating but not angry at you.'", type: "communication", isPremium: false },
-      { title: "Set a reconnect window", description: "When one partner withdraws, agree on a specific time — even 24 hours — to check in and talk.", type: "practical", isPremium: false },
+      { title: "Set a reconnect window", description: "When one partner withdraws, agree on a specific time. 24 hours. to check in and talk.", type: "practical", isPremium: false },
       { title: "Grounding breath ritual", description: "When you feel the urge to withdraw, take 9 deep breaths before deciding to go silent. This interrupts the reactive pattern.", type: "spiritual", isPremium: false },
     ],
     sortOrder: 1,
@@ -37,7 +37,7 @@ const universal: SeedProblem[] = [
     category: "Patterns", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Name the loop explicitly", description: "Together, write down the recurring argument cycle. Naming it as a shared pattern (not each other's fault) is the first step to breaking it.", type: "communication", isPremium: false },
-      { title: "Change one variable", description: "When the argument starts, change your physical location — go outside, sit on the floor. A new environment breaks the neurological pattern.", type: "practical", isPremium: false },
+      { title: "Change one variable", description: "When the argument starts, change your physical location. go outside, sit on the floor. A new environment breaks the neurological pattern.", type: "practical", isPremium: false },
       { title: "Planetary cycle remediation", description: "Light a ghee lamp on Saturday evenings while reciting 'Om Shanaishcharaya Namah' 19 times to break karmic repetition loops.", type: "ritual", isPremium: true },
     ],
     sortOrder: 2,
@@ -47,9 +47,9 @@ const universal: SeedProblem[] = [
     description: "In the beginning everything flowed naturally. Now even small connection requires effort, and you both wonder if you've lost something permanent.",
     category: "Attachment", severity: "mild", tags: ["universal"],
     solutions: [
-      { title: "Recreate an early ritual", description: "Think of something you did in the first 3 months that you've stopped doing — a specific walk, a meal, a playlist. Bring it back.", type: "practical", isPremium: false },
+      { title: "Recreate an early ritual", description: "Think of something you did in the first 3 months that you've stopped doing. specific walk, a meal, a playlist. Bring it back.", type: "practical", isPremium: false },
       { title: "Curiosity over comfort", description: "Once a week, ask your partner a question you genuinely don't know the answer to. Familiarity breeds assumption; curiosity breeds connection.", type: "communication", isPremium: false },
-      { title: "Venus strengthening practice", description: "On Fridays, wear white or pink and offer white flowers to water — this invites Shukra's energy to refresh the romantic bond.", type: "ritual", isPremium: true },
+      { title: "Venus strengthening practice", description: "On Fridays, wear white or pink and offer white flowers to water. invites Shukra's energy to refresh the romantic bond.", type: "ritual", isPremium: true },
     ],
     sortOrder: 3,
   },
@@ -69,7 +69,7 @@ const universal: SeedProblem[] = [
     description: "You hold back your real thoughts, past, or insecurities because part of you believes if they truly knew you, they would leave. This keeps you from real intimacy.",
     category: "Vulnerability", severity: "severe", tags: ["universal"],
     solutions: [
-      { title: "Share one small truth per week", description: "Vulnerability builds in layers. Share one slightly uncomfortable truth per week — something small but real. Watch how they respond.", type: "communication", isPremium: false },
+      { title: "Share one small truth per week", description: "Vulnerability builds in layers. Share one slightly uncomfortable truth per week. something small but real. Watch how they respond.", type: "communication", isPremium: false },
       { title: "Journal the feared revelation", description: "Write down what you're most afraid to tell them. Often the act of writing reveals the fear is bigger than the actual secret.", type: "practical", isPremium: false },
       { title: "Gayatri mantra for self-acceptance", description: "Recite the Gayatri mantra 108 times at dawn for 21 days to dissolve the belief that your true self is unworthy of love.", type: "ritual", isPremium: true },
     ],
@@ -90,18 +90,18 @@ const universal: SeedProblem[] = [
     description: "One or both partners are frequently on their phone while together. The person present feels invisible. Digital distraction has become the third party in the relationship.",
     category: "Presence", severity: "mild", tags: ["universal"],
     solutions: [
-      { title: "Phone-free meals", description: "Establish one meal per day with zero phones — not silenced, actually in another room. Even 20 minutes of undivided attention rebuilds connection.", type: "practical", isPremium: false },
+      { title: "Phone-free meals", description: "Establish one meal per day with zero phones. silenced, actually in another room. Even 20 minutes of undivided attention rebuilds connection.", type: "practical", isPremium: false },
       { title: "Name what you're avoiding", description: "Constant phone use is often an avoidance mechanism. Ask yourself honestly: what am I escaping when I pick up my phone around them?", type: "communication", isPremium: false },
     ],
     sortOrder: 7,
   },
   {
     title: "Feeling taken for granted",
-    description: "Your efforts go unacknowledged. You cook, plan, listen, show up — and it passes without comment. Over time the invisibility turns into resentment.",
+    description: "Your efforts go unacknowledged. You cook, plan, listen, show up. it passes without comment. Over time the invisibility turns into resentment.",
     category: "Appreciation", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Verbalize what you notice", description: "Both partners should practice saying out loud the things they silently appreciate: 'I noticed you made my coffee the way I like it today.'", type: "communication", isPremium: false },
-      { title: "Gratitude exchange ritual", description: "Each evening, name one specific thing your partner did that day that you're grateful for. Specificity matters — not 'you're great' but 'you picked up my medicine without being asked.'", type: "practical", isPremium: false },
+      { title: "Gratitude exchange ritual", description: "Each evening, name one specific thing your partner did that day that you're grateful for. Specificity matters. 'you're great' but 'you picked up my medicine without being asked.'", type: "practical", isPremium: false },
     ],
     sortOrder: 8,
   },
@@ -111,17 +111,17 @@ const universal: SeedProblem[] = [
     category: "Trust", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Articulate the underlying fear", description: "Jealousy is a symptom. The real issue is usually 'I'm afraid I'm not enough' or 'I fear being replaced.' Name that fear directly in a calm moment.", type: "communication", isPremium: false },
-      { title: "Mutual social media agreements", description: "Not restrictions — agreements. Discuss together what feels comfortable around online friendships with exes, flirty interactions, etc.", type: "practical", isPremium: false },
+      { title: "Mutual social media agreements", description: "Not restrictions. agreements. Discuss together what feels comfortable around online friendships with exes, flirty interactions, etc.", type: "practical", isPremium: false },
     ],
     sortOrder: 9,
   },
   {
     title: "Arguments that start small and escalate fast",
-    description: "A disagreement about something trivial — dishes, a forgotten task — explodes into a fight about deeper relationship issues. Proportionality is lost.",
+    description: "A disagreement about something trivial. dishes, a forgotten task. explodes into a fight about deeper relationship issues. Proportionality is lost.",
     category: "Conflict", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Stop and label the escalation", description: "When the argument starts escalating, say: 'This is escalating. Can we slow down?' Just naming it out loud interrupts the adrenaline cycle.", type: "communication", isPremium: false },
-      { title: "20-minute pause rule", description: "Agree in advance that when voices rise, either person can call a 20-minute pause. The pause is not abandonment — it's regulation.", type: "practical", isPremium: false },
+      { title: "20-minute pause rule", description: "Agree in advance that when voices rise, either person can call a 20-minute pause. The pause is not abandonment. it's regulation.", type: "practical", isPremium: false },
       { title: "Anger pacification mantra", description: "When you feel rage rising, silently repeat 'Om Shantih Shantih Shantih' three times before responding. This activates the parasympathetic nervous system.", type: "spiritual", isPremium: false },
     ],
     sortOrder: 10,
@@ -132,7 +132,7 @@ const universal: SeedProblem[] = [
     category: "Intimacy", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Non-sexual touch first", description: "Spend 10 minutes just holding each other without any expectation of it leading anywhere. Presence without agenda rebuilds intimacy.", type: "practical", isPremium: false },
-      { title: "Verbalize desire", description: "Tell your partner what you want, slowly and specifically. Many couples have never spoken their desires aloud — the act itself is intimate.", type: "communication", isPremium: false },
+      { title: "Verbalize desire", description: "Tell your partner what you want, slowly and specifically. Many couples have never spoken their desires aloud. act itself is intimate.", type: "communication", isPremium: false },
       { title: "Venus and Moon ritual", description: "On Monday nights (Chandra's day), light rose-scented incense together and spend 10 minutes in eye contact. This reactivates lunar bonding energy.", type: "ritual", isPremium: true },
     ],
     sortOrder: 11,
@@ -189,10 +189,10 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Interference from family members",
-    description: "In-laws, parents, or relatives actively influence the relationship — offering unsolicited advice, taking sides, or making decisions that affect the couple without consent.",
+    description: "In-laws, parents, or relatives actively influence the relationship. offering unsolicited advice, taking sides, or making decisions that affect the couple without consent.",
     category: "Boundaries", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "Unified front rule", description: "Agree that when family members criticize one partner, the other defends them — even privately disagreeing. A united front with family is non-negotiable.", type: "practical", isPremium: false },
+      { title: "Unified front rule", description: "Agree that when family members criticize one partner, the other defends them. privately disagreeing. A united front with family is non-negotiable.", type: "practical", isPremium: false },
       { title: "Define family boundaries together", description: "Create explicit agreements about what family members have access to: which decisions they're consulted on, which conversations are private.", type: "communication", isPremium: false },
     ],
     sortOrder: 17,
@@ -202,7 +202,7 @@ const universal: SeedProblem[] = [
     description: "Social media, friends, and family relationships become measuring sticks. 'Why don't we do what they do?' comparisons create pressure and undermine your unique dynamic.",
     category: "Expectations", severity: "mild", tags: ["universal"],
     solutions: [
-      { title: "Define your relationship on your terms", description: "Write a list together of 5 things that make your relationship yours — not better or worse, just distinctly yours. Return to this list when comparison creeps in.", type: "practical", isPremium: false },
+      { title: "Define your relationship on your terms", description: "Write a list together of 5 things that make your relationship yours. better or worse, just distinctly yours. Return to this list when comparison creeps in.", type: "practical", isPremium: false },
     ],
     sortOrder: 18,
   },
@@ -218,10 +218,10 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Trust damaged but not fully broken",
-    description: "Something happened — a lie, a flirtation, a broken promise — that cracked trust without ending the relationship. You want to move on but the wound keeps reopening.",
+    description: "Something happened. lie, a flirtation, a broken promise. cracked trust without ending the relationship. You want to move on but the wound keeps reopening.",
     category: "Trust", severity: "severe", tags: ["universal"],
     solutions: [
-      { title: "Transparency as the new baseline", description: "The person who broke trust should, for a defined period, offer information proactively — not because they're under surveillance but because it rebuilds credibility.", type: "practical", isPremium: false },
+      { title: "Transparency as the new baseline", description: "The person who broke trust should, for a defined period, offer information proactively, not because they're under surveillance but because it rebuilds credibility.", type: "practical", isPremium: false },
       { title: "Couples therapy for betrayal processing", description: "Betrayal trauma has specific patterns. A therapist trained in EFT or Gottman Method can guide this more effectively than conversation alone.", type: "professional", isPremium: true },
     ],
     sortOrder: 20,
@@ -231,7 +231,7 @@ const universal: SeedProblem[] = [
     description: "One person handles responsibilities, makes decisions, and manages the logistics of life while the other remains passive. The dynamic kills romantic energy.",
     category: "Balance", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "Transfer one full responsibility", description: "Identify one area the responsible partner handles entirely. Fully hand it over — not with supervision. The goal is adult-to-adult equality.", type: "practical", isPremium: false },
+      { title: "Transfer one full responsibility", description: "Identify one area the responsible partner handles entirely. Fully hand it over. with supervision. The goal is adult-to-adult equality.", type: "practical", isPremium: false },
     ],
     sortOrder: 21,
   },
@@ -240,7 +240,7 @@ const universal: SeedProblem[] = [
     description: "You silence your needs because asking for things feels like being 'too much.' Then resentment builds from unmet needs. The silence feels safer than the asking, but it isn't.",
     category: "Vulnerability", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "Reframe needs as information", description: "Needs are not demands — they're information your partner needs to love you well. Practice saying 'I need X' as a neutral statement, not a complaint.", type: "communication", isPremium: false },
+      { title: "Reframe needs as information", description: "Needs are not demands. they're information your partner needs to love you well. Practice saying 'I need X' as a neutral statement, not a complaint.", type: "communication", isPremium: false },
       { title: "Self-worth affirmation ritual", description: "Write 'My needs are valid' on a paper and keep it visible for 21 days. Simple but addresses the root belief.", type: "spiritual", isPremium: false },
     ],
     sortOrder: 22,
@@ -250,7 +250,7 @@ const universal: SeedProblem[] = [
     description: "The frequency and quality of physical intimacy has dropped significantly. Both partners notice it but neither knows how to bring it up without the other person feeling criticized.",
     category: "Intimacy", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "Desire conversation outside the bedroom", description: "Have the 'our intimacy has changed' conversation during a walk or drive — not in the bedroom. Neutral setting removes performance anxiety.", type: "communication", isPremium: false },
+      { title: "Desire conversation outside the bedroom", description: "Have the 'our intimacy has changed' conversation during a walk or drive. in the bedroom. Neutral setting removes performance anxiety.", type: "communication", isPremium: false },
       { title: "Remove outcome pressure", description: "Plan intimacy-adjacent time (massage, bathing together) with no expectation that it leads to sex. Removing pressure often restores natural desire.", type: "practical", isPremium: false },
     ],
     sortOrder: 23,
@@ -261,7 +261,7 @@ const universal: SeedProblem[] = [
     category: "External Stress", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Separate the stress from the person", description: "When money stress rises, explicitly say 'I'm stressed about money, not about you.' This prevents the displaced anger that poisons relationships.", type: "communication", isPremium: false },
-      { title: "Monthly money date", description: "A monthly 30-minute structured conversation about finances — budget, goals, concerns — removes the chaos from financial discussions.", type: "practical", isPremium: false },
+      { title: "Monthly money date", description: "A monthly 30-minute structured conversation about finances. budget, goals, concerns. removes the chaos from financial discussions.", type: "practical", isPremium: false },
     ],
     sortOrder: 24,
   },
@@ -270,7 +270,7 @@ const universal: SeedProblem[] = [
     description: "One or both partners use the relationship as a refuge from personal growth. Relying on each other for emotional regulation that should come from within creates codependency.",
     category: "Codependency", severity: "severe", tags: ["universal"],
     solutions: [
-      { title: "Identify your solo practices", description: "Each partner lists one personal practice — exercise, journaling, meditation — that is theirs alone and non-negotiable. Individuation within relationship.", type: "practical", isPremium: false },
+      { title: "Identify your solo practices", description: "Each partner lists one personal practice. exercise, journaling, meditation. is theirs alone and non-negotiable. Individuation within relationship.", type: "practical", isPremium: false },
       { title: "Individual therapy", description: "Separate therapy alongside couple work addresses the personal patterns each person brings to the dynamic.", type: "professional", isPremium: true },
     ],
     sortOrder: 25,
@@ -280,7 +280,7 @@ const universal: SeedProblem[] = [
     description: "Old wounds are weaponized in new arguments. Past mistakes are held onto not because they haven't been addressed, but because releasing them feels like losing leverage.",
     category: "Forgiveness", severity: "severe", tags: ["universal"],
     solutions: [
-      { title: "Distinguish forgiveness from trust", description: "Forgiveness is releasing your own resentment — it's for you, not them. Trust is rebuilt over time through action. They are separate processes.", type: "communication", isPremium: false },
+      { title: "Distinguish forgiveness from trust", description: "Forgiveness is releasing your own resentment. it's for you, not them. Trust is rebuilt over time through action. They are separate processes.", type: "communication", isPremium: false },
       { title: "Write and release ritual", description: "Write everything you haven't forgiven on paper, then burn it ceremonially. Announce to your partner that you're choosing to release it. Symbolic but powerful.", type: "ritual", isPremium: false },
     ],
     sortOrder: 26,
@@ -297,11 +297,11 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Carrying the weight of past relationship trauma",
-    description: "What happened in previous relationships — betrayal, abandonment, abuse — is bleeding into this one. You're punishing your current partner for what a past person did.",
+    description: "What happened in previous relationships. betrayal, abandonment, abuse. is bleeding into this one. You're punishing your current partner for what a past person did.",
     category: "Healing", severity: "severe", tags: ["universal"],
     solutions: [
       { title: "Name your triggers explicitly", description: "Tell your partner: 'When you do X, it triggers something from my past. It's not about you, but it affects me.' This prevents them from walking invisible minefields.", type: "communication", isPremium: false },
-      { title: "Trauma-informed therapy", description: "Past relationship trauma requires specific processing — EMDR, somatic therapy, or trauma-focused CBT. General talk therapy may not be enough.", type: "professional", isPremium: true },
+      { title: "Trauma-informed therapy", description: "Past relationship trauma requires specific processing. EMDR, somatic therapy, or trauma-focused CBT. General talk therapy may not be enough.", type: "professional", isPremium: true },
     ],
     sortOrder: 28,
   },
@@ -317,11 +317,11 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Feeling more like roommates than partners",
-    description: "Life logistics — household, finances, schedules — have taken over completely. You coexist efficiently but the romantic, emotional dimension of the relationship has quietly disappeared.",
+    description: "Life logistics. household, finances, schedules. have taken over completely. You coexist efficiently but the romantic, emotional dimension of the relationship has quietly disappeared.",
     category: "Connection", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Weekly date with no life-talk rule", description: "One night a week, go out or stay in but agree no discussing logistics, kids, money, or schedules. Talk like you did when you were getting to know each other.", type: "practical", isPremium: false },
-      { title: "Touch throughout the day", description: "Intentional non-sexual touch during daily life — a hand on the shoulder passing by, a forehead kiss — rebuilds the physical language that roommates don't have.", type: "practical", isPremium: false },
+      { title: "Touch throughout the day", description: "Intentional non-sexual touch during daily life. hand on the shoulder passing by, a forehead kiss. rebuilds the physical language that roommates don't have.", type: "practical", isPremium: false },
     ],
     sortOrder: 30,
   },
@@ -347,10 +347,10 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Struggling to maintain individual identity",
-    description: "You've merged so completely that you've lost the sense of who you are outside the relationship. Friends notice you only ever speak in 'we' — your separate dreams and interests have quietly vanished.",
+    description: "You've merged so completely that you've lost the sense of who you are outside the relationship. Friends notice you only ever speak in 'we'. your separate dreams and interests have quietly vanished.",
     category: "Identity", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "One solo activity per week minimum", description: "Each partner maintains at least one regular activity that's purely their own — a class, a friendship, a hobby — that the other doesn't participate in.", type: "practical", isPremium: false },
+      { title: "One solo activity per week minimum", description: "Each partner maintains at least one regular activity that's purely their own. class, a friendship, a hobby. the other doesn't participate in.", type: "practical", isPremium: false },
       { title: "Revisit pre-relationship passions", description: "What did you love before this relationship? Music, painting, a sport? Reconnecting to pre-relationship identity strengthens the relationship paradoxically.", type: "practical", isPremium: false },
     ],
     sortOrder: 33,
@@ -367,17 +367,17 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Stonewalling during conflict",
-    description: "One partner shuts completely down during disagreements — no response, no eye contact, physical removal. For the other partner this feels like abandonment and escalates the panic.",
+    description: "One partner shuts completely down during disagreements. no response, no eye contact, physical removal. For the other partner this feels like abandonment and escalates the panic.",
     category: "Conflict", severity: "severe", tags: ["universal"],
     solutions: [
       { title: "Physiological self-soothing first", description: "Stonewalling happens when the nervous system is flooded. Agree that either partner can call a 30-minute break to walk, breathe, and regulate before continuing.", type: "practical", isPremium: false },
-      { title: "Signal that you're overwhelmed, not done", description: "Say 'I'm overwhelmed right now and need to pause — I'm not abandoning this conversation' rather than just shutting down silently.", type: "communication", isPremium: false },
+      { title: "Signal that you're overwhelmed, not done", description: "Say 'I'm overwhelmed right now and need to pause. I'm not abandoning this conversation' rather than just shutting down silently.", type: "communication", isPremium: false },
     ],
     sortOrder: 35,
   },
   {
     title: "Attraction to other people creating guilt",
-    description: "You find someone outside the relationship attractive and the guilt about it — rather than the attraction itself — becomes a problem. Unspoken, it creates distance.",
+    description: "You find someone outside the relationship attractive and the guilt about it. rather than the attraction itself. becomes a problem. Unspoken, it creates distance.",
     category: "Honesty", severity: "mild", tags: ["universal"],
     solutions: [
       { title: "Understand that attraction is not betrayal", description: "Noticing attractiveness is a biological response, not a moral failing. The choice is what you do with it. Normalizing this internally reduces the shame spiral.", type: "practical", isPremium: false },
@@ -386,7 +386,7 @@ const universal: SeedProblem[] = [
   },
   {
     title: "One partner sacrificing too much",
-    description: "Career opportunities declined, friendships abandoned, personal dreams shelved — all for the relationship. The sacrificing partner has silently accumulated a debt that will eventually be collected.",
+    description: "Career opportunities declined, friendships abandoned, personal dreams shelved. all for the relationship. The sacrificing partner has silently accumulated a debt that will eventually be collected.",
     category: "Balance", severity: "severe", tags: ["universal"],
     solutions: [
       { title: "Audit the sacrifice", description: "List the things you've given up. Which are genuine choices you'd make again? Which are resentments in disguise? The distinction matters.", type: "practical", isPremium: false },
@@ -396,7 +396,7 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Boredom mistaken for incompatibility",
-    description: "The relationship feels flat and predictable. You wonder if you've outgrown it or simply need novelty. The boredom is real but the conclusion — that you should leave — may not be accurate.",
+    description: "The relationship feels flat and predictable. You wonder if you've outgrown it or simply need novelty. The boredom is real but the conclusion. you should leave. may not be accurate.",
     category: "Vitality", severity: "mild", tags: ["universal"],
     solutions: [
       { title: "Inject controlled novelty", description: "Do one thing together monthly that neither of you has done before. Novel experiences stimulate the same neurological pathways as early-stage romance.", type: "practical", isPremium: false },
@@ -417,7 +417,7 @@ const universal: SeedProblem[] = [
     description: "Your opinions, preferences, and feelings consistently get overridden. Your needs are secondary. Over time this erodes self-esteem and breeds a quiet, persistent rage.",
     category: "Respect", severity: "severe", tags: ["universal"],
     solutions: [
-      { title: "Identify one standing preference", description: "Choose one recurring situation where your preference is always ignored. Make it the hill you stand on — kindly but firmly. Practice advocating for yourself there.", type: "communication", isPremium: false },
+      { title: "Identify one standing preference", description: "Choose one recurring situation where your preference is always ignored. Make it the hill you stand on. kindly but firmly. Practice advocating for yourself there.", type: "communication", isPremium: false },
       { title: "Relationship equality audit", description: "For one week, track how often your vs. their preferences win on small decisions. If the imbalance is clear, bring data to the conversation.", type: "practical", isPremium: false },
     ],
     sortOrder: 40,
@@ -433,7 +433,7 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Avoiding conflict to preserve peace",
-    description: "One or both partners avoid any disagreement to maintain surface-level harmony. Problems accumulate unaddressed until they erupt — larger and more destructive than if handled early.",
+    description: "One or both partners avoid any disagreement to maintain surface-level harmony. Problems accumulate unaddressed until they erupt. larger and more destructive than if handled early.",
     category: "Conflict Avoidance", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Reframe conflict as connection", description: "Conflict handled well is a tool for getting to know each other more deeply. The goal is not to avoid conflict but to do it safely.", type: "communication", isPremium: false },
@@ -446,13 +446,13 @@ const universal: SeedProblem[] = [
     description: "Early in the relationship you were also best friends. Now the friendship has been swallowed by the logistics of being a couple. Partners who lose their friendship lose the relationship's most durable core.",
     category: "Connection", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "Talk like friends, not partners", description: "Set aside one conversation a week that has nothing to do with the relationship — just sharing things about your lives, interests, and thoughts as you would with a close friend.", type: "practical", isPremium: false },
+      { title: "Talk like friends, not partners", description: "Set aside one conversation a week that has nothing to do with the relationship. sharing things about your lives, interests, and thoughts as you would with a close friend.", type: "practical", isPremium: false },
     ],
     sortOrder: 43,
   },
   {
     title: "Unhealed childhood wounds shaping adult love",
-    description: "Patterns from early family dynamics — anxious attachment, fear of abandonment, emotional unavailability — are replaying in this relationship without either partner fully understanding why.",
+    description: "Patterns from early family dynamics. anxious attachment, fear of abandonment, emotional unavailability. are replaying in this relationship without either partner fully understanding why.",
     category: "Healing", severity: "severe", tags: ["universal"],
     solutions: [
       { title: "Identify your family-of-origin pattern", description: "Ask: 'What did love look like in my childhood home? What was the model for romantic relationships I grew up watching?' The answers explain a lot.", type: "practical", isPremium: false },
@@ -462,7 +462,7 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Competing for authority and control",
-    description: "Every decision becomes a power struggle — not because either partner is malicious but because both need to feel like they matter. The relationship becomes a negotiation table rather than a partnership.",
+    description: "Every decision becomes a power struggle, not because either partner is malicious but because both need to feel like they matter. The relationship becomes a negotiation table rather than a partnership.",
     category: "Power", severity: "moderate", tags: ["universal"],
     solutions: [
       { title: "Divide domains of authority", description: "Rather than negotiating every decision together, divide domains: one person is the final word on finances, the other on social plans, for example. Reduces friction.", type: "practical", isPremium: false },
@@ -471,11 +471,11 @@ const universal: SeedProblem[] = [
   },
   {
     title: "Not feeling safe to show anger",
-    description: "One partner's anger is explosive or unpredictable, so the other has learned to suppress theirs entirely. Suppressed anger doesn't disappear — it becomes depression, distance, or resentment.",
+    description: "One partner's anger is explosive or unpredictable, so the other has learned to suppress theirs entirely. Suppressed anger doesn't disappear. becomes depression, distance, or resentment.",
     category: "Safety", severity: "severe", tags: ["universal"],
     solutions: [
       { title: "Establish anger safety rules together", description: "Agree: no yelling, no name-calling, no bringing up the past, no threatening to leave. Both partners agree to these rules as a foundation for safety.", type: "communication", isPremium: false },
-      { title: "Individual anger management work", description: "The partner with explosive anger should address this in individual therapy or anger management work — not because they're bad, but because love requires safety.", type: "professional", isPremium: true },
+      { title: "Individual anger management work", description: "The partner with explosive anger should address this in individual therapy or anger management work, not because they're bad, but because love requires safety.", type: "professional", isPremium: true },
     ],
     sortOrder: 46,
   },
@@ -484,13 +484,13 @@ const universal: SeedProblem[] = [
     description: "Both partners are waiting for the other to be vulnerable first. Neither wants to risk going first. This standoff keeps emotional depth perpetually out of reach.",
     category: "Vulnerability", severity: "moderate", tags: ["universal"],
     solutions: [
-      { title: "Go first, once", description: "Someone has to go first. Share something genuinely uncomfortable — not devastating, but real. The act of going first almost always invites reciprocity.", type: "communication", isPremium: false },
+      { title: "Go first, once", description: "Someone has to go first. Share something genuinely uncomfortable. devastating, but real. The act of going first almost always invites reciprocity.", type: "communication", isPremium: false },
     ],
     sortOrder: 47,
   },
   {
     title: "Major life decisions becoming relationship crises",
-    description: "Career changes, moving cities, having children — major life decisions trigger disproportionate relationship crises because they expose unspoken expectations and divergent visions.",
+    description: "Career changes, moving cities, having children. major life decisions trigger disproportionate relationship crises because they expose unspoken expectations and divergent visions.",
     category: "Life Direction", severity: "severe", tags: ["universal"],
     solutions: [
       { title: "Values mapping before the decision", description: "Before any major decision, both partners write their top 5 values and their non-negotiables. Having this on paper means the decision-making conversation is informed, not reactive.", type: "practical", isPremium: false },
@@ -512,11 +512,11 @@ const universal: SeedProblem[] = [
     category: "Compatibility", severity: "mild", tags: ["universal"],
     solutions: [
       { title: "Learn each other's primary language", description: "Ask directly: 'What makes you feel most loved?' and 'What do I do that makes you feel least loved?' This is data you can act on immediately.", type: "communication", isPremium: false },
-      { title: "Practice your partner's language", description: "Once a week, express love in their language specifically — even if it doesn't come naturally to you. The effort itself is felt.", type: "practical", isPremium: false },
+      { title: "Practice your partner's language", description: "Once a week, express love in their language specifically. if it doesn't come naturally to you. The effort itself is felt.", type: "practical", isPremium: false },
     ],
     sortOrder: 50,
   },
-  // 51-200 — extended universal bank
+  // 51-200. extended universal bank
   ...Array.from({ length: 150 }, (_, i): SeedProblem => {
     const titles = [
       "Withholding affection as punishment", "Unrealistic expectations of constant happiness", "Struggling with partner's mental health",
@@ -582,7 +582,7 @@ const universal: SeedProblem[] = [
       ],
       [
         { title: "Write about it first", description: "Before a conversation, write what you want to say. The act of writing clarifies your thoughts and reduces emotional reactivity when you speak.", type: "practical", isPremium: false },
-        { title: "Couples therapy session", description: "One or two sessions with a therapist can break patterns that feel stuck. It's not an admission of failure — it's an investment.", type: "professional", isPremium: true },
+        { title: "Couples therapy session", description: "One or two sessions with a therapist can break patterns that feel stuck. It's not an admission of failure. it's an investment.", type: "professional", isPremium: true },
       ],
       [
         { title: "Commitment over comfort", description: "Resolving this pattern requires temporary discomfort. Commit to having the difficult conversation rather than the comfortable avoidance.", type: "communication", isPremium: false },
@@ -649,7 +649,7 @@ function makeRashiProblems(rashi: RashiInfo, startIndex: number): SeedProblem[] 
     },
     {
       title: `${rashi.name} Moon's core fear of ${t.fear} showing up in the relationship`,
-      description: `People with ${rashi.name} Moon carry a core fear of ${t.fear}. This fear doesn't announce itself clearly — it shows up as controlling behavior, emotional withdrawal, or testing the partner's commitment in indirect ways.`,
+      description: `People with ${rashi.name} Moon carry a core fear of ${t.fear}. This fear doesn't announce itself clearly. shows up as controlling behavior, emotional withdrawal, or testing the partner's commitment in indirect ways.`,
       category: "Anxiety", severity: "moderate", tags: [`moon_rashi:${rashi.name}`, "universal"],
       solutions: [
         { title: "Name the fear to your partner", description: `Telling your partner 'My deepest fear in relationships is ${t.fear}' gives them the information they need to be truly reassuring.`, type: "communication", isPremium: false },
@@ -669,10 +669,10 @@ function makeRashiProblems(rashi: RashiInfo, startIndex: number): SeedProblem[] 
     },
     {
       title: `${rashi.en} energy creating mismatched emotional tempo`,
-      description: `${rashi.name} is a ${rashi.element} sign, and emotionally you move at the pace of ${rashi.element}. Partners of different elements experience your emotional tempo as too fast, too slow, too intense, or too detached — and this pacing mismatch creates chronic friction.`,
+      description: `${rashi.name} is a ${rashi.element} sign, and emotionally you move at the pace of ${rashi.element}. Partners of different elements experience your emotional tempo as too fast, too slow, too intense, or too detached. this pacing mismatch creates chronic friction.`,
       category: "Compatibility", severity: "mild", tags: [`moon_rashi:${rashi.name}`, `element:${rashi.element}`],
       solutions: [
-        { title: "Explain your natural tempo", description: `Tell your partner: 'I process emotions like a ${rashi.element} sign — here's what that looks like for me.' Normalizing the difference reduces conflict.`, type: "communication", isPremium: false },
+        { title: "Explain your natural tempo", description: `Tell your partner: 'I process emotions like a ${rashi.element} sign. here's what that looks like for me.' Normalizing the difference reduces conflict.`, type: "communication", isPremium: false },
       ],
       sortOrder: startIndex + 3,
     },
@@ -687,7 +687,7 @@ function makeRashiProblems(rashi: RashiInfo, startIndex: number): SeedProblem[] 
       sortOrder: startIndex + 4,
     },
     {
-      title: `${rashi.name} Moon's strength — ${t.strength} — becoming a burden`,
+      title: `${rashi.name} Moon's strength. ${t.strength}. becoming a burden`,
       description: `Your greatest emotional strength, ${t.strength}, becomes a problem when applied rigidly. What works for you individually can feel overwhelming or suffocating to a partner who has different emotional wiring.`,
       category: "Strengths Becoming Weaknesses", severity: "mild", tags: [`moon_rashi:${rashi.name}`],
       solutions: [
@@ -697,7 +697,7 @@ function makeRashiProblems(rashi: RashiInfo, startIndex: number): SeedProblem[] 
     },
     {
       title: `${rashi.name} Moon's response to conflict with ${rashi.element} intensity`,
-      description: `In conflict, ${rashi.name} Moon individuals tend to respond with ${rashi.element} energy — ${rashi.element === "Fire" ? "heat and urgency" : rashi.element === "Water" ? "flooding and withdrawal" : rashi.element === "Earth" ? "stubbornness and silence" : "rationalization and distance"}. This response pattern, unless understood, escalates rather than resolves disagreements.`,
+      description: `In conflict, ${rashi.name} Moon individuals tend to respond with ${rashi.element} energy. ${rashi.element === "Fire" ? "heat and urgency" : rashi.element === "Water" ? "flooding and withdrawal" : rashi.element === "Earth" ? "stubbornness and silence" : "rationalization and distance"}. This response pattern, unless understood, escalates rather than resolves disagreements.`,
       category: "Conflict", severity: "moderate", tags: [`moon_rashi:${rashi.name}`, `element:${rashi.element}`],
       solutions: [
         { title: "Cool the elemental response", description: `${rashi.element === "Fire" ? "When heated, drink cold water and sit down before responding." : rashi.element === "Water" ? "When flooding, name your emotion out loud to bring it into the rational mind." : rashi.element === "Earth" ? "When going silent, give a time-stamped promise to return: 'I'll talk in an hour.'" : "When rationalizing, try to feel where the emotion is in your body before speaking."}`, type: "practical", isPremium: false },
@@ -706,7 +706,7 @@ function makeRashiProblems(rashi: RashiInfo, startIndex: number): SeedProblem[] 
     },
     {
       title: `Unspoken ${rashi.name} Moon expectations in the relationship`,
-      description: `${rashi.name} Moon people have deep, often unconscious expectations of partners based on their core need for ${t.needs}. These expectations are so fundamental they're rarely spoken — which means partners can fail them without ever knowing the standard they were being held to.`,
+      description: `${rashi.name} Moon people have deep, often unconscious expectations of partners based on their core need for ${t.needs}. These expectations are so fundamental they're rarely spoken. means partners can fail them without ever knowing the standard they were being held to.`,
       category: "Expectations", severity: "moderate", tags: [`moon_rashi:${rashi.name}`, "universal"],
       solutions: [
         { title: "Make the implicit explicit", description: "Write down your top 5 unspoken expectations of a partner. Share them. You can't negotiate what's never been named.", type: "communication", isPremium: false },
@@ -765,7 +765,7 @@ function makeNakProblems(nak: NakInfo, startIndex: number): SeedProblem[] {
       description: `Born under ${nak.name}, you carry ${gq.tone} energy in your core emotional expression. In relationships this ${gq.challenge}. The ${nak.lord}-ruled sensitivity amplifies this wherever boundaries of temperament are crossed.`,
       category: "Temperament", severity: "moderate", tags: [`nakshatra:${nak.name}`, `gana:${nak.gana}`],
       solutions: [
-        { title: "Explain your gana nature", description: `Tell your partner: 'I'm ${gq.tone} by nature — this is how I process the world.' Understanding the framework reduces conflict about it.`, type: "communication", isPremium: false },
+        { title: "Explain your gana nature", description: `Tell your partner: 'I'm ${gq.tone} by nature. is how I process the world.' Understanding the framework reduces conflict about it.`, type: "communication", isPremium: false },
         { title: `${nak.lord} pacification ritual`, description: `Chanting the Beej mantra of ${nak.lord} on its ruling day helps regulate the nakshatra's intensity in emotional exchanges.`, type: "ritual", isPremium: true },
       ],
       sortOrder: startIndex,
@@ -781,7 +781,7 @@ function makeNakProblems(nak: NakInfo, startIndex: number): SeedProblem[] {
     },
     {
       title: `${nak.name} native's ${nak.yoni} yoni energy and intimate mismatches`,
-      description: `In Vedic compatibility, ${nak.name} carries ${nak.yoni} yoni energy. Certain yoni combinations create natural friction in intimate bonding — not something either person chooses, but a genuine compatibility factor that requires conscious navigation.`,
+      description: `In Vedic compatibility, ${nak.name} carries ${nak.yoni} yoni energy. Certain yoni combinations create natural friction in intimate bonding. something either person chooses, but a genuine compatibility factor that requires conscious navigation.`,
       category: "Intimacy", severity: "mild", tags: [`nakshatra:${nak.name}`, `yoni:${nak.yoni}`],
       solutions: [
         { title: "Build emotional intimacy as the foundation", description: "When physical/yoni compatibility is challenging, deepening emotional intimacy compensates significantly. Prioritize emotional closeness deliberately.", type: "practical", isPremium: false },
@@ -794,7 +794,7 @@ function makeNakProblems(nak: NakInfo, startIndex: number): SeedProblem[] {
       description: `${nak.name} nakshatra carries certain karmic patterns around commitment and long-term bonding. The ${nak.lord}-ruled restlessness or intensity can make sustained, stable commitment feel like either a cage or an inadequate container for what you feel.`,
       category: "Commitment", severity: "moderate", tags: [`nakshatra:${nak.name}`],
       solutions: [
-        { title: "Define what commitment means to you", description: "Write your personal definition of commitment — not what society says it should mean but what genuinely feels right for your nature.", type: "practical", isPremium: false },
+        { title: "Define what commitment means to you", description: "Write your personal definition of commitment. what society says it should mean but what genuinely feels right for your nature.", type: "practical", isPremium: false },
       ],
       sortOrder: startIndex + 3,
     },
@@ -861,12 +861,12 @@ const doshaProblems: SeedProblem[] = [
       "Mars energy making long-distance relationships especially hard",
     ];
     const descs = [
-      "Mangal (Mars) in sensitive astrological houses creates a pattern where intensity, speed, and fire enter relationships in ways that destabilize them. This placement doesn't make love impossible — but it does require conscious work with Mars energy.",
+      "Mangal (Mars) in sensitive astrological houses creates a pattern where intensity, speed, and fire enter relationships in ways that destabilize them. This placement doesn't make love impossible. it does require conscious work with Mars energy.",
       "With Mangal dosha present, the natural Martian drive for victory, intensity, and directness often enters relationship space without modulation. Partners without this placement can feel overwhelmed.",
     ];
     const sols: SeedSolution[][] = [
       [
-        { title: "Channel Mars energy into shared goals", description: "Mars energy needs a worthy challenge. Channel it into shared projects, fitness goals, or career ambitions together — this redirects aggression into vitality.", type: "practical", isPremium: false },
+        { title: "Channel Mars energy into shared goals", description: "Mars energy needs a worthy challenge. Channel it into shared projects, fitness goals, or career ambitions together. redirects aggression into vitality.", type: "practical", isPremium: false },
         { title: "Kuja dosha nivaran puja", description: "A Mangal Shanti puja performed by a qualified priest on a Tuesday can significantly reduce the dosha's impact on relationships.", type: "ritual", isPremium: true },
         { title: "Tuesday Mars remedies", description: "On Tuesdays, wear red, offer red flowers to Hanuman, and chant 'Om Angarakaya Namah' 28 times to pacify Mangal's energy.", type: "ritual", isPremium: false },
       ],
@@ -902,7 +902,7 @@ const doshaProblems: SeedProblem[] = [
       "Medical consultations recommended due to Nadi alignment",
       "Nadi dosha's role in recurring relationship fatigue",
       "Spiritual remedies for Nadi dosha mitigation",
-      "Nadi dosha present — action plan for the relationship",
+      "Nadi dosha present. action plan for the relationship",
       "Understanding Nadi dosha without fear",
       "Nadi dosha and its modern interpretation",
       "Nadi dosha's impact on mutual energy levels",
@@ -917,7 +917,7 @@ const doshaProblems: SeedProblem[] = [
       "Nadi dosha's effect on emotional compatibility",
       "When Nadi dosha is partially cancelled",
       "Nadi dosha creating cyclical relationship stress",
-      "Living well with Nadi dosha — practical approaches",
+      "Living well with Nadi dosha. practical approaches",
     ];
     return {
       title: titles[i],
@@ -926,7 +926,7 @@ const doshaProblems: SeedProblem[] = [
       tags: ["dosha:nadi"],
       solutions: [
         { title: "Nadi dosha puja", description: "A Nadi Nirvana puja performed with Mahamrityunjaya mantra recitation (1008 times) is the classical remedy for this dosha.", type: "ritual", isPremium: true },
-        { title: "Health monitoring practice", description: "Couples with Nadi dosha benefit from proactive health monitoring — regular check-ups and avoiding shared stress triggers that amplify the dosha's effects.", type: "practical", isPremium: false },
+        { title: "Health monitoring practice", description: "Couples with Nadi dosha benefit from proactive health monitoring. regular check-ups and avoiding shared stress triggers that amplify the dosha's effects.", type: "practical", isPremium: false },
       ],
       sortOrder: 740 + i,
     };
@@ -983,7 +983,7 @@ const doshaProblems: SeedProblem[] = [
 // ─── Guna Score Range Problems ─────────────────────────────────────────────────
 
 const gunaProblems: SeedProblem[] = [
-  // Low guna (0-17) — 50 problems
+  // Low guna (0-17). 50 problems
   ...Array.from({ length: 50 }, (_, i): SeedProblem => {
     const lowTitles = [
       "Low guna score requiring extra intentional work",
@@ -1011,7 +1011,7 @@ const gunaProblems: SeedProblem[] = [
       "Low guna relationship requiring professional astrological guidance",
       "Low guna score and its impact on intimacy",
       "Managing expectations in a low guna relationship",
-      "Low guna score — what the 0-17 range actually signals",
+      "Low guna score. what the 0-17 range actually signals",
       "Element conflicts underlying low guna score",
       "Kuja dosha and low guna score combined challenges",
       "Low guna match: success stories and what they share",
@@ -1021,7 +1021,7 @@ const gunaProblems: SeedProblem[] = [
       "Navigating family opposition to low guna match",
       "Low guna score and recurring argument patterns",
       "Creating your own compatibility in a low guna match",
-      "Low guna score — making an informed decision",
+      "Low guna score. making an informed decision",
       "Emotional needs incompatibility in low guna relationships",
       "Low guna relationship requiring daily mindfulness practice",
       "Spiritual compatibility practices for low guna match",
@@ -1033,7 +1033,7 @@ const gunaProblems: SeedProblem[] = [
       "Financial planning in low guna relationships",
       "Low guna score: separating astrology from personal choice",
       "Growth and transformation possible in low guna match",
-      "Low guna score — seeking second astrological opinion",
+      "Low guna score. seeking second astrological opinion",
       "Low guna relationship's karmic learning opportunities",
       "Low guna score and the decision to stay or leave",
     ];
@@ -1050,10 +1050,10 @@ const gunaProblems: SeedProblem[] = [
       sortOrder: 800 + i,
     };
   }),
-  // Medium guna (18-27) — 50 problems
+  // Medium guna (18-27). 50 problems
   ...Array.from({ length: 50 }, (_, i): SeedProblem => ({
     title: `Medium guna relationship challenge ${i + 1}: ${["navigating partial compatibility", "working with mixed signals from the kundli", "understanding which areas need attention", "building on compatible areas while addressing friction", "medium guna match and realistic expectations"][i % 5]}`,
-    description: "A Guna score of 18-27 indicates moderate compatibility — some dimensions align well while others present genuine challenges. This is the most common score range and represents a relationship that can thrive with awareness of which areas need consistent work.",
+    description: "A Guna score of 18-27 indicates moderate compatibility. some dimensions align well while others present genuine challenges. This is the most common score range and represents a relationship that can thrive with awareness of which areas need consistent work.",
     category: "Compatibility", severity: "mild",
     tags: ["guna:medium"],
     solutions: [
@@ -1062,14 +1062,14 @@ const gunaProblems: SeedProblem[] = [
     ],
     sortOrder: 850 + i,
   })),
-  // High guna (28-36) — 30 problems
+  // High guna (28-36). 30 problems
   ...Array.from({ length: 30 }, (_, i): SeedProblem => ({
     title: `High guna match challenge ${i + 1}: ${["not taking compatibility for granted", "high expectations from high guna score", "compatibility gap between kundli and current reality", "managing outside influences on a strong match", "external factors straining a strong astrological bond"][i % 5]}`,
-    description: "A Guna score of 28-36 indicates exceptional astrological compatibility. However, a high score creates its own challenges: overconfidence, external pressures, and the assumption that a good kundli match means no work is required. Cosmic compatibility is the foundation — it still needs building.",
+    description: "A Guna score of 28-36 indicates exceptional astrological compatibility. However, a high score creates its own challenges: overconfidence, external pressures, and the assumption that a good kundli match means no work is required. Cosmic compatibility is the foundation. still needs building.",
     category: "Compatibility", severity: "mild",
     tags: ["guna:high"],
     solutions: [
-      { title: "Don't coast on the compatibility score", description: "High guna compatibility means your starting conditions are favorable — but relationships still require active investment, communication, and growth.", type: "practical", isPremium: false },
+      { title: "Don't coast on the compatibility score", description: "High guna compatibility means your starting conditions are favorable. relationships still require active investment, communication, and growth.", type: "practical", isPremium: false },
       { title: "Annual kundli renewal puja", description: "Performing a joint puja on your anniversary or on Navratri to honor and renew the cosmic bond keeps the astrological alignment actively charged.", type: "ritual", isPremium: false },
     ],
     sortOrder: 900 + i,
@@ -1082,46 +1082,46 @@ const relationshipTypeProblems: SeedProblem[] = [
   ...Array.from({ length: 30 }, (_, i): SeedProblem => ({
     title: `Crush situation challenge ${i + 1}: ${["unrequited feelings with no clear answer", "not knowing if feelings are returned", "overthinking every interaction", "fear of rejection preventing action", "reading signals that may not be there", "obsessive thinking about someone who may not notice you", "putting someone on a pedestal before knowing them", "the gap between fantasy and reality in a crush", "timing uncertainty in crush situations", "navigating a crush when you're already in a relationship"][i % 10]}`,
     description: i % 2 === 0
-      ? "The crush phase is intense precisely because it's all projection — you're falling for a version of someone you've constructed, not yet the person themselves. This creates beautiful feelings but also significant suffering when reality doesn't match the imagined version."
+      ? "The crush phase is intense precisely because it's all projection. you're falling for a version of someone you've constructed, not yet the person themselves. This creates beautiful feelings but also significant suffering when reality doesn't match the imagined version."
       : "Unreciprocated or uncertain feelings are one of the most difficult emotional experiences because there's no clear action to take. The ambiguity itself becomes the source of pain.",
     category: "Unrequited Love", severity: i < 15 ? "mild" : "moderate",
     tags: ["relationship:crush"],
     solutions: [
-      { title: "Set a decision timeline", description: "Give yourself a defined window — 2 weeks, a month — to either act on the feelings or deliberately redirect your energy. Indefinite uncertainty is more painful than a clear no.", type: "practical", isPremium: false },
-      { title: "Meet the person, not the projection", description: "Make one move to actually get to know them — not to confess feelings, just to have a real conversation. Information replaces projection.", type: "practical", isPremium: false },
+      { title: "Set a decision timeline", description: "Give yourself a defined window. 2 weeks, a month. to either act on the feelings or deliberately redirect your energy. Indefinite uncertainty is more painful than a clear no.", type: "practical", isPremium: false },
+      { title: "Meet the person, not the projection", description: "Make one move to actually get to know them. to confess feelings, just to have a real conversation. Information replaces projection.", type: "practical", isPremium: false },
     ],
     sortOrder: 930 + i,
   })),
   ...Array.from({ length: 30 }, (_, i): SeedProblem => ({
     title: `Situationship challenge ${i + 1}: ${["undefined relationship status creating anxiety", "mixed signals as a relationship pattern", "physical intimacy without emotional commitment", "being someone's priority without the label", "the 'what are we' conversation that never happens", "feeling used without being formally together", "the emotional toll of relationship ambiguity", "partners who resist defining the relationship", "hoping ambiguity will resolve itself", "situationship versus the relationship you actually want"][i % 10]}`,
-    description: "Situationships exist in the painful gap between 'just friends' and 'in a relationship.' The ambiguity is often intentional on one side — they get the benefits of a relationship without the accountability. For the other person, the uncertainty itself is the wound.",
+    description: "Situationships exist in the painful gap between 'just friends' and 'in a relationship.' The ambiguity is often intentional on one side. they get the benefits of a relationship without the accountability. For the other person, the uncertainty itself is the wound.",
     category: "Undefined Relationship", severity: "moderate",
     tags: ["relationship:situationship"],
     solutions: [
-      { title: "Have the defining conversation", description: "Say clearly: 'I need to know what this is. I'm not asking for a lifetime commitment — I'm asking whether we're building toward something or not.' Clarity, even painful clarity, is better than indefinite ambiguity.", type: "communication", isPremium: false },
-      { title: "Set an internal deadline", description: "If they can't define the relationship within a timeframe you set (for yourself — you don't have to announce it), that itself is information about what they want.", type: "practical", isPremium: false },
+      { title: "Have the defining conversation", description: "Say clearly: 'I need to know what this is. I'm not asking for a lifetime commitment. I'm asking whether we're building toward something or not.' Clarity, even painful clarity, is better than indefinite ambiguity.", type: "communication", isPremium: false },
+      { title: "Set an internal deadline", description: "If they can't define the relationship within a timeframe you set (for yourself. you don't have to announce it), that itself is information about what they want.", type: "practical", isPremium: false },
     ],
     sortOrder: 960 + i,
   })),
   ...Array.from({ length: 30 }, (_, i): SeedProblem => ({
     title: `Committed relationship challenge ${i + 1}: ${["complacency after commitment", "keeping romance alive long-term", "balancing individual growth with couple goals", "managing relationship boredom", "rekindling after a period of distance", "navigating major life transitions together", "handling disagreements about the future", "managing time together versus apart", "keeping physical intimacy alive", "navigating changing life priorities together"][i % 10]}`,
-    description: "Committed relationships face a different set of challenges than new ones: the chemistry of novelty fades, the texture of real life sets in, and the real work of long-term love begins. These are not signs of a failing relationship — they are the curriculum of mature love.",
+    description: "Committed relationships face a different set of challenges than new ones: the chemistry of novelty fades, the texture of real life sets in, and the real work of long-term love begins. These are not signs of a failing relationship. they are the curriculum of mature love.",
     category: "Long-term Relationship", severity: "mild",
     tags: ["relationship:relationship"],
     solutions: [
-      { title: "Annual relationship review", description: "Once a year, both partners answer: What's working? What needs to change? What are our goals for this relationship next year? Treat it like a business review — structured but meaningful.", type: "practical", isPremium: false },
-      { title: "Relationship renewal ceremony", description: "Mark anniversaries or significant dates with a private ceremony — not elaborate, just intentional. Renew your commitment in words you choose for this year specifically.", type: "ritual", isPremium: false },
+      { title: "Annual relationship review", description: "Once a year, both partners answer: What's working? What needs to change? What are our goals for this relationship next year? Treat it like a business review. structured but meaningful.", type: "practical", isPremium: false },
+      { title: "Relationship renewal ceremony", description: "Mark anniversaries or significant dates with a private ceremony. elaborate, just intentional. Renew your commitment in words you choose for this year specifically.", type: "ritual", isPremium: false },
     ],
     sortOrder: 990 + i,
   })),
   ...Array.from({ length: 30 }, (_, i): SeedProblem => ({
     title: `Post-breakup challenge ${i + 1}: ${["inability to move on from an ex", "nostalgia for what the relationship felt like", "obsessive thinking about what went wrong", "wondering if you made a mistake in leaving or being left", "reopening contact with an ex", "processing the grief of a relationship ending", "rebuilding identity after a relationship ends", "comparing current potential partners to an ex", "the on-again-off-again cycle", "closure that never fully arrives"][i % 10]}`,
-    description: "The end of a significant relationship doesn't end the emotional bond immediately. The feelings, patterns, and identity built around that relationship take time to dissolve — and often don't dissolve fully without conscious work.",
+    description: "The end of a significant relationship doesn't end the emotional bond immediately. The feelings, patterns, and identity built around that relationship take time to dissolve. often don't dissolve fully without conscious work.",
     category: "Post-Breakup", severity: i < 10 ? "moderate" : "mild",
     tags: ["relationship:ex"],
     solutions: [
       { title: "Create a no-contact rule with an end date", description: "30-90 days of no contact is typically needed to break the neurological attachment. Give it an end date so it feels less permanent.", type: "practical", isPremium: false },
-      { title: "Grief the relationship fully", description: "Most people rush through relationship grief. Allow yourself to properly mourn — what you lost, what you hoped for, the version of yourself in that relationship.", type: "practical", isPremium: false },
+      { title: "Grief the relationship fully", description: "Most people rush through relationship grief. Allow yourself to properly mourn. what you lost, what you hoped for, the version of yourself in that relationship.", type: "practical", isPremium: false },
     ],
     sortOrder: 1020 + i,
   })),
@@ -1130,7 +1130,7 @@ const relationshipTypeProblems: SeedProblem[] = [
 // ─── Elemental Conflict Problems (60 = 6 pairs × 10) ─────────────────────────
 
 const elementPairs = [
-  { pair: "Fire_Water",  a: "Fire",  b: "Water",  desc: "Fire and Water create steam — intense and transformative but difficult to sustain. Fire needs freedom and action; Water needs security and depth. Each can extinguish or evaporate the other." },
+  { pair: "Fire_Water",  a: "Fire",  b: "Water",  desc: "Fire and Water create steam. intense and transformative but difficult to sustain. Fire needs freedom and action; Water needs security and depth. Each can extinguish or evaporate the other." },
   { pair: "Fire_Earth",  a: "Fire",  b: "Earth",  desc: "Fire and Earth create a tension between urgency and patience. Fire wants to leap forward; Earth wants to build slowly. Fire finds Earth boring; Earth finds Fire reckless." },
   { pair: "Fire_Air",    a: "Fire",  b: "Air",    desc: "Fire and Air can ignite beautifully but can also burn out quickly. Air fuels Fire's intensity but may feel overwhelmed by the heat it creates. The pace difference is the key challenge." },
   { pair: "Water_Earth", a: "Water", b: "Earth",  desc: "Water and Earth are naturally compatible but can create codependency. Earth provides the container Water needs; Water nourishes Earth. The shadow: Water floods and drowns, Earth becomes rigid and unyielding." },
@@ -1159,7 +1159,7 @@ const dashaThemes: Record<string, { keyword: string; challenge: string; remedy: 
   Ketu:       { keyword: "detachment",    challenge: "emotional disconnection, spiritual withdrawal from relationship",              remedy: "Offer sesame seeds to Ketu on Tuesdays and chant 'Om Ketave Namah' 18 times" },
   Shukra:     { keyword: "pleasure",      challenge: "overindulgence, romantic unrealism, or complete loss of romantic interest",   remedy: "Offer white flowers to the Shukra yantra on Fridays and chant 'Om Shukraya Namah'" },
   Surya:      { keyword: "authority",     challenge: "ego conflicts, domination patterns, lack of emotional yielding",              remedy: "Surya Namaskar at sunrise with 'Om Suryaya Namah' recitation daily" },
-  Chandra:    { keyword: "emotion",       challenge: "emotional flooding, mood instability, neediness amplification",               remedy: "Full moon water ritual — leave water in moonlight, drink the next morning" },
+  Chandra:    { keyword: "emotion",       challenge: "emotional flooding, mood instability, neediness amplification",               remedy: "Full moon water ritual. leave water in moonlight, drink the next morning" },
   Mangal:     { keyword: "action",        challenge: "impulsiveness, anger, impatience in relationship decisions",                  remedy: "Red coral gemstone (consult astrologer), Hanuman puja on Tuesdays" },
   Rahu:       { keyword: "obsession",     challenge: "unhealthy attachment, deception, or sudden destabilizing events in love",     remedy: "Rahu shanti puja, hessonite gemstone consultation, donation on Saturdays" },
   Brihaspati: { keyword: "wisdom",        challenge: "over-moralization of partner, expecting too much spiritual alignment",        remedy: "Yellow sapphire (consult astrologer), offer turmeric to Brihaspati on Thursdays" },
@@ -1189,11 +1189,11 @@ const ganaCombos = [
   { combo: "Manushya_Manushya", a: "Manushya", b: "Manushya", desc: "Two Manushya partners are naturally balanced but may get caught in mundane practicality, losing the larger meaning of the relationship." },
   { combo: "Rakshasa_Rakshasa", a: "Rakshasa", b: "Rakshasa", desc: "Two Rakshasa partners create intense, passionate energy that can be electrifying or explosive. High highs and low lows." },
   { combo: "Deva_Manushya",     a: "Deva",     b: "Manushya", desc: "The idealistic Deva may feel misunderstood by the practical Manushya; the Manushya may feel unable to meet the Deva's spiritual bar." },
-  { combo: "Deva_Rakshasa",     a: "Deva",     b: "Rakshasa", desc: "The most challenging Gana combination — the gentle, idealistic Deva can be overwhelmed by the intensity of Rakshasa energy, and vice versa." },
+  { combo: "Deva_Rakshasa",     a: "Deva",     b: "Rakshasa", desc: "The most challenging Gana combination. gentle, idealistic Deva can be overwhelmed by the intensity of Rakshasa energy, and vice versa." },
   { combo: "Manushya_Deva",     a: "Manushya", b: "Deva",     desc: "The practical Manushya grounds the idealistic Deva, but may struggle with the Deva's spiritual expectations. Balance is achievable." },
   { combo: "Manushya_Rakshasa", a: "Manushya", b: "Rakshasa", desc: "The Rakshasa's intensity can overwhelm the more balanced Manushya. The Manushya brings stabilizing calm that the Rakshasa needs but may resist." },
   { combo: "Rakshasa_Deva",     a: "Rakshasa", b: "Deva",     desc: "The Deva's spiritual nature calls out the Rakshasa's depth, but the Rakshasa's intensity can shatter the Deva's need for peace." },
-  { combo: "Rakshasa_Manushya", a: "Rakshasa", b: "Manushya", desc: "The Rakshasa's raw energy can be grounded by the Manushya's balance — if the Manushya doesn't become exhausted by the intensity." },
+  { combo: "Rakshasa_Manushya", a: "Rakshasa", b: "Manushya", desc: "The Rakshasa's raw energy can be grounded by the Manushya's balance. if the Manushya doesn't become exhausted by the intensity." },
 ];
 
 const ganaProblems: SeedProblem[] = ganaCombos.flatMap((gc, gcIdx) =>
@@ -1213,13 +1213,13 @@ const ganaProblems: SeedProblem[] = ganaCombos.flatMap((gc, gcIdx) =>
 // ─── Yoni Incompatibility Problems (20) ───────────────────────────────────────
 
 const yoniProblems: SeedProblem[] = Array.from({ length: 20 }, (_, i): SeedProblem => ({
-  title: `Yoni incompatibility creating intimate friction — pattern ${i + 1}`,
+  title: `Yoni incompatibility creating intimate friction. pattern ${i + 1}`,
   description: "Yoni compatibility in Vedic astrology refers to intimate/sexual compatibility based on nakshatra animal symbols. Enemy yoni combinations (like Cat-Rat or Dog-Hare) indicate a natural tension in physical intimacy and close bonding, even when other compatibility factors are strong.",
   category: "Intimate Compatibility", severity: "moderate",
   tags: ["yoni:enemy"],
   solutions: [
     { title: "Prioritize emotional intimacy over physical", description: "When yoni compatibility is challenging, deepening emotional connection compensates substantially. Physical intimacy improves naturally when emotional safety is high.", type: "practical", isPremium: false },
-    { title: "Yoni dosha remediation", description: "Consulting a Jyotishi about specific yoni remedies — which vary by the combination — can provide targeted spiritual support.", type: "professional", isPremium: true },
+    { title: "Yoni dosha remediation", description: "Consulting a Jyotishi about specific yoni remedies. vary by the combination. can provide targeted spiritual support.", type: "professional", isPremium: true },
     { title: "Kameshvara and Kameshvari puja", description: "This puja specifically for intimate harmony is recommended for challenging yoni combinations.", type: "ritual", isPremium: true },
   ],
   sortOrder: 1205 + i,
@@ -1251,11 +1251,179 @@ const sunRashiProblems: SeedProblem[] = rashiList.flatMap((rashi, ri) => {
     tags: [`sun_rashi:${rashi.name}`],
     solutions: [
       { title: `Practice the opposite of ${sq.ego}`, description: `The most growth-generating move for ${rashi.name} Sun people is to consciously practice the opposite: offer without needing ${sq.ego.replace("needs", "").trim()}.`, type: "practical", isPremium: false },
-      { title: `${rashi.lord} awareness meditation`, description: `A daily 5-minute meditation focusing on ${rashi.lord} energy — its gifts and its shadow — builds self-awareness that directly improves relationship quality.`, type: "spiritual", isPremium: false },
+      { title: `${rashi.lord} awareness meditation`, description: `A daily 5-minute meditation focusing on ${rashi.lord} energy. its gifts and its shadow. builds self-awareness that directly improves relationship quality.`, type: "spiritual", isPremium: false },
     ],
     sortOrder: 1225 + ri * 5 + i,
   }));
 });
+
+// ─── GenZ Relationship Problems (plain language, high resonance) ──────────────
+// These cover the emotional patterns GenZ actually searches for.
+// Tags: "universal" + specific relationship type / pattern / element.
+// sortOrder starts at 1400 to always appear after astrological problems when scoring ties.
+
+const genzProblems: SeedProblem[] = [
+  {
+    title: "You always feel like the one who cares more",
+    description: "It's not that they don't care. it's that the way they express care is quieter and less visible than yours. But quieter doesn't always mean equal, and you're right to notice the gap. The question worth asking: is this a style difference, or an investment difference?",
+    category: "Balance", severity: "moderate", tags: ["universal","relationship:situationship","relationship:relationship"],
+    solutions: [
+      { title: "Name the specific action gap, not the feeling", description: "Instead of 'I feel like I care more,' try naming what you actually observe: 'I initiate most plans, I check in more, I apologize first.' Specific observations create real conversations.", type: "communication", isPremium: false },
+      { title: "Do a 2-week experiment", description: "Stop initiating everything for 2 weeks and observe what they initiate. The data will tell you more than any conversation about feelings.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1400,
+  },
+  {
+    title: "The hot-and-cold cycle that's driving you insane",
+    description: "They're warm, then distant. Present, then unavailable. The inconsistency keeps you hooked because your nervous system is waiting for the next warm phase to confirm everything is okay. This is one of the most psychologically compelling (and exhausting) patterns in modern relationships.",
+    category: "Patterns", severity: "moderate", tags: ["universal","pattern:hot_cold","relationship:situationship"],
+    solutions: [
+      { title: "Name the pattern out loud to them", description: "Say: 'I've noticed you get close and then pull away. It makes it hard for me to feel secure. Can we talk about what's happening?' Naming it without accusing is the first real step.", type: "communication", isPremium: false },
+      { title: "Stop chasing the warm phase", description: "When they pull away, resist the urge to pursue harder. Instead, use that energy on yourself. The pattern loses power when you stop rewarding it with more of your attention.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1401,
+  },
+  {
+    title: "You can't stop checking their social media",
+    description: "Every story view, every post, every like is being analyzed for information about where you stand. This behavior feels like being close to them but actually keeps you in a state of low-grade anxiety. Your Moon sign's need for information is running the show right now.",
+    category: "Emotional Distance", severity: "moderate", tags: ["universal","relationship:ex","pattern:anxious_attachment"],
+    solutions: [
+      { title: "Mute or unfollow for 30 days", description: "Not blocking. removing the stimulus. Social media is a slot machine of emotional information. Removing it from your feed changes the entire dynamic of your daily emotional state.", type: "practical", isPremium: false },
+      { title: "Replace the urge with a task", description: "Every time you feel the impulse to check their profiles, do a specific 5-minute task instead. Pick one in advance. This works because it intercepts the neural pathway before it completes.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1402,
+  },
+  {
+    title: "You romanticize who they could be instead of seeing who they are",
+    description: "Your Moon sign has a powerful ability to sense potential. also means it can build an entire relationship with the projected future version of a person rather than the actual present one. This isn't delusion; it's a survival strategy that needs redirecting.",
+    category: "Perception", severity: "moderate", tags: ["universal","moon_rashi:Meena","moon_rashi:Karka","relationship:crush"],
+    solutions: [
+      { title: "Write down only things you've directly observed", description: "Not what you hope, not what they might be, only what you've actually seen them do. Compare that list to the version of them you've been investing in.", type: "practical", isPremium: false },
+      { title: "Ask yourself the hard question", description: "If they stayed exactly the same as they are today for the next 5 years. no growth, no change. would you still want this? Your honest answer changes the conversation.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1403,
+  },
+  {
+    title: "You feel more anxious after a good interaction than a bad one",
+    description: "After a great conversation or moment together, the anxiety spikes. 'what if this is the best it gets?' or 'they'll pull away now.' This is hypervigilance: your nervous system learned to treat good things as threats because good things got taken away before. The pattern is from before them.",
+    category: "Anxiety", severity: "moderate", tags: ["universal","pattern:anxious_attachment","relationship:situationship"],
+    solutions: [
+      { title: "Name it as hypervigilance, not intuition", description: "Post-good-experience anxiety is not a sign that something is wrong. it's your nervous system running a threat protocol from an old situation. Label it: 'This is hypervigilance. The good moment was real.'", type: "practical", isPremium: false },
+      { title: "Ground yourself right after good moments", description: "When the anxiety hits after a positive interaction, do something immediately physical: cold water on the face, a walk around the block. This interrupts the escalation before it builds.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1404,
+  },
+  {
+    title: "The relationship never gets to real depth",
+    description: "Things are fine on the surface but every time you try to go deeper. emotionally, conversationally. there's a wall. One of you avoids depth, and the other is starving for it. This is often the central frustration of a Deva-meets-Manushya or Fire-meets-Earth pairing.",
+    category: "Emotional Depth", severity: "moderate", tags: ["universal","element_conflict:Fire_Earth","element_conflict:Earth_Fire","relationship:relationship","relationship:situationship"],
+    solutions: [
+      { title: "Create conditions for depth, don't demand it", description: "Depth often can't be forced through direct questioning. It happens in side-by-side activities: long drives, cooking together, walks. Create those conditions and let the conversations emerge.", type: "practical", isPremium: false },
+      { title: "Ask open questions, not analysis questions", description: "'What did that feel like for you?' opens depth. 'Why did you do that?' triggers defense. Change your question pattern.", type: "communication", isPremium: false },
+    ],
+    sortOrder: 1405,
+  },
+  {
+    title: "They leave you on read at critical moments",
+    description: "Not the casual no-reply. ones where you said something real or vulnerable, and they went silent. This is one of the most common and painful patterns in digital-age relationships, and it almost always communicates the same thing: they don't know what to do with your emotional depth.",
+    category: "Communication", severity: "moderate", tags: ["universal","relationship:situationship","relationship:crush"],
+    solutions: [
+      { title: "Give it 24 hours before spiraling", description: "Most people who leave things on read at hard moments are processing, not rejecting. Give it 24 hours. If nothing comes, one follow-up is fair: 'Did I say something that was hard to respond to?'", type: "practical", isPremium: false },
+      { title: "Have the meta-conversation", description: "Not in the moment, but when things are calm: 'When I share something vulnerable and you go quiet, I read it as rejection. What's actually happening for you?'", type: "communication", isPremium: false },
+    ],
+    sortOrder: 1406,
+  },
+  {
+    title: "You apologize for things you didn't do wrong",
+    description: "Keeping the peace has become automatic. You apologize first because the discomfort of conflict feels worse than the injustice of taking undeserved blame. Over time this erodes your sense of what's actually yours to own. it trains your partner not to take responsibility either.",
+    category: "Self-Worth", severity: "moderate", tags: ["universal","moon_rashi:Tula","moon_rashi:Karka","moon_rashi:Kanya"],
+    solutions: [
+      { title: "Practice the pause before apologizing", description: "When the urge to apologize comes, pause for 10 seconds and ask: did I actually do something wrong, or am I trying to end the discomfort? Only then decide whether to apologize.", type: "practical", isPremium: false },
+      { title: "Replace 'sorry' with accuracy", description: "Instead of 'Sorry I upset you,' try 'I can see you're upset. Tell me what happened for you.' This stays connected without taking on misplaced responsibility.", type: "communication", isPremium: false },
+    ],
+    sortOrder: 1407,
+  },
+  {
+    title: "You feel like a burden when you express needs",
+    description: "Your needs are valid. at some point you learned (probably early) that expressing them caused problems. So now you pre-edit everything before it comes out, or you don't say anything at all. The relationship lives in your head more than in real conversation.",
+    category: "Emotional Expression", severity: "moderate", tags: ["universal","moon_rashi:Karka","pattern:anxious_attachment"],
+    solutions: [
+      { title: "Start with the smallest need", description: "Pick one need that feels low-stakes and voice it this week. Not the big ones. start small. 'I would actually love if we could X.' Notice their response. Real data, not anticipated rejection.", type: "communication", isPremium: false },
+      { title: "Question the assumption", description: "Where did you learn that your needs were burdensome? That was someone else's limitation. a fact about you. Write out one need and ask: is this actually unreasonable, or does it just feel that way?", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1408,
+  },
+  {
+    title: "The \"almost relationship\" you can't quite close",
+    description: "It's not quite together, not quite over. There's enough to stay invested and not enough to feel settled. This is the emotional purgatory of the almost-relationship. it's one of the most common sources of prolonged pain for people with your Moon placement.",
+    category: "Relationship Type", severity: "severe", tags: ["relationship:situationship","universal"],
+    solutions: [
+      { title: "Set an internal decision date", description: "Give yourself 30 days. If clarity hasn't arrived naturally by then. from them OR from yourself. you make the decision. Not a confrontation: a private deadline that you honor.", type: "practical", isPremium: false },
+      { title: "Ask the one question you've been avoiding", description: "You've been circling around one specific question you're afraid to ask. Write it down. Then decide: do you actually want the answer, or do you want the ambiguity?", type: "communication", isPremium: false },
+    ],
+    sortOrder: 1409,
+  },
+  {
+    title: "They're great when things are easy, absent when things are hard",
+    description: "Fair-weather connection is one of the most frustrating things to name because the good moments are so genuinely good. But a relationship can only be evaluated at its hardest moments, not its easiest ones. This is where character actually shows up.",
+    category: "Reliability", severity: "moderate", tags: ["universal","relationship:relationship","relationship:situationship"],
+    solutions: [
+      { title: "Bring a real problem to them", description: "Not manufactured drama. actual difficulty in your life. Notice how they respond when you genuinely need support. This data is more useful than any conversation about the relationship.", type: "practical", isPremium: false },
+      { title: "Name the pattern directly", description: "'I've noticed you're really present when things are good between us, but when I'm struggling you seem to pull back. Is that accurate? What's happening for you then?'", type: "communication", isPremium: false },
+    ],
+    sortOrder: 1410,
+  },
+  {
+    title: "You're scared that if you stop trying, they'll stop too",
+    description: "The relationship runs on your effort. you both know it. Stopping feels like risk. But continuing means you never actually know if they want this or just benefit from it. The fear of finding out is keeping you stuck in exhaustion.",
+    category: "Effort Imbalance", severity: "moderate", tags: ["universal","relationship:relationship","relationship:situationship"],
+    solutions: [
+      { title: "Reduce effort gradually, not abruptly", description: "Over 2-3 weeks, pull back on one category of effort. initiating plans, or checking in. Not as a test: as an honest reset to your actual capacity. See what adjusts naturally.", type: "practical", isPremium: false },
+      { title: "Have the effort conversation", description: "'I've been carrying most of the planning and initiation. I'm getting tired and I need this to be more balanced.' Simple. True. Worth saying.", type: "communication", isPremium: false },
+    ],
+    sortOrder: 1411,
+  },
+  {
+    title: "Their past relationships come up too much",
+    description: "Whether it's comparisons, lingering attachment to an ex, or stories that make you feel like a placeholder. shadow of their past relationships sits in your current one. This is a real thing worth addressing, not something to rationalize away.",
+    category: "Past Relationships", severity: "moderate", tags: ["universal","relationship:relationship"],
+    solutions: [
+      { title: "Be specific about what bothers you", description: "Not 'I don't like how much you talk about them' but 'When you compare me to your ex, I feel like I'm being measured. Can we agree to stop doing that?'", type: "communication", isPremium: false },
+      { title: "Assess whether this is normal processing or a red flag", description: "Everyone has a past. Processing is normal. But if there's active longing, idealization, or comparison. that's different. Be honest with yourself about which one this is.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1412,
+  },
+  {
+    title: "You keep having breakthroughs that don't lead to change",
+    description: "Beautiful conversation where everything is understood. Real emotional opening. And then... nothing changes. The cycle resets within days. This pattern. insight without action. is often the final stage before someone leaves a relationship.",
+    category: "Patterns", severity: "severe", tags: ["universal","relationship:relationship","pattern:cycles"],
+    solutions: [
+      { title: "Turn insights into one specific behavioral agreement", description: "At the end of the next breakthrough conversation, ask: 'What's one specific thing we're each going to do differently?' Write it down. Name a date to check back. Insight without implementation is just relief.", type: "communication", isPremium: false },
+      { title: "Ask the accountability question", description: "A week after a breakthrough: 'Did we do the thing we said we'd do?' If the answer is no three times in a row, the insight isn't the issue. willingness is.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1413,
+  },
+  {
+    title: "You've started to feel angry instead of sad",
+    description: "Grief moves through stages. Anger is often the second one. in relationships, it arrives when you've finally started to believe your own feelings matter enough to be protected. The anger is not the problem. What you do with it determines what comes next.",
+    category: "Emotional Transition", severity: "moderate", tags: ["universal","relationship:ex","category:healing"],
+    solutions: [
+      { title: "Let yourself feel angry", description: "Anger is energy. It wants to move. Go for an intense run, hit a pillow, write the letter you'll never send. Move the anger through your body rather than managing it in your head.", type: "practical", isPremium: false },
+      { title: "Distinguish anger from resentment", description: "Anger passes. Resentment builds walls. If the anger has been present for more than a few weeks, it's usually resentment. means something unspoken needs to be said, even just to yourself.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1414,
+  },
+  {
+    title: "You don't know if this is love or just not wanting to be alone",
+    description: "The honest question nobody asks enough. Loneliness is a powerful force. can make a mediocre connection feel essential. Your Moon sign feels absence acutely, which can make staying in something imperfect feel safer than the unknown of not having anyone.",
+    category: "Clarity", severity: "moderate", tags: ["universal","moon_rashi:Karka","moon_rashi:Vrishabha"],
+    solutions: [
+      { title: "Do the thought experiment", description: "Imagine you had a full, rich life. great friends, meaningful work, deep peace. Do you still want THIS specific person in it? Or did you want the role they fill?", type: "practical", isPremium: false },
+      { title: "Spend 72 hours genuinely solo", description: "Not distracted, not filling time. actually alone with yourself. See how that feels. Your reaction will tell you something about whether this relationship is a choice or a solution.", type: "practical", isPremium: false },
+    ],
+    sortOrder: 1415,
+  },
+];
 
 // ─── Combine all problems ─────────────────────────────────────────────────────
 
@@ -1271,6 +1439,7 @@ export const ALL_PROBLEMS: SeedProblem[] = [
   ...ganaProblems,
   ...yoniProblems,
   ...sunRashiProblems,
+  ...genzProblems,
 ];
 
 // ─── Seed runner ──────────────────────────────────────────────────────────────

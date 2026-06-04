@@ -206,7 +206,7 @@ export default function CompatibilityScreen() {
             >
               <Text style={styles.upgradeTeaserTitle}>Unlock the full picture</Text>
               <Text style={styles.upgradeTeaserSub}>
-                2 insights hidden — including hidden relationship patterns
+                2 insights locked, including your hidden relationship pattern
               </Text>
             </LinearGradient>
           </TouchableOpacity>

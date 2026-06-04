@@ -400,7 +400,7 @@ export default function ProfileScreen() {
   const handleReset = () => {
     Alert.alert(
       "Reset everything?",
-      "This will clear all your data — profile, connection, and chat history — and take you back to onboarding. This can't be undone.",
+      "This will clear all your data including your profile, connection, and chat history. You will be taken back to the start. This cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
         {

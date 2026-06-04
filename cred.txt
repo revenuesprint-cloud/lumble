@@ -1,1 +1,2 @@
 postgresql://neondb_owner:npg_n3OoJ2fuAhVe@ep-young-paper-aqsadp6w.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require
+JWT=0eddd09053cdf5848f85e367f165d0a9

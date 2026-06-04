@@ -322,7 +322,7 @@ export default function Onboarding() {
     // Step 3: Birth time (optional)
     <View key={3} style={styles.stepContainer}>
       <Text style={styles.stepLabel}>What time were you born?</Text>
-      <Text style={styles.stepSub}>Optional — adds depth to your reading</Text>
+      <Text style={styles.stepSub}>Optional. Adds more depth to your reading.</Text>
       <TextInput
         style={styles.textInput}
         value={form.userBirthTime}
@@ -366,7 +366,7 @@ export default function Onboarding() {
     // Step 6: Relationship type
     <View key={6} style={[styles.stepContainer, { gap: 12 }]}>
       <Text style={styles.stepLabel}>What is this?</Text>
-      <Text style={styles.stepSub}>Be honest — it shapes everything</Text>
+      <Text style={styles.stepSub}>Be honest. It shapes everything.</Text>
       {relTypes.map((r) => (
         <TouchableOpacity
           key={r.key}

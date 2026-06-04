@@ -171,8 +171,8 @@ function TogetherView({ reading, userName, partnerName }: {
   const scoreVerdict = score >= 28
     ? "Strong natural connection"
     : score >= 21 ? "Good foundation with room to grow"
-    : score >= 18 ? "Can work — needs honest effort"
-    : "Challenging — but awareness makes it workable";
+    : score >= 18 ? "Can work with honest effort"
+    : "Challenging but not impossible";
 
   // Pick 3 most interesting koota insights to surface
   const sorted = [...guna.breakdown].sort((a, b) => (b.score / b.max) - (a.score / a.max));
@@ -274,8 +274,8 @@ function TogetherView({ reading, userName, partnerName }: {
             </View>
             <Text style={[styles.cardBodyText, { marginTop: 12 }]}>
               {uMoon.element === pMoon.element
-                ? `Both ${uMoon.element} signs — you process emotion in similar ways. This creates natural understanding, but also similar blind spots.`
-                : `${uMoon.element} meets ${pMoon.element}. Different emotional languages. The gap is real, and it's also the source of the chemistry.`}
+                ? `Both ${uMoon.element} signs. You process emotions in similar ways. This creates natural understanding but also similar blind spots.`
+                : `${uMoon.element} meets ${pMoon.element}. You have different emotional styles. This difference is also what creates the chemistry between you.`}
             </Text>
           </LinearGradient>
         </View>

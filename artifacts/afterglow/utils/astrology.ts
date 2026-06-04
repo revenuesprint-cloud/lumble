@@ -521,10 +521,10 @@ function buildKundli(name: string, birthDateStr: string, birthTimeStr?: string):
 // ─── Compatibility verdict ─────────────────────────────────────────────────────
 
 function compatibilityVerdict(score: number, u: string, p: string): string {
-  if (score >= 28) return `${u} and ${p} share exceptional astrological harmony — ${score}/36. Planetary alignment supports deep mutual understanding, shared values, and long-term stability.`;
-  if (score >= 21) return `${u} and ${p} have good cosmic alignment — ${score}/36. Most factors are favorable and the areas of tension can be worked through with awareness.`;
-  if (score >= 18) return `${u} and ${p} have average compatibility — ${score}/36. This connection can work with effort; the challenging placements signal where to communicate more deeply.`;
-  return `${u} and ${p} face astrological friction — ${score}/36. These are not obstacles but invitations to grow. Awareness of the tension areas makes them workable.`;
+  if (score >= 28) return `${u} and ${p} have a very strong match (${score}/36). Your stars are well aligned. You understand each other naturally and share similar values.`;
+  if (score >= 21) return `${u} and ${p} have a good match (${score}/36). Most things line up well. The few rough spots can be worked through with open communication.`;
+  if (score >= 18) return `${u} and ${p} have an average match (${score}/36). This connection can work well with some effort. Focus on the areas where you differ most.`;
+  return `${u} and ${p} have a challenging match (${score}/36). This does not mean love is impossible. It means you both need to put in more effort and understanding.`;
 }
 
 // ─── Public API ────────────────────────────────────────────────────────────────
