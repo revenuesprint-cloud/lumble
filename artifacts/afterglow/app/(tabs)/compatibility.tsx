@@ -153,7 +153,9 @@ export default function CompatibilityScreen() {
           "Hidden Relationship Pattern":"Vashya",
         };
         const koota = reading.guna.breakdown.find((k) => k.name === kootaMap[s.label]);
-        return koota ? Math.round((koota.score / koota.max) * 100) : s.score;
+        // Remap 0–1 to 32–86: scores never hit extreme ends
+        if (!koota) return s.score;
+        return Math.round(32 + (koota.score / koota.max) * 54);
       })(),
     })),
   };
