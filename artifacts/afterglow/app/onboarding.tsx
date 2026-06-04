@@ -184,6 +184,13 @@ function DatePicker({ value, onChange }: { value: Date; onChange: (d: Date) => v
 
 const TOTAL_STEPS = 8;
 
+function toLocalDateString(d: Date): string {
+  const y  = d.getFullYear();
+  const m  = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+}
+
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -194,13 +201,14 @@ export default function Onboarding() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const defaultDate = new Date(1998, 5, 15);
+  const defaultUserDate    = new Date(1998, 5, 15);   // June 15 1998
+  const defaultPartnerDate = new Date(1995, 10, 22);  // Nov 22 1995 — intentionally different
   const [form, setForm] = useState<FormData>({
     userName: "",
-    userBirthDate: defaultDate,
+    userBirthDate: defaultUserDate,
     userBirthTime: "",
     partnerName: "",
-    partnerBirthDate: defaultDate,
+    partnerBirthDate: defaultPartnerDate,
     relationshipType: "crush",
   });
 
@@ -231,8 +239,8 @@ export default function Onboarding() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (step === TOTAL_STEPS - 2) {
       transitionTo(step + 1);
-      const newUser    = { name: form.userName, birthDate: form.userBirthDate.toISOString(), birthTime: form.userBirthTime || undefined };
-      const newPartner = { name: form.partnerName, birthDate: form.partnerBirthDate.toISOString(), relationshipType: form.relationshipType };
+      const newUser    = { name: form.userName, birthDate: toLocalDateString(form.userBirthDate), birthTime: form.userBirthTime || undefined };
+      const newPartner = { name: form.partnerName, birthDate: toLocalDateString(form.partnerBirthDate), relationshipType: form.relationshipType };
       await completeOnboarding(newUser, newPartner);
       await setSessionDirect();
       // Push profile to backend if user is already authenticated (has JWT from registration)
@@ -269,8 +277,8 @@ export default function Onboarding() {
       <TouchableOpacity
         onPress={async () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          const demoUser    = { name: "Alex",   birthDate: new Date(1997, 3, 12).toISOString() };
-          const demoPartner = { name: "Jordan", birthDate: new Date(1996, 7, 25).toISOString(), relationshipType: "situationship" as const };
+          const demoUser    = { name: "Alex",   birthDate: toLocalDateString(new Date(1997, 3, 12)) };
+          const demoPartner = { name: "Jordan", birthDate: toLocalDateString(new Date(1996, 7, 25)), relationshipType: "situationship" as const };
           await completeOnboarding(demoUser, demoPartner);
           await setSessionDirect();
           if (jwtToken) syncProfileToServer(jwtToken, demoUser, demoPartner).catch(() => {});

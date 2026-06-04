@@ -243,8 +243,8 @@ function EditProfileModal({ visible, onClose }: { visible: boolean; onClose: () 
     if (!partnerBirthDate)                { setError("Their birth date is required."); return; }
 
     setSaving(true);
-    const updatedUser    = { name: userName.trim(), birthDate: new Date(userBirthDate).toISOString(), birthTime: userBirthTime.trim() || undefined };
-    const updatedPartner = { name: partnerName.trim(), birthDate: new Date(partnerBirthDate).toISOString(), relationshipType: relType };
+    const updatedUser    = { name: userName.trim(), birthDate: userBirthDate.trim(), birthTime: userBirthTime.trim() || undefined };
+    const updatedPartner = { name: partnerName.trim(), birthDate: partnerBirthDate.trim(), relationshipType: relType };
     await completeOnboarding(updatedUser, updatedPartner);
     if (jwtToken) syncProfileToServer(jwtToken, updatedUser, updatedPartner).catch(() => {});
     setSaving(false);

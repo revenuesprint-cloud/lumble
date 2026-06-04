@@ -465,7 +465,10 @@ export interface AstrologyReading {
 }
 
 function buildKundli(name: string, birthDateStr: string, birthTimeStr?: string): KundliData {
-  const birthDate = new Date(birthDateStr);
+  // Always parse the calendar date in UTC to avoid timezone day-shift bugs.
+  // Handles both "YYYY-MM-DD" and full ISO strings (takes the date portion only).
+  const dateOnly = birthDateStr.slice(0, 10);
+  const birthDate = new Date(dateOnly + "T00:00:00.000Z");
 
   // Parse optional birth time (format "HH:MM" or "H:MM AM/PM")
   let birthHourUTC = 6; // default: 6 AM local approximation

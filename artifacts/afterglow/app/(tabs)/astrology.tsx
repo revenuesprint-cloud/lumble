@@ -174,6 +174,7 @@ export default function AstrologyScreen() {
   if (!user || !partner) return null;
   if (!reading) return <KundliLoading label="Calculating your birth chart…" />;
 
+  const sameDates = user.birthDate.slice(0, 10) === partner.birthDate.slice(0, 10);
   const kundli = activeTab === "user" ? reading.user : reading.partner;
   const displayName = activeTab === "user" ? user.name : partner.name;
 
@@ -224,6 +225,15 @@ export default function AstrologyScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {sameDates && (
+          <View style={styles.sameDateBanner}>
+            <Feather name="alert-circle" size={14} color="#F5A623" />
+            <Text style={styles.sameDateText}>
+              Both birth dates are the same — go to Profile → Edit Connection to fix them.
+            </Text>
+          </View>
+        )}
 
         {activeTab !== "combined" ? (
           <>
@@ -507,6 +517,8 @@ const styles = StyleSheet.create({
   starsIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(245,166,35,0.12)", alignItems: "center", justifyContent: "center" },
   starsText: { fontSize: 18, color: "#F5A623" },
 
+  sameDateBanner: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: "rgba(245,166,35,0.1)", borderRadius: 12, borderWidth: 1, borderColor: "rgba(245,166,35,0.3)", padding: 12 },
+  sameDateText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "#F5A623", lineHeight: 19 },
   tabBar: { flexDirection: "row", backgroundColor: "rgba(26,22,48,0.8)", borderRadius: 14, padding: 4, gap: 2 },
   tabBtn: { flex: 1, paddingVertical: 9, borderRadius: 10, alignItems: "center" },
   tabBtnActive: { backgroundColor: "#1E1A30" },
