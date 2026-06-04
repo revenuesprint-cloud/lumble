@@ -2,6 +2,7 @@ import { GuidanceMessage, useApp } from "@/context/AppContext";
 import { getAstrologyReading } from "@/utils/astrology";
 import { getOracleResponse } from "@/utils/oracle";
 import { getPersonalizedChips, getPersonalizedSuggestions } from "@/utils/personalization";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -175,7 +176,8 @@ function EmptyState({ onSelect, cards }: { onSelect: (q: string) => void; cards:
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function GuidanceScreen() {
-  const insets = useSafeAreaInsets();
+  const insets      = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const { user, partner, guidanceMessages, addGuidanceMessage, clearGuidanceMessages, isPremium } = useApp();
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -283,7 +285,7 @@ export default function GuidanceScreen() {
         {!hasMessages ? (
           <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={[styles.emptyScroll, { paddingBottom: insets.bottom + 120 }]}
+            contentContainerStyle={[styles.emptyScroll, { paddingBottom: tabBarHeight + 80 }]}
             showsVerticalScrollIndicator={false}
           >
             <EmptyState onSelect={sendMessage} cards={suggestionCards} />
@@ -319,7 +321,7 @@ export default function GuidanceScreen() {
         {/* ── Input area ── */}
         <View style={[
           styles.inputArea,
-          { paddingBottom: insets.bottom + (Platform.OS === "web" ? 30 : 12) },
+          { paddingBottom: tabBarHeight + (Platform.OS === "web" ? 30 : 12) },
         ]}>
           {/* Quick chips (only when conversation started) */}
           {hasMessages && !hitLimit && (

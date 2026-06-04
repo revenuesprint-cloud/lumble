@@ -197,8 +197,9 @@ export default function Onboarding() {
   const { completeOnboarding, syncProfileToServer } = useApp();
   const { setSessionDirect, jwtToken } = useAuth();
 
-  const [step, setStep] = useState(0);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [step,          setStep]          = useState(0);
+  const [showAuthChoice, setShowAuthChoice] = useState(false);
+  const fadeAnim  = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const defaultUserDate    = new Date(1998, 5, 15);   // June 15 1998
@@ -242,12 +243,15 @@ export default function Onboarding() {
       const newUser    = { name: form.userName, birthDate: toLocalDateString(form.userBirthDate), birthTime: form.userBirthTime || undefined };
       const newPartner = { name: form.partnerName, birthDate: toLocalDateString(form.partnerBirthDate), relationshipType: form.relationshipType };
       await completeOnboarding(newUser, newPartner);
-      await setSessionDirect();
-      // Push profile to backend if user is already authenticated (has JWT from registration)
-      if (jwtToken) syncProfileToServer(jwtToken, newUser, newPartner).catch(() => {});
-      setTimeout(() => {
-        router.replace("/(tabs)/home");
-      }, 2800);
+
+      if (jwtToken) {
+        // Already registered — just sync and go home
+        syncProfileToServer(jwtToken, newUser, newPartner).catch(() => {});
+        setTimeout(() => router.replace("/(tabs)/home"), 2800);
+      } else {
+        // Show account choice after animation
+        setTimeout(() => setShowAuthChoice(true), 2400);
+      }
     } else {
       transitionTo(step + 1);
     }
@@ -383,9 +387,17 @@ export default function Onboarding() {
       ))}
     </View>,
 
-    // Step 7: Calculating
+    // Step 7: Calculating → Account choice
     <View key={7} style={[styles.stepContainer, { gap: 20 }]}>
-      <CalcAnimation name={form.partnerName} />
+      <CalcAnimation
+        name={form.partnerName}
+        showChoice={showAuthChoice}
+        onCreateAccount={() => router.replace("/login")}
+        onContinueGuest={async () => {
+          await setSessionDirect();
+          router.replace("/(tabs)/home");
+        }}
+      />
     </View>,
   ];
 
@@ -463,20 +475,69 @@ export default function Onboarding() {
   );
 }
 
-function CalcAnimation({ name }: { name: string }) {
-  const pulseAnim = useRef(new Animated.Value(0.6)).current;
+function CalcAnimation({
+  name,
+  showChoice,
+  onCreateAccount,
+  onContinueGuest,
+}: {
+  name: string;
+  showChoice: boolean;
+  onCreateAccount: () => void;
+  onContinueGuest: () => void;
+}) {
+  const pulseAnim  = useRef(new Animated.Value(0.6)).current;
+  const choiceAnim = useRef(new Animated.Value(0)).current;
   const [dots, setDots] = useState(0);
 
   React.useEffect(() => {
-    Animated.loop(
+    const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1,   duration: 800, useNativeDriver: true }),
         Animated.timing(pulseAnim, { toValue: 0.6, duration: 800, useNativeDriver: true }),
       ])
-    ).start();
+    );
+    loop.start();
     const interval = setInterval(() => setDots((d) => (d + 1) % 4), 500);
-    return () => clearInterval(interval);
+    return () => { loop.stop(); clearInterval(interval); };
   }, []);
+
+  React.useEffect(() => {
+    if (showChoice) {
+      Animated.timing(choiceAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    }
+  }, [showChoice]);
+
+  if (showChoice) {
+    return (
+      <Animated.View style={{ alignItems: "center", gap: 24, opacity: choiceAnim }}>
+        <LinearGradient
+          colors={["#E85C7A", "#B855E0", "#7C52C8"]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          style={styles.calcOrb}
+        />
+        <Text style={styles.calcTitle}>Your reading is ready ✦</Text>
+        <Text style={styles.calcSub}>
+          Save it to your account or explore now
+        </Text>
+
+        <TouchableOpacity onPress={onCreateAccount} activeOpacity={0.85} style={styles.nextBtn}>
+          <LinearGradient
+            colors={["#E85C7A", "#B855E0"]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={styles.nextBtnGradient}
+          >
+            <Text style={styles.nextBtnText}>Create a free account</Text>
+            <Ionicons name="arrow-forward" size={20} color="#fff" />
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={onContinueGuest} activeOpacity={0.7} style={styles.skipBtn}>
+          <Text style={styles.skipText}>Continue without an account</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
 
   return (
     <View style={{ alignItems: "center", gap: 24 }}>

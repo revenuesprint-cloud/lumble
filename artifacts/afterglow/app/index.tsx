@@ -5,7 +5,7 @@ import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
   const { isLoading, hasCompletedOnboarding } = useApp();
-  const { isAuthLoading, isAuthenticated } = useAuth();
+  const { isAuthLoading, isAuthenticated }    = useAuth();
 
   if (isLoading || isAuthLoading) {
     return (
@@ -15,16 +15,21 @@ export default function Index() {
     );
   }
 
-  // If authenticated and has profile → home
+  // Authenticated + profile complete → home
   if (isAuthenticated && hasCompletedOnboarding) {
     return <Redirect href="/(tabs)/home" />;
   }
 
-  // Has a profile but not authenticated → login
+  // Authenticated (e.g. just registered) but profile not set up yet → onboarding
+  if (isAuthenticated && !hasCompletedOnboarding) {
+    return <Redirect href="/onboarding" />;
+  }
+
+  // Profile exists but no active session → login
   if (!isAuthenticated && hasCompletedOnboarding) {
     return <Redirect href="/login" />;
   }
 
-  // No profile yet → onboarding
-  return <Redirect href="/onboarding" />;
+  // Brand new user — no session, no profile → login (they can register or continue anon)
+  return <Redirect href="/login" />;
 }

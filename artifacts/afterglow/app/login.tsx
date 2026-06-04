@@ -9,7 +9,6 @@ import {
   Animated,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,48 +18,104 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+type Mode = "signin" | "register";
+
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const { login, setSessionDirect } = useAuth();
+  const router  = useRouter();
+  const { login, register, setSessionDirect } = useAuth();
   const { user, hasCompletedOnboarding } = useApp();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [mode,         setMode]         = useState<Mode>("signin");
+  const [email,        setEmail]        = useState("");
+  const [password,     setPassword]     = useState("");
+  const [confirm,      setConfirm]      = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [showConfirm,  setShowConfirm]  = useState(false);
+  const [error,        setError]        = useState("");
+  const [loading,      setLoading]      = useState(false);
+
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const shake = () => {
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 8,  duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0,  duration: 60, useNativeDriver: true }),
     ]).start();
   };
 
-  const handleLogin = async () => {
+  const clear = () => { setError(""); };
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setError("");
+    setPassword("");
+    setConfirm("");
+  };
+
+  // After successful auth, go to home if profile exists, else onboarding
+  const afterAuth = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (hasCompletedOnboarding) {
+      router.replace("/(tabs)/home");
+    } else {
+      router.replace("/onboarding");
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!email.trim() || !password) {
-      setError("Please enter your email and password.");
+      setError("Please fill in all fields.");
       shake();
       return;
     }
+    if (mode === "register") {
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        shake();
+        return;
+      }
+      if (password !== confirm) {
+        setError("Passwords don't match.");
+        shake();
+        return;
+      }
+    }
+
     setLoading(true);
     setError("");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const result = await login(email.trim(), password);
+
+    const result = mode === "signin"
+      ? await login(email.trim(), password)
+      : await register(email.trim(), password);
+
     setLoading(false);
+
     if (result.success) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace("/(tabs)/home");
+      afterAuth();
     } else {
-      setError(result.error || "Login failed.");
+      setError(result.error ?? (mode === "signin" ? "Sign in failed." : "Registration failed."));
       shake();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
+
+  const handleContinueWithout = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await setSessionDirect();
+    if (hasCompletedOnboarding) {
+      router.replace("/(tabs)/home");
+    } else {
+      router.replace("/onboarding");
+    }
+  };
+
+  const greeting = mode === "signin"
+    ? (user?.name ? `Welcome back, ${user.name}` : "Welcome back")
+    : "Create your account";
 
   return (
     <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={{ flex: 1 }}>
@@ -71,7 +126,7 @@ export default function LoginScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scroll,
-            { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 40 },
+            { paddingTop: insets.top + 36, paddingBottom: insets.bottom + 40 },
           ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -85,42 +140,68 @@ export default function LoginScreen() {
               <Text style={styles.logoGlyph}>◉</Text>
             </LinearGradient>
             <Text style={styles.appName}>Lumble</Text>
-            <Text style={styles.tagline}>
-              {user?.name ? `Welcome back, ${user.name}` : "Welcome back"}
-            </Text>
+            <Text style={styles.tagline}>{greeting}</Text>
+          </View>
+
+          {/* Mode toggle */}
+          <View style={styles.toggle}>
+            <TouchableOpacity
+              onPress={() => switchMode("signin")}
+              style={[styles.toggleBtn, mode === "signin" && styles.toggleBtnActive]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.toggleText, mode === "signin" && styles.toggleTextActive]}>
+                Sign In
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => switchMode("register")}
+              style={[styles.toggleBtn, mode === "register" && styles.toggleBtnActive]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.toggleText, mode === "register" && styles.toggleTextActive]}>
+                Create Account
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Form */}
           <Animated.View style={[styles.form, { transform: [{ translateX: shakeAnim }] }]}>
+
+            {/* Email */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Email</Text>
               <View style={styles.fieldRow}>
-                <Feather name="mail" size={16} color="rgba(240,235,248,0.3)" style={styles.fieldIcon} />
+                <Feather name="mail" size={16} color="rgba(240,235,248,0.3)" style={styles.icon} />
                 <TextInput
                   style={styles.input}
                   value={email}
-                  onChangeText={(t) => { setEmail(t); setError(""); }}
+                  onChangeText={(t) => { setEmail(t); clear(); }}
                   placeholder="your@email.com"
                   placeholderTextColor="rgba(240,235,248,0.2)"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  returnKeyType="next"
                 />
               </View>
             </View>
 
+            {/* Password */}
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Password</Text>
               <View style={styles.fieldRow}>
-                <Feather name="lock" size={16} color="rgba(240,235,248,0.3)" style={styles.fieldIcon} />
+                <Feather name="lock" size={16} color="rgba(240,235,248,0.3)" style={styles.icon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
                   value={password}
-                  onChangeText={(t) => { setPassword(t); setError(""); }}
-                  placeholder="Your password"
+                  onChangeText={(t) => { setPassword(t); clear(); }}
+                  placeholder={mode === "register" ? "Min. 6 characters" : "Your password"}
                   placeholderTextColor="rgba(240,235,248,0.2)"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
+                  returnKeyType={mode === "register" ? "next" : "done"}
+                  onSubmitEditing={mode === "signin" ? handleSubmit : undefined}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
                   <Feather name={showPassword ? "eye-off" : "eye"} size={16} color="rgba(240,235,248,0.3)" />
@@ -128,6 +209,31 @@ export default function LoginScreen() {
               </View>
             </View>
 
+            {/* Confirm password — register only */}
+            {mode === "register" && (
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>Confirm Password</Text>
+                <View style={styles.fieldRow}>
+                  <Feather name="lock" size={16} color="rgba(240,235,248,0.3)" style={styles.icon} />
+                  <TextInput
+                    style={[styles.input, { flex: 1 }]}
+                    value={confirm}
+                    onChangeText={(t) => { setConfirm(t); clear(); }}
+                    placeholder="Re-enter password"
+                    placeholderTextColor="rgba(240,235,248,0.2)"
+                    secureTextEntry={!showConfirm}
+                    autoCapitalize="none"
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit}
+                  />
+                  <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
+                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color="rgba(240,235,248,0.3)" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* Error */}
             {error ? (
               <View style={styles.errorBanner}>
                 <Feather name="alert-circle" size={14} color="#E85C7A" />
@@ -135,19 +241,24 @@ export default function LoginScreen() {
               </View>
             ) : null}
 
+            {/* Submit */}
             <TouchableOpacity
-              onPress={handleLogin}
+              onPress={handleSubmit}
               disabled={loading}
               activeOpacity={0.85}
-              style={[styles.loginBtn, loading && { opacity: 0.7 }]}
+              style={[styles.submitBtn, loading && { opacity: 0.7 }]}
             >
               <LinearGradient
                 colors={["#E85C7A", "#B855E0"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={styles.loginBtnGradient}
+                style={styles.submitGradient}
               >
-                <Text style={styles.loginBtnText}>{loading ? "Signing in…" : "Sign In"}</Text>
+                <Text style={styles.submitText}>
+                  {loading
+                    ? (mode === "signin" ? "Signing in…" : "Creating account…")
+                    : (mode === "signin" ? "Sign In" : "Create Account")}
+                </Text>
                 {!loading && <Feather name="arrow-right" size={18} color="#fff" />}
               </LinearGradient>
             </TouchableOpacity>
@@ -160,33 +271,15 @@ export default function LoginScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Secondary actions */}
-          <View style={styles.secondaryActions}>
-            {!hasCompletedOnboarding ? (
-              <TouchableOpacity
-                onPress={() => router.replace("/onboarding")}
-                style={styles.secondaryBtn}
-              >
-                <Text style={styles.secondaryBtnText}>New here? Set up your profile</Text>
-                <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.35)" />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={async () => {
-                  await setSessionDirect();
-                  router.replace("/(tabs)/home");
-                }}
-                style={styles.secondaryBtn}
-              >
-                <Text style={styles.secondaryBtnText}>Continue without password</Text>
-                <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.35)" />
-              </TouchableOpacity>
-            )}
-          </View>
+          {/* Continue without signing in */}
+          <TouchableOpacity onPress={handleContinueWithout} style={styles.ghostBtn} activeOpacity={0.75}>
+            <Text style={styles.ghostText}>Continue without signing in</Text>
+            <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.3)" />
+          </TouchableOpacity>
 
-          {/* Bottom note */}
-          <Text style={styles.bottomNote}>
-            Your data stays on this device.{"\n"}No cloud sync, no tracking.
+          <Text style={styles.note}>
+            Your readings are stored on this device.{"\n"}
+            Creating an account backs them up to the cloud.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -197,40 +290,60 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 28,
-    gap: 28,
+    gap: 24,
     alignItems: "stretch",
   },
-  logoArea: {
-    alignItems: "center",
-    gap: 12,
-    paddingBottom: 8,
-  },
+
+  logoArea: { alignItems: "center", gap: 10 },
   logoOrb: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "rgba(232,92,122,0.2)",
   },
-  logoGlyph: { fontSize: 32, color: "#E85C7A" },
+  logoGlyph: { fontSize: 28, color: "#E85C7A" },
   appName: {
-    fontSize: 32,
+    fontSize: 30,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     letterSpacing: -0.5,
   },
   tagline: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
   },
 
-  form: { gap: 16 },
-  fieldGroup: { gap: 8 },
+  // Toggle
+  toggle: {
+    flexDirection: "row",
+    backgroundColor: "rgba(26,22,48,0.8)",
+    borderRadius: 14,
+    padding: 4,
+    gap: 2,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  toggleBtnActive: { backgroundColor: "#1E1A30" },
+  toggleText: {
+    fontSize: 14,
+    fontFamily: "Nunito_600SemiBold",
+    color: "rgba(240,235,248,0.35)",
+  },
+  toggleTextActive: { color: "#F0EBF8" },
+
+  // Form
+  form: { gap: 14 },
+  fieldGroup: { gap: 7 },
   fieldLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Nunito_600SemiBold",
     color: "rgba(240,235,248,0.4)",
     letterSpacing: 0.8,
@@ -246,11 +359,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     gap: 10,
   },
-  fieldIcon: { flexShrink: 0 },
+  icon: { flexShrink: 0 },
   input: {
     flex: 1,
     paddingVertical: 15,
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
     color: "#F0EBF8",
   },
@@ -273,16 +386,16 @@ const styles = StyleSheet.create({
     color: "#E85C7A",
   },
 
-  loginBtn: { borderRadius: 16, overflow: "hidden" },
-  loginBtnGradient: {
+  submitBtn: { borderRadius: 16, overflow: "hidden" },
+  submitGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
     paddingVertical: 17,
   },
-  loginBtnText: {
-    fontSize: 17,
+  submitText: {
+    fontSize: 16,
     fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
@@ -290,13 +403,12 @@ const styles = StyleSheet.create({
   dividerRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   dividerLine: { flex: 1, height: 1, backgroundColor: "rgba(240,235,248,0.07)" },
   dividerText: {
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.25)",
+    color: "rgba(240,235,248,0.22)",
   },
 
-  secondaryActions: { gap: 10 },
-  secondaryBtn: {
+  ghostBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -308,17 +420,17 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
-  secondaryBtnText: {
+  ghostText: {
     fontSize: 14,
     fontFamily: "Nunito_500Medium",
-    color: "rgba(240,235,248,0.45)",
+    color: "rgba(240,235,248,0.4)",
   },
 
-  bottomNote: {
+  note: {
     textAlign: "center",
     fontSize: 12,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.2)",
-    lineHeight: 20,
+    lineHeight: 19,
   },
 });

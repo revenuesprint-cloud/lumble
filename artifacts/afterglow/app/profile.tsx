@@ -71,33 +71,33 @@ function ActionRow({
 function SetPasswordModal({
   visible,
   onClose,
-  currentEmail,
 }: {
   visible: boolean;
   onClose: () => void;
-  currentEmail: string | null;
 }) {
-  const { register } = useAuth();
-  const [email, setEmail] = useState(currentEmail || "");
+  const { register, currentEmail, isLocalSession } = useAuth();
+  const alreadyRegistered = !isLocalSession && !!currentEmail;
+
+  const [email,    setEmail]    = useState(currentEmail || "");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [confirm,  setConfirm]  = useState("");
+  const [error,    setError]    = useState("");
+  const [success,  setSuccess]  = useState(false);
+  const [loading,  setLoading]  = useState(false);
 
   if (!visible) return null;
 
   const handleSave = async () => {
     setError("");
     if (!email.includes("@")) { setError("Enter a valid email."); return; }
-    if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
-    if (password !== confirm) { setError("Passwords don't match."); return; }
+    if (password.length < 6)  { setError("Password must be at least 6 characters."); return; }
+    if (password !== confirm)  { setError("Passwords don't match."); return; }
     setLoading(true);
     const result = await register(email, password);
     setLoading(false);
     if (result.success) {
       setSuccess(true);
-      setTimeout(onClose, 1200);
+      setTimeout(onClose, 1400);
     } else {
       setError(result.error || "Something went wrong.");
     }
@@ -108,17 +108,46 @@ function SetPasswordModal({
       <Pressable style={pwStyles.backdrop} onPress={onClose} />
       <View style={pwStyles.sheet}>
         <View style={pwStyles.handle} />
-        <Text style={pwStyles.title}>Set up account password</Text>
-        <Text style={pwStyles.sub}>
-          Lets you sign back in after logging out.{"\n"}Stored only on this device.
-        </Text>
-        {success ? (
+
+        {alreadyRegistered ? (
+          /* ── Already has a real account ── */
+          <>
+            <Text style={pwStyles.title}>Account</Text>
+            <View style={pwStyles.accountRow}>
+              <View style={pwStyles.accountIcon}>
+                <Feather name="check-circle" size={18} color="#52C8B8" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={pwStyles.accountLabel}>Signed in as</Text>
+                <Text style={pwStyles.accountEmail}>{currentEmail}</Text>
+              </View>
+            </View>
+            <Text style={pwStyles.sub}>
+              Your data is backed up to the cloud and will be restored when you log in on any device.
+            </Text>
+            <TouchableOpacity onPress={onClose} style={pwStyles.saveBtn} activeOpacity={0.85}>
+              <LinearGradient
+                colors={["#E85C7A", "#B855E0"]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={pwStyles.saveBtnGrad}
+              >
+                <Text style={pwStyles.saveBtnText}>Done</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </>
+        ) : success ? (
+          /* ── Success state ── */
           <View style={pwStyles.successRow}>
-            <Feather name="check-circle" size={18} color="#4CAF50" />
-            <Text style={pwStyles.successText}>Password saved!</Text>
+            <Feather name="check-circle" size={20} color="#4CAF50" />
+            <Text style={pwStyles.successText}>Account created! You're all set.</Text>
           </View>
         ) : (
+          /* ── Registration form ── */
           <>
+            <Text style={pwStyles.title}>Create an account</Text>
+            <Text style={pwStyles.sub}>
+              Back up your readings and sign back in on any device.
+            </Text>
             <TextInput
               style={pwStyles.input}
               value={email}
@@ -132,7 +161,7 @@ function SetPasswordModal({
               style={pwStyles.input}
               value={password}
               onChangeText={(t) => { setPassword(t); setError(""); }}
-              placeholder="New password (min. 6 chars)"
+              placeholder="Password (min. 6 chars)"
               placeholderTextColor="rgba(240,235,248,0.25)"
               secureTextEntry
             />
@@ -156,7 +185,7 @@ function SetPasswordModal({
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                 style={pwStyles.saveBtnGrad}
               >
-                <Text style={pwStyles.saveBtnText}>{loading ? "Saving…" : "Save Password"}</Text>
+                <Text style={pwStyles.saveBtnText}>{loading ? "Creating…" : "Create Account"}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </>
@@ -208,8 +237,12 @@ const pwStyles = StyleSheet.create({
     paddingVertical: 16,
   },
   saveBtnText: { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
-  successRow: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "center", padding: 16 },
-  successText: { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#4CAF50" },
+  accountRow: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "rgba(82,200,184,0.08)", borderRadius: 12, padding: 14, borderWidth: 1, borderColor: "rgba(82,200,184,0.2)" },
+  accountIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(82,200,184,0.15)", alignItems: "center", justifyContent: "center" },
+  accountLabel: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)", textTransform: "uppercase", letterSpacing: 0.5 },
+  accountEmail: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", marginTop: 2 },
+  successRow: { flexDirection: "row", alignItems: "center", gap: 10, justifyContent: "center", paddingVertical: 20 },
+  successText: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#4CAF50" },
 });
 
 // ─── Edit Profile Modal ────────────────────────────────────────────────────────
@@ -324,7 +357,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, partner, isPremium, upgradeToPremium, resetApp } = useApp();
-  const { logout, currentEmail } = useAuth();
+  const { logout, currentEmail, isLocalSession } = useAuth();
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showSetPassword, setShowSetPassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -334,7 +367,9 @@ export default function ProfileScreen() {
   const handleSignOut = () => {
     Alert.alert(
       "Sign out?",
-      "You'll need your email and password to sign back in.",
+      isLocalSession
+        ? "You'll be taken to the sign-in screen. Since you haven't created an account, you can tap 'Continue without signing in' to get back in."
+        : `You'll need to sign in again as ${currentEmail ?? "yourself"}.`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -497,8 +532,12 @@ export default function ProfileScreen() {
         <Section title="Account">
           <ActionRow
             icon="key"
-            label="Set up account password"
-            sublabel={currentEmail ? `Signed in as ${currentEmail}` : "Secure your profile with a password"}
+            label={isLocalSession ? "Create an account" : "Account"}
+            sublabel={
+              isLocalSession
+                ? "Back up your data and sign in across devices"
+                : currentEmail ?? "Signed in"
+            }
             onPress={() => setShowSetPassword(true)}
           />
           <View style={styles.separator} />
@@ -540,7 +579,6 @@ export default function ProfileScreen() {
       <SetPasswordModal
         visible={showSetPassword}
         onClose={() => setShowSetPassword(false)}
-        currentEmail={currentEmail}
       />
 
       <EditProfileModal
