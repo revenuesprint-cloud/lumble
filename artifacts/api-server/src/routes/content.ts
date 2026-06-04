@@ -121,9 +121,11 @@ router.post("/daily", handleDaily);
 // Groups by category (about_them, about_you, what_to_do, patterns, big_picture).
 // Public — no auth required.
 
-router.post("/questions", async (req, res) => {
-  const { tags = [] } = req.body ?? {};
-  const attrs = Array.isArray(tags) ? tags : [];
+async function handleQuestions(req: any, res: any) {
+  const body = req.body ?? {};
+  const query = req.query ?? {};
+  const rawTags = body.tags ?? (query.tags ? String(query.tags).split(",").filter(Boolean) : []);
+  const attrs: string[] = Array.isArray(rawTags) ? rawTags : [];
 
   try {
     const rows = await db.execute(sql`
@@ -135,7 +137,6 @@ router.post("/questions", async (req, res) => {
       LIMIT 80
     `);
 
-    // Group by category
     const grouped: Record<string, unknown[]> = {};
     for (const row of rows.rows as any[]) {
       const cat = (row.meta?.category as string) ?? "general";
@@ -148,7 +149,10 @@ router.post("/questions", async (req, res) => {
     console.error("content/questions error:", err);
     return res.status(500).json({ error: "Something went wrong." });
   }
-});
+}
+
+router.get("/questions",  handleQuestions);
+router.post("/questions", handleQuestions);
 
 // ─── PATCH /content/challenges/:problemId/state ───────────────────────────────
 // Save or update a user's acknowledgment state for a challenge.
