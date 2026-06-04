@@ -3,6 +3,13 @@ import { db, contentTable, userChallengeStatesTable, problemsTable } from "@work
 import { eq, and, sql, inArray } from "drizzle-orm";
 import { requireAuth } from "../lib/auth";
 
+// Drizzle serializes a JS array as ($1,$2,...) which Postgres treats as a record,
+// not an array. Build ARRAY[$1, $2, ...] explicitly to avoid "cannot cast record to text[]".
+const toTextArray = (items: string[]) =>
+  items.length === 0
+    ? sql`ARRAY[]::text[]`
+    : sql`ARRAY[${sql.join(items.map((i) => sql`${i}`), sql`, `)}]`;
+
 const router = Router();
 type AuthRequest = Parameters<typeof requireAuth>[0] & { userId: string };
 
@@ -27,11 +34,11 @@ router.post("/batch", async (req, res) => {
         (
           SELECT COUNT(*)::int
           FROM unnest(tags) t
-          WHERE t = ANY(${tags}::text[])
+          WHERE t = ANY(${toTextArray(tags)})
         ) AS match_score
       FROM content
       WHERE is_active = true
-        ${typeFilter ? sql`AND type = ANY(${types}::text[])` : sql``}
+        ${typeFilter ? sql`AND type = ANY(${toTextArray(types)})` : sql``}
       ORDER BY match_score DESC, sort_order ASC
       LIMIT ${limit * (typeFilter ? 1 : 8)}
     `);
@@ -68,21 +75,21 @@ router.post("/daily", async (req, res) => {
     const [quoteRow, affirmRow, messageRow] = await Promise.all([
       db.execute(sql`
         SELECT id, type, title, body, meta, tags, sort_order,
-          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${attrs}::text[])) AS score
+          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${toTextArray(attrs)})) AS score
         FROM content WHERE is_active=true AND type='quote'
         ORDER BY score DESC, sort_order ASC
         LIMIT 50
       `),
       db.execute(sql`
         SELECT id, type, title, body, meta, tags, sort_order,
-          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${attrs}::text[])) AS score
+          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${toTextArray(attrs)})) AS score
         FROM content WHERE is_active=true AND type='affirmation'
         ORDER BY score DESC, sort_order ASC
         LIMIT 50
       `),
       db.execute(sql`
         SELECT id, type, title, body, meta, tags, sort_order,
-          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${attrs}::text[])) AS score
+          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${toTextArray(attrs)})) AS score
         FROM content WHERE is_active=true AND type='daily_message'
         ORDER BY score DESC, sort_order ASC
         LIMIT 30
@@ -114,7 +121,7 @@ router.post("/questions", async (req, res) => {
   try {
     const rows = await db.execute(sql`
       SELECT id, type, title, body, meta, tags, sort_order,
-        (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${attrs}::text[])) AS match_score
+        (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${toTextArray(attrs)})) AS match_score
       FROM content
       WHERE is_active = true AND type = 'question_answer'
       ORDER BY match_score DESC, sort_order ASC
