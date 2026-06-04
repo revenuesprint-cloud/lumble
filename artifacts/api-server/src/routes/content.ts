@@ -63,14 +63,18 @@ router.post("/batch", async (req, res) => {
 // Returns one item of each content type suitable for the home screen.
 // Deterministic by date + user kundli tags so same person sees same content per day.
 
-router.post("/daily", async (req, res) => {
-  const { tags = [], date } = req.body ?? {};
-  const dateKey = date ?? new Date().toISOString().slice(0, 10);
+async function handleDaily(req: any, res: any) {
+  const body = req.body ?? {};
+  const query = req.query ?? {};
+  // Support both POST body and GET query params (?tags=a,b,c&date=2026-01-01)
+  const rawTags = body.tags ?? (query.tags ? String(query.tags).split(",").filter(Boolean) : []);
+  const date = body.date ?? query.date;
+  const dateKey = (date as string | undefined) ?? new Date().toISOString().slice(0, 10);
   // Use date as an offset seed
   const dayNum = dateKey.split("-").reduce((a: number, n: string) => a + parseInt(n), 0);
 
   try {
-    const attrs = Array.isArray(tags) ? tags : [];
+    const attrs: string[] = Array.isArray(rawTags) ? rawTags : [];
 
     const [quoteRow, affirmRow, messageRow] = await Promise.all([
       db.execute(sql`
@@ -99,15 +103,18 @@ router.post("/daily", async (req, res) => {
     const pick = (rows: any[], seed: number) => rows[seed % rows.length] ?? null;
 
     return res.json({
-      quote:      pick(quoteRow.rows as any[], dayNum),
-      affirmation:pick(affirmRow.rows as any[], dayNum + 1),
-      message:    pick(messageRow.rows as any[], dayNum + 2),
+      quote:       pick(quoteRow.rows as any[], dayNum),
+      affirmation: pick(affirmRow.rows as any[], dayNum + 1),
+      message:     pick(messageRow.rows as any[], dayNum + 2),
     });
   } catch (err) {
     console.error("content/daily error:", err);
     return res.status(500).json({ error: "Something went wrong." });
   }
-});
+}
+
+router.get("/daily",  handleDaily);
+router.post("/daily", handleDaily);
 
 // ─── POST /content/questions ──────────────────────────────────────────────────
 // Returns browsable question-answer cards personalized by kundli tags.
