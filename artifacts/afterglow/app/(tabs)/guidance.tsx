@@ -101,7 +101,7 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
         <View style={styles.sheetActions}>
           <TouchableOpacity onPress={() => { onAsk(question.meta.question ?? question.title); close(); }} style={styles.sheetAskBtn} activeOpacity={0.85}>
             <LinearGradient colors={["#E85C7A","#B855E0"]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.sheetAskGrad}>
-              <Text style={styles.sheetAskText}>Ask the Oracle for more</Text>
+              <Text style={styles.sheetAskText}>Ask the Guide for more</Text>
               <Feather name="arrow-right" size={16} color="#fff" />
             </LinearGradient>
           </TouchableOpacity>
@@ -455,7 +455,7 @@ export default function GuidanceScreen() {
                   </LinearGradient>
                   <Text style={styles.oracleLabel}>ORACLE</Text>
                   <Text style={styles.emptyTitle}>What is on your mind?</Text>
-                  <Text style={styles.emptySub}>Ask anything about this connection.{"\n"}Your answers come from the stars.</Text>
+                  <Text style={styles.emptySub}>Ask anything about this connection.{"\n"}Answers are shaped by your personality profiles and compatibility patterns.</Text>
                   <View style={styles.emptyChips}>
                     {quickChips.slice(0, 4).map((chip, i) => (
                       <TouchableOpacity key={i} onPress={() => sendMessage(chip)} style={styles.emptyChip} activeOpacity={0.75}>
@@ -534,7 +534,7 @@ export default function GuidanceScreen() {
               placeholder={
                 mode === "browse" ? "Ask a question or browse above"
                 : hitLimit ? "Upgrade to keep asking"
-                : isTyping || streamingId ? "Reading your chart..."
+                : isTyping || streamingId ? "Thinking through this..."
                 : "Ask about this connection"
               }
               placeholderTextColor="rgba(240,235,248,0.22)"

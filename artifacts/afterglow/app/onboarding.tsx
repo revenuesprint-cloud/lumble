@@ -276,7 +276,7 @@ export default function Onboarding() {
       <Text style={styles.welcomeEye}>◉</Text>
       <Text style={styles.appName}>Lumble</Text>
       <Text style={styles.tagline}>
-        Relationship insights backed{"\n"}by ancient astrology
+        Understand your connection{"\n"}through personality and emotional patterns
       </Text>
     </View>,
 
@@ -298,7 +298,7 @@ export default function Onboarding() {
     // Step 2: Your birthday
     <View key={2} style={styles.stepContainer}>
       <Text style={styles.stepLabel}>When were you born?</Text>
-      <Text style={styles.stepSub}>Your birth date shapes your emotional blueprint</Text>
+      <Text style={styles.stepSub}>Your birth date helps map your emotional style and personality type</Text>
       <DatePicker
         value={form.userBirthDate}
         onChange={(d) => setForm((f) => ({ ...f, userBirthDate: d }))}
@@ -308,7 +308,7 @@ export default function Onboarding() {
     // Step 3: Birth time (optional)
     <View key={3} style={styles.stepContainer}>
       <Text style={styles.stepLabel}>What time were you born?</Text>
-      <Text style={styles.stepSub}>Optional. Adds more depth to your reading.</Text>
+      <Text style={styles.stepSub}>Optional. Helps make your profile more accurate.</Text>
       <TextInput
         style={styles.textInput}
         value={form.userBirthTime}
@@ -535,7 +535,7 @@ function CalcAnimation({
       <Text style={styles.calcTitle}>Reading your connection{".".repeat(dots)}</Text>
       <Text style={styles.calcSub}>Mapping emotional patterns with {name}</Text>
       <Text style={styles.calcSub2}>
-        Analyzing attachment dynamics{"\n"}communication frequencies{"\n"}emotional resonance
+        Mapping attachment styles{"\n"}communication tendencies{"\n"}emotional compatibility
       </Text>
     </View>
   );

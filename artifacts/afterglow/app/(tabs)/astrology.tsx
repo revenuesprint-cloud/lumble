@@ -146,7 +146,7 @@ function PersonProfile({ name, kundliData }: {
                 <Text style={styles.bulletText}><Text style={{ color: "#E85C7A" }}>For love: </Text>{dc.lessonForLove}</Text>
               </View>
               <View style={[styles.timeRow, { marginTop: 10 }]}>
-                <Text style={styles.timeText}>{kundliData.dasha.remaining} left in this chapter</Text>
+                <Text style={styles.timeText}>{kundliData.dasha.remaining} left in this life phase</Text>
               </View>
             </LinearGradient>
           </View>
@@ -258,7 +258,7 @@ function TogetherView({ reading, userName, partnerName }: {
 
       {/* Moon dynamic */}
       <View style={styles.sectionBlock}>
-        <Text style={styles.sectionLabel}>☽  How Your Emotions Meet</Text>
+        <Text style={styles.sectionLabel}>☽  How Your Emotional Styles Meet</Text>
         <View style={[styles.card, { borderColor: "rgba(184,85,224,0.2)" }]}>
           <LinearGradient colors={["rgba(184,85,224,0.08)", "transparent"]} style={styles.cardGrad}>
             <View style={styles.moonDynamicRow}>
@@ -274,8 +274,8 @@ function TogetherView({ reading, userName, partnerName }: {
             </View>
             <Text style={[styles.cardBodyText, { marginTop: 12 }]}>
               {uMoon.element === pMoon.element
-                ? `Both ${uMoon.element} signs. You process emotions in similar ways. This creates natural understanding but also similar blind spots.`
-                : `${uMoon.element} meets ${pMoon.element}. You have different emotional styles. This difference is also what creates the chemistry between you.`}
+                ? `Both ${uMoon.element} types. You process emotions in similar ways — this creates natural understanding, but you can share the same blind spots too.`
+                : `${uMoon.element} meets ${pMoon.element}. You process emotions differently. That difference can create friction, but it's often the same thing that creates the spark between you.`}
             </Text>
           </LinearGradient>
         </View>
@@ -302,7 +302,7 @@ export default function AstrologyScreen() {
   }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
   if (!user || !partner) return null;
-  if (!reading) return <KundliLoading label="Reading your stars…" />;
+  if (!reading) return <KundliLoading label="Building your profile…" />;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "user",     label: user.name },
@@ -323,7 +323,7 @@ export default function AstrologyScreen() {
         <View style={styles.titleRow}>
           <View>
             <Text style={styles.screenTitle}>Your Stars</Text>
-            <Text style={styles.screenSub}>What the cosmos says about how you love</Text>
+            <Text style={styles.screenSub}>Your emotional style and relationship patterns, decoded</Text>
           </View>
           <View style={styles.starsIcon}>
             <Text style={styles.starsText}>✦</Text>

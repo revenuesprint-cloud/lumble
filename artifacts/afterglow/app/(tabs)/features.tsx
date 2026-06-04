@@ -124,7 +124,7 @@ export default function FeaturesScreen() {
   }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
   if (!user || !partner) return null;
-  if (!reading) return <KundliLoading label="Reading the patterns…" />;
+  if (!reading) return <KundliLoading label="Analyzing your compatibility…" />;
 
   const baseFeatures = getAllViralFeatures(user.birthDate, partner.birthDate, user.name, partner.name);
   // Override text with kundli-personalised versions

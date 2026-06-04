@@ -67,7 +67,7 @@ function ChallengeCard({
           <Text style={styles.cardDesc} numberOfLines={2}>{challenge.description}</Text>
           <View style={styles.cardFooter}>
             <Text style={styles.solutionsHint}>
-              {challenge.solutions?.length ?? 0} remedies available
+              {challenge.solutions?.length ?? 0} steps to try
             </Text>
             <Feather name="chevron-right" size={16} color="rgba(240,235,248,0.3)" />
           </View>
@@ -140,9 +140,9 @@ export default function ChallengesScreen() {
           <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerTitle}>Challenges & Remedies</Text>
+          <Text style={styles.headerTitle}>Patterns & What Helps</Text>
           <Text style={styles.headerSub}>
-            {challenges.length > 0 ? `${challenges.length} patterns identified from your kundli` : "Based on your Vedic birth chart"}
+            {challenges.length > 0 ? `${challenges.length} patterns identified from your compatibility profile` : "Based on your personality and compatibility data"}
           </Text>
         </View>
       </View>
@@ -150,16 +150,16 @@ export default function ChallengesScreen() {
       {challengesLoading && challenges.length === 0 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator color="#B855E0" size="large" />
-          <Text style={styles.loadingText}>Reading your kundli patterns…</Text>
+          <Text style={styles.loadingText}>Loading your compatibility patterns…</Text>
         </View>
       ) : challenges.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyIcon}>✦</Text>
           <Text style={styles.emptyTitle}>No challenges loaded</Text>
-          <Text style={styles.emptySub}>Tap below to fetch your personalised patterns</Text>
+          <Text style={styles.emptySub}>Tap below to load your personalised patterns</Text>
           <TouchableOpacity style={styles.fetchBtn} onPress={loadChallenges}>
             <LinearGradient colors={["#E85C7A", "#B855E0"]} style={styles.fetchBtnGradient}>
-              <Text style={styles.fetchBtnText}>Analyse my kundli</Text>
+              <Text style={styles.fetchBtnText}>Load my patterns</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

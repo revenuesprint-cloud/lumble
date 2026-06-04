@@ -64,7 +64,7 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
               <Text style={styles.sub}>
                 {featureName
                   ? `"${featureName}" is a deep insight unlocked with Premium.`
-                  : "Your kundli has more to reveal. Premium opens the full picture."}
+                  : "Your compatibility picture has more depth. Premium opens all of it."}
               </Text>
 
               <View style={styles.perksContainer}>

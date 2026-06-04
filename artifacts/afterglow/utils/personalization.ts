@@ -189,15 +189,15 @@ export function getCompatibilityTexts(
 
   const gmPct = kootaPct(guna, "Graha Maitri");
   const emotionalText = gmPct >= 0.7
-    ? `Your ${uMoon.name} moon and ${partner.name}'s ${pMoon.name} moon share sign lords that favour each other — emotional understanding arrives before words do. This is rare and worth protecting.`
+    ? `Your ${uMoon.en} and ${partner.name}'s ${pMoon.en} emotional styles have natural alignment — you understand each other's logic without needing to translate it. This is rare and worth protecting.`
     : gmPct <= 0.3
-    ? `Your ${uMoon.name} and ${pMoon.name} moons operate on different emotional frequencies. You interpret the same silence very differently. The gap is workable — but it requires naming.`
-    : `Your ${uMoon.name} moon meets ${partner.name}'s ${pMoon.name} moon — ${uMoon.element} meeting ${pMoon.element}. The chemistry is ${uMoon.element === pMoon.element ? "natural" : "complementary"}.`;
+    ? `Your ${uMoon.en} and ${pMoon.en} emotional styles operate on different frequencies. You interpret the same silence very differently. The gap is workable — but it requires naming.`
+    : `Your ${uMoon.en} emotional style meets ${partner.name}'s ${pMoon.en} — ${uMoon.element} meeting ${pMoon.element}. The chemistry is ${uMoon.element === pMoon.element ? "natural" : "complementary"}.`;
 
   const ganaPct = kootaPct(guna, "Gana");
   const commText = ganaPct <= 0.3
-    ? `${uNak.gana} Gana meets ${pNak.gana} Gana — you approach life's challenges from fundamentally different emotional instincts. Without naming this, it becomes the unnamed thing that keeps coming up.`
-    : `Your ${uNak.gana} and ${partner.name}'s ${pNak.gana} Gana create a ${uNak.gana === pNak.gana ? "naturally aligned" : "workably complementary"} dynamic.`;
+    ? `You approach life's challenges from fundamentally different emotional instincts. Under stress, one person moves toward connection, one pulls away. Without naming this, it becomes the unnamed thing that keeps coming up.`
+    : `Your emotional stress responses are ${uNak.gana === pNak.gana ? "naturally aligned" : "workably complementary"} — you tend to handle difficulty in ways that don't compound each other.`;
 
   const bhakootNarrative = KOOTA_NARRATIVES["Bhakoot"];
   const bhakootPct = kootaPct(guna, "Bhakoot");
@@ -207,19 +207,18 @@ export function getCompatibilityTexts(
   const tensionText = guna.nadiDosha ? nadiNarrative.weakText : nadiNarrative.strongText;
 
   const ltText = guna.total >= 24
-    ? `At ${guna.total}/36, your Guna Milan score lands in genuinely strong territory. The foundation exists — what you build on it is the only question.`
+    ? `At ${guna.total}/36, your compatibility profile lands in genuinely strong territory. The foundation exists — what you build on it is the only question.`
     : guna.total >= 18
-    ? `At ${guna.total}/36, this connection is workable. The friction area in ${weakestKoota?.name ?? "certain kootas"} is not a stop sign — it's specifically where to invest attention.`
-    : `At ${guna.total}/36, the charts flag real friction in ${sk.slice(0,2).map(k=>k.name).join(" and ")}. Not impossible — but requiring extraordinary self-awareness from both people.`;
+    ? `At ${guna.total}/36, this connection is workable. The friction area is not a stop sign — it's specifically where to invest attention.`
+    : `At ${guna.total}/36, the profile flags real friction in a few key areas. Not impossible — but requiring extraordinary self-awareness from both people.`;
 
-  const yoniNarrative = KOOTA_NARRATIVES["Yoni"];
   const addictiveText = kootaPct(guna,"Yoni") >= 0.6
-    ? `${uNak.name} ${yoniNarrative.strongText.toLowerCase().slice(0,60)}… ${uNP.strength}. The intensity you feel has an astrological basis — it's not imagined.`
-    : `${uNak.name} ${uNak.yoni} Yoni meets ${pNak.name} ${pNak.yoni} Yoni — ${uNak.yoni === pNak.yoni ? "the same animal energy, which creates magnetic recognition" : "different animal energies that create a specific charge"}. ${uNP.trap}`;
+    ? `${uNP.strength}. The physical and emotional pull between you is built into how your personalities interact — it's not imagined, and it's not accidental.`
+    : `${uNP.trap}. The pull you feel is real — but it's worth understanding whether it's coming from genuine compatibility or from a pattern that predates this person.`;
 
   const hiddenText = weakestKoota
-    ? `The hidden pattern is in the ${weakestKoota.name} koota: ${KOOTA_NARRATIVES[weakestKoota.name]?.weakText ?? "an underlying friction that surfaces as something else"}. ${KOOTA_NARRATIVES[weakestKoota.name]?.fix ?? ""}`
-    : `The Ashtakoot breakdown shows no major dosha patterns. The friction in this connection comes from individual wounds, not cosmic incompatibility — harder to see, and fully workable.`;
+    ? `The hidden pattern: ${KOOTA_NARRATIVES[weakestKoota.name]?.weakText ?? "an underlying friction that surfaces as something else"}. ${KOOTA_NARRATIVES[weakestKoota.name]?.fix ?? ""}`
+    : `The profile shows no major structural friction. The tension in this connection comes from individual patterns and wounds, not incompatibility — harder to see, and fully workable.`;
 
   return {
     "Emotional Chemistry":         emotionalText,
@@ -252,54 +251,54 @@ export function getPersonalizedFeatureText(
   switch (featureKey) {
     case "falls-harder":
       return kootaPct(guna,"Yoni") > 0.6
-        ? `${userName} — ${uNak.name} ${uNP.pattern}. The Yoni compatibility here means the initial fall is fast and mutual, but ${userName}'s ${uMoon.name} moon internalises it faster.`
-        : `${partnerName} likely fell first, even if they showed it last. ${pNak.name} ${pNP.pattern} — and ${pMoon.name} moon holds that quietly.`;
+        ? `${userName} — ${uNP.pattern}. The initial pull here is fast and mutual, but ${userName}'s ${uMoon.en} emotional style tends to internalise it sooner.`
+        : `${partnerName} likely fell first, even if they showed it last. ${pNP.pattern} — and a ${pMoon.en} emotional style holds that quietly.`;
 
     case "attached-first":
-      return `${uNak.name} (${userName}) attaches through ${uNak.deity} energy — ${uNak.symbol}. ${pNak.name} (${partnerName}) attaches through ${pNak.deity}. ${uNP.craving} — different doors into the same room.`;
+      return `${userName} attaches through ${uNP.craving}. ${partnerName} attaches through ${pNP.craving}. Different entry points into the same kind of need — which is why the pull between you runs deep.`;
 
     case "dependency-index":
       return guna.nadiDosha
-        ? `The Nadi Dosha means your nervous systems are wired similarly. Being around them feels like being around yourself — and that familiarity is exactly what makes it hard to leave.`
-        : `Your ${uMoon.name} moon processes connection through ${uMoon.element.toLowerCase()} — ${uNP.pattern}. Dependency isn't weakness here. It's architecture.`;
+        ? `Your emotional energy types are wired similarly. Being around them feels familiar in a way that's hard to articulate — and that familiarity is exactly what makes it hard to leave.`
+        : `Your ${uMoon.en} emotional style processes connection through ${uMoon.element.toLowerCase()} energy — ${uNP.pattern}. The dependency isn't weakness here. It's how you're built to attach.`;
 
     case "ghosting-probability":
       return kootaScore(guna,"Bhakoot") === 0
-        ? `The 6-8 Bhakoot distance means emotional withdrawal is ${partnerName}'s default circuit breaker when overwhelmed. ${KOOTA_NARRATIVES["Bhakoot"].weakText}`
-        : `${pNak.name} ${pNP.pattern}. Low ghosting probability — ${pNak.lord}-ruled nakshatras tend to linger. What's more likely is inconsistency, not disappearance.`;
+        ? `Emotional withdrawal is ${partnerName}'s default response when overwhelmed — they pull back before they pull away completely. ${KOOTA_NARRATIVES["Bhakoot"].weakText}`
+        : `${pNP.pattern}. Low ghosting probability — this personality type tends to linger rather than disappear. What's more likely is inconsistency, not a clean exit.`;
 
     case "reunion-potential":
       return guna.total >= 24
-        ? `At ${guna.total}/36, the karmic pull between ${uNak.name} and ${pNak.name} doesn't dissolve cleanly. The thread stays. Whether reunion becomes right depends on what both people learn in the gap.`
-        : `Reunion is possible but not written. The ${kootaScore(guna,"Bhakoot") === 0 ? "Bhakoot friction" : "current timing"} means the next window, if it comes, requires something genuinely different from both of you.`;
+        ? `At ${guna.total}/36, the emotional pull between you doesn't dissolve cleanly. The thread stays. Whether reunion becomes right depends on what both people actually do differently in the gap.`
+        : `Reunion is possible but not guaranteed. The next window, if it comes, requires something genuinely specific to have changed in both of you — not just time passing.`;
 
     case "toxic-or-soulmate":
       return guna.nadiDosha || kootaScore(guna,"Bhakoot") === 0
-        ? `Both. The ${guna.nadiDosha ? "Nadi Dosha" : "Bhakoot distance"} creates the intensity that makes this feel fated. Soulmates in Vedic astrology aren't always comfortable — they crack you open. This connection is doing that.`
-        : `Closer to soulmate — ${guna.total}/36 and ${uNak.gana === pNak.gana ? "matching Gana" : "complementary Gana"} means this isn't karmic friction. It's karmic recognition.`;
+        ? `Both. The structural tension in this connection creates the intensity that makes it feel significant. The most important relationships aren't always the most comfortable — they're the ones that crack something open. This one is doing that.`
+        : `Closer to soulmate — ${guna.total}/36 and ${uNak.gana === pNak.gana ? "similar emotional instincts" : "complementary emotional instincts"} means the pull between you is recognition, not just chemistry.`;
 
     case "cant-let-go":
-      return `${uNak.name} ${uNP.pattern}. The bond between ${uNak.name} and ${pNak.name} — ${uNak.lord} meets ${pNak.lord} — creates a specific imprint. You can't let go because part of you correctly identified something real. ${uMP.insight}`;
+      return `${uNP.pattern}. You can't let go because part of you correctly identified something real. The connection left a specific imprint — and your emotional style holds that kind of thing longer than most. ${uMP.insight}`;
 
     case "red-flags":
       return kootaScore(guna,"Gana") < 3
-        ? `${pNak.gana} Gana meeting ${uNak.gana} Gana — ${KOOTA_NARRATIVES["Gana"].weakText} ${KOOTA_NARRATIVES["Gana"].fix}`
-        : `${pNak.name} ${pNP.shadow}. When that shows up as inconsistency, it's worth naming: is this their capacity limit, or a signal about fit?`;
+        ? `${KOOTA_NARRATIVES["Gana"].weakText} ${KOOTA_NARRATIVES["Gana"].fix}`
+        : `${pNP.shadow}. When that shows up as inconsistency or distance, it's worth naming honestly: is this their capacity limit, or a pattern that's asking you to pay attention?`;
 
     case "green-flags":
       return (() => {
         const sk = sortedKootas(guna);
         const best = sk[sk.length - 1];
         return best
-          ? `The ${best.name} koota between you scores high — ${KOOTA_NARRATIVES[best.name]?.strongText ?? "natural compatibility"}. That's not luck — it's a genuine foundation in the charts.`
-          : `The green flag isn't in a specific score — it's in the fact that ${pNak.name} ${pNP.strength}, and you're drawn to exactly that quality.`;
+          ? `Your strongest area of natural compatibility: ${KOOTA_NARRATIVES[best.name]?.strongText ?? "a genuine foundation where things flow without effort"}. That's not luck — it's real.`
+          : `The green flag isn't in a specific score — it's in the fact that ${pNP.strength}, and you're drawn to exactly that quality.`;
       })();
 
     case "pulling-back":
-      return `${pNak.name} ${pNP.pattern}. What pulls you back is the specific frequency of that nakshatra — ${pNak.lord}-ruled energy leaves an impression that ${uNak.name} ${uNak.lord}-ruled people feel acutely. The pull is real. So is the question of what to do with it.`;
+      return `${pNP.pattern}. What pulls you back is the specific impression they left — ${pNP.craving} — which resonated with something you were looking for. The pull is real. So is the question of what to do with it.`;
 
     default:
-      return `${uNak.name} and ${pNak.name} — ${uNak.lord} meets ${pNak.lord}. ${uNP.craving} The connection has a specific astrological signature unique to the two of you.`;
+      return `${uNP.craving} meets ${pNP.craving}. The connection between you has a specific shape — understanding that shape is how you navigate it honestly.`;
   }
 }
 
@@ -699,7 +698,7 @@ export function getPersonalizedSuggestions(
     { q: "What am I actually looking for in this connection?",                                                                                     category: "needs",       icon: "✦", w: 9  },
     { q: rtd?.keyQuestion ?? "What does the future hold for us?",                                                                                  category: "core",        icon: "◉", w: 9  },
     { q: weakest && weakest.score / weakest.max < 0.3 ? "Why do we keep clashing over the same thing?" : "Why does this connection feel this way?",category: "friction",    icon: "◈", w: weakest && weakest.score / weakest.max < 0.3 ? 9 : 5 },
-    { q: "What do our stars say about how we feel around each other?",                                                                             category: "chemistry",   icon: "🌙", w: 8 },
+    { q: "What does our compatibility say about how we feel around each other?",                                                                   category: "chemistry",   icon: "🌙", w: 8 },
     ...(guna.mangalDosha ? [{ q: "Why does this feel so intense and sometimes unsafe?",                    category: "intensity", icon: "◎", w: 9 }] : []),
     ...(guna.nadiDosha   ? [{ q: "Why do I feel drained even when I love them?",                           category: "energy",    icon: "◈", w: 9 }] : []),
     ...(kootaScore(guna,"Bhakoot") === 0 ? [{ q: "Why does this feel like one step forward, two steps back?", category: "push-pull", icon: "🌙", w: 10 }] : []),

@@ -1,7 +1,7 @@
 import { GlowCard } from "@/components/GlowCard";
 import { useApp } from "@/context/AppContext";
 import type { Challenge } from "@/utils/challenges";
-import { getAstrologyReading, RASHIS } from "@/utils/astrology";
+import { getAstrologyReading } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
   getPersonalizedFocus,
@@ -18,7 +18,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -71,25 +70,6 @@ function EnergyBar({ label, value, color, delay }: EnergyBarProps) {
   );
 }
 
-function HeartPulse() {
-  const pulse = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.12, duration: 600, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1, duration: 600, useNativeDriver: true }),
-      ])
-    ).start();
-  }, []);
-
-  return (
-    <Animated.View style={{ transform: [{ scale: pulse }] }}>
-      <Text style={styles.pulse}>◉</Text>
-    </Animated.View>
-  );
-}
-
 const SEVERITY_COLOR: Record<string, string> = { mild: "#52C8B8", moderate: "#F5A623", severe: "#E85C7A" };
 
 export default function HomeScreen() {
@@ -133,8 +113,6 @@ export default function HomeScreen() {
   const quoteText   = dbContent?.quote?.body ?? `"${localQuote.text}"`;
   const quoteAuthor = dbContent?.quote?.meta?.author as string | undefined ?? localQuote.author;
   const quoteLabel  = (dbContent?.quote?.meta?.category as string | undefined) ?? localQuote.category;
-  const affirmation = dbContent?.affirmation?.body ?? null;
-  const dailyMsgTitle = dbContent?.message?.title ?? null;
   const dailyMsgBody  = dbContent?.message?.body ?? null;
 
   const hero = getPersonalizedHero(user.name, partner.name, reading, partner.relationshipType);
@@ -147,32 +125,8 @@ export default function HomeScreen() {
 
   const energyBars = [
     { label: "Emotional closeness", value: energy.closeness, color: "#E85C7A" },
-    { label: "Attraction intensity", value: energy.attraction, color: "#B855E0" },
     { label: "Communication energy", value: energy.communication, color: "#7C52C8" },
-    { label: "Reconnection pull", value: energy.reconnection, color: "#F5A623" },
     { label: "Emotional tension", value: energy.tension, color: "#52C8B8" },
-  ];
-
-  const insights = [
-    {
-      title: "Emotional Chemistry",
-      sub: `How you and ${partner.name} actually align`,
-      route: "/(tabs)/compatibility",
-      color: "#E85C7A",
-    },
-    {
-      title: "Who Falls Harder?",
-      sub: `You or ${partner.name}?`,
-      route: "/feature-detail",
-      params: { featureKey: "falls-harder" },
-      color: "#B855E0",
-    },
-    {
-      title: "Hidden Pattern",
-      sub: `The real dynamic between you two`,
-      route: "/(tabs)/compatibility",
-      color: "#7C52C8",
-    },
   ];
 
   return (
@@ -196,21 +150,18 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>{greeting}</Text>
             <Text style={styles.userName}>{user.name}</Text>
           </View>
-          <View style={styles.headerRight}>
-            <HeartPulse />
-            <TouchableOpacity
-              onPress={() => router.push("/profile")}
-              activeOpacity={0.75}
-              style={styles.profileBtn}
+          <TouchableOpacity
+            onPress={() => router.push("/profile")}
+            activeOpacity={0.75}
+            style={styles.profileBtn}
+          >
+            <LinearGradient
+              colors={["#E85C7A", "#B855E0"]}
+              style={styles.profileBtnGradient}
             >
-              <LinearGradient
-                colors={["#E85C7A", "#B855E0"]}
-                style={styles.profileBtnGradient}
-              >
-                <Text style={styles.profileBtnInitial}>{user.name.charAt(0) || "?"}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+              <Text style={styles.profileBtnInitial}>{user.name.charAt(0) || "?"}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
         {/* Today's Read — hero card */}
@@ -258,19 +209,6 @@ export default function HomeScreen() {
           </LinearGradient>
         </GlowCard>
 
-        {/* Daily Affirmation — from DB */}
-        {affirmation && (
-          <GlowCard style={styles.affirmCard} glowColor="rgba(82,200,184,0.12)">
-            <LinearGradient colors={["#0C1A17", "#110F1E"]} style={styles.affirmInner}>
-              <View style={styles.affirmTopRow}>
-                <Feather name="star" size={11} color="#52C8B8" />
-                <Text style={styles.affirmLabel}>{dailyMsgTitle ?? "Today's Affirmation"}</Text>
-              </View>
-              <Text style={styles.affirmText}>{affirmation}</Text>
-            </LinearGradient>
-          </GlowCard>
-        )}
-
         {/* Daily energy card */}
         <GlowCard style={styles.dailyCard} intensity="high" glowColor="rgba(232,92,122,0.2)">
           <LinearGradient
@@ -299,84 +237,9 @@ export default function HomeScreen() {
           </LinearGradient>
         </GlowCard>
 
-        {/* Partner info */}
+        {/* Patterns & What Helps */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Your Connection</Text>
-        </View>
-
-        <GlowCard style={styles.connectionCard}>
-          <LinearGradient
-            colors={["#1A1630", "#110F1E"]}
-            style={styles.connectionInner}
-          >
-            <View style={styles.connectionRow}>
-              <View style={styles.personBubble}>
-                <Text style={styles.personInitial}>{user.name.charAt(0) || "?"}</Text>
-              </View>
-              <View style={styles.connectionLine}>
-                <LinearGradient
-                  colors={["#E85C7A", "#B855E0"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.connectionLineBar}
-                />
-              </View>
-              <View style={[styles.personBubble, { backgroundColor: "rgba(184,85,224,0.15)", borderColor: "rgba(184,85,224,0.4)" }]}>
-                <Text style={styles.personInitial}>{partner.name.charAt(0) || "?"}</Text>
-              </View>
-            </View>
-            <View style={styles.namesRow}>
-              <View style={styles.personNameCol}>
-                <Text style={styles.personName}>{user.name}</Text>
-                <Text style={styles.moonSignLabel}>☽ {RASHIS[reading.user.moonRashi].en}</Text>
-              </View>
-              <Text style={styles.relTypeBadge}>{partner.relationshipType}</Text>
-              <View style={styles.personNameCol}>
-                <Text style={styles.personName}>{partner.name}</Text>
-                <Text style={styles.moonSignLabel}>☽ {RASHIS[reading.partner.moonRashi].en}</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </GlowCard>
-
-        {/* Insights */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Today's Insights</Text>
-        </View>
-
-        {insights.map((insight, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => {
-              if (insight.params) {
-                router.push({ pathname: insight.route as any, params: insight.params });
-              } else {
-                router.push(insight.route as any);
-              }
-            }}
-            activeOpacity={0.8}
-          >
-            <GlowCard style={styles.insightCard}>
-              <LinearGradient
-                colors={["#1A1630", "#110F1E"]}
-                style={styles.insightInner}
-              >
-                <View style={[styles.insightDot, { backgroundColor: insight.color + "33", borderColor: insight.color + "66" }]}>
-                  <View style={[styles.insightDotInner, { backgroundColor: insight.color }]} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.insightTitle}>{insight.title}</Text>
-                  <Text style={styles.insightSub}>{insight.sub}</Text>
-                </View>
-                <Feather name="chevron-right" size={18} color="rgba(240,235,248,0.3)" />
-              </LinearGradient>
-            </GlowCard>
-          </TouchableOpacity>
-        ))}
-
-        {/* Challenges & Remedies */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Challenges & Remedies</Text>
+          <Text style={styles.sectionTitle}>Patterns & What Helps</Text>
         </View>
 
         <TouchableOpacity
@@ -390,10 +253,10 @@ export default function HomeScreen() {
                   <Text style={styles.challengesTitle}>Your Relationship Patterns</Text>
                   <Text style={styles.challengesSub}>
                     {challenges.length > 0
-                      ? `${challenges.length} patterns between you and ${partner.name}`
+                      ? `${challenges.length} patterns found between you and ${partner.name}`
                       : challengesLoading
-                      ? "Analysing your birth chart…"
-                      : "Tap to reveal your patterns"}
+                      ? "Identifying compatibility patterns…"
+                      : "Tap to see how your personalities interact"}
                   </Text>
                 </View>
                 <View style={styles.challengesArrow}>
@@ -480,11 +343,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 4,
   },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   profileBtn: {
     borderRadius: 20,
     overflow: "hidden",
@@ -510,10 +368,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
-  },
-  pulse: {
-    fontSize: 28,
-    color: "#E85C7A",
   },
   quoteCard: { borderRadius: 20 },
   quoteInner: { borderRadius: 20, padding: 20, gap: 12 },
@@ -624,99 +478,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textTransform: "uppercase",
   },
-  connectionCard: {
-    borderRadius: 20,
-  },
-  connectionInner: {
-    borderRadius: 20,
-    padding: 20,
-    gap: 12,
-    alignItems: "center",
-  },
-  connectionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 0,
-    width: "100%",
-    justifyContent: "center",
-  },
-  personBubble: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "rgba(232,92,122,0.15)",
-    borderWidth: 1.5,
-    borderColor: "rgba(232,92,122,0.4)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  personInitial: {
-    fontSize: 22,
-    fontFamily: "Nunito_700Bold",
-    color: "#F0EBF8",
-  },
-  connectionLine: {
-    flex: 1,
-    height: 2,
-    marginHorizontal: -2,
-  },
-  connectionLineBar: {
-    flex: 1,
-  },
-  namesRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  personName: {
-    fontSize: 14,
-    fontFamily: "Nunito_600SemiBold",
-    color: "#F0EBF8",
-  },
-  relTypeBadge: {
-    fontSize: 11,
-    fontFamily: "Nunito_500Medium",
-    color: "rgba(232,92,122,0.8)",
-    backgroundColor: "rgba(232,92,122,0.1)",
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 20,
-    textTransform: "capitalize",
-  },
-  insightCard: {
-    borderRadius: 16,
-  },
-  insightInner: {
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
-  insightDot: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  insightDotInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  insightTitle: {
-    fontSize: 15,
-    fontFamily: "Nunito_600SemiBold",
-    color: "#F0EBF8",
-  },
-  insightSub: {
-    fontSize: 12,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.4)",
-    marginTop: 2,
-  },
   guidanceTeaser: {
     borderRadius: 18,
     borderWidth: 1,
@@ -796,21 +557,6 @@ const styles = StyleSheet.create({
     color: "#F5A623",
     lineHeight: 20,
   },
-  personNameCol: {
-    alignItems: "center",
-    gap: 3,
-  },
-  moonSignLabel: {
-    fontSize: 11,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.4)",
-    letterSpacing: 0.3,
-  },
-  affirmCard: { borderRadius: 16 },
-  affirmInner: { borderRadius: 16, padding: 16, gap: 8 },
-  affirmTopRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  affirmLabel: { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#52C8B8", letterSpacing: 1, textTransform: "uppercase" },
-  affirmText: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.85)", lineHeight: 23, fontStyle: "italic" },
   challengesCard: { borderRadius: 20 },
   challengesInner: { borderRadius: 20, padding: 18, gap: 14 },
   challengesHeader: { flexDirection: "row", alignItems: "flex-start" },

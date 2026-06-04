@@ -30,7 +30,7 @@ const SOLUTION_TYPE_META: Record<ChallengeSolution["type"], { icon: string; labe
   practical:     { icon: "tool",            label: "Practical",     color: "#52C8B8" },
   communication: { icon: "message-circle",  label: "Communication", color: "#7C52C8" },
   spiritual:     { icon: "sun",             label: "Spiritual",     color: "#F5A623" },
-  ritual:        { icon: "moon",            label: "Vedic Ritual",  color: "#B855E0" },
+  ritual:        { icon: "moon",            label: "Mindful Practice", color: "#B855E0" },
   professional:  { icon: "briefcase",       label: "Professional",  color: "#E85C7A" },
 };
 
@@ -145,7 +145,7 @@ function SolutionCard({
         {locked ? (
           <TouchableOpacity style={styles.unlockRow} onPress={onUnlockPress} activeOpacity={0.8}>
             <Feather name="lock" size={13} color="rgba(240,235,248,0.3)" />
-            <Text style={styles.unlockText}>Unlock with Premium to see this remedy</Text>
+            <Text style={styles.unlockText}>Unlock with Premium to see this step</Text>
           </TouchableOpacity>
         ) : (
           <>
@@ -263,7 +263,7 @@ export default function ChallengeDetailScreen() {
             <View style={styles.matchRow}>
               <Feather name="target" size={12} color="rgba(184,85,224,0.6)" />
               <Text style={styles.matchText}>
-                Matched {challenge.match_score ?? "?"} birth chart indicator{challenge.match_score !== 1 ? "s" : ""}
+                Matched {challenge.match_score ?? "?"} compatibility indicator{challenge.match_score !== 1 ? "s" : ""} in your profile
               </Text>
             </View>
           </LinearGradient>
@@ -278,14 +278,14 @@ export default function ChallengeDetailScreen() {
 
         {/* Solutions — always visible but "I'll try this" only shows after acknowledgment */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Remedies & Solutions</Text>
-          <Text style={styles.sectionSub}>{solutions.length} remedies</Text>
+          <Text style={styles.sectionTitle}>Steps to Try</Text>
+          <Text style={styles.sectionSub}>{solutions.length} options</Text>
         </View>
 
         {!isAcknowledged && (
           <View style={styles.solutionsHint}>
             <Feather name="info" size={12} color="rgba(184,85,224,0.5)" />
-            <Text style={styles.solutionsHintText}>Acknowledge this pattern above to unlock the "I'll try this" tracker.</Text>
+            <Text style={styles.solutionsHintText}>Tap "Yes, this is me" above to start tracking which steps you're trying.</Text>
           </View>
         )}
 
@@ -330,7 +330,7 @@ export default function ChallengeDetailScreen() {
         <View style={styles.noteCard}>
           <Feather name="info" size={13} color="rgba(184,85,224,0.5)" style={{ marginTop: 1 }} />
           <Text style={styles.noteText}>
-            These patterns come from your Vedic birth chart reading. Astrological guidance supports your personal effort. It does not replace professional help when you need it.
+            These patterns are identified from your personality profiles and compatibility data. They're here to support your self-awareness — not replace professional help when you need it.
           </Text>
         </View>
       </ScrollView>

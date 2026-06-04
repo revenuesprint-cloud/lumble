@@ -2,7 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
-export function KundliLoading({ label = "Reading your stars…" }: { label?: string }) {
+export function KundliLoading({ label = "Loading your profile…" }: { label?: string }) {
   const pulse = useRef(new Animated.Value(0.5)).current;
 
   useEffect(() => {
