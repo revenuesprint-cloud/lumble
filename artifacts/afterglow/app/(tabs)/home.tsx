@@ -1,11 +1,12 @@
 import { GlowCard } from "@/components/GlowCard";
 import { useApp } from "@/context/AppContext";
 import type { Challenge } from "@/utils/challenges";
-import { getAstrologyReading } from "@/utils/astrology";
+import { getAstrologyReading, RASHIS } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
   getPersonalizedFocus,
   getPersonalizedQuoteCategory,
+  getPersonalizedHero,
 } from "@/utils/personalization";
 import { getQuoteByCategory } from "@/utils/quotes";
 import { fetchDailyContent, type DailyContent } from "@/utils/dbContent";
@@ -136,6 +137,14 @@ export default function HomeScreen() {
   const dailyMsgTitle = dbContent?.message?.title ?? null;
   const dailyMsgBody  = dbContent?.message?.body ?? null;
 
+  const hero = getPersonalizedHero(user.name, partner.name, reading, partner.relationshipType);
+
+  const greetingHour = new Date().getHours();
+  const greeting =
+    greetingHour < 12 ? "Good morning," :
+    greetingHour < 18 ? "Good afternoon," :
+                        "Good evening,";
+
   const energyBars = [
     { label: "Emotional closeness", value: energy.closeness, color: "#E85C7A" },
     { label: "Attraction intensity", value: energy.attraction, color: "#B855E0" },
@@ -147,20 +156,20 @@ export default function HomeScreen() {
   const insights = [
     {
       title: "Emotional Chemistry",
-      sub: "See how your energies align",
+      sub: `How you and ${partner.name} actually align`,
       route: "/(tabs)/compatibility",
       color: "#E85C7A",
     },
     {
       title: "Who Falls Harder?",
-      sub: "The answer might surprise you",
+      sub: `You or ${partner.name}?`,
       route: "/feature-detail",
       params: { featureKey: "falls-harder" },
       color: "#B855E0",
     },
     {
       title: "Hidden Pattern",
-      sub: "What's really driving this",
+      sub: `The real dynamic between you two`,
       route: "/(tabs)/compatibility",
       color: "#7C52C8",
     },
@@ -184,7 +193,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good to see you,</Text>
+            <Text style={styles.greeting}>{greeting}</Text>
             <Text style={styles.userName}>{user.name}</Text>
           </View>
           <View style={styles.headerRight}>
@@ -203,6 +212,25 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Today's Read — hero card */}
+        <GlowCard style={styles.heroCard} glowColor="rgba(232,92,122,0.18)">
+          <LinearGradient colors={["#1E0D2B", "#110F1E"]} style={styles.heroInner}>
+            <View style={styles.heroTopRow}>
+              <View style={styles.heroMoonTag}>
+                <Text style={styles.heroMoonTagText}>☽ {hero.moonTag.replace(" + ", " + ☽ ")}</Text>
+              </View>
+              <Text style={styles.heroStarDeco}>✦</Text>
+            </View>
+            <Text style={styles.heroHeadline}>{hero.headline}</Text>
+            <Text style={styles.heroInsight}>{hero.insight}</Text>
+            <View style={styles.heroDivider} />
+            <View style={styles.heroActionRow}>
+              <Feather name="sun" size={13} color="#F5A623" />
+              <Text style={styles.heroActionText}>{hero.action}</Text>
+            </View>
+          </LinearGradient>
+        </GlowCard>
 
         {/* Today's Reflection — content from DB with local fallback */}
         <GlowCard style={styles.quoteCard} glowColor="rgba(184,85,224,0.15)">
@@ -298,9 +326,15 @@ export default function HomeScreen() {
               </View>
             </View>
             <View style={styles.namesRow}>
-              <Text style={styles.personName}>{user.name}</Text>
+              <View style={styles.personNameCol}>
+                <Text style={styles.personName}>{user.name}</Text>
+                <Text style={styles.moonSignLabel}>☽ {RASHIS[reading.user.moonRashi].en}</Text>
+              </View>
               <Text style={styles.relTypeBadge}>{partner.relationshipType}</Text>
-              <Text style={styles.personName}>{partner.name}</Text>
+              <View style={styles.personNameCol}>
+                <Text style={styles.personName}>{partner.name}</Text>
+                <Text style={styles.moonSignLabel}>☽ {RASHIS[reading.partner.moonRashi].en}</Text>
+              </View>
             </View>
           </LinearGradient>
         </GlowCard>
@@ -356,7 +390,7 @@ export default function HomeScreen() {
                   <Text style={styles.challengesTitle}>Your Relationship Patterns</Text>
                   <Text style={styles.challengesSub}>
                     {challenges.length > 0
-                      ? `${challenges.length} patterns identified from your kundli`
+                      ? `${challenges.length} patterns between you and ${partner.name}`
                       : challengesLoading
                       ? "Analysing your birth chart…"
                       : "Tap to reveal your patterns"}
@@ -380,7 +414,7 @@ export default function HomeScreen() {
                     );
                   })}
                   {challenges.length > 3 && (
-                    <Text style={styles.challengesMore}>+{challenges.length - 3} more patterns →</Text>
+                    <Text style={styles.challengesMore}>+{challenges.length - 3} more patterns</Text>
                   )}
                 </View>
               ) : challengesLoading ? (
@@ -407,7 +441,22 @@ export default function HomeScreen() {
             <Text style={styles.guidanceTeaserTitle}>Something on your mind?</Text>
             <Text style={styles.guidanceTeaserSub}>Ask about this connection</Text>
             <View style={styles.guidanceSuggestions}>
-              {["Why did they pull away?", "Why can't I move on?"].map((q, i) => (
+              {[
+                partner.relationshipType === "ex"
+                  ? `Does ${partner.name} miss me?`
+                  : partner.relationshipType === "situationship"
+                  ? `Why does ${partner.name} go hot and cold?`
+                  : partner.relationshipType === "crush"
+                  ? `Does ${partner.name} feel what I feel?`
+                  : `Why does ${partner.name} pull away?`,
+                partner.relationshipType === "ex"
+                  ? `Why can't I stop thinking about ${partner.name}?`
+                  : partner.relationshipType === "situationship"
+                  ? `What does ${partner.name} actually want?`
+                  : partner.relationshipType === "crush"
+                  ? `Should I tell ${partner.name} how I feel?`
+                  : `How do I get ${partner.name} to open up?`,
+              ].map((q, i) => (
                 <View key={i} style={styles.suggestionChip}>
                   <Text style={styles.suggestionText}>{q}</Text>
                 </View>
@@ -707,6 +756,55 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.7)",
+  },
+  heroCard: { borderRadius: 20 },
+  heroInner: { borderRadius: 20, padding: 20, gap: 10 },
+  heroTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  heroMoonTag: {
+    backgroundColor: "rgba(232,92,122,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(232,92,122,0.25)",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  heroMoonTagText: {
+    fontSize: 11,
+    fontFamily: "Nunito_600SemiBold",
+    color: "#E85C7A",
+    letterSpacing: 0.4,
+  },
+  heroStarDeco: { fontSize: 14, color: "rgba(232,92,122,0.4)" },
+  heroHeadline: {
+    fontSize: 19,
+    fontFamily: "Nunito_700Bold",
+    color: "#F0EBF8",
+    lineHeight: 26,
+  },
+  heroInsight: {
+    fontSize: 14,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.82)",
+    lineHeight: 22,
+  },
+  heroDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
+  heroActionRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  heroActionText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: "Nunito_600SemiBold",
+    color: "#F5A623",
+    lineHeight: 20,
+  },
+  personNameCol: {
+    alignItems: "center",
+    gap: 3,
+  },
+  moonSignLabel: {
+    fontSize: 11,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.4)",
+    letterSpacing: 0.3,
   },
   affirmCard: { borderRadius: 16 },
   affirmInner: { borderRadius: 16, padding: 16, gap: 8 },
