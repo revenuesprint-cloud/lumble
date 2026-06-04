@@ -367,9 +367,7 @@ export default function ProfileScreen() {
   const handleSignOut = () => {
     Alert.alert(
       "Sign out?",
-      isLocalSession
-        ? "You'll be taken to the sign-in screen. Since you haven't created an account, you can tap 'Continue without signing in' to get back in."
-        : `You'll need to sign in again as ${currentEmail ?? "yourself"}.`,
+      `You'll need to sign in again as ${currentEmail ?? "yourself"}.`,
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -377,8 +375,8 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            router.replace("/login");
             await logout();
+            router.replace("/login");
           },
         },
       ]

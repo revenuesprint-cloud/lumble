@@ -23,7 +23,7 @@ type Mode = "signin" | "register";
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router  = useRouter();
-  const { login, register, setSessionDirect } = useAuth();
+  const { login, register } = useAuth();
   const { user, hasCompletedOnboarding } = useApp();
 
   const [mode,         setMode]         = useState<Mode>("signin");
@@ -100,16 +100,6 @@ export default function LoginScreen() {
       setError(result.error ?? (mode === "signin" ? "Sign in failed." : "Registration failed."));
       shake();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    }
-  };
-
-  const handleContinueWithout = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    await setSessionDirect();
-    if (hasCompletedOnboarding) {
-      router.replace("/(tabs)/home");
-    } else {
-      router.replace("/onboarding");
     }
   };
 
@@ -264,23 +254,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </Animated.View>
 
-          {/* Divider */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Continue without signing in */}
-          <TouchableOpacity onPress={handleContinueWithout} style={styles.ghostBtn} activeOpacity={0.75}>
-            <Text style={styles.ghostText}>Continue without signing in</Text>
-            <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.3)" />
-          </TouchableOpacity>
-
-          <Text style={styles.note}>
-            Your readings are stored on this device.{"\n"}
-            Creating an account backs them up to the cloud.
-          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>

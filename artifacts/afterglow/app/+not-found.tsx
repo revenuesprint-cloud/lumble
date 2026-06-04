@@ -1,10 +1,11 @@
-import { Link, Stack } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
-
+import { Stack, useRouter } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 
 export default function NotFoundScreen() {
   const colors = useColors();
+  const router = useRouter();
 
   return (
     <>
@@ -14,11 +15,10 @@ export default function NotFoundScreen() {
           This screen doesn&apos;t exist.
         </Text>
 
-        <Link href="/" style={styles.link}>
-          <Text style={[styles.linkText, { color: colors.primary }]}>
-            Go to home screen!
-          </Text>
-        </Link>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Feather name="arrow-left" size={16} color={colors.primary} />
+          <Text style={[styles.backText, { color: colors.primary }]}>Go back</Text>
+        </TouchableOpacity>
       </View>
     </>
   );
@@ -34,12 +34,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 20,
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  backBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
   },
-  linkText: {
-    fontSize: 14,
+  backText: {
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

@@ -195,7 +195,7 @@ export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { completeOnboarding, syncProfileToServer } = useApp();
-  const { setSessionDirect, jwtToken } = useAuth();
+  const { jwtToken } = useAuth();
 
   const [step,          setStep]          = useState(0);
   const [showAuthChoice, setShowAuthChoice] = useState(false);
@@ -278,20 +278,6 @@ export default function Onboarding() {
       <Text style={styles.tagline}>
         Relationship insights backed{"\n"}by ancient astrology
       </Text>
-      <TouchableOpacity
-        onPress={async () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          const demoUser    = { name: "Alex",   birthDate: toLocalDateString(new Date(1997, 3, 12)) };
-          const demoPartner = { name: "Jordan", birthDate: toLocalDateString(new Date(1996, 7, 25)), relationshipType: "situationship" as const };
-          await completeOnboarding(demoUser, demoPartner);
-          await setSessionDirect();
-          if (jwtToken) syncProfileToServer(jwtToken, demoUser, demoPartner).catch(() => {});
-          router.replace("/(tabs)/home");
-        }}
-        style={styles.demoBtn}
-      >
-        <Text style={styles.demoBtnText}>Skip · Quick demo</Text>
-      </TouchableOpacity>
     </View>,
 
     // Step 1: Your name
@@ -393,10 +379,7 @@ export default function Onboarding() {
         name={form.partnerName}
         showChoice={showAuthChoice}
         onCreateAccount={() => router.replace("/login")}
-        onContinueGuest={async () => {
-          await setSessionDirect();
-          router.replace("/(tabs)/home");
-        }}
+        onContinueGuest={() => router.replace("/login")}
       />
     </View>,
   ];

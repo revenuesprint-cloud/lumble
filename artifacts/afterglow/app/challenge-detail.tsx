@@ -232,18 +232,20 @@ export default function ChallengeDetailScreen() {
 
   return (
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
+      {/* Fixed back button — stays visible while scrolling */}
+      <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 8) }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16), paddingBottom: insets.bottom + 100 },
+          { paddingTop: insets.top + (Platform.OS === "web" ? 120 : 64), paddingBottom: insets.bottom + 100 },
         ]}
       >
-        {/* Back */}
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
-        </TouchableOpacity>
-
         {/* Hero card */}
         <GlowCard style={styles.heroCard} glowColor={severityColor + "22"}>
           <LinearGradient colors={["#1E1035", "#110F1E"]} style={styles.heroInner}>
@@ -339,8 +341,9 @@ export default function ChallengeDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  fixedHeader: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, paddingHorizontal: 16, paddingBottom: 8 },
   scroll: { paddingHorizontal: 20, gap: 14 },
-  backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "rgba(240,235,248,0.06)", alignItems: "center", justifyContent: "center", marginBottom: 4 },
+  backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "rgba(240,235,248,0.06)", alignItems: "center", justifyContent: "center" },
   heroCard: { borderRadius: 20 },
   heroInner: { borderRadius: 20, padding: 20, gap: 12 },
   heroTopRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
