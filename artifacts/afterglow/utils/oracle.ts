@@ -192,6 +192,29 @@ function buildContext(
   };
 }
 
+// ─── Follow-up suggestions per intent ────────────────────────────────────────
+
+export const FOLLOW_UP_SUGGESTIONS: Partial<Record<Intent, string[]>> = {
+  misses_me:   ["Will they come back?",             "Should I reach out?",                "How do I stop thinking about them?"],
+  loves_me:    ["Are we right for each other?",     "Why does it feel complicated?",      "What should I do next?"],
+  come_back:   ["How do I know if things changed?", "Is it worth trying again?",          "What if they reach out first?"],
+  should_text: ["What should I actually say?",      "What if they do not reply?",         "Am I overthinking this?"],
+  why_left:    ["Will they come back?",             "How do I move on?",                  "Was it something I did?"],
+  why_fight:   ["How do we break the cycle?",       "Are we actually compatible?",        "How do I communicate better with them?"],
+  compatible:  ["What does our future look like?",  "Where do we have the most friction?","Is this worth fighting for?"],
+  move_on:     ["Why do I still feel attached?",    "How do I start again?",              "Is it okay to still care?"],
+  future:      ["Is this meant to last?",           "What am I missing right now?",       "How do I know if they are the one?"],
+  addicted:    ["Why do I keep going back?",        "How do I break this pattern?",       "Is this love or just attachment?"],
+  confused:    ["Why the mixed signals?",           "Should I ask them directly?",        "Am I imagining this?"],
+  red_flag:    ["Is this toxic?",                   "Should I leave?",                    "Can it get better?"],
+  timing:      ["How much longer should I wait?",   "Is the timing ever going to be right?","What do I do in the meantime?"],
+  general:     ["Does this have a future?",         "What does my chart say about love?", "What should I focus on right now?"],
+};
+
+export function getIntentFromMessage(text: string): Intent {
+  return detectIntent(text);
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export function getOracleResponse(
@@ -201,13 +224,14 @@ export function getOracleResponse(
   partnerName: string,
   partnerBirthDate: string,
   relationshipType: string,
+  turnCount: number = 0,
 ): string {
   const intent    = detectIntent(userMessage);
   const templates = ORACLE_LIBRARY[intent] ?? ORACLE_LIBRARY["general"];
   const ctx       = buildContext(userName, userBirthDate, partnerName, partnerBirthDate, relationshipType);
 
-  // Fully deterministic: intent + both nakshatras + dasha + message-length bucket
+  // Include turn count so the same question asked multiple times gets a different template
   const lenBucket = Math.min(5, Math.floor(userMessage.length / 30));
-  const seed      = `${intent}:${ctx.uNak}:${ctx.pNak}:${ctx.dasha}:${lenBucket}`;
+  const seed      = `${intent}:${ctx.uNak}:${ctx.pNak}:${ctx.dasha}:${lenBucket}:${turnCount % templates.length}`;
   return fillTemplate(pick(templates, seed), ctx);
 }
