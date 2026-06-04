@@ -256,6 +256,7 @@ export default function ChallengesScreen() {
                   params: { id: challenge.id, data: JSON.stringify(challenge) },
                 });
               }}
+            />
           ))}
         </ScrollView>
       )}
