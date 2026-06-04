@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { db, problemsTable } from "@workspace/db";
-import { sql } from "drizzle-orm";
+import { neon } from "@neondatabase/serverless";
 
 const router = Router();
+const sql = neon(process.env.DATABASE_URL!);
 
 // ─── POST /problems/match ─────────────────────────────────────────────────────
 // Accepts kundli attributes extracted on the client, returns matched problems
@@ -49,25 +49,23 @@ router.post("/match", async (req, res) => {
   }
 
   try {
-    // Score each problem by how many of its tags appear in the user's attribute set,
-    // then sort deterministically: score DESC, sort_order ASC.
-    // Use ARRAY[...] syntax — passing a JS array directly creates a row constructor
-    // ($1,$2,...) which Postgres cannot cast to text[].
-    const attrList = sql.join(attrs.map((a) => sql`${a}`), sql`, `);
-    const rows = await db.execute(sql`
+    // The neon tagged-template client correctly serialises a JS string[] as a
+    // Postgres text[] parameter — unlike Drizzle's sql tag which emits a row
+    // constructor ($1,$2,...) that cannot be cast to text[].
+    const rows = await sql`
       SELECT
         id, title, description, category, severity, tags, solutions, sort_order,
         (
           SELECT COUNT(*)::int
           FROM unnest(tags) t
-          WHERE t = ANY(ARRAY[${attrList}])
+          WHERE t = ANY(${attrs}::text[])
         ) AS match_score
       FROM problems
       ORDER BY match_score DESC, sort_order ASC
       LIMIT 60
-    `);
+    `;
 
-    return res.json({ problems: rows.rows });
+    return res.json({ problems: rows });
   } catch (err) {
     console.error("problems/match error:", err);
     return res.status(500).json({ error: "Something went wrong." });
