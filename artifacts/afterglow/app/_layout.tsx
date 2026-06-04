@@ -6,7 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/nunito";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -15,7 +15,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider } from "@/context/AppContext";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ fade: true });
@@ -30,6 +30,26 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Auth-gated screens — redirect to /login the moment isAuthenticated becomes false
+const AUTH_SCREENS = new Set(["(tabs)", "profile", "feature-detail", "challenges", "challenge-detail"]);
+
+function AuthGuard() {
+  const { isAuthenticated, isAuthLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthLoading) return;
+    const currentSegment = segments[0] as string | undefined;
+    if (!isAuthenticated && currentSegment && AUTH_SCREENS.has(currentSegment)) {
+      // User lost their session (logout, expired token) — send to login from any screen
+      router.replace("/login");
+    }
+  }, [isAuthenticated, isAuthLoading, segments]);
+
+  return null;
+}
 
 function RootLayoutNav() {
   return (
@@ -75,6 +95,7 @@ export default function RootLayout() {
             <KeyboardProvider>
               <AuthProvider>
                 <AppProvider>
+                  <AuthGuard />
                   <RootLayoutNav />
                 </AppProvider>
               </AuthProvider>

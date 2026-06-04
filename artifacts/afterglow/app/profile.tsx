@@ -375,8 +375,11 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            // logout() sets isAuthenticated=false → AuthGuard in _layout.tsx
+            // detects the change and calls router.replace("/login") globally,
+            // which correctly resets the stack even from inside a modal.
             await logout();
-            router.replace("/login");
+            await resetApp();
           },
         },
       ]
