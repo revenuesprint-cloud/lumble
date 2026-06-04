@@ -5,8 +5,9 @@ import {
   Nunito_700Bold,
   useFonts,
 } from "@expo-google-fonts/nunito";
+import { CommonActions } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -14,8 +15,9 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { AppProvider } from "@/context/AppContext";
+import { AppProvider, useApp } from "@/context/AppContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ fade: true });
@@ -31,22 +33,35 @@ const queryClient = new QueryClient({
   },
 });
 
-// Auth-gated screens — redirect to /login the moment isAuthenticated becomes false
-const AUTH_SCREENS = new Set(["(tabs)", "profile", "feature-detail", "challenges", "challenge-detail"]);
+// Screens where unauthenticated / pre-onboarded users are allowed
+const UNPROTECTED = new Set(["login", "onboarding", "index", "+not-found"]);
 
 function AuthGuard() {
   const { isAuthenticated, isAuthLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading: appLoading } = useApp();
   const segments = useSegments();
-  const router = useRouter();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (isAuthLoading) return;
-    const currentSegment = segments[0] as string | undefined;
-    if (!isAuthenticated && currentSegment && AUTH_SCREENS.has(currentSegment)) {
-      // User lost their session (logout, expired token) — send to login from any screen
-      router.replace("/login");
+    // Wait for both contexts to finish loading before making any routing decision
+    if (isAuthLoading || appLoading) return;
+
+    const seg = segments[0] as string | undefined;
+    const onUnprotected = !seg || UNPROTECTED.has(seg);
+    if (onUnprotected) return;
+
+    if (!isAuthenticated) {
+      // Logged out or token expired — reset entire stack to login
+      navigation.dispatch(
+        CommonActions.reset({ index: 0, routes: [{ name: "login" }] })
+      );
+    } else if (!hasCompletedOnboarding) {
+      // resetApp() was called (profile wiped) — reset entire stack to onboarding
+      navigation.dispatch(
+        CommonActions.reset({ index: 0, routes: [{ name: "onboarding" }] })
+      );
     }
-  }, [isAuthenticated, isAuthLoading, segments]);
+  }, [isAuthenticated, hasCompletedOnboarding, isAuthLoading, appLoading, segments]);
 
   return null;
 }

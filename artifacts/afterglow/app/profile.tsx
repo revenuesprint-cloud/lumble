@@ -409,11 +409,9 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            // Navigate first — resetApp sets user/partner to null which triggers
-            // the null-guard on this screen and unmounts it before router.replace
-            // can fire. Navigating first keeps the component mounted through the
-            // transition, then clears state in the background.
-            router.replace("/onboarding");
+            // resetApp() sets hasCompletedOnboarding=false → AuthGuard detects
+            // the change and dispatches CommonActions.reset to /onboarding,
+            // clearing the entire navigation stack cleanly from root level.
             await resetApp();
           },
         },
