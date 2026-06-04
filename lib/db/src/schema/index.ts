@@ -1,4 +1,4 @@
-import { pgTable, text, uuid, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, boolean, timestamp, pgEnum, integer, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -40,3 +40,33 @@ export const insertProfileSchema = createInsertSchema(profilesTable).omit({ id: 
 export const selectProfileSchema = createSelectSchema(profilesTable);
 export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type Profile = typeof profilesTable.$inferSelect;
+
+// ─── Problems ─────────────────────────────────────────────────────────────────
+
+export const severityEnum = pgEnum("severity", ["mild", "moderate", "severe"]);
+
+export const problemsTable = pgTable("problems", {
+  id:          uuid("id").primaryKey().defaultRandom(),
+  title:       text("title").notNull(),
+  description: text("description").notNull(),
+  category:    text("category").notNull(),
+  severity:    severityEnum("severity").notNull().default("moderate"),
+  // Array of astrology tags for matching (e.g. "moon_rashi:Mesha", "dosha:mangal", "universal")
+  tags:        text("tags").array().notNull().default([]),
+  // Embedded solutions to avoid a join — [{title, description, type, isPremium}]
+  solutions:   jsonb("solutions").notNull().default([]),
+  sortOrder:   integer("sort_order").notNull().default(0),
+  createdAt:   timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const insertProblemSchema = createInsertSchema(problemsTable).omit({ id: true, createdAt: true });
+export const selectProblemSchema = createSelectSchema(problemsTable);
+export type InsertProblem = z.infer<typeof insertProblemSchema>;
+export type Problem = typeof problemsTable.$inferSelect;
+
+export interface ProblemSolution {
+  title: string;
+  description: string;
+  type: "practical" | "communication" | "spiritual" | "ritual" | "professional";
+  isPremium: boolean;
+}

@@ -1,5 +1,6 @@
 import { GlowCard } from "@/components/GlowCard";
 import { useApp } from "@/context/AppContext";
+import type { Challenge } from "@/utils/challenges";
 import { getAstrologyReading } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
@@ -86,17 +87,28 @@ function HeartPulse() {
   );
 }
 
+const SEVERITY_COLOR: Record<string, string> = { mild: "#52C8B8", moderate: "#F5A623", severe: "#E85C7A" };
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, partner } = useApp();
+  const { user, partner, challenges, challengesLoading, loadChallenges } = useApp();
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
     return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
   }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
 
+  // Trigger challenge fetch once reading is ready and challenges haven't been loaded yet
+  useEffect(() => {
+    if (reading && challenges.length === 0 && !challengesLoading) {
+      loadChallenges();
+    }
+  }, [reading]);
+
   if (!user || !partner || !reading) return null;
+
+  const topChallenges = challenges.slice(0, 3);
 
   const energy     = getDailyEnergyPersonalized(reading, user ? reading.user.dasha.current : "Chandra");
   const quoteCategory = getPersonalizedQuoteCategory(reading.user.moonRashi, reading.user.dasha.current);
@@ -295,6 +307,60 @@ export default function HomeScreen() {
             </GlowCard>
           </TouchableOpacity>
         ))}
+
+        {/* Challenges & Remedies */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Challenges & Remedies</Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => router.push("/challenges")}
+          activeOpacity={0.85}
+        >
+          <GlowCard style={styles.challengesCard} glowColor="rgba(232,92,122,0.12)">
+            <LinearGradient colors={["#1E1030", "#110F1E"]} style={styles.challengesInner}>
+              <View style={styles.challengesHeader}>
+                <View>
+                  <Text style={styles.challengesTitle}>Your Relationship Patterns</Text>
+                  <Text style={styles.challengesSub}>
+                    {challenges.length > 0
+                      ? `${challenges.length} patterns identified from your kundli`
+                      : challengesLoading
+                      ? "Analysing your birth chart…"
+                      : "Tap to reveal your patterns"}
+                  </Text>
+                </View>
+                <View style={styles.challengesArrow}>
+                  <Feather name="arrow-right" size={16} color="rgba(240,235,248,0.5)" />
+                </View>
+              </View>
+
+              {topChallenges.length > 0 ? (
+                <View style={styles.challengesList}>
+                  {topChallenges.map((c: Challenge, i: number) => {
+                    const col = SEVERITY_COLOR[c.severity] ?? "#B855E0";
+                    return (
+                      <View key={c.id} style={styles.challengeRow}>
+                        <View style={[styles.challengeDot, { backgroundColor: col }]} />
+                        <Text style={styles.challengeRowText} numberOfLines={1}>{c.title}</Text>
+                        <Text style={[styles.challengeSeverity, { color: col }]}>{c.severity}</Text>
+                      </View>
+                    );
+                  })}
+                  {challenges.length > 3 && (
+                    <Text style={styles.challengesMore}>+{challenges.length - 3} more patterns →</Text>
+                  )}
+                </View>
+              ) : challengesLoading ? (
+                <View style={styles.challengesLoading}>
+                  <View style={styles.shimmer} />
+                  <View style={[styles.shimmer, { width: "75%" }]} />
+                  <View style={[styles.shimmer, { width: "60%" }]} />
+                </View>
+              ) : null}
+            </LinearGradient>
+          </GlowCard>
+        </TouchableOpacity>
 
         {/* Guidance teaser */}
         <TouchableOpacity
@@ -610,4 +676,23 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.7)",
   },
+  challengesCard: { borderRadius: 20 },
+  challengesInner: { borderRadius: 20, padding: 18, gap: 14 },
+  challengesHeader: { flexDirection: "row", alignItems: "flex-start" },
+  challengesTitle: { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  challengesSub: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 3 },
+  challengesArrow: {
+    marginLeft: "auto",
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: "rgba(240,235,248,0.06)",
+    alignItems: "center", justifyContent: "center",
+  },
+  challengesList: { gap: 9 },
+  challengeRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  challengeDot: { width: 7, height: 7, borderRadius: 4, flexShrink: 0 },
+  challengeRowText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.65)" },
+  challengeSeverity: { fontSize: 10, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.3 },
+  challengesMore: { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(184,85,224,0.7)", marginTop: 2 },
+  challengesLoading: { gap: 8 },
+  shimmer: { height: 12, borderRadius: 6, backgroundColor: "rgba(240,235,248,0.06)", width: "100%" },
 });

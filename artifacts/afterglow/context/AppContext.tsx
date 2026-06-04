@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import type { Challenge } from "@/utils/challenges";
 
 export type RelationshipType = "crush" | "situationship" | "relationship" | "ex";
 
@@ -36,18 +37,22 @@ interface AppContextType {
   partner: PartnerProfile | null;
   isPremium: boolean;
   guidanceMessages: GuidanceMessage[];
+  challenges: Challenge[];
+  challengesLoading: boolean;
   completeOnboarding:    (user: UserProfile, partner: PartnerProfile) => Promise<void>;
   addGuidanceMessage:    (msg: GuidanceMessage) => void;
   clearGuidanceMessages: () => void;
   upgradeToPremium:      (token?: string) => Promise<void>;
   resetApp:              () => Promise<void>;
   syncProfileToServer:   (token: string, overrideUser?: UserProfile, overridePartner?: PartnerProfile) => Promise<void>;
+  loadChallenges:        () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
 
-const STORAGE_KEY = "@lumble_data";
-const API_URL     = (process.env.EXPO_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
+const STORAGE_KEY            = "@lumble_data";
+const CHALLENGES_STORAGE_KEY = "@lumble_challenges";
+const API_URL                = (process.env.EXPO_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
 // ─── Minimal API helper ───────────────────────────────────────────────────────
 
@@ -73,8 +78,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [partner,                 setPartner]                  = useState<PartnerProfile | null>(null);
   const [isPremium,               setIsPremium]               = useState(false);
   const [guidanceMessages,        setGuidanceMessages]        = useState<GuidanceMessage[]>([]);
+  const [challenges,              setChallenges]              = useState<Challenge[]>([]);
+  const [challengesLoading,       setChallengesLoading]       = useState(false);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); loadCachedChallenges(); }, []);
+
+  const loadCachedChallenges = async () => {
+    try {
+      const raw = await AsyncStorage.getItem(CHALLENGES_STORAGE_KEY);
+      if (raw) setChallenges(JSON.parse(raw));
+    } catch {}
+  };
 
   const loadData = async () => {
     try {
@@ -123,6 +137,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setPartner(p);
     setHasCompletedOnboarding(true);
     await saveData(u, p, isPremium, guidanceMessages);
+    // Fire-and-forget: load challenges immediately after onboarding
+    setTimeout(async () => {
+      try {
+        const { fetchChallenges } = await import("@/utils/challenges");
+        const { getAstrologyReading } = await import("@/utils/astrology");
+        const reading = getAstrologyReading(u.name, u.birthDate, p.name, p.birthDate, u.birthTime);
+        const { challenges: result } = await fetchChallenges(reading, p.relationshipType);
+        if (result.length > 0) {
+          setChallenges(result);
+          await AsyncStorage.setItem(CHALLENGES_STORAGE_KEY, JSON.stringify(result));
+        }
+      } catch {}
+    }, 800);
   }, [isPremium, guidanceMessages, saveData]);
 
   // ── Backend sync: push profile after onboarding or premium upgrade ──
@@ -157,6 +184,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     saveData(user, partner, isPremium, guidanceMessages);
   }, [guidanceMessages]);
 
+  const loadChallenges = useCallback(async () => {
+    if (!user || !partner) return;
+    setChallengesLoading(true);
+    try {
+      const { fetchChallenges } = await import("@/utils/challenges");
+      const { getAstrologyReading } = await import("@/utils/astrology");
+      const reading = getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+      const { challenges: result } = await fetchChallenges(reading, partner.relationshipType);
+      if (result.length > 0) {
+        setChallenges(result);
+        await AsyncStorage.setItem(CHALLENGES_STORAGE_KEY, JSON.stringify(result));
+      }
+    } catch {}
+    finally { setChallengesLoading(false); }
+  }, [user, partner]);
+
   const upgradeToPremium = useCallback(async (token?: string) => {
     setIsPremium(true);
     await saveData(user, partner, true, guidanceMessages);
@@ -166,20 +209,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [user, partner, guidanceMessages, saveData]);
 
   const resetApp = useCallback(async () => {
-    await AsyncStorage.removeItem(STORAGE_KEY);
+    await AsyncStorage.multiRemove([STORAGE_KEY, CHALLENGES_STORAGE_KEY]);
     setUser(null);
     setPartner(null);
     setHasCompletedOnboarding(false);
     setIsPremium(false);
     setGuidanceMessages([]);
+    setChallenges([]);
   }, []);
 
   return (
     <AppContext.Provider value={{
       isLoading, hasCompletedOnboarding,
       user, partner, isPremium, guidanceMessages,
+      challenges, challengesLoading,
       completeOnboarding, addGuidanceMessage, clearGuidanceMessages,
-      upgradeToPremium, resetApp, syncProfileToServer,
+      upgradeToPremium, resetApp, syncProfileToServer, loadChallenges,
     }}>
       {children}
     </AppContext.Provider>

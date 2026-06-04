@@ -1,0 +1,277 @@
+import { GlowCard } from "@/components/GlowCard";
+import { useApp } from "@/context/AppContext";
+import { Feather } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { Challenge } from "@/utils/challenges";
+
+const SEVERITY_COLOR: Record<string, string> = {
+  mild:     "#52C8B8",
+  moderate: "#F5A623",
+  severe:   "#E85C7A",
+};
+
+const ALL_CATEGORIES = "All";
+
+function ChallengeCard({ challenge, onPress }: { challenge: Challenge; onPress: () => void }) {
+  const color = SEVERITY_COLOR[challenge.severity] ?? "#B855E0";
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <GlowCard style={styles.card} glowColor={color + "22"}>
+        <LinearGradient colors={["#1A1630", "#110F1E"]} style={styles.cardInner}>
+          <View style={styles.cardTop}>
+            <View style={[styles.severityDot, { backgroundColor: color }]} />
+            <Text style={[styles.severityLabel, { color }]}>{challenge.severity}</Text>
+            <View style={styles.categoryPill}>
+              <Text style={styles.categoryText}>{challenge.category}</Text>
+            </View>
+          </View>
+          <Text style={styles.cardTitle}>{challenge.title}</Text>
+          <Text style={styles.cardDesc} numberOfLines={2}>{challenge.description}</Text>
+          <View style={styles.cardFooter}>
+            <Text style={styles.solutionsHint}>
+              {challenge.solutions?.length ?? 0} remedies available
+            </Text>
+            <Feather name="chevron-right" size={16} color="rgba(240,235,248,0.3)" />
+          </View>
+        </LinearGradient>
+      </GlowCard>
+    </TouchableOpacity>
+  );
+}
+
+export default function ChallengesScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { challenges, challengesLoading, loadChallenges } = useApp();
+  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORIES);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Derive category list from loaded challenges
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(challenges.map((c) => c.category)));
+    return [ALL_CATEGORIES, ...cats];
+  }, [challenges]);
+
+  const filtered = useMemo(() => {
+    if (activeCategory === ALL_CATEGORIES) return challenges;
+    return challenges.filter((c) => c.category === activeCategory);
+  }, [challenges, activeCategory]);
+
+  // Group by severity for better UX: severe first, then moderate, then mild
+  const grouped = useMemo(() => {
+    const severe   = filtered.filter((c) => c.severity === "severe");
+    const moderate = filtered.filter((c) => c.severity === "moderate");
+    const mild     = filtered.filter((c) => c.severity === "mild");
+    return [...severe, ...moderate, ...mild];
+  }, [filtered]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadChallenges();
+    setRefreshing(false);
+  };
+
+  // Load on first mount if empty
+  useEffect(() => {
+    if (challenges.length === 0) loadChallenges();
+  }, []);
+
+  return (
+    <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.headerTitle}>Challenges & Remedies</Text>
+          <Text style={styles.headerSub}>
+            {challenges.length > 0 ? `${challenges.length} patterns identified from your kundli` : "Based on your Vedic birth chart"}
+          </Text>
+        </View>
+      </View>
+
+      {challengesLoading && challenges.length === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color="#B855E0" size="large" />
+          <Text style={styles.loadingText}>Reading your kundli patterns…</Text>
+        </View>
+      ) : challenges.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>✦</Text>
+          <Text style={styles.emptyTitle}>No challenges loaded</Text>
+          <Text style={styles.emptySub}>Tap below to fetch your personalised patterns</Text>
+          <TouchableOpacity style={styles.fetchBtn} onPress={loadChallenges}>
+            <LinearGradient colors={["#E85C7A", "#B855E0"]} style={styles.fetchBtnGradient}>
+              <Text style={styles.fetchBtnText}>Analyse my kundli</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#B855E0" />}
+        >
+          {/* Category filter chips */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chips} contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}>
+            {categories.map((cat) => (
+              <Pressable
+                key={cat}
+                onPress={() => setActiveCategory(cat)}
+                style={[styles.chip, activeCategory === cat && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>{cat}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          {/* Stats row */}
+          <View style={styles.statsRow}>
+            {(["severe", "moderate", "mild"] as const).map((sev) => {
+              const count = filtered.filter((c) => c.severity === sev).length;
+              return (
+                <View key={sev} style={styles.statItem}>
+                  <Text style={[styles.statCount, { color: SEVERITY_COLOR[sev] }]}>{count}</Text>
+                  <Text style={styles.statLabel}>{sev}</Text>
+                </View>
+              );
+            })}
+          </View>
+
+          {/* Challenge cards */}
+          {grouped.map((challenge) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              onPress={() =>
+                router.push({
+                  pathname: "/challenge-detail",
+                  params: { id: challenge.id, data: JSON.stringify(challenge) },
+                })
+              }
+            />
+          ))}
+        </ScrollView>
+      )}
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(240,235,248,0.06)",
+  },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(240,235,248,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: "Nunito_700Bold",
+    color: "#F0EBF8",
+  },
+  headerSub: {
+    fontSize: 12,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.4)",
+    marginTop: 2,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 14,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.45)",
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    paddingHorizontal: 40,
+  },
+  emptyIcon: { fontSize: 40, color: "#B855E0" },
+  emptyTitle: { fontSize: 18, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  emptySub: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", textAlign: "center" },
+  fetchBtn: { marginTop: 8, borderRadius: 24, overflow: "hidden" },
+  fetchBtnGradient: { paddingHorizontal: 28, paddingVertical: 14 },
+  fetchBtnText: { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#fff" },
+  scroll: { paddingTop: 16, gap: 12 },
+  chips: { marginBottom: 4 },
+  chip: {
+    backgroundColor: "rgba(240,235,248,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(240,235,248,0.1)",
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+  },
+  chipActive: {
+    backgroundColor: "rgba(184,85,224,0.18)",
+    borderColor: "rgba(184,85,224,0.45)",
+  },
+  chipText: {
+    fontSize: 12,
+    fontFamily: "Nunito_500Medium",
+    color: "rgba(240,235,248,0.45)",
+  },
+  chipTextActive: { color: "#B855E0" },
+  statsRow: {
+    flexDirection: "row",
+    gap: 12,
+    paddingHorizontal: 20,
+    marginBottom: 4,
+  },
+  statItem: { flex: 1, alignItems: "center", gap: 2 },
+  statCount: { fontSize: 22, fontFamily: "Nunito_700Bold" },
+  statLabel: { fontSize: 10, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)", textTransform: "capitalize", letterSpacing: 0.5 },
+  card: { borderRadius: 16, marginHorizontal: 20 },
+  cardInner: { borderRadius: 16, padding: 16, gap: 10 },
+  cardTop: { flexDirection: "row", alignItems: "center", gap: 8 },
+  severityDot: { width: 8, height: 8, borderRadius: 4 },
+  severityLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.5 },
+  categoryPill: {
+    marginLeft: "auto",
+    backgroundColor: "rgba(124,82,200,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(124,82,200,0.25)",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  categoryText: { fontSize: 10, fontFamily: "Nunito_500Medium", color: "rgba(124,82,200,0.9)" },
+  cardTitle: { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 21 },
+  cardDesc: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.5)", lineHeight: 19 },
+  cardFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 2 },
+  solutionsHint: { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.3)" },
+});
