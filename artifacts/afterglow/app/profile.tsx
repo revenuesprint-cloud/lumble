@@ -75,8 +75,8 @@ function SetPasswordModal({
   visible: boolean;
   onClose: () => void;
 }) {
-  const { register, currentEmail, isLocalSession } = useAuth();
-  const alreadyRegistered = !isLocalSession && !!currentEmail;
+  const { register, currentEmail } = useAuth();
+  const alreadyRegistered = !!currentEmail;
 
   const [email,    setEmail]    = useState(currentEmail || "");
   const [password, setPassword] = useState("");
@@ -357,7 +357,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, partner, isPremium, upgradeToPremium, resetApp } = useApp();
-  const { logout, currentEmail, isLocalSession } = useAuth();
+  const { logout, currentEmail } = useAuth();
   const [showPremiumGate, setShowPremiumGate] = useState(false);
   const [showSetPassword, setShowSetPassword] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -530,12 +530,8 @@ export default function ProfileScreen() {
         <Section title="Account">
           <ActionRow
             icon="key"
-            label={isLocalSession ? "Create an account" : "Account"}
-            sublabel={
-              isLocalSession
-                ? "Back up your data and sign in across devices"
-                : currentEmail ?? "Signed in"
-            }
+            label="Account"
+            sublabel={currentEmail ?? "Signed in"}
             onPress={() => setShowSetPassword(true)}
           />
           <View style={styles.separator} />

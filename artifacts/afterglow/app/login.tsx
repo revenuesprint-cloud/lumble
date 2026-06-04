@@ -373,37 +373,4 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 
-  dividerRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: "rgba(240,235,248,0.07)" },
-  dividerText: {
-    fontSize: 12,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.22)",
-  },
-
-  ghostBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: "rgba(240,235,248,0.04)",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(240,235,248,0.07)",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  ghostText: {
-    fontSize: 14,
-    fontFamily: "Nunito_500Medium",
-    color: "rgba(240,235,248,0.4)",
-  },
-
-  note: {
-    textAlign: "center",
-    fontSize: 12,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.2)",
-    lineHeight: 19,
-  },
 });

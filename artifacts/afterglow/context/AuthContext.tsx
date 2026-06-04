@@ -44,13 +44,11 @@ function isTokenExpired(token: string): boolean {
 interface AuthContextType {
   isAuthenticated: boolean;
   isAuthLoading:   boolean;
-  isLocalSession:  boolean; // true = no real credentials (passwordless local)
   currentEmail:    string | null;
   jwtToken:        string | null;
-  login:            (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  logout:           () => Promise<void>;
-  register:         (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  setSessionDirect: () => Promise<void>;
+  login:    (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout:   () => Promise<void>;
+  register: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -70,7 +68,6 @@ function localHash(str: string): string {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading,   setIsAuthLoading]   = useState(true);
-  const [isLocalSession,  setIsLocalSession]  = useState(false);
   const [currentEmail,    setCurrentEmail]    = useState<string | null>(null);
   const [jwtToken,        setJwtToken]        = useState<string | null>(null);
 
@@ -82,28 +79,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (token) {
         if (isTokenExpired(token)) {
-          // Expired — wipe it so the user is prompted to log in again
+          // Expired — wipe everything so the user is prompted to log in again
           await AsyncStorage.multiRemove([TOKEN_KEY, SESSION_KEY]);
         } else {
           const raw = await AsyncStorage.getItem(SESSION_KEY);
           const session = raw ? JSON.parse(raw) : {};
           setJwtToken(token);
           setIsAuthenticated(true);
-          setIsLocalSession(false);
           setCurrentEmail(session.email ?? null);
         }
-      } else {
-        // Check for a local (passwordless) session
-        const raw = await AsyncStorage.getItem(SESSION_KEY);
-        if (raw) {
-          const session = JSON.parse(raw);
-          if (session.isLoggedIn) {
-            setIsAuthenticated(true);
-            setIsLocalSession(true);
-            setCurrentEmail(session.email ?? null);
-          }
-        }
       }
+      // No token → not authenticated. Any leftover local-only SESSION_KEY data is ignored.
     } catch {}
     setIsAuthLoading(false);
   };
@@ -124,7 +110,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
-        setIsLocalSession(false);
         setCurrentEmail(data.email);
         return { success: true };
       } catch (e: any) {
@@ -132,12 +117,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Local-only fallback
+    // Local-only fallback (dev mode — no API server)
     const creds = { email: trimEmail, passwordHash: localHash(password) };
     await AsyncStorage.setItem("@lumble_creds", JSON.stringify(creds));
     await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ isLoggedIn: true, email: trimEmail }));
     setIsAuthenticated(true);
-    setIsLocalSession(false);
     setCurrentEmail(trimEmail);
     return { success: true };
   }, []);
@@ -152,7 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
-        setIsLocalSession(false);
         setCurrentEmail(data.email);
         return { success: true };
       } catch (e: any) {
@@ -169,7 +152,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (creds.passwordHash !== localHash(password)) return { success: false, error: "Incorrect password." };
       await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ isLoggedIn: true, email: trimEmail }));
       setIsAuthenticated(true);
-      setIsLocalSession(false);
       setCurrentEmail(trimEmail);
       return { success: true };
     } catch {
@@ -178,24 +160,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await AsyncStorage.multiRemove([TOKEN_KEY, SESSION_KEY]);
+    await AsyncStorage.multiRemove([TOKEN_KEY, SESSION_KEY, "@lumble_creds"]);
     setIsAuthenticated(false);
-    setIsLocalSession(false);
     setCurrentEmail(null);
     setJwtToken(null);
   }, []);
 
-  const setSessionDirect = useCallback(async () => {
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ isLoggedIn: true, email: null }));
-    setIsAuthenticated(true);
-    setIsLocalSession(true);
-  }, []);
-
   return (
     <AuthContext.Provider value={{
-      isAuthenticated, isAuthLoading, isLocalSession,
+      isAuthenticated, isAuthLoading,
       currentEmail, jwtToken,
-      login, logout, register, setSessionDirect,
+      login, logout, register,
     }}>
       {children}
     </AuthContext.Provider>

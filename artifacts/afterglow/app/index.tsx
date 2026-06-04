@@ -30,6 +30,6 @@ export default function Index() {
     return <Redirect href="/login" />;
   }
 
-  // Brand new user — no session, no profile → login (they can register or continue anon)
+  // Brand new user — no session, no profile → login to register or sign in
   return <Redirect href="/login" />;
 }
