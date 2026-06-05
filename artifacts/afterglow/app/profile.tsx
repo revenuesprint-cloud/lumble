@@ -375,11 +375,9 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            // logout() sets isAuthenticated=false → AuthGuard in _layout.tsx
-            // detects the change and calls router.replace("/login") globally,
-            // which correctly resets the stack even from inside a modal.
             await logout();
             await resetApp();
+            router.replace("/login");
           },
         },
       ]
@@ -409,10 +407,8 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            // resetApp() sets hasCompletedOnboarding=false → AuthGuard detects
-            // the change and dispatches CommonActions.reset to /onboarding,
-            // clearing the entire navigation stack cleanly from root level.
             await resetApp();
+            router.replace("/onboarding");
           },
         },
       ]

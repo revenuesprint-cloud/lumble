@@ -1,6 +1,8 @@
+import { useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
@@ -8,6 +10,14 @@ import { Platform, StyleSheet, View } from "react-native";
 export default function TabLayout() {
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
+  const { isAuthenticated, isAuthLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading: appLoading } = useApp();
+
+  // Guard: redirect away from tabs if auth state is wrong
+  if (!isAuthLoading && !appLoading) {
+    if (!isAuthenticated) return <Redirect href="/login" />;
+    if (!hasCompletedOnboarding) return <Redirect href="/onboarding" />;
+  }
 
   return (
     <Tabs
