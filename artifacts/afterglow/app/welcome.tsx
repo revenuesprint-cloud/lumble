@@ -7,9 +7,7 @@ import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Image,
-  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,79 +18,46 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export const WELCOME_SEEN_KEY = "@lumble_welcome_seen";
 
 const FEATURES = [
-  {
-    icon: "heart" as const,
-    color: "#E85C7A",
-    title: "Does he actually love me?",
-    desc: "Get a real read on how they feel and why they act the way they do",
-  },
-  {
-    icon: "activity" as const,
-    color: "#B855E0",
-    title: "Why can I not let go?",
-    desc: "Understand what keeps pulling you back and what it says about your patterns",
-  },
-  {
-    icon: "message-circle" as const,
-    color: "#7C52C8",
-    title: "Am I too much for them?",
-    desc: "Ask the questions you are too afraid to say out loud and get honest answers",
-  },
-  {
-    icon: "trending-up" as const,
-    color: "#52C8B8",
-    title: "Are we actually compatible?",
-    desc: "See what flows naturally between you and where the real friction lives",
-  },
+  { icon: "star"          as const, label: "Vedic Astrology" },
+  { icon: "activity"      as const, label: "Compatibility"   },
+  { icon: "message-circle"as const, label: "AI Oracle"       },
+  { icon: "heart"         as const, label: "Healing Journey" },
 ];
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-
+  const router  = useRouter();
   const fadeAnim  = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(30)).current;
-  const orbAnim   = useRef(new Animated.Value(0.8)).current;
+  const slideAnim = useRef(new Animated.Value(24)).current;
+  const orbAnim   = useRef(new Animated.Value(0.75)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 700, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
     ]).start();
-
     const pulse = Animated.loop(
       Animated.sequence([
-        Animated.timing(orbAnim, { toValue: 1,   duration: 2200, useNativeDriver: true }),
-        Animated.timing(orbAnim, { toValue: 0.8, duration: 2200, useNativeDriver: true }),
+        Animated.timing(orbAnim, { toValue: 1,    duration: 2000, useNativeDriver: true }),
+        Animated.timing(orbAnim, { toValue: 0.75, duration: 2000, useNativeDriver: true }),
       ])
     );
     pulse.start();
     return () => pulse.stop();
   }, []);
 
-  const handleGetStarted = async () => {
+  const go = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    await AsyncStorage.setItem(WELCOME_SEEN_KEY, "true");
-    router.replace("/login");
-  };
-
-  const handleSignIn = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await AsyncStorage.setItem(WELCOME_SEEN_KEY, "true");
     router.replace("/login");
   };
 
   return (
     <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={{ flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={[
-          styles.scroll,
-          { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 },
-        ]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Orb + Logo */}
-        <Animated.View style={[styles.heroSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+      <View style={[styles.container, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 20 }]}>
+
+        {/* Hero */}
+        <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Animated.View style={{ opacity: orbAnim }}>
             <Image
               source={require("../assets/images/logo.png")}
@@ -100,168 +65,116 @@ export default function WelcomeScreen() {
               resizeMode="contain"
             />
           </Animated.View>
-
           <Text style={styles.appName}>Lumble</Text>
-          <Text style={styles.tagline}>
-            The app for every question{"\n"}you are afraid to ask out loud
-          </Text>
-          <Text style={styles.subTagline}>
-            Relationship insight built on personality science
-          </Text>
+          <Text style={styles.tagline}>Relationship insights backed{"\n"}by ancient astrology</Text>
         </Animated.View>
 
-        {/* Feature cards */}
-        <Animated.View style={[styles.featuresSection, { opacity: fadeAnim }]}>
+        {/* Feature pills */}
+        <Animated.View style={[styles.pills, { opacity: fadeAnim }]}>
           {FEATURES.map((f, i) => (
-            <FeatureRow key={i} {...f} delay={200 + i * 80} />
+            <View key={i} style={styles.pill}>
+              <Feather name={f.icon} size={14} color="#E85C7A" />
+              <Text style={styles.pillText}>{f.label}</Text>
+            </View>
           ))}
         </Animated.View>
 
         {/* CTA */}
-        <Animated.View style={[styles.ctaSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <TouchableOpacity onPress={handleGetStarted} activeOpacity={0.88} style={styles.getStartedBtn}>
+        <Animated.View style={[styles.cta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+          <TouchableOpacity onPress={go} activeOpacity={0.88} style={styles.btn}>
             <LinearGradient
               colors={["#E85C7A", "#B855E0"]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={styles.getStartedGradient}
+              style={styles.btnGradient}
             >
-              <Text style={styles.getStartedText}>Get Started</Text>
-              <Feather name="arrow-right" size={20} color="#fff" />
+              <Text style={styles.btnText}>Get Started</Text>
+              <Feather name="arrow-right" size={18} color="#fff" />
             </LinearGradient>
           </TouchableOpacity>
 
-          <Pressable onPress={handleSignIn} style={styles.signInRow}>
+          <Pressable onPress={go} style={styles.signInRow}>
             <Text style={styles.signInText}>Already have an account? </Text>
             <Text style={styles.signInLink}>Sign In</Text>
           </Pressable>
         </Animated.View>
-      </ScrollView>
+
+      </View>
     </LinearGradient>
   );
 }
 
-function FeatureRow({
-  icon, color, title, desc, delay,
-}: {
-  icon: React.ComponentProps<typeof Feather>["name"];
-  color: string;
-  title: string;
-  desc: string;
-  delay: number;
-}) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(16)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 500, delay, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 500, delay, useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  return (
-    <Animated.View style={[styles.featureRow, { opacity: fadeAnim, transform: [{ translateX: slideAnim }] }]}>
-      <View style={[styles.featureIconWrap, { backgroundColor: color + "18", borderColor: color + "33" }]}>
-        <Feather name={icon} size={18} color={color} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.featureTitle}>{title}</Text>
-        <Text style={styles.featureDesc}>{desc}</Text>
-      </View>
-    </Animated.View>
-  );
-}
-
 const styles = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
     paddingHorizontal: 24,
-    gap: 32,
+    justifyContent: "space-between",
   },
 
-  heroSection: {
+  hero: {
     alignItems: "center",
-    gap: 12,
-    paddingTop: 8,
+    gap: 10,
+    flex: 1,
+    justifyContent: "center",
   },
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 4,
-  },
-  appName: {
-    fontSize: 44,
-    fontFamily: "Nunito_700Bold",
-    color: "#F0EBF8",
-    letterSpacing: 2,
-  },
-  tagline: {
-    fontSize: 18,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.85)",
-    textAlign: "center",
-    lineHeight: 28,
-  },
-  subTagline: {
-    fontSize: 13,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.35)",
-    textAlign: "center",
-    letterSpacing: 0.5,
-  },
-
-  featuresSection: {
-    gap: 14,
-    backgroundColor: "rgba(26,22,48,0.5)",
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "rgba(240,235,248,0.06)",
-  },
-  featureRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 14,
-  },
-  featureIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  featureTitle: {
-    fontSize: 15,
-    fontFamily: "Nunito_600SemiBold",
-    color: "#F0EBF8",
+    width: 88,
+    height: 88,
     marginBottom: 2,
   },
-  featureDesc: {
-    fontSize: 13,
+  appName: {
+    fontSize: 38,
+    fontFamily: "Nunito_700Bold",
+    color: "#F0EBF8",
+    letterSpacing: 1.5,
+  },
+  tagline: {
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.45)",
-    lineHeight: 19,
+    color: "rgba(240,235,248,0.6)",
+    textAlign: "center",
+    lineHeight: 23,
   },
 
-  ctaSection: {
-    gap: 16,
-    alignItems: "stretch",
+  pills: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "center",
+    paddingVertical: 8,
   },
-  getStartedBtn: {
-    borderRadius: 16,
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(232,92,122,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(232,92,122,0.2)",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  pillText: {
+    fontSize: 13,
+    fontFamily: "Nunito_500Medium",
+    color: "rgba(240,235,248,0.7)",
+  },
+
+  cta: {
+    gap: 12,
+  },
+  btn: {
+    borderRadius: 14,
     overflow: "hidden",
   },
-  getStartedGradient: {
+  btnGradient: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 18,
-    gap: 10,
+    paddingVertical: 16,
+    gap: 8,
   },
-  getStartedText: {
-    fontSize: 17,
+  btnText: {
+    fontSize: 16,
     fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
@@ -272,12 +185,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   signInText: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.35)",
   },
   signInLink: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: "Nunito_600SemiBold",
     color: "rgba(232,92,122,0.8)",
   },
