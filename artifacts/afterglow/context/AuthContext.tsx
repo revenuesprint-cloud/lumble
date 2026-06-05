@@ -1,4 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+// ── Vulnerability 8 (MEDIUM): AsyncStorage is unencrypted plaintext on Android.
+// SecureStore uses iOS Keychain and Android Keystore for the JWT token.
+// Non-sensitive session metadata (email) can stay in AsyncStorage.
+import * as SecureStore from "expo-secure-store";
 import React, {
   createContext,
   useCallback,
@@ -7,8 +11,8 @@ import React, {
   useState,
 } from "react";
 
-const TOKEN_KEY   = "@lumble_token";
-const SESSION_KEY = "@lumble_session";
+const TOKEN_KEY   = "lumble_token";   // SecureStore key (no @ prefix needed)
+const SESSION_KEY = "@lumble_session"; // AsyncStorage — email only, not sensitive
 
 const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
@@ -31,8 +35,11 @@ async function apiPost<T>(path: string, body: Record<string, unknown>, token?: s
 function isTokenExpired(token: string): boolean {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    if (!payload.exp) return false;
-    // Add a 60-second buffer so we refresh slightly before true expiry
+    // ── Vulnerability 7 (MEDIUM): missing exp must be treated as expired, not
+    // valid. A crafted or malformed token without an expiry would otherwise
+    // appear permanently valid on the client side.
+    if (!payload.exp) return true;
+    // 60-second buffer so we re-authenticate slightly before true expiry
     return payload.exp * 1000 < Date.now() + 60_000;
   } catch {
     return true; // malformed token → treat as expired
@@ -85,12 +92,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadSession = async () => {
     try {
-      const token = await AsyncStorage.getItem(TOKEN_KEY);
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
 
       if (token) {
         if (isTokenExpired(token)) {
           // Expired — wipe everything so the user is prompted to log in again
-          await AsyncStorage.multiRemove([TOKEN_KEY, SESSION_KEY]);
+          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          await AsyncStorage.removeItem(SESSION_KEY);
         } else {
           const raw = await AsyncStorage.getItem(SESSION_KEY);
           const session = raw ? JSON.parse(raw) : {};
@@ -99,7 +107,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setCurrentEmail(session.email ?? null);
         }
       }
-      // No token → not authenticated. Any leftover local-only SESSION_KEY data is ignored.
     } catch {}
     setIsAuthLoading(false);
   };
@@ -116,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (API_URL) {
       try {
         const data = await apiPost<{ token: string; email: string }>("/auth/register", { email: trimEmail, password });
-        await AsyncStorage.setItem(TOKEN_KEY, data.token);
+        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
@@ -144,7 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await apiPost<{ token: string; email: string; profile: ServerProfile | null }>(
           "/auth/login", { email: trimEmail, password }
         );
-        await AsyncStorage.setItem(TOKEN_KEY, data.token);
+        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
@@ -172,7 +179,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await AsyncStorage.multiRemove([TOKEN_KEY, SESSION_KEY, "@lumble_creds"]);
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await AsyncStorage.multiRemove([SESSION_KEY, "@lumble_creds"]);
     setIsAuthenticated(false);
     setCurrentEmail(null);
     setJwtToken(null);

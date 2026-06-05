@@ -3,11 +3,12 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db, usersTable, profilesTable } from "@workspace/db";
 import { signToken } from "../lib/auth";
+import { authLimiter } from "../app";
 
 const router = Router();
 
 // ─── Register ─────────────────────────────────────────────────────────────────
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
 
   if (typeof email !== "string" || !email.includes("@") || email.length < 5) {
@@ -43,7 +44,7 @@ router.post("/register", async (req, res) => {
 });
 
 // ─── Login ────────────────────────────────────────────────────────────────────
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
 
   if (typeof email !== "string" || typeof password !== "string") {
