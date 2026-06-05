@@ -26,6 +26,12 @@ const SEVERITY_COLOR: Record<string, string> = {
   mild: "#52C8B8", moderate: "#F5A623", severe: "#E85C7A",
 };
 
+const SEVERITY_MEANING: Record<string, string> = {
+  mild:     "Worth being aware of",
+  moderate: "Actively affecting the dynamic",
+  severe:   "The core tension in this connection",
+};
+
 const SOLUTION_TYPE_META: Record<ChallengeSolution["type"], { icon: string; label: string; color: string }> = {
   practical:     { icon: "tool",            label: "Practical",     color: "#52C8B8" },
   communication: { icon: "message-circle",  label: "Communication", color: "#7C52C8" },
@@ -269,6 +275,9 @@ export default function ChallengeDetailScreen() {
                 <Text style={styles.categoryText}>{challenge.category}</Text>
               </View>
             </View>
+            <Text style={[styles.severityMeaning, { color: severityColor + "AA" }]}>
+              {SEVERITY_MEANING[challenge.severity] ?? ""}
+            </Text>
             <Text style={styles.heroTitle}>{challenge.title}</Text>
             <Text style={styles.heroDesc}>{challenge.description}</Text>
             <View style={styles.matchRow}>
@@ -361,6 +370,7 @@ const styles = StyleSheet.create({
   severityPill: { flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
   severityDot: { width: 7, height: 7, borderRadius: 4 },
   severityText: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.4 },
+  severityMeaning: { fontSize: 12, fontFamily: "Nunito_400Regular", lineHeight: 18, marginTop: -4 },
   categoryPill: { backgroundColor: "rgba(124,82,200,0.12)", borderWidth: 1, borderColor: "rgba(124,82,200,0.25)", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
   categoryText: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "rgba(124,82,200,0.9)" },
   heroTitle: { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 28 },

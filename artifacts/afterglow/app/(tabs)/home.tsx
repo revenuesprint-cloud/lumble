@@ -51,11 +51,8 @@ function EnergyBar({ label, value, color, delay }: EnergyBarProps) {
   });
 
   return (
-    <Animated.View style={{ opacity: opacityAnim, gap: 6 }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Text style={styles.barLabel}>{label}</Text>
-        <Text style={[styles.barValue, { color }]}>{value}</Text>
-      </View>
+    <Animated.View style={{ opacity: opacityAnim, gap: 5 }}>
+      <Text style={styles.barLabel}>{label}</Text>
       <View style={styles.barTrack}>
         <Animated.View style={{ width: widthInterp, height: "100%", overflow: "hidden", borderRadius: 4 }}>
           <LinearGradient
@@ -169,7 +166,7 @@ export default function HomeScreen() {
           <LinearGradient colors={["#1E0D2B", "#110F1E"]} style={styles.heroInner}>
             <View style={styles.heroTopRow}>
               <View style={styles.heroMoonTag}>
-                <Text style={styles.heroMoonTagText}>☽ {hero.moonTag.replace(" + ", " + ☽ ")}</Text>
+                <Text style={styles.heroMoonTagText}>{hero.moonTag}</Text>
               </View>
               <Text style={styles.heroStarDeco}>✦</Text>
             </View>
@@ -457,10 +454,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.5)",
-  },
-  barValue: {
-    fontSize: 12,
-    fontFamily: "Nunito_600SemiBold",
   },
   barTrack: {
     height: 5,

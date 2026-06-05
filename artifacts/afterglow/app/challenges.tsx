@@ -25,6 +25,12 @@ const SEVERITY_COLOR: Record<string, string> = {
   severe:   "#E85C7A",
 };
 
+const SEVERITY_MEANING: Record<string, string> = {
+  mild:     "Worth being aware of",
+  moderate: "Actively affecting the dynamic",
+  severe:   "The core tension in this connection",
+};
+
 const ALL_CATEGORIES = "All";
 const JOURNEY_TABS = ["All", "My Journey", "Working On", "Resolved"] as const;
 
@@ -51,8 +57,11 @@ function ChallengeCard({
       <GlowCard style={styles.card} glowColor={js ? js.color + "18" : color + "22"}>
         <LinearGradient colors={["#1A1630", "#110F1E"]} style={styles.cardInner}>
           <View style={styles.cardTop}>
-            <View style={[styles.severityDot, { backgroundColor: color }]} />
-            <Text style={[styles.severityLabel, { color }]}>{challenge.severity}</Text>
+            <View style={[styles.severityPill, { backgroundColor: color + "14", borderColor: color + "33" }]}>
+              <View style={[styles.severityDot, { backgroundColor: color }]} />
+              <Text style={[styles.severityLabel, { color }]}>{challenge.severity}</Text>
+            </View>
+            <Text style={styles.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
             <View style={styles.categoryPill}>
               <Text style={styles.categoryText}>{challenge.category}</Text>
             </View>
@@ -349,9 +358,11 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 10, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)", textTransform: "capitalize", letterSpacing: 0.5 },
   card: { borderRadius: 16, marginHorizontal: 20 },
   cardInner: { borderRadius: 16, padding: 16, gap: 10 },
-  cardTop: { flexDirection: "row", alignItems: "center", gap: 8 },
-  severityDot: { width: 8, height: 8, borderRadius: 4 },
-  severityLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.5 },
+  cardTop: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
+  severityPill: { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
+  severityDot: { width: 7, height: 7, borderRadius: 4 },
+  severityLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.3 },
+  severityMeaning: { fontSize: 10, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.35)", flex: 1 },
   categoryPill: {
     marginLeft: "auto",
     backgroundColor: "rgba(124,82,200,0.12)",

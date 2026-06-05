@@ -19,6 +19,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// Maps a section score (32–86) to a human label + color
+function sectionLabel(score: number): { text: string; color: string } {
+  if (score >= 72) return { text: "Strong",       color: "#52C8B8" };
+  if (score >= 57) return { text: "Good",         color: "#52C8B8" };
+  if (score >= 44) return { text: "Building",     color: "#F5A623" };
+  return              { text: "Needs work",   color: "#E85C7A" };
+}
+
 // score is 0–36 (actual guna total)
 function OverallScore({ score }: { score: number }) {
   const countAnim = useRef(new Animated.Value(0)).current;
@@ -47,8 +55,9 @@ function OverallScore({ score }: { score: number }) {
         style={styles.scoreOrb}
       >
         <Text style={[styles.scoreNumber, { color }]}>{displayPct}<Text style={styles.scoreMax}>%</Text></Text>
-        <Text style={styles.scoreLabel}>Connection Score</Text>
+        <Text style={styles.scoreLabel}>Overall compatibility</Text>
         <Text style={[styles.scoreVerdict, { color }]}>{verdict}</Text>
+        <Text style={styles.scoreHint}>based on how your personalities align</Text>
       </LinearGradient>
     </Animated.View>
   );
@@ -93,7 +102,14 @@ function SectionCard({
                 <View style={[styles.sectionDotCore, { backgroundColor: section.color }]} />
               </View>
               <Text style={styles.sectionLabel}>{section.label}</Text>
-              <Text style={[styles.sectionScore, { color: section.color }]}>{section.score}</Text>
+              {(() => {
+                const lbl = sectionLabel(section.score);
+                return (
+                  <View style={[styles.scoreLabelChip, { backgroundColor: lbl.color + "18", borderColor: lbl.color + "44" }]}>
+                    <Text style={[styles.scoreLabelText, { color: lbl.color }]}>{lbl.text}</Text>
+                  </View>
+                );
+              })()}
             </View>
 
             <AnimatedBar
@@ -326,9 +342,22 @@ const styles = StyleSheet.create({
     fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
-  sectionScore: {
-    fontSize: 22,
-    fontFamily: "Nunito_700Bold",
+  scoreLabelChip: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  scoreLabelText: {
+    fontSize: 12,
+    fontFamily: "Nunito_600SemiBold",
+  },
+  scoreHint: {
+    fontSize: 11,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.3)",
+    marginTop: 2,
+    textAlign: "center",
   },
   sectionText: {
     fontSize: 14,

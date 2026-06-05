@@ -650,8 +650,8 @@ export function getPersonalizedHero(
   const uRashi = RASHIS[reading.user.moonRashi];
   const pRashi = RASHIS[reading.partner.moonRashi];
 
-  const headline = `Your ${uRashi.en} Moon — Today`;
-  const moonTag  = `${uRashi.en} + ${pRashi.en}`;
+  const headline = `Today's read`;
+  const moonTag  = `${uRashi.element} · ${pRashi.element}`;
   const eKey     = elementKey(uRashi.element, pRashi.element);
 
   const variants = buildHeroPool(

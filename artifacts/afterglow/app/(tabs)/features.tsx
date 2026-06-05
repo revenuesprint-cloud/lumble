@@ -87,13 +87,10 @@ function FeatureCard({
 
           {!isLocked ? (
             <>
-              <View style={styles.scoreRow}>
-                <View style={[styles.scorePill, { borderColor: color + "55" }]}>
-                  <Text style={[styles.scorePillText, { color }]}>{feature.score}</Text>
-                </View>
-                <View style={[styles.scoreTrack, { backgroundColor: color + "22" }]}>
-                  <View style={[styles.scoreFill, { width: `${feature.score}%`, backgroundColor: color }]} />
-                </View>
+              <View style={[styles.intensityChip, { backgroundColor: color + "16", borderColor: color + "44" }]}>
+                <Text style={[styles.intensityText, { color }]}>
+                  {feature.score >= 70 ? "High" : feature.score >= 52 ? "Moderate" : "Low"}
+                </Text>
               </View>
               <Text style={styles.cardPreview} numberOfLines={3}>
                 {feature.text}
@@ -254,30 +251,18 @@ const styles = StyleSheet.create({
     color: "#F0EBF8",
     lineHeight: 20,
   },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  scorePill: {
+  intensityChip: {
+    alignSelf: "flex-start",
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 7,
-    paddingVertical: 2,
+    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
   },
-  scorePillText: {
-    fontSize: 13,
-    fontFamily: "Nunito_700Bold",
-  },
-  scoreTrack: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  scoreFill: {
-    height: "100%",
-    borderRadius: 2,
+  intensityText: {
+    fontSize: 11,
+    fontFamily: "Nunito_600SemiBold",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   cardPreview: {
     fontSize: 11,
