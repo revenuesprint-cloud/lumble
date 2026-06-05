@@ -1,5 +1,8 @@
 import { useApp } from "@/context/AppContext";
 import { useAuth, type ServerProfile } from "@/context/AuthContext";
+import { fetchJourney } from "@/utils/dbContent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -119,6 +122,19 @@ export default function LoginScreen() {
           { name: serverProfile.userName, birthDate: serverProfile.userBirthDate, birthTime: serverProfile.userBirthTime ?? undefined },
           { name: serverProfile.partnerName, birthDate: serverProfile.partnerBirthDate, relationshipType: serverProfile.relationshipType as any },
         );
+        // Sync journey states so challenges screen shows correct progress immediately.
+        // Read token from SecureStore directly — jwtToken state may not have updated yet.
+        SecureStore.getItemAsync("lumble_token").then((token) => {
+          if (!token) return;
+          return fetchJourney(token).then((journey) => {
+            if (journey.length === 0) return;
+            const states: Record<string, string> = {};
+            for (const entry of journey) {
+              if (entry.problem?.id) states[entry.problem.id] = entry.state;
+            }
+            return AsyncStorage.setItem("@lumble_challenge_states", JSON.stringify(states));
+          });
+        }).catch(() => {});
         router.replace("/(tabs)/home");
       } else {
         // Account exists but no profile yet — clear stale local data, go to onboarding
@@ -152,12 +168,6 @@ export default function LoginScreen() {
         >
           {/* Logo */}
           <View style={styles.logoArea}>
-            <LinearGradient
-              colors={["rgba(232,92,122,0.2)", "rgba(184,85,224,0.1)"]}
-              style={styles.logoOrb}
-            >
-              <Text style={styles.logoGlyph}>◉</Text>
-            </LinearGradient>
             <Text style={styles.appName}>Lumble</Text>
             <Text style={styles.tagline}>{greeting}</Text>
           </View>

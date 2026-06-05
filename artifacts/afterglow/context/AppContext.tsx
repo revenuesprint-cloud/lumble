@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import React, {
   createContext,
   useCallback,
@@ -8,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import type { Challenge } from "@/utils/challenges";
+import { fetchJourney } from "@/utils/dbContent";
 
 export type RelationshipType = "crush" | "situationship" | "relationship" | "ex";
 
@@ -102,14 +104,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setHasCompletedOnboarding(!!data.user && !!data.partner);
       }
 
-      // Sync premium status from server (fire-and-forget, don't block boot)
+      // Sync server state (premium + journey) — fire-and-forget, don't block boot
       if (API_URL) {
-        const token = await AsyncStorage.getItem("@lumble_token");
+        // Token is in SecureStore (moved from AsyncStorage for security)
+        const token = await SecureStore.getItemAsync("lumble_token").catch(() => null);
         if (token) {
+          // 1. Premium status
           const me = await apiRequest("GET", "/me", undefined, token).catch(() => null) as any;
           if (me?.profile?.isPremium) {
             setIsPremium(true);
-            // Persist updated premium flag locally
             if (raw) {
               const data = JSON.parse(raw);
               if (!data.isPremium) {
@@ -117,6 +120,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                 await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
               }
             }
+          }
+
+          // 2. Journey states — sync from server so challenge progress
+          //    is consistent across devices and after re-installs
+          const journey = await fetchJourney(token);
+          if (journey.length > 0) {
+            const states: Record<string, string> = {};
+            for (const entry of journey) {
+              if (entry.problem?.id) states[entry.problem.id] = entry.state;
+            }
+            await AsyncStorage.setItem("@lumble_challenge_states", JSON.stringify(states));
           }
         }
       }
@@ -209,7 +223,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [user, partner, guidanceMessages, saveData]);
 
   const resetApp = useCallback(async () => {
-    await AsyncStorage.multiRemove([STORAGE_KEY, CHALLENGES_STORAGE_KEY]);
+    await AsyncStorage.multiRemove([
+      STORAGE_KEY,
+      CHALLENGES_STORAGE_KEY,
+      "@lumble_challenge_states",
+      "@lumble_journey",
+      "@lumble_content_daily",
+      "@lumble_questions",
+    ]);
     setUser(null);
     setPartner(null);
     setHasCompletedOnboarding(false);
