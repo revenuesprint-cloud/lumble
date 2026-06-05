@@ -20,28 +20,28 @@ export const WELCOME_SEEN_KEY = "@lumble_welcome_seen";
 
 const FEATURES = [
   {
-    icon: "star" as const,
-    color: "#F5A623",
-    title: "Vedic Compatibility",
-    desc: "Kundli-based matching across 36 gunas, doshas, and planetary alignments",
+    icon: "heart" as const,
+    color: "#E85C7A",
+    title: "Does he actually love me?",
+    desc: "Get a real read on how they feel and why they act the way they do",
   },
   {
     icon: "activity" as const,
-    color: "#E85C7A",
-    title: "Relationship Patterns",
-    desc: "Understand the emotional and communication dynamics shaping your bond",
+    color: "#B855E0",
+    title: "Why can I not let go?",
+    desc: "Understand what keeps pulling you back and what it says about your patterns",
   },
   {
     icon: "message-circle" as const,
-    color: "#B855E0",
-    title: "AI Oracle Guide",
-    desc: "Ask anything — get answers rooted in your unique astrological profile",
+    color: "#7C52C8",
+    title: "Am I too much for them?",
+    desc: "Ask the questions you are too afraid to say out loud and get honest answers",
   },
   {
-    icon: "heart" as const,
+    icon: "trending-up" as const,
     color: "#52C8B8",
-    title: "Healing Journey",
-    desc: "Acknowledge patterns and track your progress toward resolution",
+    title: "Are we actually compatible?",
+    desc: "See what flows naturally between you and where the real friction lives",
   },
 ];
 
@@ -102,17 +102,17 @@ export default function WelcomeScreen() {
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.orb}
               >
-                <Text style={styles.orbGlyph}>◉</Text>
+                <Text style={styles.orbGlyph}>L</Text>
               </LinearGradient>
             </LinearGradient>
           </Animated.View>
 
           <Text style={styles.appName}>Lumble</Text>
           <Text style={styles.tagline}>
-            Understand your connection{"\n"}through the lens of the stars
+            The app for every question{"\n"}you are afraid to ask out loud
           </Text>
           <Text style={styles.subTagline}>
-            Ancient astrology meets modern insight
+            Relationship insight built on personality science
           </Text>
         </Animated.View>
 

@@ -195,20 +195,20 @@ function buildContext(
 // ─── Follow-up suggestions per intent ────────────────────────────────────────
 
 export const FOLLOW_UP_SUGGESTIONS: Partial<Record<Intent, string[]>> = {
-  misses_me:   ["Will they come back?",             "Should I reach out?",                "How do I stop thinking about them?"],
-  loves_me:    ["Are we right for each other?",     "Why does it feel complicated?",      "What should I do next?"],
-  come_back:   ["How do I know if things changed?", "Is it worth trying again?",          "What if they reach out first?"],
-  should_text: ["What should I actually say?",      "What if they do not reply?",         "Am I overthinking this?"],
-  why_left:    ["Will they come back?",             "How do I move on?",                  "Was it something I did?"],
-  why_fight:   ["How do we break the cycle?",       "Are we actually compatible?",        "How do I communicate better with them?"],
-  compatible:  ["What does our future look like?",  "Where do we have the most friction?","Is this worth fighting for?"],
-  move_on:     ["Why do I still feel attached?",    "How do I start again?",              "Is it okay to still care?"],
-  future:      ["Is this meant to last?",           "What am I missing right now?",       "How do I know if they are the one?"],
-  addicted:    ["Why do I keep going back?",        "How do I break this pattern?",       "Is this love or just attachment?"],
-  confused:    ["Why the mixed signals?",           "Should I ask them directly?",        "Am I imagining this?"],
-  red_flag:    ["Is this toxic?",                   "Should I leave?",                    "Can it get better?"],
-  timing:      ["How much longer should I wait?",   "Is the timing ever going to be right?","What do I do in the meantime?"],
-  general:     ["Does this have a future?",         "What does my chart say about love?", "What should I focus on right now?"],
+  misses_me:   ["Do they actually want me or just the memory?",  "Should I reach out or wait?",              "Why can I not stop waiting for a sign?"],
+  loves_me:    ["Am I just convenient for them?",                "Why does it feel one sided?",              "Do they see me or just what I give them?"],
+  come_back:   ["How do I know if things actually changed?",     "Am I going back because I love them or because I am scared to move on?", "What does a real second chance actually require?"],
+  should_text: ["What if reaching out makes me look desperate?", "Am I overthinking this or is my gut right?", "What do I actually want to say?"],
+  why_left:    ["Was it something I did or who I am?",           "Am I always the one who gets left?",        "How do I stop replaying it?"],
+  why_fight:   ["Are we fighting about the real thing?",         "Do they actually respect me?",             "Is this fixable or are we just not right?"],
+  compatible:  ["Am I settling?",                                "Are we compatible or just attached?",       "Can real love feel this complicated?"],
+  move_on:     ["Why does it still feel like grief?",            "Am I allowed to still miss them?",          "How do I stop checking their profile?"],
+  future:      ["Am I wasting time on the wrong person?",        "Will someone actually choose me and stay?", "Is it naive to still have hope?"],
+  addicted:    ["Is this love or am I just scared to be alone?", "Why do I always go back even when I know better?", "How do I break a pattern I have had my whole life?"],
+  confused:    ["Am I reading too much into this?",              "Why are they so unclear?",                  "Do I even know what I want anymore?"],
+  red_flag:    ["Am I being manipulated?",                       "Why do I keep making excuses for them?",    "Is what I feel real or just fear of being alone?"],
+  timing:      ["How long is too long to wait?",                 "Am I being patient or just avoiding the truth?", "What if the timing is never right?"],
+  general:     ["Am I enough for someone like them?",            "Why is love always this hard for me?",      "What do I actually deserve?"],
 };
 
 export function getIntentFromMessage(text: string): Intent {

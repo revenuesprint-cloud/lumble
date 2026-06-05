@@ -278,7 +278,6 @@ export default function Onboarding() {
   const steps = [
     // Step 0: Welcome
     <View key={0} style={styles.stepContainer}>
-      <Text style={styles.welcomeEye}>◉</Text>
       <Text style={styles.appName}>Lumble</Text>
       <Text style={styles.tagline}>
         Understand your connection{"\n"}through personality and emotional patterns

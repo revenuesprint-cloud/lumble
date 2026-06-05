@@ -450,6 +450,7 @@ export const REL_TYPE_DYNAMICS: Record<string, RelTypeDynamic> = {
 // 8+ responses per intent, all hardcoded, selected deterministically by
 // hash(intent + userNakshatra + partnerNakshatra + messageLengthBucket)
 
+
 export const ORACLE_LIBRARY: Record<string, string[]> = {
   misses_me: [
     "{{p}}'s emotional pattern is one that {{pNakPattern}}. That kind of attachment doesn't switch off cleanly. Something of you is still present in them — but carrying someone and being ready to act on it are two different things. The more useful question: what would you do with a yes? Because what you'd do reveals something about where you actually are right now — not just where they are.",

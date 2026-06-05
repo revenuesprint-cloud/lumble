@@ -32,33 +32,33 @@ type Mode = "browse" | "ask";
 
 const LOCAL_QUESTIONS: QuestionsResult = {
   about_them: [
-    { id:"l1", title:"Why do they pull away when things get good?", body:"Their Moon sign goes into self-protection mode exactly when closeness peaks. It is not about you. It is about their fear of how much they feel.", meta:{ question:"Why do they pull away when things get good?", shortAnswer:"Scared of how much they feel.", category:"about_them", icon:"💨" }, tags:["universal"], match_score:1 },
-    { id:"l2", title:"Do they actually miss me?", body:"Yes, but missing someone and being ready to do something about it are completely different things.", meta:{ question:"Do they actually miss me?", shortAnswer:"Yes, but not in a way that changes anything yet.", category:"about_them", icon:"💭" }, tags:["universal"], match_score:1 },
-    { id:"l3", title:"Why do they go hot and cold?", body:"Hot and cold behaviour almost always means someone is attracted to you but scared of what that attraction means for them.", meta:{ question:"Why do they go hot and cold?", shortAnswer:"Attracted but scared.", category:"about_them", icon:"🌡️" }, tags:["universal"], match_score:1 },
-    { id:"l4", title:"Are they losing interest?", body:"Reduced energy does not always mean reduced interest. But if the pattern has lasted more than 3 weeks with no explanation, that is different information.", meta:{ question:"Are they losing interest?", shortAnswer:"Look at the pattern, not just today.", category:"about_them", icon:"📉" }, tags:["universal"], match_score:1 },
-    { id:"l5", title:"Why did they ghost me?", body:"Ghosting is almost always about the person who ghosted being unable to handle conflict. It is not about your worth.", meta:{ question:"Why did they ghost me?", shortAnswer:"Their avoidance, not your worth.", category:"about_them", icon:"👻" }, tags:["universal"], match_score:1 },
+    { id:"l1", title:"Do they actually want me or just the attention?", body:"There is a real difference between someone who wants you and someone who wants what you give them. The clearest signal is how they show up when it costs them something. Not in the easy moments. When it is inconvenient.", meta:{ question:"Do they actually want me or just the attention?", shortAnswer:"Look at what they do when it costs them something.", category:"about_them", icon:"💭" }, tags:["universal"], match_score:1 },
+    { id:"l2", title:"Why do they go hot and cold?", body:"Hot and cold is almost always someone who is genuinely drawn to you but terrified of what that means for them. They move closer when fear drops. They pull back when it rises. It is not about your worth. It is about their internal conflict.", meta:{ question:"Why do they go hot and cold?", shortAnswer:"Attracted but scared of what that means.", category:"about_them", icon:"🌡️" }, tags:["universal"], match_score:1 },
+    { id:"l3", title:"Why do they treat me like an option and not a priority?", body:"People treat you the way they believe you will accept. If you have accepted being an option, they have no reason to change that. The only shift that works is making your expectations clear and then actually acting on them.", meta:{ question:"Why do they treat me like an option and not a priority?", shortAnswer:"People rise to what you require of them.", category:"about_them", icon:"📉" }, tags:["universal"], match_score:1 },
+    { id:"l4", title:"Do they miss me?", body:"Yes. But missing you and being ready to do something about it are completely different things. You can be on someone's mind every day and still not be someone they choose. The question that matters more is what you would do with a yes.", meta:{ question:"Do they miss me?", shortAnswer:"Yes, but missing you does not mean choosing you.", category:"about_them", icon:"🔍" }, tags:["universal"], match_score:1 },
+    { id:"l5", title:"Are they talking to someone else?", body:"This question usually gets asked when your instincts are already telling you something. Your gut is not always right but it is rarely completely wrong. What specific behaviour triggered this question? That data matters more than any answer you can be given.", meta:{ question:"Are they talking to someone else?", shortAnswer:"Your instincts noticed something. What specifically?", category:"about_them", icon:"👁️" }, tags:["universal"], match_score:1 },
   ],
   about_you: [
-    { id:"l6", title:"Am I the problem in this relationship?", body:"Asking this question usually means you are not. Truly toxic people rarely ask it. You have patterns worth looking at. That is different from being the problem.", meta:{ question:"Am I the problem in this relationship?", shortAnswer:"Probably not. But you have patterns worth looking at.", category:"about_you", icon:"🪞" }, tags:["universal"], match_score:1 },
-    { id:"l7", title:"Why do I keep falling for unavailable people?", body:"Your Moon sign finds familiarity in emotional inconsistency. Somewhere early in life, inconsistent love was the only love available. This is a pattern and it can change.", meta:{ question:"Why do I keep falling for unavailable people?", shortAnswer:"Familiarity with inconsistency. This is rewritable.", category:"about_you", icon:"🎯" }, tags:["universal"], match_score:1 },
-    { id:"l8", title:"Why can I not stop thinking about them?", body:"Your attachment runs deep. The obsessive thoughts are your nervous system trying to resolve something that did not get a clean ending.", meta:{ question:"Why can I not stop thinking about them?", shortAnswer:"Deep attachment needs a productive direction.", category:"about_you", icon:"🌀" }, tags:["universal"], match_score:1 },
-    { id:"l9", title:"Am I too much for them?", body:"You are not too much. You are the right amount for the wrong person.", meta:{ question:"Am I too much for them?", shortAnswer:"You are not too much. They are not enough.", category:"about_you", icon:"🌋" }, tags:["universal"], match_score:1 },
-    { id:"l10", title:"Why do I always feel like I care more?", body:"You might care equally but differently. Ask yourself: is this person actually matching your depth, or just benefiting from it?", meta:{ question:"Why do I always feel like I care more?", shortAnswer:"You might care equally. Or you might be right.", category:"about_you", icon:"⚖️" }, tags:["universal"], match_score:1 },
+    { id:"l6", title:"Am I too needy?", body:"Needing connection is not the same as being needy. Needy means you require constant reassurance because you do not trust that you are wanted. The real question is whether your needs are reasonable or whether you are asking one person to fill something that needs to come from inside you.", meta:{ question:"Am I too needy?", shortAnswer:"Needing love is normal. Requiring constant proof of it is the thing to look at.", category:"about_you", icon:"🪞" }, tags:["universal"], match_score:1 },
+    { id:"l7", title:"Why do I always feel like I care more?", body:"Sometimes you do care more and you are just right about that. Other times you care equally but your styles are so different that theirs is invisible. The way to know which it is: does their care show up in how they treat you when it costs them something, or only when it is easy?", meta:{ question:"Why do I always feel like I care more?", shortAnswer:"Sometimes you are right. Sometimes their care just looks different.", category:"about_you", icon:"⚖️" }, tags:["universal"], match_score:1 },
+    { id:"l8", title:"Why can I not stop thinking about them?", body:"Your attachment is real and your nervous system is trying to resolve something that never got a clean ending. The thoughts are not weakness. They are your brain looking for a conclusion. The only way through is to give the story an ending yourself, not to wait for one from them.", meta:{ question:"Why can I not stop thinking about them?", shortAnswer:"Your brain needs a conclusion. You have to write it yourself.", category:"about_you", icon:"🌀" }, tags:["universal"], match_score:1 },
+    { id:"l9", title:"Am I worthy of real love?", body:"Yes. That is the answer. But asking this question means somewhere you were taught that love is something you earn rather than something you receive. That belief runs your relationships more than any feeling you have for any specific person. That is the actual thing to look at.", meta:{ question:"Am I worthy of real love?", shortAnswer:"Yes. But the fact that you are asking shows where the real work is.", category:"about_you", icon:"💙" }, tags:["universal"], match_score:1 },
+    { id:"l10", title:"Why do I self-sabotage when things are finally going well?", body:"When things feel good in a relationship and you find yourself creating distance or problems, you are not broken. You are reacting to an unconscious belief that good things do not last for you. Closeness is triggering your fear of loss before the loss has even happened.", meta:{ question:"Why do I self-sabotage when things are finally going well?", shortAnswer:"Closeness triggers fear of losing what you finally have.", category:"about_you", icon:"🔥" }, tags:["universal"], match_score:1 },
   ],
   what_to_do: [
-    { id:"l11", title:"Should I reach out first?", body:"Reach out if you have something genuine to say. Not to test them. Not strategically. Just because you want to say something real.", meta:{ question:"Should I reach out first?", shortAnswer:"Only if you have something real to say.", category:"what_to_do", icon:"📲" }, tags:["universal"], match_score:1 },
-    { id:"l12", title:"Should I give them another chance?", body:"Second chances work when something genuinely changed, not when time just passed. Can you name exactly what is different now?", meta:{ question:"Should I give them another chance?", shortAnswer:"Only if something specific has changed.", category:"what_to_do", icon:"🎲" }, tags:["universal"], match_score:1 },
-    { id:"l13", title:"Should I tell them how I feel?", body:"Unexpressed feelings become either resentment or obsession. Say what you feel simply, without making it an ultimatum.", meta:{ question:"Should I tell them how I feel?", shortAnswer:"Say it without an ultimatum.", category:"what_to_do", icon:"💬" }, tags:["universal"], match_score:1 },
-    { id:"l14", title:"How do I let go when there was no closure?", body:"Closure is a myth. You cannot get it from the person who caused the pain. You can only create it for yourself. Write the letter. Burn it. That is the closure.", meta:{ question:"How do I let go when there was no closure?", shortAnswer:"Closure comes from you, not from them.", category:"what_to_do", icon:"🕊️" }, tags:["universal"], match_score:1 },
+    { id:"l11", title:"Should I reach out?", body:"Only if you have something real to say. Not to test them. Not to see if they will respond. Not because you cannot stand the silence. If you have a genuine thing to communicate, say it directly. If the real goal is just to feel close again, that answer does not come from a text.", meta:{ question:"Should I reach out?", shortAnswer:"Only if you have something real to say.", category:"what_to_do", icon:"📲" }, tags:["universal"], match_score:1 },
+    { id:"l12", title:"How do I stop overthinking everything?", body:"Overthinking is anxiety wearing the clothes of logic. You are not trying to figure something out. You are trying to feel safe. The only thing that interrupts it is action: ask the question, say the thing, make the decision. Staying in your head is just a way of avoiding the answer you are afraid of.", meta:{ question:"How do I stop overthinking everything?", shortAnswer:"Overthinking is avoiding an answer you are scared of.", category:"what_to_do", icon:"🧠" }, tags:["universal"], match_score:1 },
+    { id:"l13", title:"Should I tell them how I feel?", body:"Yes, if you have been holding it and it is affecting how you show up. Say it simply, without making it a test or an ultimatum. The point is not to get the response you want. The point is to stop carrying something alone that deserves to be said.", meta:{ question:"Should I tell them how I feel?", shortAnswer:"Yes. Say it without an ultimatum.", category:"what_to_do", icon:"💬" }, tags:["universal"], match_score:1 },
+    { id:"l14", title:"How do I walk away from someone I still love?", body:"You do not wait until you stop loving them. You walk away when you accept that loving someone and being right for each other are different things. The love does not have to go away for the decision to be right. You can grieve someone you chose to leave.", meta:{ question:"How do I walk away from someone I still love?", shortAnswer:"You do not wait until you stop loving them.", category:"what_to_do", icon:"🕊️" }, tags:["universal"], match_score:1 },
   ],
   patterns: [
-    { id:"l15", title:"Is this a trauma bond or real love?", body:"Real love expands you. Trauma bonds shrink you. If the connection makes you feel more like yourself, it is love. If it makes you feel like you need to earn the good moments, it is a bond built on pain.", meta:{ question:"Is this a trauma bond or real love?", shortAnswer:"Real love expands you. Trauma bonds shrink you.", category:"patterns", icon:"🔬" }, tags:["universal"], match_score:1 },
-    { id:"l16", title:"Are we compatible or just comfortable?", body:"Comfort can look like compatibility from the inside. When you imagine the best version of your life, are they in it? Or do they just fit the version you have settled into?", meta:{ question:"Are we compatible or just comfortable?", shortAnswer:"Comfort is real. Compatible means growing together.", category:"patterns", icon:"🛋️" }, tags:["universal"], match_score:1 },
-    { id:"l17", title:"Why does this feel addictive even though it hurts?", body:"Unpredictable rewards are the most powerful pattern for creating addiction. The highs feel higher because of the lows. Your brain keeps chasing the high.", meta:{ question:"Why does this feel addictive even though it hurts?", shortAnswer:"Unpredictable rewards create the strongest pulls.", category:"patterns", icon:"💊" }, tags:["universal"], match_score:1 },
+    { id:"l15", title:"Is this love or am I just attached?", body:"Real love wants what is best for the other person even when that costs you something. Attachment wants them present regardless of whether it is good for either of you. The test is simple: do you want them to be happy, or do you want them to be yours? They are not always the same thing.", meta:{ question:"Is this love or am I just attached?", shortAnswer:"Do you want them happy or just present?", category:"patterns", icon:"🔬" }, tags:["universal"], match_score:1 },
+    { id:"l16", title:"Why does this keep hurting but I cannot leave?", body:"Unpredictable rewards create stronger attachment than consistent ones. The moments when it is good feel extraordinary precisely because of the uncertainty around them. Your brain has learned to call that intensity love. That is not a personal failing. It is a pattern, and patterns can change.", meta:{ question:"Why does this keep hurting but I cannot leave?", shortAnswer:"Unpredictable rewards create the strongest attachment.", category:"patterns", icon:"💊" }, tags:["universal"], match_score:1 },
+    { id:"l17", title:"Am I repeating the same relationship with different people?", body:"If you keep ending up in the same dynamic with different people, the common factor is the pattern you carry, not the people you choose. What feels familiar is not always what is good. Sometimes familiar is just the version of love you learned to recognise first.", meta:{ question:"Am I repeating the same relationship with different people?", shortAnswer:"The common factor is the pattern, not the people.", category:"patterns", icon:"🔄" }, tags:["universal"], match_score:1 },
   ],
   big_picture: [
-    { id:"l18", title:"Is this worth fighting for?", body:"Worth fighting for means: the best version of this relationship is worth the cost of the worst moments. Answer honestly, not hopefully.", meta:{ question:"Is this worth fighting for?", shortAnswer:"Is the best version worth the cost of the worst moments?", category:"big_picture", icon:"⚔️" }, tags:["universal"], match_score:1 },
-    { id:"l19", title:"Why does love feel so hard for me?", body:"Love feels hard when there is a gap between what you believe you deserve and what you actually want. Your sensitivity is the same thing that makes you capable of extraordinary love.", meta:{ question:"Why does love feel so hard for me?", shortAnswer:"You feel the gap between real and performed love.", category:"big_picture", icon:"💙" }, tags:["universal"], match_score:1 },
+    { id:"l18", title:"Will I ever find someone who actually stays?", body:"Yes. But the question underneath that one is usually: am I the kind of person that someone who is right for me would choose? That is different from asking whether you are enough. It is asking whether you are showing up in a way that is honest about what you actually want.", meta:{ question:"Will I ever find someone who actually stays?", shortAnswer:"Yes. The question is whether you are showing up honestly.", category:"big_picture", icon:"⭐" }, tags:["universal"], match_score:1 },
+    { id:"l19", title:"Why is love always this hard for me?", body:"Love feels hard when there is a gap between what you believe you deserve and what you actually want. If part of you believes you have to earn love, then every relationship becomes a test you are always afraid of failing. That belief is the thing to address. Not the relationship.", meta:{ question:"Why is love always this hard for me?", shortAnswer:"The gap between what you believe you deserve and what you want.", category:"big_picture", icon:"💙" }, tags:["universal"], match_score:1 },
   ],
 };
 
@@ -193,7 +193,7 @@ function TypingIndicator() {
 
   return (
     <View style={styles.typingRow}>
-      <View style={styles.botAvatar}><Text style={styles.botAvatarText}>◉</Text></View>
+      <View style={styles.botAvatar}><Text style={styles.botAvatarText}>L</Text></View>
       <View style={styles.typingBubble}>
         {dots.map((dot, i) => (
           <Animated.View key={i} style={[styles.typingDot, { opacity: dot }]} />
@@ -245,9 +245,9 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
 
   return (
     <Animated.View style={[styles.bubbleRow, styles.bubbleRowBot, { opacity: fadeAnim }]}>
-      <View style={styles.botAvatar}><Text style={styles.botAvatarText}>◉</Text></View>
+      <View style={styles.botAvatar}><Text style={styles.botAvatarText}>L</Text></View>
       <View style={[styles.bubble, styles.bubbleBot]}>
-        <View style={styles.botLabel}><Text style={styles.botLabelText}>Lumble Guide</Text></View>
+        <View style={styles.botLabel}><Text style={styles.botLabelText}>Lumble</Text></View>
         <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
           <Text style={[styles.bubbleText, styles.bubbleTextBot]}>{displayed}</Text>
           {!isDone && (
@@ -275,9 +275,9 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
 
   return (
     <Animated.View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowBot, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-      {!isUser && <View style={styles.botAvatar}><Text style={styles.botAvatarText}>◉</Text></View>}
+      {!isUser && <View style={styles.botAvatar}><Text style={styles.botAvatarText}>L</Text></View>}
       <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
-        {!isUser && <View style={styles.botLabel}><Text style={styles.botLabelText}>Lumble Guide</Text></View>}
+        {!isUser && <View style={styles.botLabel}><Text style={styles.botLabelText}>Lumble</Text></View>}
         <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextBot]}>{message.text}</Text>
       </View>
     </Animated.View>
@@ -407,9 +407,9 @@ export default function GuidanceScreen() {
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerOrb}><Text style={styles.headerOrbText}>◉</Text></View>
+            <View style={styles.headerOrb}><Text style={styles.headerOrbText}>L</Text></View>
             <View>
-              <Text style={styles.headerTitle}>Guide</Text>
+              <Text style={styles.headerTitle}>Lumble Guide</Text>
               <Text style={styles.headerSub}>{user.name} and {partner.name}</Text>
             </View>
           </View>
@@ -450,12 +450,9 @@ export default function GuidanceScreen() {
             {!hasMessages ? (
               <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.emptyScroll, { paddingBottom: tabBarHeight + 80 }]} showsVerticalScrollIndicator={false}>
                 <View style={styles.emptyAsk}>
-                  <LinearGradient colors={["rgba(232,92,122,0.15)", "rgba(184,85,224,0.08)", "transparent"]} style={styles.oracleOrb}>
-                    <Text style={styles.oracleGlyph}>◉</Text>
-                  </LinearGradient>
-                  <Text style={styles.oracleLabel}>ORACLE</Text>
+                  <Text style={styles.lumbleWordmark}>Lumble</Text>
                   <Text style={styles.emptyTitle}>What is on your mind?</Text>
-                  <Text style={styles.emptySub}>Ask anything about this connection.{"\n"}Answers are shaped by your personality profiles and compatibility patterns.</Text>
+                  <Text style={styles.emptySub}>Ask the question you are too afraid to say out loud.{"\n"}Get an honest answer based on who you both actually are.</Text>
                   <View style={styles.emptyChips}>
                     {quickChips.slice(0, 4).map((chip, i) => (
                       <TouchableOpacity key={i} onPress={() => sendMessage(chip)} style={styles.emptyChip} activeOpacity={0.75}>
@@ -623,9 +620,7 @@ const styles = StyleSheet.create({
   // Ask empty state
   emptyScroll:   { flexGrow: 1, paddingHorizontal: 20 },
   emptyAsk:      { paddingTop: 24, gap: 16, alignItems: "center" },
-  oracleOrb:     { width: 80, height: 80, borderRadius: 40, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(232,92,122,0.15)" },
-  oracleGlyph:   { fontSize: 32, color: "#E85C7A" },
-  oracleLabel:   { fontSize: 10, fontFamily: "Nunito_700Bold", color: "rgba(232,92,122,0.4)", letterSpacing: 3 },
+  lumbleWordmark: { fontSize: 40, fontFamily: "Nunito_700Bold", color: "#E85C7A", letterSpacing: 3, marginBottom: 4 },
   emptyTitle:    { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
   emptySub:      { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", textAlign: "center", lineHeight: 22 },
   emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 4 },

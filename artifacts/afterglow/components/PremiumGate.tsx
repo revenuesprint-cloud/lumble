@@ -70,7 +70,7 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
               <View style={styles.perksContainer}>
                 {PERKS.map((perk, i) => (
                   <View key={i} style={styles.perkRow}>
-                    <Text style={styles.perkDot}>◉</Text>
+                    <Text style={styles.perkDot}>·</Text>
                     <Text style={styles.perkText}>{perk}</Text>
                   </View>
                 ))}

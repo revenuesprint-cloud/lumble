@@ -298,24 +298,24 @@ export default function HomeScreen() {
             colors={["rgba(124,82,200,0.15)", "rgba(184,85,224,0.08)"]}
             style={styles.guidanceTeaserInner}
           >
-            <Text style={styles.guidanceTeaserTitle}>Something on your mind?</Text>
-            <Text style={styles.guidanceTeaserSub}>Ask about this connection</Text>
+            <Text style={styles.guidanceTeaserTitle}>The question you keep not asking</Text>
+            <Text style={styles.guidanceTeaserSub}>Say it out loud. Get an honest answer.</Text>
             <View style={styles.guidanceSuggestions}>
               {[
                 partner.relationshipType === "ex"
-                  ? `Does ${partner.name} miss me?`
+                  ? `Do they actually miss me or just the comfort?`
                   : partner.relationshipType === "situationship"
-                  ? `Why does ${partner.name} go hot and cold?`
+                  ? `Why am I always the one who wants more?`
                   : partner.relationshipType === "crush"
-                  ? `Does ${partner.name} feel what I feel?`
-                  : `Why does ${partner.name} pull away?`,
+                  ? `Am I misreading this or do they feel it too?`
+                  : `Why do I feel like I care more than they do?`,
                 partner.relationshipType === "ex"
-                  ? `Why can't I stop thinking about ${partner.name}?`
+                  ? `Why can I not let go even when I know I should?`
                   : partner.relationshipType === "situationship"
-                  ? `What does ${partner.name} actually want?`
+                  ? `Am I just convenient for them right now?`
                   : partner.relationshipType === "crush"
-                  ? `Should I tell ${partner.name} how I feel?`
-                  : `How do I get ${partner.name} to open up?`,
+                  ? `What if I say something and it ruins everything?`
+                  : `Do they actually want to be with me?`,
               ].map((q, i) => (
                 <View key={i} style={styles.suggestionChip}>
                   <Text style={styles.suggestionText}>{q}</Text>

@@ -19,12 +19,7 @@ export function KundliLoading({ label = "Loading your profile…" }: { label?: s
   return (
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={styles.container}>
       <Animated.View style={[styles.orb, { opacity: pulse }]}>
-        <LinearGradient
-          colors={["rgba(232,92,122,0.3)", "rgba(184,85,224,0.15)", "transparent"]}
-          style={styles.orbGrad}
-        >
-          <Text style={styles.glyph}>◉</Text>
-        </LinearGradient>
+        <Text style={styles.wordmark}>Lumble</Text>
       </Animated.View>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.dotsRow}>
@@ -39,8 +34,7 @@ export function KundliLoading({ label = "Loading your profile…" }: { label?: s
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", gap: 20 },
   orb:       { alignItems: "center", justifyContent: "center" },
-  orbGrad:   { width: 100, height: 100, borderRadius: 50, alignItems: "center", justifyContent: "center" },
-  glyph:     { fontSize: 40, color: "#E85C7A" },
+  wordmark:  { fontSize: 38, fontFamily: "Nunito_700Bold", color: "#E85C7A", letterSpacing: 2 },
   label:     { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.5)" },
   dotsRow:   { flexDirection: "row", gap: 6 },
   dot:       { width: 6, height: 6, borderRadius: 3, backgroundColor: "#E85C7A" },
