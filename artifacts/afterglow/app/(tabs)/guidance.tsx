@@ -381,11 +381,11 @@ export default function GuidanceScreen() {
       addGuidanceMessage({ id: botId, role: "assistant", text: responseText, timestamp: Date.now() });
       setStreamingId(botId);
 
-      // Prepare follow-up suggestions based on the intent of this message
+      // Prepare follow-up suggestions — set immediately. FollowUpRow only
+      // renders when !streamingId so they appear naturally when streaming ends.
       const intent = getIntentFromMessage(text);
       const suggestions = FOLLOW_UP_SUGGESTIONS[intent] ?? FOLLOW_UP_SUGGESTIONS["general"] ?? [];
-      // Store them to show once streaming finishes
-      setTimeout(() => setFollowUps(suggestions as string[]), responseText.length * 18 + 800);
+      setFollowUps(suggestions as string[]);
     } catch {
       const botId = id + "_bot";
       addGuidanceMessage({ id: botId, role: "assistant", text: "Something went wrong on my end. Please try asking again.", timestamp: Date.now() });

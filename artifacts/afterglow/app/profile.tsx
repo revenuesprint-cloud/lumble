@@ -375,9 +375,12 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            // logout() clears auth state first so login screen doesn't
+            // redirect an "authenticated" user away. Navigate immediately
+            // after — no blank flash. resetApp cleans up profile data after.
             await logout();
-            await resetApp();
             router.replace("/login");
+            resetApp().catch(() => {});
           },
         },
       ]
@@ -407,8 +410,10 @@ export default function ProfileScreen() {
           style: "destructive",
           onPress: async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            await resetApp();
+            // Navigate first so the profile screen stays rendered during
+            // the transition — no blank flash. resetApp clears profile after.
             router.replace("/onboarding");
+            resetApp().catch(() => {});
           },
         },
       ]

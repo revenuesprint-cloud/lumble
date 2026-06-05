@@ -212,13 +212,17 @@ export default function ChallengeDetailScreen() {
   const handleStateSelect = async (state: "resonates" | "working_on" | "resolved") => {
     setChallengeState(state);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    await saveChallengeState(challenge!.id, state, jwtToken ?? "");
+    try {
+      await saveChallengeState(challenge!.id, state, jwtToken ?? "");
+    } catch {}
   };
 
   const handleRemoveState = async () => {
     setChallengeState(null);
     setTriedSolutions(new Set());
-    await removeChallengeState(challenge!.id, jwtToken ?? "");
+    try {
+      await removeChallengeState(challenge!.id, jwtToken ?? "");
+    } catch {}
   };
 
   const handleTrySolution = (index: number) => {
