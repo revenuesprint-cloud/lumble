@@ -199,8 +199,15 @@ export default function ChallengeDetailScreen() {
 
   if (!challenge) {
     return (
-      <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ color: "rgba(240,235,248,0.4)", fontFamily: "Nunito_400Regular" }}>Challenge not found.</Text>
+      <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
+        <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 8) }]}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 10 }}>
+          <Text style={{ color: "rgba(240,235,248,0.4)", fontFamily: "Nunito_400Regular", fontSize: 15 }}>Challenge not found.</Text>
+        </View>
       </LinearGradient>
     );
   }
