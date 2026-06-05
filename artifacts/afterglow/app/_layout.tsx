@@ -32,7 +32,7 @@ const queryClient = new QueryClient({
 });
 
 // Screens that don't require authentication
-const UNPROTECTED = new Set(["login", "onboarding", "index", "+not-found"]);
+const UNPROTECTED = new Set(["welcome", "login", "onboarding", "index", "+not-found"]);
 
 function AuthGuard() {
   const { isAuthenticated, isAuthLoading } = useAuth();
@@ -60,6 +60,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
       <Stack.Screen name="index" />
+      <Stack.Screen name="welcome" />
       <Stack.Screen name="login" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />

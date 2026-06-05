@@ -1,13 +1,21 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
+import { WELCOME_SEEN_KEY } from "./welcome";
 import { Redirect } from "expo-router";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
   const { isLoading, hasCompletedOnboarding } = useApp();
   const { isAuthLoading, isAuthenticated }    = useAuth();
+  const [welcomeSeen, setWelcomeSeen]         = useState<boolean | null>(null);
 
-  if (isLoading || isAuthLoading) {
+  useEffect(() => {
+    AsyncStorage.getItem(WELCOME_SEEN_KEY).then((v) => setWelcomeSeen(v === "true"));
+  }, []);
+
+  if (isLoading || isAuthLoading || welcomeSeen === null) {
     return (
       <View style={{ flex: 1, backgroundColor: "#080611", alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator color="#E85C7A" size="large" />
@@ -15,21 +23,11 @@ export default function Index() {
     );
   }
 
-  // Authenticated + profile complete → home
-  if (isAuthenticated && hasCompletedOnboarding) {
-    return <Redirect href="/(tabs)/home" />;
-  }
+  // Authenticated users always bypass the welcome screen
+  if (isAuthenticated && hasCompletedOnboarding)  return <Redirect href="/(tabs)/home" />;
+  if (isAuthenticated && !hasCompletedOnboarding) return <Redirect href="/onboarding" />;
 
-  // Authenticated (e.g. just registered) but profile not set up yet → onboarding
-  if (isAuthenticated && !hasCompletedOnboarding) {
-    return <Redirect href="/onboarding" />;
-  }
-
-  // Profile exists but no active session → login
-  if (!isAuthenticated && hasCompletedOnboarding) {
-    return <Redirect href="/login" />;
-  }
-
-  // Brand new user — no session, no profile → login to register or sign in
+  // Unauthenticated: show welcome on very first launch, login after that
+  if (!welcomeSeen) return <Redirect href="/welcome" />;
   return <Redirect href="/login" />;
 }
