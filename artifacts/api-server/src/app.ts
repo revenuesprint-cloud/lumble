@@ -31,4 +31,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+// 404 — return JSON not Express default HTML
+app.use((_req, res) => {
+  res.status(404).json({ error: "Not found." });
+});
+
+// Global error handler
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  logger.error({ err }, "Unhandled error");
+  res.status(500).json({ error: "Something went wrong." });
+});
+
 export default app;
