@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
   Animated,
+  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -93,18 +94,11 @@ export default function WelcomeScreen() {
         {/* Orb + Logo */}
         <Animated.View style={[styles.heroSection, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Animated.View style={{ opacity: orbAnim }}>
-            <LinearGradient
-              colors={["rgba(232,92,122,0.35)", "rgba(184,85,224,0.2)", "rgba(124,82,200,0.1)"]}
-              style={styles.orbGlow}
-            >
-              <LinearGradient
-                colors={["#E85C7A", "#B855E0", "#7C52C8"]}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={styles.orb}
-              >
-                <Text style={styles.orbGlyph}>L</Text>
-              </LinearGradient>
-            </LinearGradient>
+            <Image
+              source={require("../assets/images/logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </Animated.View>
 
           <Text style={styles.appName}>Lumble</Text>
@@ -190,25 +184,10 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingTop: 8,
   },
-  orbGlow: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    alignItems: "center",
-    justifyContent: "center",
+  logo: {
+    width: 120,
+    height: 120,
     marginBottom: 4,
-  },
-  orb: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  orbGlyph: {
-    fontSize: 36,
-    color: "#fff",
-    opacity: 0.9,
   },
   appName: {
     fontSize: 44,

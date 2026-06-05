@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -168,6 +169,11 @@ export default function LoginScreen() {
         >
           {/* Logo */}
           <View style={styles.logoArea}>
+            <Image
+              source={require("../assets/images/logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.appName}>Lumble</Text>
             <Text style={styles.tagline}>{greeting}</Text>
           </View>
@@ -306,7 +312,8 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
   },
 
-  logoArea: { alignItems: "center", gap: 10 },
+  logoArea: { alignItems: "center", gap: 8 },
+  logo: { width: 80, height: 80 },
   logoOrb: {
     width: 72,
     height: 72,

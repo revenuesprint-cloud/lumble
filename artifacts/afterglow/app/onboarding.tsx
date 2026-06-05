@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   Animated,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -278,6 +279,11 @@ export default function Onboarding() {
   const steps = [
     // Step 0: Welcome
     <View key={0} style={styles.stepContainer}>
+      <Image
+        source={require("../assets/images/logo.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <Text style={styles.appName}>Lumble</Text>
       <Text style={styles.tagline}>
         Understand your connection{"\n"}through personality and emotional patterns
@@ -550,6 +556,7 @@ const styles = StyleSheet.create({
     color: "#E85C7A",
     marginBottom: 8,
   },
+  logo: { width: 100, height: 100, alignSelf: "center", marginBottom: 4 },
   appName: {
     fontSize: 42,
     fontFamily: "Nunito_700Bold",

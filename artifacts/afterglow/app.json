@@ -18,6 +18,7 @@
       "bundleIdentifier": "com.lumble.app"
     },
     "android": {
+      "package": "com.lumble.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#080611"
@@ -34,6 +35,11 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eab4ab49-1067-4cab-bb41-90cb3f3c7671"
+      }
     }
   }
 }
