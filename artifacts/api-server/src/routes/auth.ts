@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db, usersTable, profilesTable } from "@workspace/db";
 import { signToken } from "../lib/auth";
-import { authLimiter } from "../app";
+import { authLimiter } from "../lib/limiter";
 
 const router = Router();
 
