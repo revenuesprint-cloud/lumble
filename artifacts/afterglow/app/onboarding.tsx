@@ -197,8 +197,7 @@ export default function Onboarding() {
   const { completeOnboarding, syncProfileToServer } = useApp();
   const { jwtToken } = useAuth();
 
-  const [step,          setStep]          = useState(0);
-  const [showAuthChoice, setShowAuthChoice] = useState(false);
+  const [step, setStep] = useState(0);
   const fadeAnim  = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -245,13 +244,19 @@ export default function Onboarding() {
       await completeOnboarding(newUser, newPartner);
 
       if (jwtToken) {
-        // Already registered — just sync and go home
+        // Authenticated — sync profile to server (fire-and-forget) then go home
         syncProfileToServer(jwtToken, newUser, newPartner).catch(() => {});
-        setTimeout(() => router.replace("/(tabs)/home"), 2800);
-      } else {
-        // Show account choice after animation
-        setTimeout(() => setShowAuthChoice(true), 2400);
       }
+      // Always navigate after animation regardless of auth state.
+      // If not authenticated, AuthGuard will redirect to login.
+      // If authenticated, go straight to home.
+      setTimeout(() => {
+        if (jwtToken) {
+          router.replace("/(tabs)/home");
+        } else {
+          router.replace("/login");
+        }
+      }, 2600);
     } else {
       transitionTo(step + 1);
     }
@@ -373,14 +378,9 @@ export default function Onboarding() {
       ))}
     </View>,
 
-    // Step 7: Calculating → Account choice
+    // Step 7: Calculating → navigates automatically
     <View key={7} style={[styles.stepContainer, { gap: 20 }]}>
-      <CalcAnimation
-        name={form.partnerName}
-        showChoice={showAuthChoice}
-        onCreateAccount={() => router.replace("/login")}
-        onContinueGuest={() => router.replace("/login")}
-      />
+      <CalcAnimation name={form.partnerName} />
     </View>,
   ];
 
@@ -458,19 +458,8 @@ export default function Onboarding() {
   );
 }
 
-function CalcAnimation({
-  name,
-  showChoice,
-  onCreateAccount,
-  onContinueGuest,
-}: {
-  name: string;
-  showChoice: boolean;
-  onCreateAccount: () => void;
-  onContinueGuest: () => void;
-}) {
-  const pulseAnim  = useRef(new Animated.Value(0.6)).current;
-  const choiceAnim = useRef(new Animated.Value(0)).current;
+function CalcAnimation({ name }: { name: string }) {
+  const pulseAnim = useRef(new Animated.Value(0.6)).current;
   const [dots, setDots] = useState(0);
 
   React.useEffect(() => {
@@ -484,43 +473,6 @@ function CalcAnimation({
     const interval = setInterval(() => setDots((d) => (d + 1) % 4), 500);
     return () => { loop.stop(); clearInterval(interval); };
   }, []);
-
-  React.useEffect(() => {
-    if (showChoice) {
-      Animated.timing(choiceAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
-    }
-  }, [showChoice]);
-
-  if (showChoice) {
-    return (
-      <Animated.View style={{ alignItems: "center", gap: 24, opacity: choiceAnim }}>
-        <LinearGradient
-          colors={["#E85C7A", "#B855E0", "#7C52C8"]}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={styles.calcOrb}
-        />
-        <Text style={styles.calcTitle}>Your reading is ready ✦</Text>
-        <Text style={styles.calcSub}>
-          Save it to your account or explore now
-        </Text>
-
-        <TouchableOpacity onPress={onCreateAccount} activeOpacity={0.85} style={styles.nextBtn}>
-          <LinearGradient
-            colors={["#E85C7A", "#B855E0"]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={styles.nextBtnGradient}
-          >
-            <Text style={styles.nextBtnText}>Create a free account</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={onContinueGuest} activeOpacity={0.7} style={styles.skipBtn}>
-          <Text style={styles.skipText}>Continue without an account</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  }
 
   return (
     <View style={{ alignItems: "center", gap: 24 }}>

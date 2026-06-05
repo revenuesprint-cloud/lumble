@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   KeyboardAvoidingView,
@@ -23,8 +23,20 @@ type Mode = "signin" | "register";
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router  = useRouter();
-  const { login, register } = useAuth();
-  const { user, completeOnboarding, resetApp } = useApp();
+  const { login, register, isAuthenticated, isAuthLoading } = useAuth();
+  const { user, hasCompletedOnboarding, completeOnboarding, resetApp } = useApp();
+
+  // Redirect already-authenticated users away from login screen
+  useEffect(() => {
+    if (isAuthLoading) return;
+    if (isAuthenticated) {
+      if (hasCompletedOnboarding) {
+        router.replace("/(tabs)/home");
+      } else {
+        router.replace("/onboarding");
+      }
+    }
+  }, [isAuthenticated, isAuthLoading, hasCompletedOnboarding]);
 
   const [mode,         setMode]         = useState<Mode>("signin");
   const [email,        setEmail]        = useState("");
