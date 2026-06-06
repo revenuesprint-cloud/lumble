@@ -4,7 +4,6 @@ import { extractKundliAttributes } from "@/utils/challenges";
 import { fetchQuestions, type QuestionsResult, type QuestionItem } from "@/utils/dbContent";
 import { getOracleResponse, getIntentFromMessage, FOLLOW_UP_SUGGESTIONS } from "@/utils/oracle";
 import { getPersonalizedChips } from "@/utils/personalization";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -312,8 +311,11 @@ function FollowUpRow({ suggestions, onSelect, disabled }: { suggestions: string[
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function GuidanceScreen() {
-  const insets       = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
+  // Safe replacement for useBottomTabBarHeight — avoids the transitive
+  // @react-navigation/bottom-tabs version dependency. Tab bar on Android is
+  // 56dp; add safe area bottom for devices with gesture navigation bars.
+  const tabBarHeight = insets.bottom + 56;
   const { user, partner, guidanceMessages, addGuidanceMessage, clearGuidanceMessages, isPremium } = useApp();
 
   const [mode,         setMode]         = useState<Mode>("browse");

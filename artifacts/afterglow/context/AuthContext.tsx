@@ -34,15 +34,15 @@ async function apiPost<T>(path: string, body: Record<string, unknown>, token?: s
 
 function isTokenExpired(token: string): boolean {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    // ── Vulnerability 7 (MEDIUM): missing exp must be treated as expired, not
-    // valid. A crafted or malformed token without an expiry would otherwise
-    // appear permanently valid on the client side.
+    // JWTs use base64url (- and _) but atob needs standard base64 (+ and /).
+    // Without this replacement atob throws on Hermes/Android and every token
+    // appears expired, silently logging the user out on every cold start.
+    const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(b64));
     if (!payload.exp) return true;
-    // 60-second buffer so we re-authenticate slightly before true expiry
     return payload.exp * 1000 < Date.now() + 60_000;
   } catch {
-    return true; // malformed token → treat as expired
+    return true;
   }
 }
 
