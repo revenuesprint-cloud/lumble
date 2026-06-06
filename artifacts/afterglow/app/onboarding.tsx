@@ -286,7 +286,7 @@ export default function Onboarding() {
       />
       <Text style={styles.appName}>Lumble</Text>
       <Text style={styles.tagline}>
-        Understand your connection{"\n"}through personality and emotional patterns
+        What your stars reveal{"\n"}about this connection
       </Text>
     </View>,
 

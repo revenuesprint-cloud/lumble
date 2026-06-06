@@ -46,10 +46,10 @@ export default function WelcomeScreen() {
     return () => pulse.stop();
   }, []);
 
-  const go = async () => {
+  const go = async (mode: "register" | "signin" = "register") => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     await AsyncStorage.setItem(WELCOME_SEEN_KEY, "true");
-    router.replace("/login");
+    router.replace({ pathname: "/login", params: { mode } });
   };
 
   return (
@@ -81,7 +81,7 @@ export default function WelcomeScreen() {
 
         {/* CTA */}
         <Animated.View style={[styles.cta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <TouchableOpacity onPress={go} activeOpacity={0.88} style={styles.btn}>
+          <TouchableOpacity onPress={() => go("register")} activeOpacity={0.88} style={styles.btn}>
             <LinearGradient
               colors={["#E85C7A", "#B855E0"]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
@@ -92,7 +92,7 @@ export default function WelcomeScreen() {
             </LinearGradient>
           </TouchableOpacity>
 
-          <Pressable onPress={go} style={styles.signInRow}>
+          <Pressable onPress={() => go("signin")} style={styles.signInRow}>
             <Text style={styles.signInText}>Already have an account? </Text>
             <Text style={styles.signInLink}>Sign In</Text>
           </Pressable>

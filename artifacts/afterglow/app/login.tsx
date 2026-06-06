@@ -1,5 +1,6 @@
 import { useApp } from "@/context/AppContext";
 import { useAuth, type ServerProfile } from "@/context/AuthContext";
+import { useLocalSearchParams } from "expo-router";
 import { fetchJourney } from "@/utils/dbContent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
@@ -27,6 +28,7 @@ type Mode = "signin" | "register";
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router  = useRouter();
+  const { mode: modeParam } = useLocalSearchParams<{ mode?: string }>();
   const { login, register, isAuthenticated, isAuthLoading } = useAuth();
   const { user, hasCompletedOnboarding, completeOnboarding, resetApp } = useApp();
 
@@ -42,7 +44,7 @@ export default function LoginScreen() {
     }
   }, [isAuthenticated, isAuthLoading, hasCompletedOnboarding]);
 
-  const [mode,         setMode]         = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(modeParam === "register" ? "register" : "signin");
   const [email,        setEmail]        = useState("");
   const [password,     setPassword]     = useState("");
   const [confirm,      setConfirm]      = useState("");
@@ -307,9 +309,11 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   scroll: {
+    flexGrow: 1,
     paddingHorizontal: 28,
     gap: 24,
     alignItems: "stretch",
+    justifyContent: "center",
   },
 
   logoArea: { alignItems: "center", gap: 8 },

@@ -563,7 +563,7 @@ export default function ProfileScreen() {
         {/* App info */}
         <View style={styles.appInfo}>
           <Text style={styles.appInfoText}>Lumble · Version 1.0</Text>
-          <Text style={styles.appInfoText}>Your data stays on this device</Text>
+          <Text style={styles.appInfoText}>Cloud-backed · Restores on any device</Text>
         </View>
       </ScrollView>
 

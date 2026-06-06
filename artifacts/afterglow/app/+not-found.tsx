@@ -1,25 +1,23 @@
 import { Stack, useRouter } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useColors } from "@/hooks/useColors";
+import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function NotFoundScreen() {
-  const colors = useColors();
   const router = useRouter();
 
   return (
     <>
       <Stack.Screen options={{ title: "Oops!" }} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.foreground }]}>
-          This screen doesn&apos;t exist.
-        </Text>
-
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Feather name="arrow-left" size={16} color={colors.primary} />
-          <Text style={[styles.backText, { color: colors.primary }]}>Go back</Text>
+      <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={styles.container}>
+        <Text style={styles.emoji}>✦</Text>
+        <Text style={styles.title}>Page not found</Text>
+        <Text style={styles.sub}>This screen doesn't exist.</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.8}>
+          <Feather name="arrow-left" size={16} color="#E85C7A" />
+          <Text style={styles.backText}>Go back</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
     </>
   );
 }
@@ -30,21 +28,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+    gap: 10,
+  },
+  emoji: {
+    fontSize: 36,
+    color: "rgba(232,92,122,0.5)",
+    marginBottom: 8,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 22,
+    fontFamily: "Nunito_700Bold",
+    color: "#F0EBF8",
+  },
+  sub: {
+    fontSize: 14,
+    fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.4)",
+    marginBottom: 8,
   },
   backBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(232,92,122,0.25)",
+    backgroundColor: "rgba(232,92,122,0.06)",
+    marginTop: 8,
   },
   backText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontFamily: "Nunito_600SemiBold",
+    color: "#E85C7A",
   },
 });
