@@ -5,6 +5,8 @@ import { useApp } from "@/context/AppContext";
 import { getAstrologyReading } from "@/utils/astrology";
 import { calculateCompatibility, CompatibilitySection } from "@/utils/compatibility";
 import { getCompatibilityTexts } from "@/utils/personalization";
+import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { KundliLoading } from "@/components/KundliLoading";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -88,7 +90,7 @@ function SectionCard({
   return (
     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
       <TouchableOpacity
-        onPress={isLocked ? onLockTap : undefined}
+        onPress={isLocked ? () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onLockTap(); } : undefined}
         activeOpacity={isLocked ? 0.8 : 1}
       >
         <GlowCard
@@ -180,6 +182,7 @@ export default function CompatibilityScreen() {
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[
           styles.scroll,
           {
@@ -188,10 +191,8 @@ export default function CompatibilityScreen() {
           },
         ]}
       >
-        <Text style={styles.screenTitle}>Emotional Chemistry</Text>
-        <Text style={styles.screenSub}>
-          {user.name} & {partner.name}
-        </Text>
+        <Text style={styles.screenTitle}>You & {partner.name}</Text>
+        <Text style={styles.screenSub}>Chemistry · Patterns · Deep reads</Text>
 
         <OverallScore score={data.overall} />
 
@@ -217,7 +218,7 @@ export default function CompatibilityScreen() {
         </View>
 
         {!isPremium && (
-          <TouchableOpacity onPress={() => setShowGate(true)} activeOpacity={0.85} style={styles.upgradeTeaser}>
+          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowGate(true); }} activeOpacity={0.85} style={styles.upgradeTeaser}>
             <LinearGradient
               colors={["rgba(232,92,122,0.15)", "rgba(184,85,224,0.1)"]}
               style={styles.upgradeTeaserInner}
@@ -229,6 +230,7 @@ export default function CompatibilityScreen() {
             </LinearGradient>
           </TouchableOpacity>
         )}
+
       </ScrollView>
 
       <PremiumGate
@@ -243,48 +245,48 @@ export default function CompatibilityScreen() {
 const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 20,
-    gap: 16,
+    gap: 18,
   },
   screenTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   screenSub: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.4)",
-    marginTop: -8,
+    color: "rgba(240,235,248,0.45)",
+    marginTop: -6,
   },
   scoreOrb: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
     borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.15)",
+    borderColor: "rgba(232,92,122,0.18)",
     gap: 4,
   },
   scoreNumber: {
-    fontSize: 56,
+    fontSize: 60,
     fontFamily: "Nunito_700Bold",
   },
   scoreMax: {
-    fontSize: 28,
+    fontSize: 30,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
   },
   scoreLabel: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: "Nunito_400Regular",
     color: "rgba(240,235,248,0.4)",
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   scoreVerdict: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "Nunito_700Bold",
     marginTop: 2,
   },
@@ -292,114 +294,115 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     justifyContent: "center",
-    marginTop: -8,
+    marginTop: -6,
   },
   tag: {
     borderWidth: 1,
     borderColor: "rgba(232,92,122,0.3)",
     backgroundColor: "rgba(232,92,122,0.08)",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
     borderRadius: 20,
   },
   tagText: {
-    fontSize: 12,
-    fontFamily: "Nunito_500Medium",
+    fontSize: 13,
+    fontFamily: "Nunito_600SemiBold",
     color: "#E85C7A",
     textTransform: "capitalize",
   },
   sectionsContainer: {
-    gap: 12,
+    gap: 13,
   },
   sectionCard: {
-    borderRadius: 18,
+    borderRadius: 20,
   },
   sectionInner: {
-    padding: 18,
-    gap: 12,
+    padding: 22,
+    gap: 14,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 12,
   },
   sectionDot: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   sectionDotCore: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 11,
+    height: 11,
+    borderRadius: 6,
   },
   sectionLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 17,
     fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   scoreLabelChip: {
     borderWidth: 1,
     borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingHorizontal: 11,
+    paddingVertical: 4,
   },
   scoreLabelText: {
     fontSize: 12,
     fontFamily: "Nunito_600SemiBold",
   },
   scoreHint: {
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.3)",
+    color: "rgba(240,235,248,0.32)",
     marginTop: 2,
     textAlign: "center",
   },
   sectionText: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.65)",
-    lineHeight: 22,
+    color: "rgba(240,235,248,0.7)",
+    lineHeight: 24,
   },
   lockedOverlay: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     backgroundColor: "rgba(240,235,248,0.04)",
-    borderRadius: 10,
-    padding: 12,
+    borderRadius: 12,
+    padding: 14,
   },
   lockIcon: {
     color: "#E85C7A",
-    fontSize: 16,
+    fontSize: 18,
   },
   lockedText: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Nunito_500Medium",
-    color: "rgba(240,235,248,0.3)",
+    color: "rgba(240,235,248,0.32)",
   },
   upgradeTeaser: {
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.2)",
+    borderColor: "rgba(232,92,122,0.22)",
   },
   upgradeTeaserInner: {
-    padding: 20,
-    gap: 6,
+    padding: 22,
+    gap: 8,
   },
   upgradeTeaserTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   upgradeTeaserSub: {
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.45)",
+    color: "rgba(240,235,248,0.48)",
   },
+
 });

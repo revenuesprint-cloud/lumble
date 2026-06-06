@@ -27,10 +27,12 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
   const { jwtToken } = useAuth();
   const [loading,  setLoading]  = useState(false);
   const [success,  setSuccess]  = useState(false);
+  const [error,    setError]    = useState(false);
 
   const handleUpgrade = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setLoading(true);
+    setError(false);
     try {
       await upgradeToPremium(jwtToken ?? undefined);
       setSuccess(true);
@@ -41,6 +43,8 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
       }, 1400);
     } catch {
       setLoading(false);
+      setError(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
@@ -75,6 +79,10 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
                   </View>
                 ))}
               </View>
+
+              {error && (
+                <Text style={styles.errorText}>Something went wrong. Tap to try again.</Text>
+              )}
 
               <Pressable
                 onPress={handleUpgrade}
@@ -131,6 +139,7 @@ const styles = StyleSheet.create({
   upgradePriceText: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(255,255,255,0.6)" },
   cancelBtn: { alignItems: "center", padding: 8 },
   cancelText: { fontSize: 14, color: "rgba(240,235,248,0.3)", fontFamily: "Nunito_400Regular" },
+  errorText:  { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#E85C7A", textAlign: "center" },
   successContainer: { alignItems: "center", gap: 10, paddingVertical: 32 },
   successIcon: { fontSize: 48, color: "#52C8B8" },
   successTitle: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },

@@ -1,17 +1,18 @@
 import { GlowCard } from "@/components/GlowCard";
 import { useApp } from "@/context/AppContext";
-import type { Challenge } from "@/utils/challenges";
 import { getAstrologyReading } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
   getPersonalizedFocus,
   getPersonalizedQuoteCategory,
   getPersonalizedHero,
+  getTodayBetweenYou,
 } from "@/utils/personalization";
 import { getQuoteByCategory } from "@/utils/quotes";
 import { fetchDailyContent, type DailyContent } from "@/utils/dbContent";
 import { extractKundliAttributes } from "@/utils/challenges";
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -67,12 +68,58 @@ function EnergyBar({ label, value, color, delay }: EnergyBarProps) {
   );
 }
 
-const SEVERITY_COLOR: Record<string, string> = { mild: "#52C8B8", moderate: "#F5A623", severe: "#E85C7A" };
+// ─── Right Now Card ───────────────────────────────────────────────────────────
+
+function RightNowCard({
+  userMoment,
+  partnerSignal,
+  userName,
+  partnerName,
+}: {
+  userMoment: string;
+  partnerSignal: string;
+  userName: string;
+  partnerName: string;
+}) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fadeAnim, { toValue: 1, duration: 600, delay: 200, useNativeDriver: true }).start();
+  }, []);
+
+  return (
+    <Animated.View style={[rnStyles.card, { opacity: fadeAnim }]}>
+      <View style={rnStyles.header}>
+        <View style={rnStyles.livePip} />
+        <Text style={rnStyles.headerLabel}>RIGHT NOW</Text>
+      </View>
+      <View style={rnStyles.section}>
+        <Text style={rnStyles.personLabel}>{userName}</Text>
+        <Text style={rnStyles.body}>{userMoment}</Text>
+      </View>
+      <View style={rnStyles.divider} />
+      <View style={rnStyles.section}>
+        <Text style={rnStyles.personLabel}>{partnerName}</Text>
+        <Text style={rnStyles.body}>{partnerSignal}</Text>
+      </View>
+    </Animated.View>
+  );
+}
+
+const rnStyles = StyleSheet.create({
+  card:        { backgroundColor: "#0C0A18", borderRadius: 20, borderWidth: 1, borderColor: "rgba(240,235,248,0.07)", padding: 20, gap: 14 },
+  header:      { flexDirection: "row", alignItems: "center", gap: 7 },
+  livePip:     { width: 7, height: 7, borderRadius: 4, backgroundColor: "#E85C7A" },
+  headerLabel: { fontSize: 10, fontFamily: "Nunito_700Bold", color: "rgba(232,92,122,0.7)", letterSpacing: 1.5 },
+  section:     { gap: 6 },
+  personLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.3)", letterSpacing: 0.8, textTransform: "uppercase" },
+  body:        { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 24 },
+  divider:     { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
+});
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, partner, challenges, challengesLoading, loadChallenges } = useApp();
+  const { user, partner } = useApp();
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -81,7 +128,6 @@ export default function HomeScreen() {
 
   const [dbContent, setDbContent] = useState<DailyContent | null>(null);
 
-  // Fetch DB content (quote + affirmation + daily message) — enriches local fallbacks
   useEffect(() => {
     if (!reading) return;
     const attrs = extractKundliAttributes(reading, partner?.relationshipType ?? "relationship");
@@ -89,16 +135,7 @@ export default function HomeScreen() {
     fetchDailyContent(tags).then((data) => { if (data) setDbContent(data); });
   }, [reading]);
 
-  // Trigger challenge fetch once reading is ready and challenges haven't been loaded yet
-  useEffect(() => {
-    if (reading && challenges.length === 0 && !challengesLoading) {
-      loadChallenges();
-    }
-  }, [reading]);
-
   if (!user || !partner || !reading) return null;
-
-  const topChallenges = challenges.slice(0, 3);
 
   const energy     = getDailyEnergyPersonalized(reading, user ? reading.user.dasha.current : "Chandra");
   const quoteCategory = getPersonalizedQuoteCategory(reading.user.moonRashi, reading.user.dasha.current);
@@ -113,6 +150,7 @@ export default function HomeScreen() {
   const dailyMsgBody  = dbContent?.message?.body ?? null;
 
   const hero = getPersonalizedHero(user.name, partner.name, reading, partner.relationshipType);
+  const rightNow = getTodayBetweenYou(reading, partner.relationshipType, user.name, partner.name);
 
   const greetingHour = new Date().getHours();
   const greeting =
@@ -133,6 +171,7 @@ export default function HomeScreen() {
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[
           styles.scroll,
           {
@@ -148,7 +187,7 @@ export default function HomeScreen() {
             <Text style={styles.userName}>{user.name}</Text>
           </View>
           <TouchableOpacity
-            onPress={() => router.push("/profile")}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/profile"); }}
             activeOpacity={0.75}
             style={styles.profileBtn}
           >
@@ -179,6 +218,14 @@ export default function HomeScreen() {
             </View>
           </LinearGradient>
         </GlowCard>
+
+        {/* Right Now — hyper-specific daily insight */}
+        <RightNowCard
+          userMoment={rightNow.userMoment}
+          partnerSignal={rightNow.partnerSignal}
+          userName={user.name}
+          partnerName={partner.name}
+        />
 
         {/* Today's Reflection — content from DB with local fallback */}
         <GlowCard style={styles.quoteCard} glowColor="rgba(184,85,224,0.15)">
@@ -213,14 +260,8 @@ export default function HomeScreen() {
             style={styles.dailyCardInner}
           >
             <View style={styles.dailyHeader}>
-              <View>
-                <Text style={styles.dailyTitle}>Daily Relationship Energy</Text>
-                <Text style={styles.dailyDate}>{energy.date}</Text>
-              </View>
-              <View style={styles.liveTag}>
-                <View style={styles.liveDot} />
-                <Text style={styles.liveText}>Live</Text>
-              </View>
+              <Text style={styles.dailyTitle}>Daily Relationship Energy</Text>
+              <Text style={styles.dailyDate}>{energy.date}</Text>
             </View>
 
             <Text style={styles.dailyMessage}>"{energy.message}"</Text>
@@ -234,63 +275,9 @@ export default function HomeScreen() {
           </LinearGradient>
         </GlowCard>
 
-        {/* Patterns & What Helps */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Patterns & What Helps</Text>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => router.push("/challenges")}
-          activeOpacity={0.85}
-        >
-          <GlowCard style={styles.challengesCard} glowColor="rgba(232,92,122,0.12)">
-            <LinearGradient colors={["#1E1030", "#110F1E"]} style={styles.challengesInner}>
-              <View style={styles.challengesHeader}>
-                <View>
-                  <Text style={styles.challengesTitle}>Your Relationship Patterns</Text>
-                  <Text style={styles.challengesSub}>
-                    {challenges.length > 0
-                      ? `${challenges.length} patterns found between you and ${partner.name}`
-                      : challengesLoading
-                      ? "Identifying compatibility patterns…"
-                      : "Tap to see how your personalities interact"}
-                  </Text>
-                </View>
-                <View style={styles.challengesArrow}>
-                  <Feather name="arrow-right" size={16} color="rgba(240,235,248,0.5)" />
-                </View>
-              </View>
-
-              {topChallenges.length > 0 ? (
-                <View style={styles.challengesList}>
-                  {topChallenges.map((c: Challenge, i: number) => {
-                    const col = SEVERITY_COLOR[c.severity] ?? "#B855E0";
-                    return (
-                      <View key={c.id} style={styles.challengeRow}>
-                        <View style={[styles.challengeDot, { backgroundColor: col }]} />
-                        <Text style={styles.challengeRowText} numberOfLines={1}>{c.title}</Text>
-                        <Text style={[styles.challengeSeverity, { color: col }]}>{c.severity}</Text>
-                      </View>
-                    );
-                  })}
-                  {challenges.length > 3 && (
-                    <Text style={styles.challengesMore}>+{challenges.length - 3} more patterns</Text>
-                  )}
-                </View>
-              ) : challengesLoading ? (
-                <View style={styles.challengesLoading}>
-                  <View style={styles.shimmer} />
-                  <View style={[styles.shimmer, { width: "75%" }]} />
-                  <View style={[styles.shimmer, { width: "60%" }]} />
-                </View>
-              ) : null}
-            </LinearGradient>
-          </GlowCard>
-        </TouchableOpacity>
-
         {/* Guidance teaser */}
         <TouchableOpacity
-          onPress={() => router.push("/(tabs)/guidance")}
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push("/(tabs)/guidance"); }}
           activeOpacity={0.8}
           style={styles.guidanceTeaser}
         >
@@ -332,7 +319,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   scroll: {
     paddingHorizontal: 20,
-    gap: 14,
+    gap: 18,
   },
   header: {
     flexDirection: "row",
@@ -341,59 +328,59 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   profileBtn: {
-    borderRadius: 20,
+    borderRadius: 22,
     overflow: "hidden",
   },
   profileBtnGradient: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
   },
   profileBtnInitial: {
-    fontSize: 17,
+    fontSize: 18,
     fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
   greeting: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.45)",
+    color: "rgba(240,235,248,0.5)",
   },
   userName: {
-    fontSize: 26,
+    fontSize: 32,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
-  quoteCard: { borderRadius: 20 },
-  quoteInner: { borderRadius: 20, padding: 20, gap: 12 },
+  quoteCard: { borderRadius: 22 },
+  quoteInner: { borderRadius: 22, padding: 24, gap: 14 },
   quoteTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   quoteCategoryLabel: {
-    fontSize: 10, fontFamily: "Nunito_600SemiBold", letterSpacing: 1.5,
+    fontSize: 11, fontFamily: "Nunito_600SemiBold", letterSpacing: 1.5,
     textTransform: "uppercase", color: "#B855E0",
   },
-  quoteStar: { fontSize: 14, color: "rgba(184,85,224,0.5)" },
+  quoteStar: { fontSize: 16, color: "rgba(184,85,224,0.5)" },
   quoteText: {
-    fontSize: 17, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.9)",
-    lineHeight: 26, fontStyle: "italic",
+    fontSize: 19, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.92)",
+    lineHeight: 29, fontStyle: "italic",
   },
   quoteAuthor: {
-    fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.35)",
+    fontSize: 13, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)",
   },
-  quoteDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
+  quoteDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
   focusRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
   focusText: {
-    flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.5)", lineHeight: 20,
+    flex: 1, fontSize: 14, fontFamily: "Nunito_400Regular",
+    color: "rgba(240,235,248,0.55)", lineHeight: 22,
   },
 
   dailyCard: {
-    borderRadius: 20,
+    borderRadius: 22,
   },
   dailyCardInner: {
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 22,
+    padding: 24,
     gap: 14,
   },
   dailyHeader: {
@@ -402,100 +389,71 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   dailyTitle: {
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: "Nunito_600SemiBold",
-    color: "rgba(240,235,248,0.55)",
-    letterSpacing: 0.5,
+    color: "rgba(240,235,248,0.5)",
+    letterSpacing: 1,
     textTransform: "uppercase",
   },
   dailyDate: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.3)",
-    marginTop: 2,
-  },
-  liveTag: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "rgba(232,92,122,0.12)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#E85C7A",
-  },
-  liveText: {
-    fontSize: 11,
-    fontFamily: "Nunito_600SemiBold",
-    color: "#E85C7A",
+    color: "rgba(240,235,248,0.35)",
+    marginTop: 3,
   },
   dailyMessage: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.85)",
-    lineHeight: 24,
+    color: "rgba(240,235,248,0.88)",
+    lineHeight: 27,
     fontStyle: "italic",
   },
   withText: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.3)",
+    color: "rgba(240,235,248,0.35)",
   },
   barsContainer: {
-    gap: 12,
+    gap: 13,
     marginTop: 4,
   },
   barLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.5)",
+    color: "rgba(240,235,248,0.55)",
   },
   barTrack: {
-    height: 5,
-    backgroundColor: "rgba(240,235,248,0.07)",
+    height: 6,
+    backgroundColor: "rgba(240,235,248,0.08)",
     borderRadius: 4,
     overflow: "hidden",
   },
-  sectionHeader: {
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontFamily: "Nunito_600SemiBold",
-    color: "rgba(240,235,248,0.4)",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-  },
   guidanceTeaser: {
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(124,82,200,0.2)",
+    borderColor: "rgba(124,82,200,0.25)",
     overflow: "hidden",
     marginTop: 4,
   },
   guidanceTeaserInner: {
-    padding: 20,
-    gap: 6,
+    padding: 22,
+    gap: 8,
   },
   guidanceTeaserTitle: {
-    fontSize: 17,
+    fontSize: 21,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
+    lineHeight: 28,
   },
   guidanceTeaserSub: {
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.45)",
+    color: "rgba(240,235,248,0.5)",
   },
   guidanceSuggestions: {
     flexDirection: "row",
     gap: 8,
-    marginTop: 8,
+    marginTop: 10,
     flexWrap: "wrap",
   },
   suggestionChip: {
@@ -503,70 +461,51 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(124,82,200,0.3)",
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
   },
   suggestionText: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.7)",
+    color: "rgba(240,235,248,0.75)",
   },
-  heroCard: { borderRadius: 20 },
-  heroInner: { borderRadius: 20, padding: 20, gap: 10 },
+  heroCard: { borderRadius: 22 },
+  heroInner: { borderRadius: 22, padding: 24, gap: 14 },
   heroTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   heroMoonTag: {
     backgroundColor: "rgba(232,92,122,0.12)",
     borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.25)",
+    borderColor: "rgba(232,92,122,0.28)",
     borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
   },
   heroMoonTagText: {
     fontSize: 11,
     fontFamily: "Nunito_600SemiBold",
     color: "#E85C7A",
-    letterSpacing: 0.4,
+    letterSpacing: 0.5,
   },
-  heroStarDeco: { fontSize: 14, color: "rgba(232,92,122,0.4)" },
+  heroStarDeco: { fontSize: 16, color: "rgba(232,92,122,0.45)" },
   heroHeadline: {
-    fontSize: 19,
+    fontSize: 23,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
-    lineHeight: 26,
+    lineHeight: 31,
   },
   heroInsight: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.82)",
-    lineHeight: 22,
+    color: "rgba(240,235,248,0.85)",
+    lineHeight: 25,
   },
-  heroDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
+  heroDivider: { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
   heroActionRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
   heroActionText: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Nunito_600SemiBold",
     color: "#F5A623",
-    lineHeight: 20,
+    lineHeight: 21,
   },
-  challengesCard: { borderRadius: 20 },
-  challengesInner: { borderRadius: 20, padding: 18, gap: 14 },
-  challengesHeader: { flexDirection: "row", alignItems: "flex-start" },
-  challengesTitle: { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  challengesSub: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 3 },
-  challengesArrow: {
-    marginLeft: "auto",
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: "rgba(240,235,248,0.06)",
-    alignItems: "center", justifyContent: "center",
-  },
-  challengesList: { gap: 9 },
-  challengeRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  challengeDot: { width: 7, height: 7, borderRadius: 4, flexShrink: 0 },
-  challengeRowText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.65)" },
-  challengeSeverity: { fontSize: 10, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.3 },
-  challengesMore: { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(184,85,224,0.7)", marginTop: 2 },
-  challengesLoading: { gap: 8 },
-  shimmer: { height: 12, borderRadius: 6, backgroundColor: "rgba(240,235,248,0.06)", width: "100%" },
 });

@@ -1,6 +1,7 @@
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { Redirect, Tabs } from "expo-router";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
@@ -18,6 +19,9 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      screenListeners={{
+        tabPress: () => Haptics.selectionAsync(),
+      }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#E85C7A",
@@ -35,8 +39,9 @@ export default function TabLayout() {
             <View style={[StyleSheet.absoluteFill, { backgroundColor: "#080611" }]} />
           ) : null,
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontFamily: "Nunito_500Medium",
+          fontSize: 11,
+          fontFamily: "Nunito_600SemiBold",
+          letterSpacing: 0.2,
         },
       }}
     >
@@ -44,36 +49,40 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Feather name="home" size={22} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="home" size={23} color={color} />,
         }}
       />
       <Tabs.Screen
         name="compatibility"
         options={{
-          title: "Chemistry",
-          tabBarIcon: ({ color }) => <Feather name="heart" size={22} color={color} />,
+          title: "Us",
+          tabBarIcon: ({ color }) => <Feather name="heart" size={23} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="astrology"
+        name="patterns"
         options={{
-          title: "Stars",
-          tabBarIcon: ({ color }) => <Feather name="star" size={22} color={color} />,
+          title: "Patterns",
+          tabBarIcon: ({ color }) => <Feather name="layers" size={23} color={color} />,
         }}
       />
       <Tabs.Screen
         name="features"
         options={{
-          title: "Insights",
-          tabBarIcon: ({ color }) => <Feather name="zap" size={22} color={color} />,
+          title: "Reads",
+          tabBarIcon: ({ color }) => <Feather name="zap" size={23} color={color} />,
         }}
       />
       <Tabs.Screen
         name="guidance"
         options={{
-          title: "Guide",
-          tabBarIcon: ({ color }) => <Feather name="message-circle" size={22} color={color} />,
+          title: "Ask",
+          tabBarIcon: ({ color }) => <Feather name="message-circle" size={23} color={color} />,
         }}
+      />
+      <Tabs.Screen
+        name="astrology"
+        options={{ href: null }}
       />
     </Tabs>
   );

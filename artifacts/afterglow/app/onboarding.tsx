@@ -199,8 +199,13 @@ export default function Onboarding() {
   const { jwtToken } = useAuth();
 
   const [step, setStep] = useState(0);
-  const fadeAnim  = useRef(new Animated.Value(1)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim    = useRef(new Animated.Value(1)).current;
+  const slideAnim   = useRef(new Animated.Value(0)).current;
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    return () => { if (navTimerRef.current) clearTimeout(navTimerRef.current); };
+  }, []);
 
   const defaultUserDate    = new Date(1998, 5, 15);   // June 15 1998
   const defaultPartnerDate = new Date(1995, 10, 22);  // Nov 22 1995 — intentionally different
@@ -248,10 +253,9 @@ export default function Onboarding() {
         // Authenticated — sync profile to server (fire-and-forget) then go home
         syncProfileToServer(jwtToken, newUser, newPartner).catch(() => {});
       }
-      // Always navigate after animation regardless of auth state.
-      // If not authenticated, AuthGuard will redirect to login.
-      // If authenticated, go straight to home.
-      setTimeout(() => {
+      // Navigate after the calculation animation. Stored in a ref so the
+      // timer is cancelled if the component unmounts before it fires.
+      navTimerRef.current = setTimeout(() => {
         if (jwtToken) {
           router.replace("/(tabs)/home");
         } else {
@@ -279,11 +283,13 @@ export default function Onboarding() {
   const steps = [
     // Step 0: Welcome
     <View key={0} style={styles.stepContainer}>
-      <Image
-        source={require("../assets/images/logo.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      <View style={styles.logoCircle}>
+        <Image
+          source={require("../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="cover"
+        />
+      </View>
       <Text style={styles.appName}>Lumble</Text>
       <Text style={styles.tagline}>
         What your stars reveal{"\n"}about this connection
@@ -556,7 +562,8 @@ const styles = StyleSheet.create({
     color: "#E85C7A",
     marginBottom: 8,
   },
-  logo: { width: 100, height: 100, alignSelf: "center", marginBottom: 4 },
+  logoCircle: { width: 100, height: 100, borderRadius: 50, overflow: "hidden", alignSelf: "center", marginBottom: 4 },
+  logo: { width: "100%", height: "100%" },
   appName: {
     fontSize: 42,
     fontFamily: "Nunito_700Bold",

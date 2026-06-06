@@ -7,6 +7,7 @@ import {
   KOOTA_NARRATIVES,
 } from "@/utils/content-library";
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { KundliLoading } from "@/components/KundliLoading";
 import React, { useMemo, useState } from "react";
@@ -314,6 +315,7 @@ export default function AstrologyScreen() {
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[
           styles.scroll,
           { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 20), paddingBottom: insets.bottom + 100 },
@@ -335,7 +337,7 @@ export default function AstrologyScreen() {
           {tabs.map((t) => (
             <TouchableOpacity
               key={t.key}
-              onPress={() => setActiveTab(t.key)}
+              onPress={() => { Haptics.selectionAsync(); setActiveTab(t.key); }}
               style={[styles.tabBtn, activeTab === t.key && styles.tabBtnActive]}
             >
               <Text style={[styles.tabBtnText, activeTab === t.key && styles.tabBtnTextActive]}>
@@ -365,69 +367,69 @@ export default function AstrologyScreen() {
 const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, gap: 0 },
 
-  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 },
-  screenTitle: { fontSize: 28, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  screenSub:   { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 2 },
-  starsIcon:   { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(245,166,35,0.12)", alignItems: "center", justifyContent: "center" },
-  starsText:   { fontSize: 18, color: "#F5A623" },
+  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 },
+  screenTitle: { fontSize: 32, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  screenSub:   { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.45)", marginTop: 4 },
+  starsIcon:   { width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(245,166,35,0.12)", alignItems: "center", justifyContent: "center" },
+  starsText:   { fontSize: 20, color: "#F5A623" },
 
-  tabBar:          { flexDirection: "row", backgroundColor: "rgba(26,22,48,0.8)", borderRadius: 14, padding: 4, gap: 2, marginBottom: 20 },
-  tabBtn:          { flex: 1, paddingVertical: 9, borderRadius: 10, alignItems: "center" },
+  tabBar:          { flexDirection: "row", backgroundColor: "rgba(26,22,48,0.8)", borderRadius: 14, padding: 4, gap: 2, marginBottom: 22 },
+  tabBtn:          { flex: 1, paddingVertical: 11, borderRadius: 10, alignItems: "center" },
   tabBtnActive:    { backgroundColor: "#1E1A30" },
-  tabBtnText:      { fontSize: 13, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)" },
+  tabBtnText:      { fontSize: 14, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)" },
   tabBtnTextActive:{ color: "#F0EBF8", fontFamily: "Nunito_600SemiBold" },
 
-  profileContainer: { gap: 20 },
-  sectionBlock:     { gap: 10 },
-  sectionLabel:     { fontSize: 12, fontFamily: "Nunito_700Bold", color: "rgba(240,235,248,0.45)", letterSpacing: 1, textTransform: "uppercase" },
+  profileContainer: { gap: 22 },
+  sectionBlock:     { gap: 12 },
+  sectionLabel:     { fontSize: 11, fontFamily: "Nunito_700Bold", color: "rgba(240,235,248,0.5)", letterSpacing: 1.2, textTransform: "uppercase" },
 
   // Signs row
   signsRow: { flexDirection: "row", gap: 8 },
   signPill: {
-    flex: 1, borderWidth: 1, borderRadius: 14,
-    padding: 12, alignItems: "center", gap: 4,
+    flex: 1, borderWidth: 1, borderRadius: 16,
+    padding: 14, alignItems: "center", gap: 5,
   },
-  signPillIcon:  { fontSize: 18 },
-  signPillName:  { fontSize: 14, fontFamily: "Nunito_700Bold" },
-  signPillLabel: { fontSize: 10, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.35)", textTransform: "uppercase", letterSpacing: 0.5 },
+  signPillIcon:  { fontSize: 20 },
+  signPillName:  { fontSize: 16, fontFamily: "Nunito_700Bold" },
+  signPillLabel: { fontSize: 11, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", textTransform: "uppercase", letterSpacing: 0.5 },
 
   // Cards
-  card:     { borderRadius: 16, borderWidth: 1, overflow: "hidden" },
-  cardGrad: { padding: 16, gap: 10 },
-  cardBodyText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.8)", lineHeight: 22 },
-  divider: { height: 1, backgroundColor: "rgba(240,235,248,0.06)" },
-  bulletRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  bulletText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.65)", lineHeight: 20 },
+  card:     { borderRadius: 18, borderWidth: 1, overflow: "hidden" },
+  cardGrad: { padding: 20, gap: 12 },
+  cardBodyText: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.83)", lineHeight: 25 },
+  divider: { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
+  bulletRow: { flexDirection: "row", alignItems: "flex-start", gap: 9 },
+  bulletText: { flex: 1, fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.7)", lineHeight: 23 },
 
   // Dasha / life chapter
-  chapterHeadline: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", lineHeight: 22 },
+  chapterHeadline: { fontSize: 17, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", lineHeight: 25 },
   timeRow: { alignItems: "center" },
-  timeText: { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(245,166,35,0.6)" },
+  timeText: { fontSize: 13, fontFamily: "Nunito_500Medium", color: "rgba(245,166,35,0.65)" },
 
   // Pattern grid
-  patternGrid:      { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  insightCard:      { width: "47.5%", borderRadius: 14, borderWidth: 1, overflow: "hidden" },
-  insightCardGrad:  { padding: 14, gap: 6, minHeight: 90 },
-  insightCardHeader:{ flexDirection: "row", alignItems: "center", gap: 6 },
-  insightCardIcon:  { fontSize: 14 },
-  insightCardLabel: { fontSize: 10, fontFamily: "Nunito_600SemiBold", textTransform: "uppercase", letterSpacing: 0.5 },
-  insightCardValue: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.7)", lineHeight: 18 },
+  patternGrid:      { flexDirection: "row", flexWrap: "wrap", gap: 9 },
+  insightCard:      { width: "47.5%", borderRadius: 16, borderWidth: 1, overflow: "hidden" },
+  insightCardGrad:  { padding: 16, gap: 8, minHeight: 100 },
+  insightCardHeader:{ flexDirection: "row", alignItems: "center", gap: 7 },
+  insightCardIcon:  { fontSize: 16 },
+  insightCardLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "uppercase", letterSpacing: 0.5 },
+  insightCardValue: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.72)", lineHeight: 20 },
 
   // Score
-  scoreCard:     { borderRadius: 20, borderWidth: 1, overflow: "hidden", marginBottom: 4 },
-  scoreCardGrad: { padding: 24, alignItems: "center", gap: 8 },
-  scoreBig:      { fontSize: 64, fontFamily: "Nunito_700Bold" },
-  scorePct:      { fontSize: 32, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.5)" },
-  scoreVerdictText:{ fontSize: 17, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  scoreSubText:    { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.55)", lineHeight: 20, textAlign: "center" },
+  scoreCard:     { borderRadius: 22, borderWidth: 1, overflow: "hidden", marginBottom: 4 },
+  scoreCardGrad: { padding: 28, alignItems: "center", gap: 10 },
+  scoreBig:      { fontSize: 68, fontFamily: "Nunito_700Bold" },
+  scorePct:      { fontSize: 34, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.5)" },
+  scoreVerdictText:{ fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  scoreSubText:    { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.55)", lineHeight: 23, textAlign: "center" },
 
   // Koota insights
-  kootaLabel: { fontSize: 11, fontFamily: "Nunito_700Bold", textTransform: "uppercase", letterSpacing: 0.8 },
+  kootaLabel: { fontSize: 12, fontFamily: "Nunito_700Bold", textTransform: "uppercase", letterSpacing: 0.8 },
 
   // Moon dynamic
   moonDynamicRow:   { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  moonPill:         { flex: 1, borderRadius: 12, borderWidth: 1, padding: 12, alignItems: "center", gap: 3 },
-  moonPillText:     { fontSize: 13, fontFamily: "Nunito_700Bold" },
-  moonPillSign:     { fontSize: 11, fontFamily: "Nunito_400Regular" },
-  moonDynamicArrow: { fontSize: 20, color: "rgba(240,235,248,0.25)" },
+  moonPill:         { flex: 1, borderRadius: 14, borderWidth: 1, padding: 14, alignItems: "center", gap: 4 },
+  moonPillText:     { fontSize: 14, fontFamily: "Nunito_700Bold" },
+  moonPillSign:     { fontSize: 12, fontFamily: "Nunito_400Regular" },
+  moonDynamicArrow: { fontSize: 22, color: "rgba(240,235,248,0.25)" },
 });

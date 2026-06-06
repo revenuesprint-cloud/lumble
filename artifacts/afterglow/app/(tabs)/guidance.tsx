@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   Animated,
   FlatList,
+  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -98,7 +99,7 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
         <View style={styles.sheetDivider} />
         <Text style={styles.sheetAnswer}>{question.body}</Text>
         <View style={styles.sheetActions}>
-          <TouchableOpacity onPress={() => { onAsk(question.meta.question ?? question.title); close(); }} style={styles.sheetAskBtn} activeOpacity={0.85}>
+          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); onAsk(question.meta.question ?? question.title); close(); }} style={styles.sheetAskBtn} activeOpacity={0.85}>
             <LinearGradient colors={["#E85C7A","#B855E0"]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.sheetAskGrad}>
               <Text style={styles.sheetAskText}>Ask the Guide for more</Text>
               <Feather name="arrow-right" size={16} color="#fff" />
@@ -192,7 +193,7 @@ function TypingIndicator() {
 
   return (
     <View style={styles.typingRow}>
-      <View style={styles.botAvatar}><Text style={styles.botAvatarText}>L</Text></View>
+      <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />
       <View style={styles.typingBubble}>
         {dots.map((dot, i) => (
           <Animated.View key={i} style={[styles.typingDot, { opacity: dot }]} />
@@ -244,9 +245,8 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
 
   return (
     <Animated.View style={[styles.bubbleRow, styles.bubbleRowBot, { opacity: fadeAnim }]}>
-      <View style={styles.botAvatar}><Text style={styles.botAvatarText}>L</Text></View>
+      <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />
       <View style={[styles.bubble, styles.bubbleBot]}>
-        <View style={styles.botLabel}><Text style={styles.botLabelText}>Lumble</Text></View>
         <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
           <Text style={[styles.bubbleText, styles.bubbleTextBot]}>{displayed}</Text>
           {!isDone && (
@@ -274,9 +274,8 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
 
   return (
     <Animated.View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowBot, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-      {!isUser && <View style={styles.botAvatar}><Text style={styles.botAvatarText}>L</Text></View>}
+      {!isUser && <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />}
       <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
-        {!isUser && <View style={styles.botLabel}><Text style={styles.botLabelText}>Lumble</Text></View>}
         <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextBot]}>{message.text}</Text>
       </View>
     </Animated.View>
@@ -409,7 +408,7 @@ export default function GuidanceScreen() {
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
           <View style={styles.headerLeft}>
-            <View style={styles.headerOrb}><Text style={styles.headerOrbText}>L</Text></View>
+            <Image source={require("../../assets/images/logo.png")} style={styles.headerOrb} resizeMode="cover" />
             <View>
               <Text style={styles.headerTitle}>Lumble Guide</Text>
               <Text style={styles.headerSub}>{user.name} and {partner.name}</Text>
@@ -417,10 +416,10 @@ export default function GuidanceScreen() {
           </View>
           <View style={styles.headerRight}>
             <View style={styles.modeToggle}>
-              <TouchableOpacity onPress={() => setMode("browse")} style={[styles.modeBtn, mode === "browse" && styles.modeBtnActive]}>
+              <TouchableOpacity onPress={() => { Haptics.selectionAsync(); setMode("browse"); }} style={[styles.modeBtn, mode === "browse" && styles.modeBtnActive]}>
                 <Text style={[styles.modeBtnText, mode === "browse" && styles.modeBtnTextActive]}>Browse</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setMode("ask")} style={[styles.modeBtn, mode === "ask" && styles.modeBtnActive]}>
+              <TouchableOpacity onPress={() => { Haptics.selectionAsync(); setMode("ask"); }} style={[styles.modeBtn, mode === "ask" && styles.modeBtnActive]}>
                 <Text style={[styles.modeBtnText, mode === "ask" && styles.modeBtnTextActive]}>Ask</Text>
               </TouchableOpacity>
             </View>
@@ -432,14 +431,6 @@ export default function GuidanceScreen() {
               >
                 <Feather name="trash-2" size={15} color="rgba(240,235,248,0.35)" />
               </TouchableOpacity>
-            )}
-            {mode === "ask" && (
-              <View style={[styles.headerPill, hitLimit && styles.headerPillWarn]}>
-                <View style={[styles.headerPillDot, hitLimit && { backgroundColor: "#E85C7A" }]} />
-                <Text style={[styles.headerPillText, hitLimit && { color: "#E85C7A" }]}>
-                  {isPremium ? "Free" : hitLimit ? "Full" : `${FREE_MESSAGE_LIMIT - userMessages} left`}
-                </Text>
-              </View>
             )}
           </View>
         </View>
@@ -457,7 +448,7 @@ export default function GuidanceScreen() {
                   <Text style={styles.emptySub}>Ask the question you are too afraid to say out loud.{"\n"}Get an honest answer based on who you both actually are.</Text>
                   <View style={styles.emptyChips}>
                     {quickChips.slice(0, 4).map((chip, i) => (
-                      <TouchableOpacity key={i} onPress={() => sendMessage(chip)} style={styles.emptyChip} activeOpacity={0.75}>
+                      <TouchableOpacity key={i} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); sendMessage(chip); }} style={styles.emptyChip} activeOpacity={0.75}>
                         <Text style={styles.emptyChipText}>{chip}</Text>
                       </TouchableOpacity>
                     ))}
@@ -519,7 +510,7 @@ export default function GuidanceScreen() {
           {mode === "ask" && hasMessages && !hitLimit && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chipsContent}>
               {quickChips.map((chip, i) => (
-                <TouchableOpacity key={i} onPress={() => sendMessage(chip)} disabled={isTyping || !!streamingId} style={[styles.chip, (isTyping || streamingId) && { opacity: 0.4 }]} activeOpacity={0.75}>
+                <TouchableOpacity key={i} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); sendMessage(chip); }} disabled={isTyping || !!streamingId} style={[styles.chip, (isTyping || streamingId) && { opacity: 0.4 }]} activeOpacity={0.75}>
                   <Text style={styles.chipText}>{chip}</Text>
                 </TouchableOpacity>
               ))}
@@ -533,7 +524,7 @@ export default function GuidanceScreen() {
               placeholder={
                 mode === "browse" ? "Ask a question or browse above"
                 : hitLimit ? "Upgrade to keep asking"
-                : isTyping || streamingId ? "Thinking through this..."
+                : isTyping || streamingId ? "Reading the stars..."
                 : "Ask about this connection"
               }
               placeholderTextColor="rgba(240,235,248,0.22)"
@@ -576,12 +567,11 @@ export default function GuidanceScreen() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  header:        { paddingHorizontal: 20, paddingBottom: 12, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "rgba(240,235,248,0.05)" },
+  header:        { paddingHorizontal: 20, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "rgba(240,235,248,0.06)" },
   headerLeft:    { flexDirection: "row", alignItems: "center", gap: 12 },
-  headerOrb:     { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(232,92,122,0.1)", borderWidth: 1, borderColor: "rgba(232,92,122,0.25)", alignItems: "center", justifyContent: "center" },
-  headerOrbText: { fontSize: 15, color: "#E85C7A" },
-  headerTitle:   { fontSize: 18, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  headerSub:     { fontSize: 11, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.35)", marginTop: 1 },
+  headerOrb:     { width: 40, height: 40, borderRadius: 20, overflow: "hidden" },
+  headerTitle:   { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  headerSub:     { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.38)", marginTop: 2 },
   headerRight:   { flexDirection: "row", alignItems: "center", gap: 8 },
   modeToggle:    { flexDirection: "row", backgroundColor: "rgba(26,22,48,0.8)", borderRadius: 10, padding: 3, gap: 2 },
   modeBtn:       { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 7, alignItems: "center" },
@@ -589,30 +579,26 @@ const styles = StyleSheet.create({
   modeBtnText:   { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.35)" },
   modeBtnTextActive: { color: "#F0EBF8" },
   clearBtn:      { width: 30, height: 30, borderRadius: 15, backgroundColor: "rgba(240,235,248,0.06)", alignItems: "center", justifyContent: "center" },
-  headerPill:    { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(124,82,200,0.12)", borderWidth: 1, borderColor: "rgba(124,82,200,0.25)", borderRadius: 14, paddingHorizontal: 9, paddingVertical: 5 },
-  headerPillWarn:{ backgroundColor: "rgba(232,92,122,0.1)", borderColor: "rgba(232,92,122,0.25)" },
-  headerPillDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: "#B855E0" },
-  headerPillText:{ fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#B855E0" },
   // Browse
   catScroll:     { flexGrow: 0, maxHeight: 50 },
   catContent:    { paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
   catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: "rgba(26,22,48,0.6)", borderWidth: 1, borderColor: "rgba(240,235,248,0.08)" },
   catChipIcon:   { fontSize: 14 },
   catChipLabel:  { fontSize: 13, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.45)" },
-  qList:         { paddingHorizontal: 16, paddingTop: 10, gap: 10, paddingBottom: 20 },
-  qCard:         { borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: "rgba(240,235,248,0.06)" },
-  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 12, padding: 16 },
-  qCardIcon:     { fontSize: 22, width: 32, textAlign: "center" },
-  qCardTitle:    { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", lineHeight: 20 },
-  qCardShort:    { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.45)", lineHeight: 18 },
+  qList:         { paddingHorizontal: 16, paddingTop: 12, gap: 10, paddingBottom: 20 },
+  qCard:         { borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: "rgba(240,235,248,0.07)" },
+  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 14, padding: 18 },
+  qCardIcon:     { fontSize: 24, width: 34, textAlign: "center" },
+  qCardTitle:    { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", lineHeight: 22 },
+  qCardShort:    { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.48)", lineHeight: 19 },
   emptyCategory: { paddingTop: 40, alignItems: "center" },
   emptyCategoryText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.3)" },
   // Sheet
-  sheet:         { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#110F1E", borderTopLeftRadius: 24, borderTopRightRadius: 24, borderTopWidth: 1, borderColor: "rgba(240,235,248,0.08)", padding: 24, paddingBottom: 48, gap: 14 },
-  sheetHandle:   { width: 36, height: 4, borderRadius: 2, backgroundColor: "rgba(240,235,248,0.12)", alignSelf: "center", marginBottom: 6 },
-  sheetQ:        { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 28 },
-  sheetDivider:  { height: 1, backgroundColor: "rgba(240,235,248,0.07)" },
-  sheetAnswer:   { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.8)", lineHeight: 24 },
+  sheet:         { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#110F1E", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "rgba(240,235,248,0.09)", padding: 28, paddingBottom: 52, gap: 16 },
+  sheetHandle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: "rgba(240,235,248,0.14)", alignSelf: "center", marginBottom: 8 },
+  sheetQ:        { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 32 },
+  sheetDivider:  { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
+  sheetAnswer:   { fontSize: 17, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 27 },
   sheetActions:  { gap: 10 },
   sheetAskBtn:   { borderRadius: 14, overflow: "hidden" },
   sheetAskGrad:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 15 },
@@ -621,29 +607,26 @@ const styles = StyleSheet.create({
   sheetCloseText:{ fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.3)" },
   // Ask empty state
   emptyScroll:   { flexGrow: 1, paddingHorizontal: 20 },
-  emptyAsk:      { paddingTop: 24, gap: 16, alignItems: "center" },
-  lumbleWordmark: { fontSize: 40, fontFamily: "Nunito_700Bold", color: "#E85C7A", letterSpacing: 3, marginBottom: 4 },
-  emptyTitle:    { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  emptySub:      { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", textAlign: "center", lineHeight: 22 },
-  emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "center", marginTop: 4 },
-  emptyChip:     { backgroundColor: "rgba(26,22,48,0.8)", borderWidth: 1, borderColor: "rgba(184,85,224,0.2)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
-  emptyChipText: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.55)" },
+  emptyAsk:      { paddingTop: 28, gap: 18, alignItems: "center" },
+  lumbleWordmark: { fontSize: 44, fontFamily: "Nunito_700Bold", color: "#E85C7A", letterSpacing: 4, marginBottom: 4 },
+  emptyTitle:    { fontSize: 26, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  emptySub:      { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.42)", textAlign: "center", lineHeight: 25 },
+  emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
+  emptyChip:     { backgroundColor: "rgba(26,22,48,0.8)", borderWidth: 1, borderColor: "rgba(184,85,224,0.22)", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
+  emptyChipText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.58)" },
   // Messages
-  messageList:   { paddingHorizontal: 16, paddingTop: 16, gap: 14 },
-  bubbleRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end" },
+  messageList:   { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
+  bubbleRow:     { flexDirection: "row", gap: 11, alignItems: "flex-end" },
   bubbleRowUser: { justifyContent: "flex-end" },
   bubbleRowBot:  { justifyContent: "flex-start" },
-  botAvatar:     { width: 30, height: 30, borderRadius: 15, backgroundColor: "rgba(232,92,122,0.1)", borderWidth: 1, borderColor: "rgba(232,92,122,0.25)", alignItems: "center", justifyContent: "center", flexShrink: 0, marginBottom: 2 },
-  botAvatarText: { fontSize: 12, color: "#E85C7A" },
-  bubble:        { maxWidth: "80%", borderRadius: 18, padding: 14, gap: 6 },
-  bubbleUser:    { backgroundColor: "rgba(232,92,122,0.12)", borderWidth: 1, borderColor: "rgba(232,92,122,0.22)", borderBottomRightRadius: 5 },
-  bubbleBot:     { backgroundColor: "#141128", borderWidth: 1, borderColor: "rgba(240,235,248,0.07)", borderBottomLeftRadius: 5 },
-  botLabel:      { marginBottom: 2 },
-  botLabelText:  { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "rgba(232,92,122,0.5)", letterSpacing: 0.5, textTransform: "uppercase" },
-  bubbleText:    { lineHeight: 24 },
-  bubbleTextUser:{ fontSize: 15, fontFamily: "Nunito_400Regular", color: "#F0EBF8" },
-  bubbleTextBot: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.88)" },
-  cursor:        { width: 2, height: 17, backgroundColor: "#E85C7A", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
+  botAvatar:     { width: 32, height: 32, borderRadius: 16, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
+  bubble:        { maxWidth: "80%", borderRadius: 20, padding: 16, gap: 6 },
+  bubbleUser:    { backgroundColor: "rgba(232,92,122,0.13)", borderWidth: 1, borderColor: "rgba(232,92,122,0.24)", borderBottomRightRadius: 5 },
+  bubbleBot:     { backgroundColor: "#141128", borderWidth: 1, borderColor: "rgba(240,235,248,0.08)", borderBottomLeftRadius: 5 },
+  bubbleText:    { lineHeight: 26 },
+  bubbleTextUser:{ fontSize: 16, fontFamily: "Nunito_400Regular", color: "#F0EBF8" },
+  bubbleTextBot: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.9)" },
+  cursor:        { width: 2, height: 18, backgroundColor: "#E85C7A", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
   // Typing
   typingRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
   typingBubble:  { backgroundColor: "#141128", borderRadius: 18, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "rgba(240,235,248,0.07)", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", gap: 6, alignItems: "center" },
@@ -658,13 +641,13 @@ const styles = StyleSheet.create({
   limitTitle:    { fontSize: 14, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
   limitSub:      { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 2 },
   // Input
-  inputArea:     { paddingHorizontal: 16, paddingTop: 10, borderTopWidth: 1, borderTopColor: "rgba(240,235,248,0.05)", gap: 10, backgroundColor: "rgba(8,6,17,0.96)" },
+  inputArea:     { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "rgba(240,235,248,0.06)", gap: 10, backgroundColor: "rgba(8,6,17,0.97)" },
   chipsScroll:   { flexGrow: 0 },
   chipsContent:  { gap: 8, paddingRight: 8 },
-  chip:          { backgroundColor: "rgba(26,22,48,0.8)", borderWidth: 1, borderColor: "rgba(184,85,224,0.2)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
-  chipText:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.55)" },
+  chip:          { backgroundColor: "rgba(26,22,48,0.8)", borderWidth: 1, borderColor: "rgba(184,85,224,0.22)", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 9 },
+  chipText:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.58)" },
   inputRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
-  inputField:    { flex: 1, backgroundColor: "#141128", borderWidth: 1, borderColor: "rgba(240,235,248,0.08)", borderRadius: 16, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 13, fontSize: 15, fontFamily: "Nunito_400Regular", color: "#F0EBF8", maxHeight: 100 },
-  sendBtn:       { borderRadius: 14, overflow: "hidden" },
-  sendBtnGrad:   { width: 46, height: 46, alignItems: "center", justifyContent: "center" },
+  inputField:    { flex: 1, backgroundColor: "#141128", borderWidth: 1, borderColor: "rgba(240,235,248,0.09)", borderRadius: 18, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 14, fontSize: 16, fontFamily: "Nunito_400Regular", color: "#F0EBF8", maxHeight: 110 },
+  sendBtn:       { borderRadius: 16, overflow: "hidden" },
+  sendBtnGrad:   { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
 });

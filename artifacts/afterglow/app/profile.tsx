@@ -53,7 +53,7 @@ function ActionRow({
   showChevron?: boolean;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.actionRow}>
+    <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.7} style={styles.actionRow}>
       <View style={[styles.actionIcon, { backgroundColor: (color || "#E85C7A") + "18" }]}>
         <Feather name={icon as any} size={16} color={color || "#E85C7A"} />
       </View>
@@ -306,7 +306,7 @@ function EditProfileModal({ visible, onClose }: { visible: boolean; onClose: () 
           {REL_TYPES.map((r) => (
             <TouchableOpacity
               key={r.key}
-              onPress={() => setRelType(r.key)}
+              onPress={() => { Haptics.selectionAsync(); setRelType(r.key); }}
               style={[editStyles.relChip, relType === r.key && editStyles.relChipActive]}
             >
               <Text style={[editStyles.relChipText, relType === r.key && editStyles.relChipTextActive]}>{r.label}</Text>
@@ -424,7 +424,7 @@ export default function ProfileScreen() {
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
+        <Pressable onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
           <Feather name="chevron-left" size={24} color="rgba(240,235,248,0.7)" />
         </Pressable>
         <Text style={styles.headerTitle}>Profile</Text>
@@ -467,7 +467,7 @@ export default function ProfileScreen() {
             </>
           ) : null}
           <View style={styles.separator} />
-          <TouchableOpacity onPress={() => setShowEditProfile(true)} activeOpacity={0.7} style={styles.editRow}>
+          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowEditProfile(true); }} activeOpacity={0.7} style={styles.editRow}>
             <Feather name="edit-2" size={14} color="#E85C7A" />
             <Text style={styles.editRowText}>Edit profile & connection</Text>
           </TouchableOpacity>
@@ -494,7 +494,7 @@ export default function ProfileScreen() {
         {!isPremium && (
           <Section title="Subscription">
             <TouchableOpacity
-              onPress={() => setShowPremiumGate(true)}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowPremiumGate(true); }}
               activeOpacity={0.85}
               style={styles.upgradeCard}
             >
@@ -602,8 +602,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 17,
-    fontFamily: "Nunito_600SemiBold",
+    fontSize: 19,
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   scroll: {
@@ -624,12 +624,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarInitial: {
-    fontSize: 34,
+    fontSize: 36,
     fontFamily: "Nunito_700Bold",
     color: "#fff",
   },
   userName: {
-    fontSize: 24,
+    fontSize: 28,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
@@ -685,12 +685,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   infoLabel: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.55)",
+    color: "rgba(240,235,248,0.58)",
   },
   infoValue: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Nunito_500Medium",
     color: "#F0EBF8",
   },
@@ -734,15 +734,15 @@ const styles = StyleSheet.create({
     color: "#B855E0",
   },
   partnerName: {
-    fontSize: 17,
+    fontSize: 18,
     fontFamily: "Nunito_600SemiBold",
     color: "#F0EBF8",
   },
   partnerType: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.4)",
-    marginTop: 2,
+    color: "rgba(240,235,248,0.42)",
+    marginTop: 3,
   },
   upgradeCard: {
     borderRadius: 18,
@@ -757,17 +757,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   upgradeTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   upgradeSub: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.45)",
+    color: "rgba(240,235,248,0.48)",
   },
   upgradePrice: {
-    fontSize: 15,
+    fontSize: 17,
     fontFamily: "Nunito_700Bold",
     color: "#E85C7A",
   },
@@ -808,15 +808,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   actionLabel: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Nunito_500Medium",
     color: "#F0EBF8",
   },
   actionSublabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.35)",
-    marginTop: 1,
+    color: "rgba(240,235,248,0.38)",
+    marginTop: 2,
   },
   signOutBtn: {
     flexDirection: "row",

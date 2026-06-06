@@ -63,7 +63,7 @@ function AcknowledgeBanner({
       <View style={[styles.stateBanner, { borderColor: meta.color + "44" }]}>
         <View style={[styles.stateDot, { backgroundColor: meta.color }]} />
         <Text style={[styles.stateBannerText, { color: meta.color }]}>{meta.label}</Text>
-        <TouchableOpacity onPress={onRemove} style={styles.stateClear}>
+        <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onRemove(); }} style={styles.stateClear}>
           <Feather name="x" size={14} color="rgba(240,235,248,0.3)" />
         </TouchableOpacity>
       </View>
@@ -207,7 +207,7 @@ export default function ChallengeDetailScreen() {
     return (
       <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
         <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 8) }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
             <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
           </TouchableOpacity>
         </View>
@@ -251,7 +251,7 @@ export default function ChallengeDetailScreen() {
     <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
       {/* Fixed back button — stays visible while scrolling */}
       <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 8) }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
           <Feather name="arrow-left" size={22} color="rgba(240,235,248,0.7)" />
         </TouchableOpacity>
       </View>
@@ -362,62 +362,62 @@ export default function ChallengeDetailScreen() {
 
 const styles = StyleSheet.create({
   fixedHeader: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, paddingHorizontal: 16, paddingBottom: 8 },
-  scroll: { paddingHorizontal: 20, gap: 14 },
-  backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "rgba(240,235,248,0.06)", alignItems: "center", justifyContent: "center" },
-  heroCard: { borderRadius: 20 },
-  heroInner: { borderRadius: 20, padding: 20, gap: 12 },
+  scroll: { paddingHorizontal: 20, gap: 16 },
+  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(240,235,248,0.07)", alignItems: "center", justifyContent: "center" },
+  heroCard: { borderRadius: 22 },
+  heroInner: { borderRadius: 22, padding: 24, gap: 14 },
   heroTopRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  severityPill: { flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
-  severityDot: { width: 7, height: 7, borderRadius: 4 },
-  severityText: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.4 },
-  severityMeaning: { fontSize: 12, fontFamily: "Nunito_400Regular", lineHeight: 18, marginTop: -4 },
-  categoryPill: { backgroundColor: "rgba(124,82,200,0.12)", borderWidth: 1, borderColor: "rgba(124,82,200,0.25)", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
-  categoryText: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "rgba(124,82,200,0.9)" },
-  heroTitle: { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 28 },
-  heroDesc: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.65)", lineHeight: 22 },
-  matchRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 },
-  matchText: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(184,85,224,0.6)" },
+  severityPill: { flexDirection: "row", alignItems: "center", gap: 7, borderWidth: 1, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 6 },
+  severityDot: { width: 8, height: 8, borderRadius: 4 },
+  severityText: { fontSize: 12, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.4 },
+  severityMeaning: { fontSize: 13, fontFamily: "Nunito_400Regular", lineHeight: 19, marginTop: -4 },
+  categoryPill: { backgroundColor: "rgba(124,82,200,0.12)", borderWidth: 1, borderColor: "rgba(124,82,200,0.28)", borderRadius: 20, paddingHorizontal: 13, paddingVertical: 6 },
+  categoryText: { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(124,82,200,0.9)" },
+  heroTitle: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 32 },
+  heroDesc: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.7)", lineHeight: 25 },
+  matchRow: { flexDirection: "row", alignItems: "center", gap: 7, marginTop: 4 },
+  matchText: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(184,85,224,0.62)" },
   // Acknowledge block
-  acknowledgeBlock: { backgroundColor: "rgba(232,92,122,0.06)", borderWidth: 1, borderColor: "rgba(232,92,122,0.18)", borderRadius: 18, padding: 18, gap: 8 },
-  acknowledgeQuestion: { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  acknowledgeHint: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.45)", lineHeight: 19 },
-  acknowledgeButtons: { flexDirection: "row", gap: 10, marginTop: 4 },
-  acknowledgeBtn: { flex: 1, borderRadius: 20, overflow: "hidden" },
+  acknowledgeBlock: { backgroundColor: "rgba(232,92,122,0.07)", borderWidth: 1, borderColor: "rgba(232,92,122,0.2)", borderRadius: 20, padding: 22, gap: 10 },
+  acknowledgeQuestion: { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  acknowledgeHint: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.48)", lineHeight: 22 },
+  acknowledgeButtons: { flexDirection: "row", gap: 10, marginTop: 6 },
+  acknowledgeBtn: { flex: 1, borderRadius: 22, overflow: "hidden" },
   acknowledgeBtnPrimary: {},
-  acknowledgeBtnSecondary: { backgroundColor: "rgba(245,166,35,0.1)", borderWidth: 1, borderColor: "rgba(245,166,35,0.25)", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12 },
-  acknowledgeBtnGrad: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 12 },
-  acknowledgeBtnTextPrimary: { fontSize: 13, fontFamily: "Nunito_700Bold", color: "#fff" },
-  acknowledgeBtnText: { fontSize: 13, fontFamily: "Nunito_600SemiBold" },
+  acknowledgeBtnSecondary: { backgroundColor: "rgba(245,166,35,0.1)", borderWidth: 1, borderColor: "rgba(245,166,35,0.28)", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14 },
+  acknowledgeBtnGrad: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14 },
+  acknowledgeBtnTextPrimary: { fontSize: 14, fontFamily: "Nunito_700Bold", color: "#fff" },
+  acknowledgeBtnText: { fontSize: 14, fontFamily: "Nunito_600SemiBold" },
   // State banner
-  stateBanner: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "rgba(240,235,248,0.04)", borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10 },
-  stateDot: { width: 8, height: 8, borderRadius: 4 },
-  stateBannerText: { flex: 1, fontSize: 13, fontFamily: "Nunito_600SemiBold" },
+  stateBanner: { flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "rgba(240,235,248,0.04)", borderWidth: 1, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12 },
+  stateDot: { width: 9, height: 9, borderRadius: 5 },
+  stateBannerText: { flex: 1, fontSize: 14, fontFamily: "Nunito_600SemiBold" },
   stateClear: { padding: 4 },
   // Solutions
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" },
-  sectionTitle: { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.4)", letterSpacing: 0.5, textTransform: "uppercase" },
-  sectionSub: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.3)" },
-  solutionsHint: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
-  solutionsHintText: { flex: 1, fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(184,85,224,0.55)", lineHeight: 18 },
-  progressRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  progressText: { fontSize: 13, fontFamily: "Nunito_500Medium", color: "#F5A623" },
-  solutionCard: { borderRadius: 16, borderWidth: 1 },
-  solutionInner: { borderRadius: 16, padding: 16, gap: 10 },
-  solutionHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
-  solutionIconBg: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, alignItems: "center", justifyContent: "center" },
-  solutionType: { fontSize: 11, fontFamily: "Nunito_600SemiBold", letterSpacing: 0.4 },
-  premiumBadge: { marginLeft: "auto", backgroundColor: "rgba(245,166,35,0.12)", borderWidth: 1, borderColor: "rgba(245,166,35,0.3)", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 },
-  premiumBadgeText: { fontSize: 9, fontFamily: "Nunito_600SemiBold", color: "#F5A623", letterSpacing: 0.3 },
-  triedBadge: { marginLeft: "auto", backgroundColor: "rgba(82,200,184,0.12)", borderWidth: 1, borderColor: "rgba(82,200,184,0.3)", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 },
-  triedText: { fontSize: 9, fontFamily: "Nunito_600SemiBold", color: "#52C8B8" },
-  solutionTitle: { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  solutionDesc: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.6)", lineHeight: 20 },
-  tryBtn: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", marginTop: 4, backgroundColor: "rgba(82,200,184,0.1)", borderWidth: 1, borderColor: "rgba(82,200,184,0.25)", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 7 },
-  tryBtnText: { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#52C8B8" },
-  unlockRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 10, paddingHorizontal: 12, backgroundColor: "rgba(240,235,248,0.04)", borderRadius: 10, borderWidth: 1, borderColor: "rgba(240,235,248,0.08)", borderStyle: "dashed" },
-  unlockText: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.3)", fontStyle: "italic" },
-  resolvedBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "rgba(82,200,184,0.08)", borderWidth: 1, borderColor: "rgba(82,200,184,0.2)", borderRadius: 14, paddingVertical: 14 },
-  resolvedBtnText: { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#52C8B8" },
-  noteCard: { flexDirection: "row", gap: 10, padding: 14, backgroundColor: "rgba(184,85,224,0.06)", borderRadius: 12, borderWidth: 1, borderColor: "rgba(184,85,224,0.1)", marginTop: 4 },
-  noteText: { flex: 1, fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.35)", lineHeight: 18 },
+  sectionTitle: { fontSize: 11, fontFamily: "Nunito_700Bold", color: "rgba(240,235,248,0.5)", letterSpacing: 1, textTransform: "uppercase" },
+  sectionSub: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.32)" },
+  solutionsHint: { flexDirection: "row", gap: 9, alignItems: "flex-start" },
+  solutionsHintText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(184,85,224,0.58)", lineHeight: 20 },
+  progressRow: { flexDirection: "row", alignItems: "center", gap: 9 },
+  progressText: { fontSize: 14, fontFamily: "Nunito_500Medium", color: "#F5A623" },
+  solutionCard: { borderRadius: 18, borderWidth: 1 },
+  solutionInner: { borderRadius: 18, padding: 20, gap: 12 },
+  solutionHeader: { flexDirection: "row", alignItems: "center", gap: 9 },
+  solutionIconBg: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  solutionType: { fontSize: 12, fontFamily: "Nunito_600SemiBold", letterSpacing: 0.4 },
+  premiumBadge: { marginLeft: "auto", backgroundColor: "rgba(245,166,35,0.12)", borderWidth: 1, borderColor: "rgba(245,166,35,0.3)", borderRadius: 11, paddingHorizontal: 9, paddingVertical: 3 },
+  premiumBadgeText: { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#F5A623", letterSpacing: 0.3 },
+  triedBadge: { marginLeft: "auto", backgroundColor: "rgba(82,200,184,0.12)", borderWidth: 1, borderColor: "rgba(82,200,184,0.3)", borderRadius: 11, paddingHorizontal: 9, paddingVertical: 3 },
+  triedText: { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#52C8B8" },
+  solutionTitle: { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  solutionDesc: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.65)", lineHeight: 23 },
+  tryBtn: { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", marginTop: 6, backgroundColor: "rgba(82,200,184,0.1)", borderWidth: 1, borderColor: "rgba(82,200,184,0.28)", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 9 },
+  tryBtnText: { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#52C8B8" },
+  unlockRow: { flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "rgba(240,235,248,0.04)", borderRadius: 12, borderWidth: 1, borderColor: "rgba(240,235,248,0.09)", borderStyle: "dashed" },
+  unlockText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.32)", fontStyle: "italic" },
+  resolvedBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, backgroundColor: "rgba(82,200,184,0.09)", borderWidth: 1, borderColor: "rgba(82,200,184,0.22)", borderRadius: 16, paddingVertical: 16 },
+  resolvedBtnText: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#52C8B8" },
+  noteCard: { flexDirection: "row", gap: 11, padding: 16, backgroundColor: "rgba(184,85,224,0.06)", borderRadius: 14, borderWidth: 1, borderColor: "rgba(184,85,224,0.12)", marginTop: 4 },
+  noteText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.37)", lineHeight: 20 },
 });

@@ -30,7 +30,7 @@ export default function LoginScreen() {
   const router  = useRouter();
   const { mode: modeParam } = useLocalSearchParams<{ mode?: string }>();
   const { login, register, isAuthenticated, isAuthLoading } = useAuth();
-  const { user, hasCompletedOnboarding, completeOnboarding, resetApp } = useApp();
+  const { hasCompletedOnboarding, completeOnboarding, resetApp, clearGuidanceMessages } = useApp();
 
   // Redirect already-authenticated users away from login screen
   useEffect(() => {
@@ -120,14 +120,17 @@ export default function LoginScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const serverProfile = result.profile as ServerProfile | null | undefined;
       if (serverProfile) {
-        // Existing user with a profile — sync server data to local, go home
+        // Existing user with a profile — wipe any stale local session data first
+        clearGuidanceMessages();
         await completeOnboarding(
           { name: serverProfile.userName, birthDate: serverProfile.userBirthDate, birthTime: serverProfile.userBirthTime ?? undefined },
           { name: serverProfile.partnerName, birthDate: serverProfile.partnerBirthDate, relationshipType: serverProfile.relationshipType as any },
         );
         // Sync journey states so challenges screen shows correct progress immediately.
-        // Read token from SecureStore directly — jwtToken state may not have updated yet.
-        SecureStore.getItemAsync("lumble_token").then((token) => {
+        // Read token directly — jwtToken state may not have updated yet.
+        const secureGet = (key: string) =>
+          Platform.OS === "web" ? AsyncStorage.getItem(key) : SecureStore.getItemAsync(key);
+        secureGet("lumble_token").then((token) => {
           if (!token) return;
           return fetchJourney(token).then((journey) => {
             if (journey.length === 0) return;
@@ -151,9 +154,7 @@ export default function LoginScreen() {
     }
   };
 
-  const greeting = mode === "signin"
-    ? (user?.name ? `Welcome back, ${user.name}` : "Welcome back")
-    : "Create your account";
+  const greeting = mode === "signin" ? "Sign in to continue" : "Create your account";
 
   return (
     <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={{ flex: 1 }}>
@@ -171,11 +172,13 @@ export default function LoginScreen() {
         >
           {/* Logo */}
           <View style={styles.logoArea}>
-            <Image
-              source={require("../assets/images/logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
+            <View style={styles.logoCircle}>
+              <Image
+                source={require("../assets/images/logo.png")}
+                style={styles.logo}
+                resizeMode="cover"
+              />
+            </View>
             <Text style={styles.appName}>Lumble</Text>
             <Text style={styles.tagline}>{greeting}</Text>
           </View>
@@ -316,18 +319,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  logoArea: { alignItems: "center", gap: 8 },
-  logo: { width: 80, height: 80 },
-  logoOrb: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.2)",
+  logoArea: { alignItems: "center", gap: 10 },
+  logoCircle: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "rgba(240,235,248,0.1)",
   },
-  logoGlyph: { fontSize: 28, color: "#E85C7A" },
+  logo: { width: "100%", height: "100%" },
   appName: {
     fontSize: 30,
     fontFamily: "Nunito_700Bold",

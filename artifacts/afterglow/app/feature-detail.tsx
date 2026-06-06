@@ -122,7 +122,7 @@ export default function FeatureDetail() {
     <LinearGradient colors={["#080611", "#0D0A1E", "#080611"]} style={{ flex: 1 }}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
+        <Pressable onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
           <Feather name="chevron-left" size={24} color="rgba(240,235,248,0.7)" />
         </Pressable>
         <Pressable onPress={handleShare} style={styles.shareBtn}>
@@ -228,15 +228,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   featureTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
     textAlign: "center",
   },
   featureSub: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.35)",
+    color: "rgba(240,235,248,0.38)",
   },
   ring: {
     width: 160,
@@ -257,13 +257,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   ringScore: {
-    fontSize: 48,
+    fontSize: 54,
     fontFamily: "Nunito_700Bold",
   },
   ringLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.35)",
+    color: "rgba(240,235,248,0.38)",
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
@@ -276,10 +276,10 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   resultText: {
-    fontSize: 17,
+    fontSize: 18,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.9)",
-    lineHeight: 28,
+    color: "rgba(240,235,248,0.92)",
+    lineHeight: 30,
   },
   shareCard: {
     borderRadius: 14,
