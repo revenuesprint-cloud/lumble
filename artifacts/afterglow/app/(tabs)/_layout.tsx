@@ -24,24 +24,32 @@ export default function TabLayout() {
       }}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#E85C7A",
-        tabBarInactiveTintColor: "rgba(240,235,248,0.3)",
+        tabBarActiveTintColor: "#5B4CE8",
+        tabBarInactiveTintColor: "#9CA3AF",
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "#080611",
+          backgroundColor: "#FFFFFF",
           borderTopWidth: 1,
-          borderTopColor: "rgba(240,235,248,0.07)",
-          elevation: 0,
+          borderTopColor: "#EAECEF",
+          elevation: 20,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.1,
+          shadowRadius: 20,
           ...(isWeb ? { height: 64, paddingBottom: 8 } : {}),
         },
         tabBarBackground: () =>
           isWeb ? (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: "#080611" }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: "#FFFFFF" }]} />
           ) : null,
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontFamily: "Nunito_600SemiBold",
-          letterSpacing: 0.2,
+          letterSpacing: 0.3,
+          marginTop: 1,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
         },
       }}
     >
@@ -49,35 +57,35 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Feather name="home" size={23} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="home" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="compatibility"
         options={{
           title: "Us",
-          tabBarIcon: ({ color }) => <Feather name="heart" size={23} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="heart" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="patterns"
         options={{
           title: "Patterns",
-          tabBarIcon: ({ color }) => <Feather name="layers" size={23} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="layers" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="features"
         options={{
           title: "Reads",
-          tabBarIcon: ({ color }) => <Feather name="zap" size={23} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="zap" size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="guidance"
         options={{
           title: "Ask",
-          tabBarIcon: ({ color }) => <Feather name="message-circle" size={23} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="message-circle" size={22} color={color} />,
         }}
       />
       <Tabs.Screen

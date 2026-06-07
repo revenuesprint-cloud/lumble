@@ -1,47 +1,65 @@
 const colors = {
-  dark: {
-    text: "#F0EBF8",
-    tint: "#E85C7A",
+  light: {
+    // Backgrounds
+    background:     "#F4F5F7",
+    card:           "#FFFFFF",
+    cardElevated:   "#FAFAFA",
+    foreground:     "#111827",
 
-    background: "#080611",
-    foreground: "#F0EBF8",
+    // Text
+    text:           "#111827",
+    textMuted:      "#6B7280",
+    textFaint:      "#9CA3AF",
+    cardForeground: "#111827",
 
-    card: "#110F1E",
-    cardForeground: "#F0EBF8",
-    cardElevated: "#1A1630",
+    // Primary — indigo
+    primary:          "#5B4CE8",
+    primaryLight:     "#EEF2FF",
+    primaryDark:      "#3730A3",
+    primaryForeground:"#FFFFFF",
+    tint:             "#5B4CE8",
 
-    primary: "#E85C7A",
-    primaryForeground: "#ffffff",
+    // Accent — orange
+    accent:           "#FF6B35",
+    accentLight:      "#FFF3EE",
+    accentForeground: "#FFFFFF",
 
-    secondary: "#1E1A30",
-    secondaryForeground: "#C9BFDF",
+    // Semantic
+    emerald:      "#10B981",
+    emeraldLight: "#ECFDF5",
+    gold:         "#F59E0B",
+    goldLight:    "#FFFBEB",
+    goldMuted:    "#D97706",
+    rose:         "#F43F5E",
+    roseLight:    "#FFF1F2",
+    roseDeep:     "#BE123C",
+    violet:       "#8B5CF6",
+    violetLight:  "#F5F3FF",
+    violetDeep:   "#6D28D9",
 
-    muted: "#1E1A30",
-    mutedForeground: "#7B6E95",
+    // Compat aliases
+    secondary:           "#F4F5F7",
+    secondaryForeground: "#374151",
+    muted:               "#F3F4F6",
+    mutedForeground:     "#6B7280",
 
-    accent: "#B855E0",
-    accentForeground: "#ffffff",
+    // Borders & inputs
+    border:      "#E5E7EB",
+    borderLight: "#F3F4F6",
+    input:       "#F9FAFB",
 
-    gold: "#F5A623",
-    goldMuted: "#9E6A14",
+    // Destructive
+    destructive:           "#EF4444",
+    destructiveForeground: "#FFFFFF",
 
-    rose: "#E85C7A",
-    roseDeep: "#9E1A38",
-
-    violet: "#7C52C8",
-    violetDeep: "#3D2480",
-
-    destructive: "#ef4444",
-    destructiveForeground: "#ffffff",
-
-    border: "#221D38",
-    input: "#1A1630",
-
-    overlay: "rgba(8, 6, 17, 0.85)",
-    glow: "rgba(232, 92, 122, 0.15)",
-    glowStrong: "rgba(232, 92, 122, 0.3)",
-    glowGold: "rgba(245, 166, 35, 0.15)",
-    glowViolet: "rgba(124, 82, 200, 0.2)",
+    // Effects
+    overlay:    "rgba(0, 0, 0, 0.5)",
+    glow:       "rgba(91, 76, 232, 0.08)",
+    glowStrong: "rgba(91, 76, 232, 0.15)",
+    glowGold:   "rgba(245, 158, 11, 0.1)",
+    glowViolet: "rgba(139, 92, 246, 0.1)",
+    shadow:     "rgba(0, 0, 0, 0.06)",
+    shadowMd:   "rgba(0, 0, 0, 0.1)",
   },
 
   radius: 16,

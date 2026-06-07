@@ -32,7 +32,6 @@ export default function LoginScreen() {
   const { login, register, isAuthenticated, isAuthLoading } = useAuth();
   const { hasCompletedOnboarding, completeOnboarding, resetApp, clearGuidanceMessages } = useApp();
 
-  // Redirect already-authenticated users away from login screen
   useEffect(() => {
     if (isAuthLoading) return;
     if (isAuthenticated) {
@@ -44,7 +43,7 @@ export default function LoginScreen() {
     }
   }, [isAuthenticated, isAuthLoading, hasCompletedOnboarding]);
 
-  const [mode, setMode] = useState<Mode>(modeParam === "register" ? "register" : "signin");
+  const [mode,         setMode]         = useState<Mode>(modeParam === "register" ? "register" : "signin");
   const [email,        setEmail]        = useState("");
   const [password,     setPassword]     = useState("");
   const [confirm,      setConfirm]      = useState("");
@@ -57,62 +56,49 @@ export default function LoginScreen() {
 
   const shake = () => {
     Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 10,  duration: 60, useNativeDriver: true }),
       Animated.timing(shakeAnim, { toValue: -10, duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 8,  duration: 60, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0,  duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 8,   duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0,   duration: 60, useNativeDriver: true }),
     ]).start();
   };
 
   const clear = () => { setError(""); };
 
   const switchMode = (next: Mode) => {
-    setMode(next);
-    setError("");
-    setPassword("");
-    setConfirm("");
+    setMode(next); setError(""); setPassword(""); setConfirm("");
   };
 
   const handleSubmit = async () => {
     if (!email.trim() || !password) {
-      setError("Please fill in all fields.");
-      shake();
-      return;
+      setError("Please fill in all fields."); shake(); return;
     }
     if (mode === "register") {
       if (password.length < 6) {
-        setError("Password must be at least 6 characters.");
-        shake();
-        return;
+        setError("Password must be at least 6 characters."); shake(); return;
       }
       if (password !== confirm) {
-        setError("Passwords don't match.");
-        shake();
-        return;
+        setError("Passwords don't match."); shake(); return;
       }
     }
 
-    setLoading(true);
-    setError("");
+    setLoading(true); setError("");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (mode === "register") {
       const result = await register(email.trim(), password);
       setLoading(false);
       if (result.success) {
-        // New account — always clear any stale local profile data and go through onboarding
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         await resetApp();
         router.replace("/onboarding");
       } else {
-        setError(result.error ?? "Registration failed.");
-        shake();
+        setError(result.error ?? "Registration failed."); shake();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
       return;
     }
 
-    // Sign-in: server tells us if the user has a profile
     const result = await login(email.trim(), password);
     setLoading(false);
 
@@ -120,14 +106,11 @@ export default function LoginScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const serverProfile = result.profile as ServerProfile | null | undefined;
       if (serverProfile) {
-        // Existing user with a profile — wipe any stale local session data first
         clearGuidanceMessages();
         await completeOnboarding(
           { name: serverProfile.userName, birthDate: serverProfile.userBirthDate, birthTime: serverProfile.userBirthTime ?? undefined },
           { name: serverProfile.partnerName, birthDate: serverProfile.partnerBirthDate, relationshipType: serverProfile.relationshipType as any },
         );
-        // Sync journey states so challenges screen shows correct progress immediately.
-        // Read token directly — jwtToken state may not have updated yet.
         const secureGet = (key: string) =>
           Platform.OS === "web" ? AsyncStorage.getItem(key) : SecureStore.getItemAsync(key);
         secureGet("lumble_token").then((token) => {
@@ -143,41 +126,29 @@ export default function LoginScreen() {
         }).catch(() => {});
         router.replace("/(tabs)/home");
       } else {
-        // Account exists but no profile yet — clear stale local data, go to onboarding
         await resetApp();
         router.replace("/onboarding");
       }
     } else {
-      setError(result.error ?? "Sign in failed.");
-      shake();
+      setError(result.error ?? "Sign in failed."); shake();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
   };
 
-  const greeting = mode === "signin" ? "Sign in to continue" : "Create your account";
+  const greeting = mode === "signin" ? "Welcome back" : "Create your account";
 
   return (
-    <LinearGradient colors={["#080611", "#0D0A1E", "#110818"]} style={{ flex: 1 }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView
-          contentContainerStyle={[
-            styles.scroll,
-            { paddingTop: insets.top + 36, paddingBottom: insets.bottom + 40 },
-          ]}
+          contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 36, paddingBottom: insets.bottom + 40 }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Logo */}
           <View style={styles.logoArea}>
             <View style={styles.logoCircle}>
-              <Image
-                source={require("../assets/images/logo.png")}
-                style={styles.logo}
-                resizeMode="cover"
-              />
+              <Image source={require("../assets/images/logo.png")} style={styles.logo} resizeMode="cover" />
             </View>
             <Text style={styles.appName}>Lumble</Text>
             <Text style={styles.tagline}>{greeting}</Text>
@@ -190,18 +161,14 @@ export default function LoginScreen() {
               style={[styles.toggleBtn, mode === "signin" && styles.toggleBtnActive]}
               activeOpacity={0.8}
             >
-              <Text style={[styles.toggleText, mode === "signin" && styles.toggleTextActive]}>
-                Sign In
-              </Text>
+              <Text style={[styles.toggleText, mode === "signin" && styles.toggleTextActive]}>Sign In</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => switchMode("register")}
               style={[styles.toggleBtn, mode === "register" && styles.toggleBtnActive]}
               activeOpacity={0.8}
             >
-              <Text style={[styles.toggleText, mode === "register" && styles.toggleTextActive]}>
-                Create Account
-              </Text>
+              <Text style={[styles.toggleText, mode === "register" && styles.toggleTextActive]}>Create Account</Text>
             </TouchableOpacity>
           </View>
 
@@ -212,13 +179,13 @@ export default function LoginScreen() {
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Email</Text>
               <View style={styles.fieldRow}>
-                <Feather name="mail" size={16} color="rgba(240,235,248,0.3)" style={styles.icon} />
+                <Feather name="mail" size={16} color="#9CA3AF" style={styles.icon} />
                 <TextInput
                   style={styles.input}
                   value={email}
                   onChangeText={(t) => { setEmail(t); clear(); }}
                   placeholder="your@email.com"
-                  placeholderTextColor="rgba(240,235,248,0.2)"
+                  placeholderTextColor="#D1D5DB"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -231,20 +198,20 @@ export default function LoginScreen() {
             <View style={styles.fieldGroup}>
               <Text style={styles.fieldLabel}>Password</Text>
               <View style={styles.fieldRow}>
-                <Feather name="lock" size={16} color="rgba(240,235,248,0.3)" style={styles.icon} />
+                <Feather name="lock" size={16} color="#9CA3AF" style={styles.icon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
                   value={password}
                   onChangeText={(t) => { setPassword(t); clear(); }}
                   placeholder={mode === "register" ? "Min. 6 characters" : "Your password"}
-                  placeholderTextColor="rgba(240,235,248,0.2)"
+                  placeholderTextColor="#D1D5DB"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   returnKeyType={mode === "register" ? "next" : "done"}
                   onSubmitEditing={mode === "signin" ? handleSubmit : undefined}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color="rgba(240,235,248,0.3)" />
+                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color="#9CA3AF" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -254,20 +221,20 @@ export default function LoginScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>Confirm Password</Text>
                 <View style={styles.fieldRow}>
-                  <Feather name="lock" size={16} color="rgba(240,235,248,0.3)" style={styles.icon} />
+                  <Feather name="lock" size={16} color="#9CA3AF" style={styles.icon} />
                   <TextInput
                     style={[styles.input, { flex: 1 }]}
                     value={confirm}
                     onChangeText={(t) => { setConfirm(t); clear(); }}
                     placeholder="Re-enter password"
-                    placeholderTextColor="rgba(240,235,248,0.2)"
+                    placeholderTextColor="#D1D5DB"
                     secureTextEntry={!showConfirm}
                     autoCapitalize="none"
                     returnKeyType="done"
                     onSubmitEditing={handleSubmit}
                   />
                   <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
-                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color="rgba(240,235,248,0.3)" />
+                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color="#9CA3AF" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -276,7 +243,7 @@ export default function LoginScreen() {
             {/* Error */}
             {error ? (
               <View style={styles.errorBanner}>
-                <Feather name="alert-circle" size={14} color="#E85C7A" />
+                <Feather name="alert-circle" size={14} color="#F43F5E" />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             ) : null}
@@ -289,9 +256,8 @@ export default function LoginScreen() {
               style={[styles.submitBtn, loading && { opacity: 0.7 }]}
             >
               <LinearGradient
-                colors={["#E85C7A", "#B855E0"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                colors={["#5B4CE8", "#8B5CF6"]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                 style={styles.submitGradient}
               >
                 <Text style={styles.submitText}>
@@ -306,121 +272,66 @@ export default function LoginScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   scroll: {
-    flexGrow: 1,
-    paddingHorizontal: 28,
-    gap: 24,
-    alignItems: "stretch",
-    justifyContent: "center",
+    flexGrow: 1, paddingHorizontal: 28, gap: 24,
+    alignItems: "stretch", justifyContent: "center",
   },
 
-  logoArea: { alignItems: "center", gap: 10 },
+  logoArea:   { alignItems: "center", gap: 10 },
   logoCircle: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "rgba(240,235,248,0.1)",
+    width: 76, height: 76, borderRadius: 38, overflow: "hidden",
+    borderWidth: 2, borderColor: "#E5E7EB",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3,
   },
-  logo: { width: "100%", height: "100%" },
-  appName: {
-    fontSize: 30,
-    fontFamily: "Nunito_700Bold",
-    color: "#F0EBF8",
-    letterSpacing: -0.5,
-  },
-  tagline: {
-    fontSize: 14,
-    fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.4)",
-  },
+  logo:    { width: "100%", height: "100%" },
+  appName: { fontSize: 28, fontFamily: "Nunito_700Bold", color: "#111827", letterSpacing: -0.5 },
+  tagline: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280" },
 
   // Toggle
   toggle: {
-    flexDirection: "row",
-    backgroundColor: "rgba(26,22,48,0.8)",
-    borderRadius: 14,
-    padding: 4,
-    gap: 2,
+    flexDirection: "row", backgroundColor: "#FFFFFF",
+    borderRadius: 14, padding: 4, gap: 2,
+    borderWidth: 1, borderColor: "#E5E7EB",
   },
-  toggleBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  toggleBtnActive: { backgroundColor: "#1E1A30" },
-  toggleText: {
-    fontSize: 14,
-    fontFamily: "Nunito_600SemiBold",
-    color: "rgba(240,235,248,0.35)",
-  },
-  toggleTextActive: { color: "#F0EBF8" },
+  toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center" },
+  toggleBtnActive: { backgroundColor: "#5B4CE8" },
+  toggleText:      { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  toggleTextActive:{ color: "#FFFFFF" },
 
   // Form
-  form: { gap: 14 },
+  form:       { gap: 14 },
   fieldGroup: { gap: 7 },
   fieldLabel: {
-    fontSize: 12,
-    fontFamily: "Nunito_500Medium",
-    color: "rgba(240,235,248,0.45)",
-    letterSpacing: 0,
+    fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#374151",
   },
   fieldRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#110F1E",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(240,235,248,0.08)",
-    paddingHorizontal: 14,
-    gap: 10,
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
+    paddingHorizontal: 14, gap: 10,
   },
-  icon: { flexShrink: 0 },
+  icon:    { flexShrink: 0 },
   input: {
-    flex: 1,
-    paddingVertical: 15,
-    fontSize: 15,
-    fontFamily: "Nunito_400Regular",
-    color: "#F0EBF8",
+    flex: 1, paddingVertical: 15, fontSize: 15,
+    fontFamily: "Nunito_400Regular", color: "#111827",
   },
   eyeBtn: { padding: 4 },
 
   errorBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "rgba(232,92,122,0.08)",
-    borderRadius: 10,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "rgba(232,92,122,0.2)",
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: "#FFF1F2", borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: "#FECDD3",
   },
-  errorText: {
-    flex: 1,
-    fontSize: 13,
-    fontFamily: "Nunito_400Regular",
-    color: "#E85C7A",
-  },
+  errorText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "#F43F5E" },
 
-  submitBtn: { borderRadius: 16, overflow: "hidden" },
+  submitBtn:      { borderRadius: 16, overflow: "hidden" },
   submitGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    paddingVertical: 17,
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 10, paddingVertical: 17,
   },
-  submitText: {
-    fontSize: 16,
-    fontFamily: "Nunito_700Bold",
-    color: "#fff",
-  },
-
+  submitText: { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
 });

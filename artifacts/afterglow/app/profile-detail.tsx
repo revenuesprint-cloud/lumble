@@ -8,7 +8,6 @@ import {
 import { getContentBundle } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -20,8 +19,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-// ─── DB-first resolvers ───────────────────────────────────────────────────────
 
 function resolveMoonProfile(rashiIdx: number) {
   const b = getContentBundle();
@@ -50,8 +47,6 @@ function resolveDasha(lord: string) {
   return DASHA_CHAPTERS[lord];
 }
 
-// ─── Section block ────────────────────────────────────────────────────────────
-
 function Section({ title, accent, children }: { title: string; accent: string; children: React.ReactNode }) {
   return (
     <View style={secStyles.section}>
@@ -66,45 +61,39 @@ function Section({ title, accent, children }: { title: string; accent: string; c
 const secStyles = StyleSheet.create({
   section:  { gap: 14 },
   titleRow: { borderLeftWidth: 3, paddingLeft: 12 },
-  title:    { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.55)" },
+  title:    { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
   content:  { gap: 14, paddingLeft: 4 },
 });
-
-// ─── Data row ─────────────────────────────────────────────────────────────────
 
 function DataRow({ label, value, accent }: { label: string; value: string; accent: string }) {
   if (!value) return null;
   return (
     <View style={drStyles.row}>
       <Text style={drStyles.label}>{label}</Text>
-      <Text style={[drStyles.value, { color: accent + "DD" }]}>{value}</Text>
+      <Text style={[drStyles.value, { color: accent }]}>{value}</Text>
     </View>
   );
 }
 
 const drStyles = StyleSheet.create({
   row:   { gap: 4 },
-  label: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.33)" },
-  value: { fontSize: 15, fontFamily: "Nunito_400Regular", lineHeight: 23 },
+  label: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
+  value: { fontSize: 15, fontFamily: "Nunito_400Regular", lineHeight: 23, color: "#374151" },
 });
-
-// ─── Highlighted quote block ──────────────────────────────────────────────────
 
 function QuoteBlock({ text, accent }: { text: string; accent: string }) {
   if (!text) return null;
   return (
-    <View style={[qbStyles.wrap, { borderColor: accent + "28", backgroundColor: accent + "0A" }]}>
+    <View style={[qbStyles.wrap, { borderColor: accent + "30", backgroundColor: accent + "08" }]}>
       <Text style={qbStyles.text}>"{text}"</Text>
     </View>
   );
 }
 
 const qbStyles = StyleSheet.create({
-  wrap: { borderRadius: 16, borderWidth: 1, padding: 18 },
-  text: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.88)", lineHeight: 25, fontStyle: "italic" },
+  wrap: { borderRadius: 14, borderWidth: 1, padding: 16 },
+  text: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 24, fontStyle: "italic" },
 });
-
-// ─── Profile Detail Screen ────────────────────────────────────────────────────
 
 export default function ProfileDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -123,26 +112,25 @@ export default function ProfileDetailScreen() {
   const name       = isPartner ? partner.name : user.name;
   const kundliData = isPartner ? reading.partner : reading.user;
 
-  const rashi     = RASHIS[kundliData.moonRashi];
-  const sunRashi  = RASHIS[kundliData.sunRashi];
-  const lagnaRashi= RASHIS[kundliData.lagnaRashi];
-  const nak       = NAKSHATRAS[kundliData.nakshatra];
-  const mp        = resolveMoonProfile(kundliData.moonRashi);
-  const np        = resolveNakProfile(kundliData.nakshatra);
-  const dc        = !isPartner ? resolveDasha(kundliData.dasha.current) : null;
+  const rashi      = RASHIS[kundliData.moonRashi];
+  const sunRashi   = RASHIS[kundliData.sunRashi];
+  const lagnaRashi = RASHIS[kundliData.lagnaRashi];
+  const nak        = NAKSHATRAS[kundliData.nakshatra];
+  const mp         = resolveMoonProfile(kundliData.moonRashi);
+  const np         = resolveNakProfile(kundliData.nakshatra);
+  const dc         = !isPartner ? resolveDasha(kundliData.dasha.current) : null;
 
   const accent = rashi.color;
 
   return (
-    <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
-      {/* Back header */}
+    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7}
           style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="rgba(240,235,248,0.7)" />
+          <Feather name="arrow-left" size={20} color="#6B7280" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{name}</Text>
         <View style={styles.headerSpacer} />
@@ -153,98 +141,91 @@ export default function ProfileDetailScreen() {
         style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
       >
-        {/* ── Moon Hero ────────────────────────────────────────────────── */}
-        <View style={[styles.moonHero, { borderColor: accent + "28" }]}>
-          <LinearGradient colors={[accent + "14", "transparent"]} style={styles.moonHeroInner}>
-            {/* Signs row */}
+        {/* Moon hero */}
+        <View style={[styles.moonHero, { borderColor: accent + "30" }]}>
+          <View style={[styles.moonHeroAccent, { backgroundColor: accent }]} />
+          <View style={styles.moonHeroContent}>
             <View style={styles.signsRow}>
               {[
                 { icon: "☉", label: "Sun",    val: sunRashi.en,   color: sunRashi.color },
                 { icon: "☽", label: "Moon",   val: rashi.en,      color: accent },
                 { icon: "↑", label: "Rising", val: lagnaRashi.en, color: lagnaRashi.color },
               ].map((s) => (
-                <View key={s.label} style={[styles.signPill, { borderColor: s.color + "33", backgroundColor: s.color + "10" }]}>
+                <View key={s.label} style={[styles.signPill, { borderColor: s.color + "40", backgroundColor: s.color + "10" }]}>
                   <Text style={[styles.signIcon, { color: s.color }]}>{s.icon}</Text>
                   <Text style={[styles.signVal,  { color: s.color }]}>{s.val}</Text>
                   <Text style={styles.signLabel}>{s.label}</Text>
                 </View>
               ))}
             </View>
-
-            {/* Nakshatra badge */}
             <View style={styles.nakRow}>
-              <View style={[styles.nakChip, { backgroundColor: accent + "14", borderColor: accent + "33" }]}>
+              <View style={[styles.nakChip, { backgroundColor: accent + "12", borderColor: accent + "30" }]}>
                 <Text style={[styles.nakText, { color: accent }]}>{nak.name} nakshatra</Text>
               </View>
               {!isPartner && (
-                <View style={[styles.nakChip, { backgroundColor: "rgba(245,166,35,0.12)", borderColor: "rgba(245,166,35,0.3)" }]}>
-                  <Text style={[styles.nakText, { color: "#F5A623" }]}>{kundliData.dasha.current} dasha</Text>
+                <View style={[styles.nakChip, { backgroundColor: "#FFFBEB", borderColor: "#FDE68A" }]}>
+                  <Text style={[styles.nakText, { color: "#D97706" }]}>{kundliData.dasha.current} dasha</Text>
                 </View>
               )}
             </View>
-          </LinearGradient>
+          </View>
         </View>
 
-        {/* ── How they love ──────────────────────────────────────────────── */}
         <Section title={`How ${name} loves`} accent={accent}>
           <QuoteBlock text={mp.insight ?? ""} accent={accent} />
-          <DataRow label="What hurt them most"       value={mp.coreWound   ?? ""} accent={accent} />
-          <DataRow label="What they're scared of"    value={mp.fear        ?? ""} accent={accent} />
-          <DataRow label="What they need to hear"    value={mp.needsToHear ?? ""} accent={accent} />
+          <DataRow label="What hurt them most"    value={mp.coreWound   ?? ""} accent={accent} />
+          <DataRow label="What they're scared of" value={mp.fear        ?? ""} accent={accent} />
+          <DataRow label="What they need to hear" value={mp.needsToHear ?? ""} accent={accent} />
         </Section>
 
-        {/* ── Love pattern ──────────────────────────────────────────────── */}
         <Section title={`${name}'s love pattern — ${nak.name} nakshatra`} accent={accent}>
-          <DataRow label="What they do in love"          value={np.pattern  ?? ""} accent={accent} />
-          <DataRow label="What they're actually chasing" value={np.craving  ?? ""} accent={accent} />
-          <DataRow label="Their real strength"           value={np.strength ?? ""} accent={accent} />
-          <DataRow label="Where they get stuck"          value={np.trap     ?? ""} accent={accent} />
-          <DataRow label="What they won't admit about themselves" value={np.shadow ?? ""} accent={accent} />
+          <DataRow label="What they do in love"             value={np.pattern  ?? ""} accent={accent} />
+          <DataRow label="What they're actually chasing"    value={np.craving  ?? ""} accent={accent} />
+          <DataRow label="Their real strength"              value={np.strength ?? ""} accent={accent} />
+          <DataRow label="Where they get stuck"             value={np.trap     ?? ""} accent={accent} />
+          <DataRow label="What they won't admit"            value={np.shadow   ?? ""} accent={accent} />
         </Section>
 
-        {/* ── Blind spots ──────────────────────────────────────────────── */}
         <Section title="Things they don't see" accent={accent}>
-          <DataRow label="What they can't see about themselves" value={mp.blindspot       ?? ""} accent={accent} />
-          <DataRow label="What they keep overlooking"           value={mp.redFlag         ?? ""} accent={accent} />
-          <DataRow label="How they act in relationships"        value={mp.attachment      ?? ""} accent={accent} />
-          <DataRow label="What makes them want to leave"        value={mp.dealbreaker     ?? ""} accent={accent} />
-          <DataRow label="What makes them feel most insecure"   value={mp.insecurityHook  ?? ""} accent={accent} />
+          <DataRow label="What they can't see about themselves" value={mp.blindspot      ?? ""} accent={accent} />
+          <DataRow label="What they keep overlooking"          value={mp.redFlag        ?? ""} accent={accent} />
+          <DataRow label="How they act in relationships"       value={mp.attachment     ?? ""} accent={accent} />
+          <DataRow label="What makes them want to leave"       value={mp.dealbreaker    ?? ""} accent={accent} />
+          <DataRow label="What makes them feel most insecure"  value={mp.insecurityHook ?? ""} accent={accent} />
         </Section>
 
-        {/* ── Right now in life (user only) ─────────────────────────────── */}
         {!isPartner && dc && (
-          <Section title={`Right now — ${kundliData.dasha.current} dasha`} accent="#F5A623">
-            <QuoteBlock text={dc.headline ?? ""} accent="#F5A623" />
-            <DataRow label="How this affects your relationship" value={dc.relationshipEffect ?? ""} accent="#F5A623" />
-            <DataRow label="The gift of this period"            value={dc.gift              ?? ""} accent="#F5A623" />
-            <DataRow label="The challenge"                      value={dc.challenge         ?? ""} accent="#F5A623" />
-            <DataRow label="What to watch out for"             value={dc.warning           ?? ""} accent="#F5A623" />
-            <DataRow label="What this means for love"          value={dc.lessonForLove     ?? ""} accent="#F5A623" />
+          <Section title={`Right now — ${kundliData.dasha.current} dasha`} accent="#F59E0B">
+            <QuoteBlock text={dc.headline ?? ""} accent="#F59E0B" />
+            <DataRow label="How this affects your relationship" value={dc.relationshipEffect ?? ""} accent="#D97706" />
+            <DataRow label="The gift of this period"            value={dc.gift              ?? ""} accent="#D97706" />
+            <DataRow label="The challenge"                      value={dc.challenge         ?? ""} accent="#D97706" />
+            <DataRow label="What to watch out for"             value={dc.warning           ?? ""} accent="#D97706" />
+            <DataRow label="What this means for love"          value={dc.lessonForLove     ?? ""} accent="#D97706" />
           </Section>
         )}
-
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header:        { flexDirection:"row", alignItems:"center", paddingHorizontal:20, paddingBottom:16, gap:12 },
-  backBtn:       { width:40, height:40, borderRadius:20, backgroundColor:"rgba(240,235,248,0.06)", alignItems:"center", justifyContent:"center" },
-  headerTitle:   { flex:1, fontSize:20, fontFamily:"Nunito_700Bold", color:"#F0EBF8", textAlign:"center" },
-  headerSpacer:  { width:40 },
-  scroll:        { paddingHorizontal:20, gap:28 },
+  header:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
+  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
+  headerTitle:     { flex: 1, fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827", textAlign: "center" },
+  headerSpacer:    { width: 40 },
+  scroll:          { paddingHorizontal: 20, gap: 24 },
 
-  moonHero:      { borderRadius:22, borderWidth:1, overflow:"hidden" },
-  moonHeroInner: { padding:22, gap:16 },
-
-  signsRow:      { flexDirection:"row", gap:8 },
-  signPill:      { flex:1, borderRadius:14, borderWidth:1, padding:12, alignItems:"center", gap:4 },
-  signIcon:      { fontSize:18 },
-  signVal:       { fontSize:14, fontFamily:"Nunito_700Bold" },
-  signLabel:     { fontSize:10, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.4)" },
-
-  nakRow:        { flexDirection:"row", gap:8, flexWrap:"wrap" },
-  nakChip:       { borderRadius:20, borderWidth:1, paddingHorizontal:12, paddingVertical:5 },
-  nakText:       { fontSize:12, fontFamily:"Nunito_500Medium" },
+  moonHero:        { borderRadius: 20, borderWidth: 1, backgroundColor: "#FFFFFF", flexDirection: "row", overflow: "hidden",
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
+  moonHeroAccent:  { width: 4 },
+  moonHeroContent: { flex: 1, padding: 20, gap: 14 },
+  signsRow:        { flexDirection: "row", gap: 8 },
+  signPill:        { flex: 1, borderRadius: 14, borderWidth: 1, padding: 12, alignItems: "center", gap: 4 },
+  signIcon:        { fontSize: 18 },
+  signVal:         { fontSize: 14, fontFamily: "Nunito_700Bold" },
+  signLabel:       { fontSize: 10, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  nakRow:          { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  nakChip:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
+  nakText:         { fontSize: 12, fontFamily: "Nunito_500Medium" },
 });

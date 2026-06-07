@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, Easing, StyleSheet, View } from "react-native";
 
 interface AnimatedBarProps {
   value: number; // 0–100
@@ -12,9 +12,9 @@ interface AnimatedBarProps {
 
 export function AnimatedBar({
   value,
-  color = "#E85C7A",
+  color = "#5B4CE8",
   color2,
-  height = 6,
+  height = 7,
   delay = 0,
 }: AnimatedBarProps) {
   const widthAnim = useRef(new Animated.Value(0)).current;
@@ -22,8 +22,9 @@ export function AnimatedBar({
   useEffect(() => {
     Animated.timing(widthAnim, {
       toValue: value,
-      duration: 900,
+      duration: 500,
       delay,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: false,
     }).start();
   }, [value]);
@@ -50,7 +51,7 @@ export function AnimatedBar({
 
 const styles = StyleSheet.create({
   track: {
-    backgroundColor: "rgba(240,235,248,0.08)",
+    backgroundColor: "#F3F4F6",
     borderRadius: 10,
     overflow: "hidden",
     width: "100%",

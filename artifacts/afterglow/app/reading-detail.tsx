@@ -5,7 +5,6 @@ import { DASHA_CHAPTERS } from "@/utils/content-library";
 import { getContentBundle } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -27,19 +26,19 @@ function resolveDasha(lord: string) {
   return DASHA_CHAPTERS[lord];
 }
 
-function Block({ label, value, accent }: { label: string; value: string; accent: string }) {
+function Block({ label, value, color }: { label: string; value: string; color: string }) {
   if (!value) return null;
   return (
     <View style={blkStyles.wrap}>
       <Text style={blkStyles.label}>{label}</Text>
-      <Text style={[blkStyles.value, { color: accent + "DD" }]}>{value}</Text>
+      <Text style={[blkStyles.value, { color }]}>{value}</Text>
     </View>
   );
 }
 
 const blkStyles = StyleSheet.create({
-  wrap:  { gap: 5 },
-  label: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.33)" },
+  wrap:  { gap: 4 },
+  label: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
   value: { fontSize: 15, fontFamily: "Nunito_400Regular", lineHeight: 23 },
 });
 
@@ -47,7 +46,7 @@ export default function ReadingDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, partner } = useApp();
-  const params = useLocalSearchParams<{ headline?:string; insight?:string; action?:string; moonTag?:string }>();
+  const params = useLocalSearchParams<{ headline?: string; insight?: string; action?: string; moonTag?: string }>();
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -62,52 +61,50 @@ export default function ReadingDetailScreen() {
   const pRashi   = RASHIS[reading.partner.moonRashi];
   const nak      = NAKSHATRAS[reading.user.nakshatra];
   const dc       = resolveDasha(reading.user.dasha.current);
-  const accent   = "#E85C7A";
-
-  const date = new Date().toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+  const date     = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <LinearGradient colors={["#080611","#0D0A1E"]} style={{ flex:1 }}>
-      {/* Header */}
+    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7} style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="rgba(240,235,248,0.7)" />
+          <Feather name="arrow-left" size={20} color="#6B7280" />
         </TouchableOpacity>
-        <View style={{ flex:1 }}>
+        <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Today's read</Text>
           <Text style={styles.headerSub}>{date}</Text>
         </View>
-        <View style={{ width:40 }} />
+        <View style={{ width: 40 }} />
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === "web" ? { maxWidth:640, alignSelf:"center", width:"100%" } : undefined}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
       >
         {/* Moon tag */}
         <View style={styles.moonTagWrap}>
-          <View style={[styles.moonTag, { backgroundColor: uRashi.color+"18", borderColor: uRashi.color+"44" }]}>
+          <View style={[styles.moonTag, { backgroundColor: uRashi.color + "14", borderColor: uRashi.color + "40" }]}>
             <Text style={[styles.moonTagText, { color: uRashi.color }]}>{uRashi.en} · {pRashi.en}</Text>
           </View>
           <Text style={styles.nakLabel}>{nak.name} nakshatra</Text>
         </View>
 
         {/* Main insight */}
-        <View style={[styles.insightBlock, { borderColor: accent+"22" }]}>
-          <LinearGradient colors={[accent+"10","transparent"]} style={styles.insightInner}>
+        <View style={[styles.insightBlock, { borderColor: "#C7D2FE" }]}>
+          <View style={[styles.insightAccent, { backgroundColor: "#5B4CE8" }]} />
+          <View style={styles.insightContent}>
             <Text style={styles.insightHeadline}>{hero.headline}</Text>
             <Text style={styles.insightBody}>{hero.insight}</Text>
-          </LinearGradient>
+          </View>
         </View>
 
         {/* Today's action */}
-        <View style={[styles.actionBlock, { borderLeftColor: "#F5A623" }]}>
+        <View style={[styles.actionBlock, { borderLeftColor: "#F59E0B" }]}>
           <View style={styles.actionIconRow}>
-            <Feather name="sun" size={14} color="#F5A623" />
+            <Feather name="sun" size={14} color="#F59E0B" />
             <Text style={styles.actionLabel}>What to do today</Text>
           </View>
           <Text style={styles.actionText}>{hero.action}</Text>
@@ -129,69 +126,76 @@ export default function ReadingDetailScreen() {
           </View>
         </View>
 
-        {/* Life phase context */}
+        {/* Life phase */}
         {dc && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Your life phase</Text>
-            <View style={[styles.dashaCard, { borderColor: "rgba(245,166,35,0.2)" }]}>
-              <LinearGradient colors={["rgba(245,166,35,0.08)","transparent"]} style={styles.dashaInner}>
+            <View style={styles.dashaCard}>
+              <View style={[styles.dashaAccent, { backgroundColor: "#F59E0B" }]} />
+              <View style={styles.dashaContent}>
                 <Text style={styles.dashaHeadline}>{dc.headline}</Text>
-                <Block label="The gift"            value={dc.gift          ?? ""} accent="#F5A623" />
-                <Block label="The challenge"        value={dc.challenge     ?? ""} accent="#F5A623" />
-                <Block label="What this means for love" value={dc.lessonForLove ?? ""} accent="#F5A623" />
-              </LinearGradient>
+                <Block label="The gift"                value={dc.gift          ?? ""} color="#D97706" />
+                <Block label="The challenge"           value={dc.challenge     ?? ""} color="#D97706" />
+                <Block label="What this means for love" value={dc.lessonForLove ?? ""} color="#D97706" />
+              </View>
             </View>
           </View>
         )}
 
-        {/* How reading is generated */}
+        {/* Explainer */}
         <View style={styles.explainerCard}>
           <Text style={styles.explainerTitle}>How this is personalized</Text>
           <Text style={styles.explainerBody}>
-            Today's read comes from four signals working together: your {uRashi.en} moon (how you feel and need), {partner.name}'s {pRashi.en} moon (how they process and give), your {nak.name} nakshatra (the specific quality of your emotional nature), and your current {reading.user.dasha.current} life phase (what's active in your life right now).{"\n\n"}The same combination of inputs always produces the same insight — but the daily seed shifts it slightly each day, so what you read today won't be identical to tomorrow. The Right Now section above is the most time-sensitive part — it reflects where each of you is at this specific moment.
+            Today's read comes from four signals: your {uRashi.en} moon, {partner.name}'s {pRashi.en} moon, your {nak.name} nakshatra, and your current {reading.user.dasha.current} life phase. The Right Now section is the most time-sensitive part — it reflects where each of you is at this specific moment.
           </Text>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header:         { flexDirection:"row", alignItems:"flex-start", paddingHorizontal:20, paddingBottom:16, gap:12 },
-  backBtn:        { width:40, height:40, borderRadius:20, backgroundColor:"rgba(240,235,248,0.06)", alignItems:"center", justifyContent:"center", marginTop:2 },
-  headerTitle:    { fontSize:20, fontFamily:"Nunito_700Bold", color:"#F0EBF8" },
-  headerSub:      { fontSize:13, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.38)", marginTop:2 },
-  scroll:         { paddingHorizontal:20, gap:20 },
+  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
+  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginTop: 2 },
+  headerTitle:     { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
+  headerSub:       { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  scroll:          { paddingHorizontal: 20, gap: 18 },
 
-  moonTagWrap:    { flexDirection:"row", alignItems:"center", gap:10 },
-  moonTag:        { borderRadius:20, borderWidth:1, paddingHorizontal:12, paddingVertical:5 },
-  moonTagText:    { fontSize:12, fontFamily:"Nunito_600SemiBold" },
-  nakLabel:       { fontSize:12, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.35)" },
+  moonTagWrap:     { flexDirection: "row", alignItems: "center", gap: 10 },
+  moonTag:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
+  moonTagText:     { fontSize: 12, fontFamily: "Nunito_600SemiBold" },
+  nakLabel:        { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
 
-  insightBlock:   { borderRadius:22, borderWidth:1, overflow:"hidden" },
-  insightInner:   { padding:24, gap:14 },
-  insightHeadline:{ fontSize:22, fontFamily:"Nunito_700Bold", color:"#F0EBF8", lineHeight:30 },
-  insightBody:    { fontSize:16, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.85)", lineHeight:26 },
+  insightBlock:    { borderRadius: 20, borderWidth: 1, backgroundColor: "#FFFFFF", flexDirection: "row", overflow: "hidden",
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
+  insightAccent:   { width: 4 },
+  insightContent:  { flex: 1, padding: 22, gap: 12 },
+  insightHeadline: { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 30 },
+  insightBody:     { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 26 },
 
-  actionBlock:    { borderLeftWidth:3, paddingLeft:16, gap:8 },
-  actionIconRow:  { flexDirection:"row", alignItems:"center", gap:8 },
-  actionLabel:    { fontSize:11, fontFamily:"Nunito_600SemiBold", color:"rgba(245,166,35,0.7)" },
-  actionText:     { fontSize:15, fontFamily:"Nunito_600SemiBold", color:"#F5A623", lineHeight:23 },
+  actionBlock:     { borderLeftWidth: 3, paddingLeft: 16, gap: 6 },
+  actionIconRow:   { flexDirection: "row", alignItems: "center", gap: 8 },
+  actionLabel:     { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#D97706" },
+  actionText:      { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#D97706", lineHeight: 23 },
 
-  section:        { gap:12 },
-  sectionTitle:   { fontSize:13, fontFamily:"Nunito_600SemiBold", color:"rgba(240,235,248,0.45)" },
+  section:         { gap: 10 },
+  sectionTitle:    { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
 
-  rnCard:         { backgroundColor:"#0C0A18", borderRadius:18, borderWidth:1, borderColor:"rgba(240,235,248,0.07)", padding:18, gap:14 },
-  rnRow:          { gap:5 },
-  rnName:         { fontSize:11, fontFamily:"Nunito_600SemiBold", color:"rgba(240,235,248,0.35)" },
-  rnBody:         { fontSize:15, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.82)", lineHeight:23 },
-  rnDivider:      { height:1, backgroundColor:"rgba(240,235,248,0.06)" },
+  rnCard:          { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E5E7EB", padding: 18, gap: 12,
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
+  rnRow:           { gap: 4 },
+  rnName:          { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  rnBody:          { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 23 },
+  rnDivider:       { height: 1, backgroundColor: "#F3F4F6" },
 
-  dashaCard:      { borderRadius:18, borderWidth:1, overflow:"hidden" },
-  dashaInner:     { padding:18, gap:14 },
-  dashaHeadline:  { fontSize:16, fontFamily:"Nunito_600SemiBold", color:"#F0EBF8", lineHeight:24 },
+  dashaCard:       { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "row", overflow: "hidden",
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
+  dashaAccent:     { width: 4 },
+  dashaContent:    { flex: 1, padding: 18, gap: 12 },
+  dashaHeadline:   { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#111827", lineHeight: 24 },
 
-  explainerCard:  { backgroundColor:"rgba(240,235,248,0.03)", borderRadius:16, borderWidth:1, borderColor:"rgba(240,235,248,0.06)", padding:18, gap:8 },
-  explainerTitle: { fontSize:12, fontFamily:"Nunito_600SemiBold", color:"rgba(240,235,248,0.35)" },
-  explainerBody:  { fontSize:13, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.45)", lineHeight:21 },
+  explainerCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 18, gap: 8,
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
+  explainerTitle:  { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  explainerBody:   { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 21 },
 });

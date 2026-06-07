@@ -90,7 +90,7 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
                 style={[styles.upgradeBtn, loading && { opacity: 0.7 }]}
               >
                 <LinearGradient
-                  colors={["#E85C7A", "#B855E0"]}
+                  colors={["#5B4CE8", "#8B5CF6"]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.upgradeGradient}
@@ -118,30 +118,30 @@ export function PremiumGate({ visible, onClose, featureName }: PremiumGateProps)
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(8,6,17,0.75)" },
+  backdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
   sheet: {
-    backgroundColor: "#110F1E",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    borderTopWidth: 1, borderColor: "rgba(232,92,122,0.2)",
+    borderTopWidth: 1, borderColor: "#E5E7EB",
     paddingHorizontal: 28, paddingTop: 16, gap: 16,
   },
-  handle: { width: 40, height: 4, backgroundColor: "rgba(240,235,248,0.15)", borderRadius: 2, alignSelf: "center", marginBottom: 8 },
-  lockIcon: { fontSize: 36, color: "#E85C7A", textAlign: "center" },
-  title: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8", textAlign: "center" },
-  sub: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.6)", textAlign: "center", lineHeight: 22 },
-  perksContainer: { gap: 10, backgroundColor: "rgba(240,235,248,0.04)", borderRadius: 14, padding: 16 },
+  handle: { width: 40, height: 4, backgroundColor: "#D1D5DB", borderRadius: 2, alignSelf: "center", marginBottom: 8 },
+  lockIcon: { fontSize: 36, color: "#5B4CE8", textAlign: "center" },
+  title: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#111827", textAlign: "center" },
+  sub: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 22 },
+  perksContainer: { gap: 10, backgroundColor: "#F9FAFB", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#E5E7EB" },
   perkRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  perkDot: { color: "#E85C7A", fontSize: 10 },
-  perkText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.7)", flex: 1 },
+  perkDot: { color: "#5B4CE8", fontSize: 10 },
+  perkText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#374151", flex: 1 },
   upgradeBtn: { borderRadius: 16, overflow: "hidden", marginTop: 4 },
   upgradeGradient: { paddingVertical: 18, alignItems: "center", gap: 2, minHeight: 56, justifyContent: "center" },
   upgradeBtnText: { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#fff" },
-  upgradePriceText: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(255,255,255,0.6)" },
+  upgradePriceText: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(255,255,255,0.7)" },
   cancelBtn: { alignItems: "center", padding: 8 },
-  cancelText: { fontSize: 14, color: "rgba(240,235,248,0.3)", fontFamily: "Nunito_400Regular" },
-  errorText:  { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#E85C7A", textAlign: "center" },
+  cancelText: { fontSize: 14, color: "#9CA3AF", fontFamily: "Nunito_400Regular" },
+  errorText:  { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#F43F5E", textAlign: "center" },
   successContainer: { alignItems: "center", gap: 10, paddingVertical: 32 },
-  successIcon: { fontSize: 48, color: "#52C8B8" },
-  successTitle: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  successSub: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.5)" },
+  successIcon: { fontSize: 48, color: "#10B981" },
+  successTitle: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#111827" },
+  successSub: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#6B7280" },
 });

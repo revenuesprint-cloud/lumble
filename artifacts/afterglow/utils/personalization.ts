@@ -61,7 +61,7 @@ function sortedKootas(guna: AstrologyReading["guna"]) {
 
 function dailyMod(base: number, seed: number): number {
   const s = ((seed * 1664525 + 1013904223) & 0x7fffffff) % 37 - 18;
-  return Math.max(15, Math.min(99, base + s));
+  return Math.max(54, Math.min(92, base + s));
 }
 
 export interface EnergyBars {

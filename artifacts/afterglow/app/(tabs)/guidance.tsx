@@ -11,6 +11,7 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
+  Easing,
   FlatList,
   Image,
   Platform,
@@ -79,15 +80,15 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(slideAnim, { toValue: 0, duration: 320, useNativeDriver: true }),
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 320, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, friction: 8, tension: 100, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
     ]).start();
   }, []);
 
   const close = () => {
     Animated.parallel([
-      Animated.timing(slideAnim, { toValue: 300, duration: 220, useNativeDriver: true }),
-      Animated.timing(fadeAnim,  { toValue: 0,   duration: 220, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 300, friction: 8, tension: 100, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 0, duration: 160, easing: Easing.in(Easing.quad), useNativeDriver: true }),
     ]).start(onClose);
   };
 
@@ -101,7 +102,7 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
         <Text style={styles.sheetAnswer}>{question.body}</Text>
         <View style={styles.sheetActions}>
           <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); onAsk(question.meta.question ?? question.title); close(); }} style={styles.sheetAskBtn} activeOpacity={0.85}>
-            <LinearGradient colors={["#E85C7A","#B855E0"]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.sheetAskGrad}>
+            <LinearGradient colors={["#5B4CE8","#8B5CF6"]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.sheetAskGrad}>
               <Text style={styles.sheetAskText}>Ask the Guide for more</Text>
               <Feather name="arrow-right" size={16} color="#fff" />
             </LinearGradient>
@@ -151,14 +152,14 @@ function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult
             activeOpacity={0.8}
             style={styles.qCard}
           >
-            <LinearGradient colors={["#1A1630","#110F1E"]} style={styles.qCardInner}>
+            <View style={styles.qCardInner}>
               <Text style={styles.qCardIcon}>{item.meta?.icon ?? "✦"}</Text>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text style={styles.qCardTitle}>{item.title}</Text>
                 <Text style={styles.qCardShort} numberOfLines={2}>{item.meta?.shortAnswer ?? item.body}</Text>
               </View>
-              <Feather name="chevron-right" size={16} color="rgba(240,235,248,0.25)" />
-            </LinearGradient>
+              <Feather name="chevron-right" size={16} color="#D1D5DB" />
+            </View>
           </TouchableOpacity>
         )}
         ListEmptyComponent={<View style={styles.emptyCategory}><Text style={styles.emptyCategoryText}>Loading your questions...</Text></View>}
@@ -181,8 +182,8 @@ function TypingIndicator() {
       const loop = Animated.loop(
         Animated.sequence([
           Animated.delay(i * 160),
-          Animated.timing(dot, { toValue: 1,   duration: 300, useNativeDriver: true }),
-          Animated.timing(dot, { toValue: 0.2, duration: 300, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 1,   duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0.2, duration: 220, easing: Easing.in(Easing.quad),  useNativeDriver: true }),
           Animated.delay(320),
         ])
       );
@@ -213,7 +214,7 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
   const fadeAnim  = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 160, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
     // Stream character by character (~18ms per char, feels like real AI typing)
     const chars = text.split("");
     const timer = setInterval(() => {
@@ -234,8 +235,8 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(cursorBlink, { toValue: 0, duration: 500, useNativeDriver: true }),
-        Animated.timing(cursorBlink, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(cursorBlink, { toValue: 0, duration: 380, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(cursorBlink, { toValue: 1, duration: 380, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ])
     );
     loop.start();
@@ -306,8 +307,8 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 250, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 250, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -329,7 +330,7 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
 function FollowUpRow({ suggestions, onSelect, disabled }: { suggestions: string[]; onSelect: (s: string) => void; disabled: boolean }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 400, delay: 200, useNativeDriver: true }).start();
+    Animated.timing(fadeAnim, { toValue: 1, duration: 280, delay: 120, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
   }, []);
 
   return (
@@ -449,7 +450,7 @@ export default function GuidanceScreen() {
   const hasMessages = guidanceMessages.length > 0;
 
   return (
-    <LinearGradient colors={["#080611", "#0D0A1E"]} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={0}>
 
         {/* Header */}
@@ -476,7 +477,7 @@ export default function GuidanceScreen() {
                 style={styles.clearBtn}
                 activeOpacity={0.7}
               >
-                <Feather name="trash-2" size={15} color="rgba(240,235,248,0.35)" />
+                <Feather name="trash-2" size={15} color="#9CA3AF" />
               </TouchableOpacity>
             )}
           </View>
@@ -574,7 +575,7 @@ export default function GuidanceScreen() {
                 : isTyping || streamingId ? "Reading the stars..."
                 : "Ask about this connection"
               }
-              placeholderTextColor="rgba(240,235,248,0.22)"
+              placeholderTextColor="#9CA3AF"
               editable={!hitLimit && !isTyping && !streamingId}
               multiline
               maxLength={300}
@@ -590,7 +591,7 @@ export default function GuidanceScreen() {
                 pressed && { transform: [{ scale: 0.94 }] },
               ]}
             >
-              <LinearGradient colors={["#E85C7A","#B855E0"]} style={styles.sendBtnGrad}>
+              <LinearGradient colors={["#5B4CE8","#8B5CF6"]} style={styles.sendBtnGrad}>
                 <Feather name="send" size={15} color="#fff" />
               </LinearGradient>
             </Pressable>
@@ -607,60 +608,61 @@ export default function GuidanceScreen() {
           onClose={() => setSelectedQ(null)}
         />
       )}
-    </LinearGradient>
+    </View>
   );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  header:        { paddingHorizontal: 20, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "rgba(240,235,248,0.06)" },
+  header:        { paddingHorizontal: 20, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "#E5E7EB", backgroundColor: "#F4F5F7" },
   headerLeft:    { flexDirection: "row", alignItems: "center", gap: 12 },
   headerOrb:     { width: 40, height: 40, borderRadius: 20, overflow: "hidden" },
-  headerTitle:   { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  headerSub:     { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.38)", marginTop: 2 },
+  headerTitle:   { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
+  headerSub:     { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
   headerRight:   { flexDirection: "row", alignItems: "center", gap: 8 },
-  modeToggle:    { flexDirection: "row", backgroundColor: "rgba(26,22,48,0.8)", borderRadius: 10, padding: 3, gap: 2 },
+  modeToggle:    { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 10, padding: 3, gap: 2, borderWidth: 1, borderColor: "#E5E7EB" },
   modeBtn:       { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 7, alignItems: "center" },
-  modeBtnActive: { backgroundColor: "#1E1A30" },
-  modeBtnText:   { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.35)" },
-  modeBtnTextActive: { color: "#F0EBF8" },
-  clearBtn:      { width: 30, height: 30, borderRadius: 15, backgroundColor: "rgba(240,235,248,0.06)", alignItems: "center", justifyContent: "center" },
+  modeBtnActive: { backgroundColor: "#5B4CE8" },
+  modeBtnText:   { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  modeBtnTextActive: { color: "#FFFFFF" },
+  clearBtn:      { width: 30, height: 30, borderRadius: 15, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "center" },
   // Browse
   catScroll:     { flexGrow: 0, maxHeight: 50 },
   catContent:    { paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
-  catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: "rgba(26,22,48,0.6)", borderWidth: 1, borderColor: "rgba(240,235,248,0.08)" },
+  catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB" },
   catChipIcon:   { fontSize: 14 },
-  catChipLabel:  { fontSize: 13, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.45)" },
+  catChipLabel:  { fontSize: 13, fontFamily: "Nunito_500Medium", color: "#6B7280" },
   qList:         { paddingHorizontal: 16, paddingTop: 12, gap: 10, paddingBottom: 20 },
-  qCard:         { borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: "rgba(240,235,248,0.07)" },
-  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 14, padding: 18 },
+  qCard:         { borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#FFFFFF",
+                   shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
+  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 14, padding: 18, backgroundColor: "#FFFFFF" },
   qCardIcon:     { fontSize: 24, width: 34, textAlign: "center" },
-  qCardTitle:    { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", lineHeight: 22 },
-  qCardShort:    { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.48)", lineHeight: 19 },
+  qCardTitle:    { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#111827", lineHeight: 22 },
+  qCardShort:    { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 19 },
   emptyCategory: { paddingTop: 40, alignItems: "center" },
-  emptyCategoryText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.3)" },
+  emptyCategoryText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
   // Sheet
-  sheet:         { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#110F1E", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "rgba(240,235,248,0.09)", padding: 28, paddingBottom: 52, gap: 16 },
-  sheetHandle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: "rgba(240,235,248,0.14)", alignSelf: "center", marginBottom: 8 },
-  sheetQ:        { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 32 },
-  sheetDivider:  { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
-  sheetAnswer:   { fontSize: 17, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 27 },
+  sheet:         { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "#E5E7EB", padding: 28, paddingBottom: 52, gap: 16 },
+  sheetHandle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: "#D1D5DB", alignSelf: "center", marginBottom: 8 },
+  sheetQ:        { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 32 },
+  sheetDivider:  { height: 1, backgroundColor: "#F3F4F6" },
+  sheetAnswer:   { fontSize: 17, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 27 },
   sheetActions:  { gap: 10 },
   sheetAskBtn:   { borderRadius: 14, overflow: "hidden" },
   sheetAskGrad:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 15 },
   sheetAskText:  { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#fff" },
   sheetCloseBtn: { alignItems: "center", paddingVertical: 10 },
-  sheetCloseText:{ fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.3)" },
+  sheetCloseText:{ fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
   // Ask empty state
   emptyScroll:   { flexGrow: 1, paddingHorizontal: 20 },
   emptyAsk:      { paddingTop: 28, gap: 18, alignItems: "center" },
-  lumbleWordmark: { fontSize: 32, fontFamily: "Nunito_600SemiBold", color: "rgba(232,92,122,0.7)", letterSpacing: 1, marginBottom: 4 },
-  emptyTitle:    { fontSize: 26, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  emptySub:      { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.42)", textAlign: "center", lineHeight: 25 },
+  lumbleWordmark: { fontSize: 32, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8", letterSpacing: 1, marginBottom: 4 },
+  emptyTitle:    { fontSize: 26, fontFamily: "Nunito_700Bold", color: "#111827" },
+  emptySub:      { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 25 },
   emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
-  emptyChip:     { backgroundColor: "rgba(26,22,48,0.8)", borderWidth: 1, borderColor: "rgba(184,85,224,0.22)", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
-  emptyChipText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.58)" },
+  emptyChip:     { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
+  emptyChipText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
   // Messages
   messageList:   { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
   bubbleRow:     { flexDirection: "row", gap: 11, alignItems: "flex-end" },
@@ -668,40 +670,41 @@ const styles = StyleSheet.create({
   bubbleRowBot:  { justifyContent: "flex-start" },
   botAvatar:     { width: 32, height: 32, borderRadius: 16, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
   bubble:        { maxWidth: "80%", borderRadius: 20, padding: 16, gap: 6 },
-  bubbleUser:    { backgroundColor: "rgba(232,92,122,0.13)", borderWidth: 1, borderColor: "rgba(232,92,122,0.24)", borderBottomRightRadius: 5 },
-  bubbleBot:     { backgroundColor: "#141128", borderWidth: 1, borderColor: "rgba(240,235,248,0.08)", borderBottomLeftRadius: 5 },
+  bubbleUser:    { backgroundColor: "#5B4CE8", borderBottomRightRadius: 5 },
+  bubbleBot:     { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderBottomLeftRadius: 5,
+                   shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
   bubbleText:    { lineHeight: 26 },
-  bubbleTextUser:{ fontSize: 16, fontFamily: "Nunito_400Regular", color: "#F0EBF8" },
-  bubbleTextBot: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.9)" },
-  cursor:        { width: 2, height: 18, backgroundColor: "#E85C7A", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
+  bubbleTextUser:{ fontSize: 16, fontFamily: "Nunito_400Regular", color: "#FFFFFF" },
+  bubbleTextBot: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#374151" },
+  cursor:        { width: 2, height: 18, backgroundColor: "#5B4CE8", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
   // Structured bot response
-  structLabel:      { fontSize: 11, fontFamily: "Nunito_700Bold", color: "#B855E0", letterSpacing: 0.5, textTransform: "uppercase" },
-  structInsight:    { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.92)", lineHeight: 25, fontStyle: "italic" },
-  structDivider:    { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
+  structLabel:      { fontSize: 11, fontFamily: "Nunito_700Bold", color: "#5B4CE8", letterSpacing: 0.5, textTransform: "uppercase" },
+  structInsight:    { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#111827", lineHeight: 25, fontStyle: "italic" },
+  structDivider:    { height: 1, backgroundColor: "#F3F4F6" },
   structActionRow:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  structCheck:      { fontSize: 14, color: "#52C8B8", fontFamily: "Nunito_700Bold", marginTop: 1 },
-  structActionText: { flex: 1, fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 22 },
+  structCheck:      { fontSize: 14, color: "#10B981", fontFamily: "Nunito_700Bold", marginTop: 1 },
+  structActionText: { flex: 1, fontSize: 15, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 22 },
   // Typing
   typingRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
-  typingBubble:  { backgroundColor: "#141128", borderRadius: 18, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "rgba(240,235,248,0.07)", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", gap: 6, alignItems: "center" },
-  typingDot:     { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#E85C7A" },
+  typingBubble:  { backgroundColor: "#FFFFFF", borderRadius: 18, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", gap: 6, alignItems: "center" },
+  typingDot:     { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#5B4CE8" },
   // Follow-up suggestions
   followUpRow:   { paddingHorizontal: 16, paddingTop: 6, gap: 7 },
-  followUpChip:  { alignSelf: "flex-start", backgroundColor: "rgba(26,22,48,0.9)", borderWidth: 1, borderColor: "rgba(184,85,224,0.25)", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
-  followUpText:  { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(184,85,224,0.8)" },
+  followUpChip:  { alignSelf: "flex-start", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
+  followUpText:  { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
   // Limit
-  limitCard:     { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: "rgba(232,92,122,0.06)", borderWidth: 1, borderColor: "rgba(232,92,122,0.18)", borderRadius: 16, padding: 16 },
-  limitIcon:     { fontSize: 22, color: "#E85C7A" },
-  limitTitle:    { fontSize: 14, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  limitSub:      { fontSize: 12, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", marginTop: 2 },
+  limitCard:     { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: "#FFF1F2", borderWidth: 1, borderColor: "#FECDD3", borderRadius: 16, padding: 16 },
+  limitIcon:     { fontSize: 22, color: "#F43F5E" },
+  limitTitle:    { fontSize: 14, fontFamily: "Nunito_700Bold", color: "#111827" },
+  limitSub:      { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280", marginTop: 2 },
   // Input
-  inputArea:     { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "rgba(240,235,248,0.06)", gap: 10, backgroundColor: "rgba(8,6,17,0.97)" },
+  inputArea:     { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#E5E7EB", gap: 10, backgroundColor: "#FFFFFF" },
   chipsScroll:   { flexGrow: 0 },
   chipsContent:  { gap: 8, paddingRight: 8 },
-  chip:          { backgroundColor: "rgba(26,22,48,0.8)", borderWidth: 1, borderColor: "rgba(184,85,224,0.22)", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 9 },
-  chipText:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.58)" },
+  chip:          { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 9 },
+  chipText:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
   inputRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
-  inputField:    { flex: 1, backgroundColor: "#141128", borderWidth: 1, borderColor: "rgba(240,235,248,0.09)", borderRadius: 18, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 14, fontSize: 16, fontFamily: "Nunito_400Regular", color: "#F0EBF8", maxHeight: 110 },
+  inputField:    { flex: 1, backgroundColor: "#F9FAFB", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 18, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 14, fontSize: 16, fontFamily: "Nunito_400Regular", color: "#111827", maxHeight: 110 },
   sendBtn:       { borderRadius: 16, overflow: "hidden" },
   sendBtnGrad:   { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
 });
