@@ -1,7 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// ── Vulnerability 8 (MEDIUM): AsyncStorage is unencrypted plaintext on Android.
-// SecureStore uses iOS Keychain and Android Keystore for the JWT token.
-// Non-sensitive session metadata (email) can stay in AsyncStorage.
 import * as SecureStore from "expo-secure-store";
 import React, {
   createContext,
@@ -10,6 +7,24 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { Platform } from "react-native";
+
+// expo-secure-store is not supported on web — fall back to AsyncStorage there.
+// On native it uses iOS Keychain / Android Keystore for the JWT token.
+const secureGet = (key: string) =>
+  Platform.OS === "web"
+    ? AsyncStorage.getItem(key)
+    : SecureStore.getItemAsync(key);
+
+const secureSet = (key: string, value: string) =>
+  Platform.OS === "web"
+    ? AsyncStorage.setItem(key, value)
+    : SecureStore.setItemAsync(key, value);
+
+const secureDelete = (key: string) =>
+  Platform.OS === "web"
+    ? AsyncStorage.removeItem(key)
+    : SecureStore.deleteItemAsync(key);
 
 const TOKEN_KEY   = "lumble_token";   // SecureStore key (no @ prefix needed)
 const SESSION_KEY = "@lumble_session"; // AsyncStorage — email only, not sensitive
@@ -92,12 +107,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadSession = async () => {
     try {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      const token = await secureGet(TOKEN_KEY);
 
       if (token) {
         if (isTokenExpired(token)) {
           // Expired — wipe everything so the user is prompted to log in again
-          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          await secureDelete(TOKEN_KEY);
           await AsyncStorage.removeItem(SESSION_KEY);
         } else {
           const raw = await AsyncStorage.getItem(SESSION_KEY);
@@ -123,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (API_URL) {
       try {
         const data = await apiPost<{ token: string; email: string }>("/auth/register", { email: trimEmail, password });
-        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+        await secureSet(TOKEN_KEY, data.token);
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
@@ -151,7 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await apiPost<{ token: string; email: string; profile: ServerProfile | null }>(
           "/auth/login", { email: trimEmail, password }
         );
-        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+        await secureSet(TOKEN_KEY, data.token);
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ email: data.email }));
         setJwtToken(data.token);
         setIsAuthenticated(true);
@@ -179,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await secureDelete(TOKEN_KEY);
     await AsyncStorage.multiRemove([SESSION_KEY, "@lumble_creds"]);
     setIsAuthenticated(false);
     setCurrentEmail(null);

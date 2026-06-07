@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { db, contentTable, userChallengeStatesTable, problemsTable } from "@workspace/db";
+import { db, contentTable, userChallengeStatesTable, problemsTable, profilesTable } from "@workspace/db";
 import { eq, and, sql, inArray } from "drizzle-orm";
-import { requireAuth } from "../lib/auth";
+import { requireAuth, verifyToken } from "../lib/auth";
 
 // Drizzle serializes a JS array as ($1,$2,...) which Postgres treats as a record,
 // not an array. Build ARRAY[$1, $2, ...] explicitly to avoid "cannot cast record to text[]".
@@ -153,6 +153,74 @@ async function handleQuestions(req: any, res: any) {
 
 router.get("/questions",  handleQuestions);
 router.post("/questions", handleQuestions);
+
+// ─── GET/POST /content/bundle ─────────────────────────────────────────────────
+// Fetches ALL content the app needs in one call. Works two ways:
+//   1. Authenticated (Bearer token): uses kundliTags stored on profile — no tags needed in body
+//   2. Unauthenticated: uses tags array from request body
+// Fetches all content types in parallel with 80-item cap per type.
+
+const BUNDLE_TYPES = [
+  "oracle_response",
+  "hero_card",
+  "right_now",
+  "daily_focus",
+  "energy_message",
+  "compatibility_text",
+  "feature_insight",
+  "moon_profile",
+  "nakshatra_profile",
+  "dasha_chapter",
+  "koota_narrative",
+  "daily_message",
+] as const;
+
+async function handleBundle(req: any, res: any) {
+  // Resolve tags: auth'd users pull from stored profile, others send in body
+  let attrs: string[] = Array.isArray(req.body?.tags) ? req.body.tags : [];
+
+  const authHeader = req.headers?.authorization as string | undefined;
+  if (authHeader?.startsWith("Bearer ")) {
+    try {
+      const payload = verifyToken(authHeader.slice(7));
+      if (payload?.sub) {
+        const [profile] = await db
+          .select({ kundliTags: profilesTable.kundliTags })
+          .from(profilesTable)
+          .where(eq(profilesTable.userId, payload.sub))
+          .limit(1);
+        if (profile?.kundliTags?.length) attrs = profile.kundliTags;
+      }
+    } catch {}
+  }
+
+  try {
+    const fetches = BUNDLE_TYPES.map((type) =>
+      db.execute(sql`
+        SELECT id, type, title, body, meta, tags, sort_order,
+          (SELECT COUNT(*)::int FROM unnest(tags) t WHERE t = ANY(${toTextArray(attrs)})) AS match_score
+        FROM content
+        WHERE is_active = true AND type = ${type}
+        ORDER BY match_score DESC, sort_order ASC
+        LIMIT 80
+      `)
+    );
+    const results = await Promise.all(fetches);
+
+    const bundle: Record<string, unknown[]> = {};
+    BUNDLE_TYPES.forEach((type, i) => {
+      bundle[type] = results[i].rows ?? [];
+    });
+
+    return res.json({ bundle });
+  } catch (err) {
+    console.error("content/bundle error:", err);
+    return res.status(500).json({ error: "Something went wrong." });
+  }
+}
+
+router.get("/bundle",  handleBundle);
+router.post("/bundle", handleBundle);
 
 // ─── PATCH /content/challenges/:problemId/state ───────────────────────────────
 // Save or update a user's acknowledgment state for a challenge.

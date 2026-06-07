@@ -7,6 +7,7 @@ import { getPersonalizedChips } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -91,8 +92,8 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
   };
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim }]}>
-      <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)" }]} onPress={close} />
+    <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim, zIndex: 50, elevation: 50 }]}>
+      <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.65)" }]} onPress={close} />
       <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }] }]}>
         <View style={styles.sheetHandle} />
         <Text style={styles.sheetQ}>{question.title}</Text>
@@ -258,6 +259,44 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
   );
 }
 
+// ─── Structured bot response renderer ────────────────────────────────────────
+
+function StructuredBotContent({ text }: { text: string }) {
+  if (!text.startsWith("Insight")) {
+    return <Text style={[styles.bubbleText, styles.bubbleTextBot]}>{text}</Text>;
+  }
+
+  const sections = text.split("\n\n");
+  const insightLines = (sections[0] ?? "").split("\n");
+  const insightLabel = insightLines[0] ?? "Insight";
+  const insightBody  = insightLines.slice(1).join(" ").trim();
+
+  const actionSection = sections[1] ?? "";
+  const actionLines   = actionSection.split("\n");
+  const actionLabel   = actionLines[0] ?? "What to do";
+  const actionRaw     = actionLines.slice(1).join(" ");
+  const actions       = actionRaw.split("✓").map((s) => s.trim()).filter(Boolean);
+
+  return (
+    <View style={{ gap: 14 }}>
+      <View style={{ gap: 7 }}>
+        <Text style={styles.structLabel}>{insightLabel}</Text>
+        <Text style={styles.structInsight}>{insightBody}</Text>
+      </View>
+      <View style={styles.structDivider} />
+      <View style={{ gap: 8 }}>
+        <Text style={styles.structLabel}>{actionLabel}</Text>
+        {actions.map((action, i) => (
+          <View key={i} style={styles.structActionRow}>
+            <Text style={styles.structCheck}>✓</Text>
+            <Text style={styles.structActionText}>{action}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 // ─── Static message bubble ────────────────────────────────────────────────────
 
 function MessageBubble({ message }: { message: GuidanceMessage }) {
@@ -276,7 +315,10 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
     <Animated.View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowBot, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
       {!isUser && <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />}
       <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
-        <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextBot]}>{message.text}</Text>
+        {isUser
+          ? <Text style={[styles.bubbleText, styles.bubbleTextUser]}>{message.text}</Text>
+          : <StructuredBotContent text={message.text} />
+        }
       </View>
     </Animated.View>
   );
@@ -311,10 +353,8 @@ function FollowUpRow({ suggestions, onSelect, disabled }: { suggestions: string[
 
 export default function GuidanceScreen() {
   const insets = useSafeAreaInsets();
-  // Safe replacement for useBottomTabBarHeight — avoids the transitive
-  // @react-navigation/bottom-tabs version dependency. Tab bar on Android is
-  // 56dp; add safe area bottom for devices with gesture navigation bars.
   const tabBarHeight = insets.bottom + 56;
+  const { autoSend } = useLocalSearchParams<{ autoSend?: string }>();
   const { user, partner, guidanceMessages, addGuidanceMessage, clearGuidanceMessages, isPremium } = useApp();
 
   const [mode,         setMode]         = useState<Mode>("browse");
@@ -322,14 +362,13 @@ export default function GuidanceScreen() {
   const [isTyping,     setIsTyping]     = useState(false);
   const [questions,    setQuestions]    = useState<QuestionsResult>(LOCAL_QUESTIONS);
   const [selectedQ,    setSelectedQ]    = useState<QuestionItem | null>(null);
-  // ID of the bot message currently streaming, null when done
   const [streamingId,  setStreamingId]  = useState<string | null>(null);
-  // Follow-up suggestions to show after the latest bot response
   const [followUps,    setFollowUps]    = useState<string[]>([]);
 
-  const flatListRef  = useRef<FlatList>(null);
-  const isTypingRef  = useRef(false);
-  const turnCountRef = useRef(0);
+  const flatListRef    = useRef<FlatList>(null);
+  const isTypingRef    = useRef(false);
+  const turnCountRef   = useRef(0);
+  const autoSentRef    = useRef(false);
 
   const userMessages = guidanceMessages.filter((m) => m.role === "user").length;
   const hitLimit     = !isPremium && userMessages >= FREE_MESSAGE_LIMIT;
@@ -397,6 +436,14 @@ export default function GuidanceScreen() {
     }
   }, [user, partner, guidanceMessages, addGuidanceMessage, isPremium]);
 
+  // Auto-send a question that arrived via router params (from home screen chips)
+  useEffect(() => {
+    if (autoSend && !autoSentRef.current && user && partner) {
+      autoSentRef.current = true;
+      setTimeout(() => sendMessage(autoSend), 300);
+    }
+  }, [autoSend, user, partner, sendMessage]);
+
   if (!user || !partner) return null;
 
   const hasMessages = guidanceMessages.length > 0;
@@ -410,8 +457,8 @@ export default function GuidanceScreen() {
           <View style={styles.headerLeft}>
             <Image source={require("../../assets/images/logo.png")} style={styles.headerOrb} resizeMode="cover" />
             <View>
-              <Text style={styles.headerTitle}>Lumble Guide</Text>
-              <Text style={styles.headerSub}>{user.name} and {partner.name}</Text>
+              <Text style={styles.headerTitle}>The Guide</Text>
+              <Text style={styles.headerSub}>{user.name} & {partner.name}</Text>
             </View>
           </View>
           <View style={styles.headerRight}>
@@ -444,8 +491,8 @@ export default function GuidanceScreen() {
               <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.emptyScroll, { paddingBottom: tabBarHeight + 80 }]} showsVerticalScrollIndicator={false}>
                 <View style={styles.emptyAsk}>
                   <Text style={styles.lumbleWordmark}>Lumble</Text>
-                  <Text style={styles.emptyTitle}>What is on your mind?</Text>
-                  <Text style={styles.emptySub}>Ask the question you are too afraid to say out loud.{"\n"}Get an honest answer based on who you both actually are.</Text>
+                  <Text style={styles.emptyTitle}>What's on your mind?</Text>
+                  <Text style={styles.emptySub}>Say what you can't bring yourself to say out loud.{"\n"}You'll get an honest answer — no sugarcoating.</Text>
                   <View style={styles.emptyChips}>
                     {quickChips.slice(0, 4).map((chip, i) => (
                       <TouchableOpacity key={i} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); sendMessage(chip); }} style={styles.emptyChip} activeOpacity={0.75}>
@@ -608,7 +655,7 @@ const styles = StyleSheet.create({
   // Ask empty state
   emptyScroll:   { flexGrow: 1, paddingHorizontal: 20 },
   emptyAsk:      { paddingTop: 28, gap: 18, alignItems: "center" },
-  lumbleWordmark: { fontSize: 44, fontFamily: "Nunito_700Bold", color: "#E85C7A", letterSpacing: 4, marginBottom: 4 },
+  lumbleWordmark: { fontSize: 32, fontFamily: "Nunito_600SemiBold", color: "rgba(232,92,122,0.7)", letterSpacing: 1, marginBottom: 4 },
   emptyTitle:    { fontSize: 26, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
   emptySub:      { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.42)", textAlign: "center", lineHeight: 25 },
   emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
@@ -627,6 +674,13 @@ const styles = StyleSheet.create({
   bubbleTextUser:{ fontSize: 16, fontFamily: "Nunito_400Regular", color: "#F0EBF8" },
   bubbleTextBot: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.9)" },
   cursor:        { width: 2, height: 18, backgroundColor: "#E85C7A", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
+  // Structured bot response
+  structLabel:      { fontSize: 11, fontFamily: "Nunito_700Bold", color: "#B855E0", letterSpacing: 0.5, textTransform: "uppercase" },
+  structInsight:    { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.92)", lineHeight: 25, fontStyle: "italic" },
+  structDivider:    { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
+  structActionRow:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  structCheck:      { fontSize: 14, color: "#52C8B8", fontFamily: "Nunito_700Bold", marginTop: 1 },
+  structActionText: { flex: 1, fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 22 },
   // Typing
   typingRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
   typingBubble:  { backgroundColor: "#141128", borderRadius: 18, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "rgba(240,235,248,0.07)", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", gap: 6, alignItems: "center" },

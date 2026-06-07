@@ -3,6 +3,7 @@ import { useApp } from "@/context/AppContext";
 import { getAstrologyReading } from "@/utils/astrology";
 import { getAllViralFeatures, ViralFeatureResult } from "@/utils/compatibility";
 import { getPersonalizedFeatureText } from "@/utils/personalization";
+import { getContentBundle, applyVars } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -123,11 +124,22 @@ export default function FeaturesScreen() {
   if (!user || !partner) return null;
   if (!reading) return <KundliLoading label="Analyzing your compatibility…" />;
 
+  // Build DB feature text lookup
+  const dbBundle = getContentBundle();
+  const dbFeatureTexts: Record<string, string> = {};
+  if (dbBundle?.featureInsights?.length) {
+    const vars = { u: user.name, p: partner.name };
+    for (const item of dbBundle.featureInsights) {
+      const key = (item.meta as any)?.featureKey as string | undefined;
+      if (key) dbFeatureTexts[key] = applyVars(item.body, vars);
+    }
+  }
+
   const baseFeatures = getAllViralFeatures(user.birthDate, partner.birthDate, user.name, partner.name);
-  // Override text with kundli-personalised versions
+  // Override text: DB first, then kundli-personalized local
   const features = baseFeatures.map((f) => ({
     ...f,
-    text: getPersonalizedFeatureText(f.key, reading, user.name, partner.name),
+    text: dbFeatureTexts[f.key] ?? getPersonalizedFeatureText(f.key, reading, user.name, partner.name),
   }));
 
   const handleFeaturePress = (feature: ViralFeatureResult) => {
@@ -154,9 +166,9 @@ export default function FeaturesScreen() {
           },
         ]}
       >
-        <Text style={styles.title}>Relationship Insights</Text>
+        <Text style={styles.title}>Just between you two</Text>
         <Text style={styles.subtitle}>
-          10 deep reads on {user.name} & {partner.name}
+          10 things worth knowing about {user.name} & {partner.name}
         </Text>
 
         <View style={styles.grid}>
@@ -239,11 +251,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   lockBadgeText: {
-    fontSize: 9,
-    fontFamily: "Nunito_600SemiBold",
+    fontSize: 10,
+    fontFamily: "Nunito_500Medium",
     color: "rgba(240,235,248,0.4)",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0,
   },
   cardTitle: {
     fontSize: 14,
@@ -260,9 +271,8 @@ const styles = StyleSheet.create({
   },
   intensityText: {
     fontSize: 11,
-    fontFamily: "Nunito_600SemiBold",
-    textTransform: "uppercase",
-    letterSpacing: 0.4,
+    fontFamily: "Nunito_500Medium",
+    letterSpacing: 0,
   },
   cardPreview: {
     fontSize: 11,

@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   stateClear: { padding: 4 },
   // Solutions
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" },
-  sectionTitle: { fontSize: 11, fontFamily: "Nunito_700Bold", color: "rgba(240,235,248,0.5)", letterSpacing: 1, textTransform: "uppercase" },
+  sectionTitle: { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.55)", letterSpacing: 0 },
   sectionSub: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.32)" },
   solutionsHint: { flexDirection: "row", gap: 9, alignItems: "flex-start" },
   solutionsHintText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(184,85,224,0.58)", lineHeight: 20 },

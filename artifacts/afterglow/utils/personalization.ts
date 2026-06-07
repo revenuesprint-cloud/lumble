@@ -13,6 +13,7 @@ import {
   NAKSHATRA_PROFILES,
   REL_TYPE_DYNAMICS,
 } from "./content-library";
+import { getContentBundle, applyVars } from "./dbContent";
 
 // ─── Stable deterministic helpers ────────────────────────────────────────────
 
@@ -65,7 +66,9 @@ function dailyMod(base: number, seed: number): number {
 
 export interface EnergyBars {
   closeness: number; attraction: number; communication: number;
-  reconnection: number; tension: number; message: string; date: string;
+  reconnection: number; tension: number;
+  trust: number; positivity: number;
+  message: string; date: string;
 }
 
 export function getDailyEnergyPersonalized(
@@ -82,6 +85,10 @@ export function getDailyEnergyPersonalized(
     (guna.nadiDosha ? 30 : 0) + (guna.mangalDosha ? 20 : 0) +
     (kootaScore(guna,"Bhakoot") === 0 ? 25 : 0) + (kootaScore(guna,"Gana") < 3 ? 20 : 0)
   ));
+  // Trust: how reliably you two show up for each other (Tara = longevity, Vashya = dependability, Graha Maitri = mental alignment)
+  const trustBase         = Math.round(kootaPct(guna,"Tara")*40 + kootaPct(guna,"Vashya")*35 + kootaPct(guna,"Graha Maitri")*25);
+  // Positivity: overall emotional optimism in the connection (guna health + absence of doshas)
+  const positivityBase    = Math.min(85, Math.round((guna.total / 36) * 60 + (guna.nadiDosha ? 0 : 20) + (guna.mangalDosha ? 0 : 20)));
 
   const today = new Date();
   const daySeed  = today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate();
@@ -92,6 +99,8 @@ export function getDailyEnergyPersonalized(
   const communication = dailyMod(commBase,         baseSeed + 2);
   const reconnection  = dailyMod(reconnectionBase, baseSeed + 3);
   const tension       = Math.min(85, dailyMod(tensionBase, baseSeed + 4));
+  const trust         = dailyMod(trustBase,        baseSeed + 5);
+  const positivity    = dailyMod(positivityBase,   baseSeed + 6);
 
   const moonU = RASHIS[reading.user.moonRashi].en;
   const moonP = RASHIS[reading.partner.moonRashi].en;
@@ -105,9 +114,19 @@ export function getDailyEnergyPersonalized(
     `A quieter day in the energy between you — ${moonP} moon is processing inward. Give it space.`,
   ].filter(Boolean) as string[];
 
-  const message = MESSAGES[0] ?? MESSAGES[MESSAGES.length - 1];
+  // Try DB bundle for energy message
+  const bundle = getContentBundle();
+  const dbMsg  = (() => {
+    if (!bundle?.energyMessages?.length) return null;
+    const condTag = tension > 65 ? "condition:high_tension" : closeness > 72 ? "condition:high_closeness" : "universal";
+    const pool = bundle.energyMessages.filter((i) => (i.tags as string[]).includes(condTag) || (i.tags as string[]).includes("universal"));
+    const src = pool.length ? pool : bundle.energyMessages;
+    return applyVars(src[baseSeed % src.length].body, { um: moonU, pm: moonP });
+  })();
+
+  const message = dbMsg ?? MESSAGES[0] ?? MESSAGES[MESSAGES.length - 1];
   const date    = today.toLocaleDateString("en-US",{ weekday:"long", month:"long", day:"numeric" });
-  return { closeness, attraction, communication, reconnection, tension, message, date };
+  return { closeness, attraction, communication, reconnection, tension, trust, positivity, message, date };
 }
 
 // ─── Daily quote category ─────────────────────────────────────────────────────
@@ -150,6 +169,14 @@ export function getPersonalizedFocus(
 
   const today = new Date();
   const seed  = `${userName}-focus-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+
+  // Try DB bundle first
+  const bundle = getContentBundle();
+  if (bundle?.dailyFocus?.length) {
+    const item = bundle.dailyFocus[hash(seed) % bundle.dailyFocus.length];
+    return applyVars(item.body, { u: userName });
+  }
+
   return pick(pool, seed);
 }
 
@@ -166,6 +193,34 @@ export function getDailyReflection(
   return pick(pool, seed);
 }
 
+// ─── Shared DB resolvers ──────────────────────────────────────────────────────
+function resolveKootaNarrative(name: string) {
+  const bundle = getContentBundle();
+  if (bundle?.kootaNarratives?.length) {
+    const item = bundle.kootaNarratives.find((i) => (i.meta as any)?.kootaName === name);
+    if (item) return item.meta as any;
+  }
+  return KOOTA_NARRATIVES[name];
+}
+
+function resolveMoonProfileGlobal(idx: number) {
+  const bundle = getContentBundle();
+  if (bundle?.moonProfiles?.length) {
+    const item = bundle.moonProfiles.find((i) => (i.meta as any)?.moonRashiIdx === idx);
+    if (item) return item.meta as any;
+  }
+  return MOON_PROFILES_DEEP[idx] ?? MOON_PROFILES_DEEP[0];
+}
+
+function resolveNakProfileGlobal(idx: number) {
+  const bundle = getContentBundle();
+  if (bundle?.nakshatraProfiles?.length) {
+    const item = bundle.nakshatraProfiles.find((i) => (i.meta as any)?.nakshatraIdx === idx);
+    if (item) return item.meta as any;
+  }
+  return NAKSHATRA_PROFILES[idx] ?? NAKSHATRA_PROFILES[0];
+}
+
 // ─── Compatibility section texts ─────────────────────────────────────────────
 
 export function getCompatibilityTexts(
@@ -177,10 +232,10 @@ export function getCompatibilityTexts(
   const pMoon = RASHIS[partner.moonRashi];
   const uNak  = NAKSHATRAS[user.nakshatra];
   const pNak  = NAKSHATRAS[partner.nakshatra];
-  const uNP   = NAKSHATRA_PROFILES[user.nakshatra]    ?? NAKSHATRA_PROFILES[0];
-  const pNP   = NAKSHATRA_PROFILES[partner.nakshatra] ?? NAKSHATRA_PROFILES[0];
-  const uMP   = MOON_PROFILES_DEEP[user.moonRashi]    ?? MOON_PROFILES_DEEP[0];
-  const pMP   = MOON_PROFILES_DEEP[partner.moonRashi] ?? MOON_PROFILES_DEEP[0];
+  const uNP   = resolveNakProfileGlobal(user.nakshatra);
+  const pNP   = resolveNakProfileGlobal(partner.nakshatra);
+  const uMP   = resolveMoonProfileGlobal(user.moonRashi);
+  const pMP   = resolveMoonProfileGlobal(partner.moonRashi);
   const dc    = DASHA_CHAPTERS[user.dasha.current]    ?? DASHA_CHAPTERS["Chandra"];
 
   const sk = sortedKootas(guna);
@@ -189,35 +244,35 @@ export function getCompatibilityTexts(
 
   const gmPct = kootaPct(guna, "Graha Maitri");
   const emotionalText = gmPct >= 0.7
-    ? `Your ${uMoon.en} and ${partner.name}'s ${pMoon.en} emotional styles have natural alignment — you understand each other's logic without needing to translate it. This is rare and worth protecting.`
+    ? `Your ${uMoon.en} and ${partner.name}'s ${pMoon.en} emotional styles naturally click — you get each other's logic without having to explain yourself. That's actually rare and worth protecting.`
     : gmPct <= 0.3
-    ? `Your ${uMoon.en} and ${pMoon.en} emotional styles operate on different frequencies. You interpret the same silence very differently. The gap is workable — but it requires naming.`
+    ? `Your ${uMoon.en} and ${pMoon.en} emotional styles work very differently. You can read the same situation in completely different ways. This is manageable — but you have to talk about it.`
     : `Your ${uMoon.en} emotional style meets ${partner.name}'s ${pMoon.en} — ${uMoon.element} meeting ${pMoon.element}. The chemistry is ${uMoon.element === pMoon.element ? "natural" : "complementary"}.`;
 
   const ganaPct = kootaPct(guna, "Gana");
   const commText = ganaPct <= 0.3
-    ? `You approach life's challenges from fundamentally different emotional instincts. Under stress, one person moves toward connection, one pulls away. Without naming this, it becomes the unnamed thing that keeps coming up.`
-    : `Your emotional stress responses are ${uNak.gana === pNak.gana ? "naturally aligned" : "workably complementary"} — you tend to handle difficulty in ways that don't compound each other.`;
+    ? `You handle stressful situations in very different ways. Under pressure, one person moves closer, one pulls away. Without naming this pattern, it becomes the thing that keeps coming up in every argument.`
+    : `Your emotional styles are ${uNak.gana === pNak.gana ? "naturally aligned" : "workably complementary"} — you tend to handle the hard moments in ways that don't make things worse for each other.`;
 
-  const bhakootNarrative = KOOTA_NARRATIVES["Bhakoot"];
+  const bhakootNarrative = resolveKootaNarrative("Bhakoot");
   const bhakootPct = kootaPct(guna, "Bhakoot");
   const attachText = bhakootPct === 0 ? bhakootNarrative.weakText : bhakootNarrative.strongText;
 
-  const nadiNarrative = KOOTA_NARRATIVES["Nadi"];
+  const nadiNarrative = resolveKootaNarrative("Nadi");
   const tensionText = guna.nadiDosha ? nadiNarrative.weakText : nadiNarrative.strongText;
 
   const ltText = guna.total >= 24
-    ? `At ${guna.total}/36, your compatibility profile lands in genuinely strong territory. The foundation exists — what you build on it is the only question.`
+    ? `At ${guna.total}/36, your compatibility is genuinely strong. The foundation is there — the only question is what you build on it.`
     : guna.total >= 18
-    ? `At ${guna.total}/36, this connection is workable. The friction area is not a stop sign — it's specifically where to invest attention.`
-    : `At ${guna.total}/36, the profile flags real friction in a few key areas. Not impossible — but requiring extraordinary self-awareness from both people.`;
+    ? `At ${guna.total}/36, this connection can work. The area with friction isn't a stop sign — it's just where you both need to pay more attention.`
+    : `At ${guna.total}/36, there is real friction in a few key areas. Not impossible — but it does require both people to be very honest with themselves.`;
 
   const addictiveText = kootaPct(guna,"Yoni") >= 0.6
     ? `${uNP.strength}. The physical and emotional pull between you is built into how your personalities interact — it's not imagined, and it's not accidental.`
     : `${uNP.trap}. The pull you feel is real — but it's worth understanding whether it's coming from genuine compatibility or from a pattern that predates this person.`;
 
   const hiddenText = weakestKoota
-    ? `The hidden pattern: ${KOOTA_NARRATIVES[weakestKoota.name]?.weakText ?? "an underlying friction that surfaces as something else"}. ${KOOTA_NARRATIVES[weakestKoota.name]?.fix ?? ""}`
+    ? `The hidden pattern: ${resolveKootaNarrative(weakestKoota.name)?.weakText ?? "an underlying friction that surfaces as something else"}. ${resolveKootaNarrative(weakestKoota.name)?.fix ?? ""}`
     : `The profile shows no major structural friction. The tension in this connection comes from individual patterns and wounds, not incompatibility — harder to see, and fully workable.`;
 
   return {
@@ -244,9 +299,9 @@ export function getPersonalizedFeatureText(
   const pNak  = NAKSHATRAS[partner.nakshatra];
   const uMoon = RASHIS[user.moonRashi];
   const pMoon = RASHIS[partner.moonRashi];
-  const uNP   = NAKSHATRA_PROFILES[user.nakshatra]    ?? NAKSHATRA_PROFILES[0];
-  const pNP   = NAKSHATRA_PROFILES[partner.nakshatra] ?? NAKSHATRA_PROFILES[0];
-  const uMP   = MOON_PROFILES_DEEP[user.moonRashi]    ?? MOON_PROFILES_DEEP[0];
+  const uNP   = resolveNakProfileGlobal(user.nakshatra);
+  const pNP   = resolveNakProfileGlobal(partner.nakshatra);
+  const uMP   = resolveMoonProfileGlobal(user.moonRashi);
 
   switch (featureKey) {
     case "falls-harder":
@@ -264,7 +319,7 @@ export function getPersonalizedFeatureText(
 
     case "ghosting-probability":
       return kootaScore(guna,"Bhakoot") === 0
-        ? `Emotional withdrawal is ${partnerName}'s default response when overwhelmed — they pull back before they pull away completely. ${KOOTA_NARRATIVES["Bhakoot"].weakText}`
+        ? `Emotional withdrawal is ${partnerName}'s default response when overwhelmed — they pull back before they pull away completely. ${resolveKootaNarrative("Bhakoot")?.weakText ?? ""}`
         : `${pNP.pattern}. Low ghosting probability — this personality type tends to linger rather than disappear. What's more likely is inconsistency, not a clean exit.`;
 
     case "reunion-potential":
@@ -282,7 +337,7 @@ export function getPersonalizedFeatureText(
 
     case "red-flags":
       return kootaScore(guna,"Gana") < 3
-        ? `${KOOTA_NARRATIVES["Gana"].weakText} ${KOOTA_NARRATIVES["Gana"].fix}`
+        ? `${resolveKootaNarrative("Gana")?.weakText ?? ""} ${resolveKootaNarrative("Gana")?.fix ?? ""}`
         : `${pNP.shadow}. When that shows up as inconsistency or distance, it's worth naming honestly: is this their capacity limit, or a pattern that's asking you to pay attention?`;
 
     case "green-flags":
@@ -290,7 +345,7 @@ export function getPersonalizedFeatureText(
         const sk = sortedKootas(guna);
         const best = sk[sk.length - 1];
         return best
-          ? `Your strongest area of natural compatibility: ${KOOTA_NARRATIVES[best.name]?.strongText ?? "a genuine foundation where things flow without effort"}. That's not luck — it's real.`
+          ? `Your strongest area of natural compatibility: ${resolveKootaNarrative(best.name)?.strongText ?? "a genuine foundation where things flow without effort"}. That's not luck — it's real.`
           : `The green flag isn't in a specific score — it's in the fact that ${pNP.strength}, and you're drawn to exactly that quality.`;
       })();
 
@@ -649,30 +704,34 @@ export function getPersonalizedHero(
 ): PersonalizedHero {
   const uRashi = RASHIS[reading.user.moonRashi];
   const pRashi = RASHIS[reading.partner.moonRashi];
+  const eKey   = elementKey(uRashi.element, pRashi.element);
+  const seed   = `hero-${userName}-${partnerName}-${eKey}-${relType}-${todayKey()}`;
 
+  // Try DB bundle first — hero_card items tagged with element_combo and rel_type
+  const bundle = getContentBundle();
+  if (bundle?.heroCards?.length) {
+    const matching = bundle.heroCards.filter((item) => {
+      const tags = item.tags as string[];
+      return tags.includes(`element_combo:${eKey}`) && tags.includes(`rel_type:${relType}`);
+    });
+    const pool = matching.length ? matching : bundle.heroCards;
+    const item = pool[hash(seed) % pool.length];
+    const meta = item.meta as Record<string, string> | null ?? {};
+    const vars = { u: userName, p: partnerName, um: uRashi.en, pm: pRashi.en };
+    return {
+      headline: meta.headline ?? "Today's read",
+      moonTag:  meta.moonTag  ?? `${uRashi.element} · ${pRashi.element}`,
+      insight:  applyVars(item.body, vars),
+      action:   applyVars(meta.action ?? "", vars),
+    };
+  }
+
+  // Local fallback
   const headline = `Today's read`;
   const moonTag  = `${uRashi.element} · ${pRashi.element}`;
-  const eKey     = elementKey(uRashi.element, pRashi.element);
-
-  const variants = buildHeroPool(
-    userName,
-    partnerName,
-    uRashi.en,
-    pRashi.en,
-    eKey,
-    relType,
-    reading.guna.total,
-  );
-
-  const seed = `hero-${userName}-${partnerName}-${eKey}-${relType}-${todayKey()}`;
-  const variant = pick(variants, seed);
-
-  return {
-    headline,
-    moonTag,
-    insight: variant.insight,
-    action:  variant.action,
-  };
+  const variants = buildHeroPool(userName, partnerName, uRashi.en, pRashi.en, eKey, relType, reading.guna.total);
+  const variant  = pick(variants, seed);
+  return { headline, moonTag, insight: variant.insight, action: variant.action };
 }
 
 // ─── Personalised suggestion cards ───────────────────────────────────────────
@@ -754,4 +813,279 @@ export function getPersonalizedChips(
     .sort((a, b) => b.w - a.w || a.text.localeCompare(b.text))
     .slice(0, 5)
     .map((c) => c.text);
+}
+
+// ─── Right Now Between You Two ────────────────────────────────────────────────
+// The "how did it know?" card. Returns two hyper-specific statements — one about
+// what the user is probably doing/feeling right now, one about the partner.
+// Content is indexed by moon element × relationship type, picked by day seed.
+
+export interface TodayBetweenYou {
+  userMoment: string;
+  partnerSignal: string;
+}
+
+export function getTodayBetweenYou(
+  reading: AstrologyReading,
+  relType: RelationshipType,
+  userName: string,
+  partnerName: string,
+): TodayBetweenYou {
+  const uMoon = RASHIS[reading.user.moonRashi];
+  const pMoon = RASHIS[reading.partner.moonRashi];
+  const u = userName;
+  const p = partnerName;
+  const um = uMoon.en;
+  const pm = pMoon.en;
+
+  // ── User moment pools (what the user is carrying/doing right now) ─────────
+  const userPools: Record<string, Record<RelationshipType, string[]>> = {
+    Fire: {
+      crush: [
+        `${u}, your ${um} moon already knows what it wants. The pause right now isn't uncertainty — it's you deciding whether to act on something you've already decided.`,
+        `${u}, you've played out how to say it at least four times today. Your ${um} moon is ready. The only part you haven't figured out is how to start.`,
+        `${u}, your ${um} moon picks up interest fast and you've picked something up from ${p}. You're not overthinking — you're delaying something you should probably do today.`,
+        `${u}, the restraint your ${um} moon is showing right now is costing you energy. It's worth asking yourself whether the wait is actually necessary, or just familiar.`,
+      ],
+      situationship: [
+        `${u}, your ${um} moon has a natural ceiling for ambiguity and you're close to it. What you're feeling as frustration is actually clarity — you know what you want, you just haven't said it.`,
+        `${u}, you've been more patient than your ${um} moon is built for. The irritation underneath isn't irrational. It's your system telling you something needs to change.`,
+        `${u}, you've rehearsed the defining conversation enough times to give it word for word. What's stopping you isn't lack of words — it's fear of what ${p} might say back.`,
+        `${u}, your ${um} moon is getting tired of performing calm about something that isn't calm. The "it's fine" is wearing thin, and ${p} probably senses it.`,
+      ],
+      relationship: [
+        `${u}, something small happened recently that's still sitting in you. Your ${um} moon doesn't process silently for long. ${p} probably senses something's off.`,
+        `${u}, your ${um} moon needs things to feel like they're moving. If the relationship has felt static lately, that restlessness is information — not something to suppress.`,
+        `${u}, you've been carrying something this week without naming it. That's not sustainable for your ${um} moon. Today is a reasonable day to just say the thing.`,
+        `${u}, your ${um} moon is direct about almost everything except the specific thing that's actually bothering you right now. Say the specific thing.`,
+      ],
+      ex: [
+        `${u}, your ${um} moon processes by moving and you've been moving. At some point, moving becomes avoiding. It's worth checking which one this is right now.`,
+        `${u}, the impulse to reach out to ${p} is stronger today. Your ${um} moon acts before it thinks sometimes — make sure this is the thinking kind before you do anything.`,
+        `${u}, you've been running some version of "what if" about ${p} since the ending. Your ${um} moon wants resolution. Reaching out won't give you that — it'll just restart the loop.`,
+        `${u}, the heat of the ending is still in your ${um} moon. That's real. The question is whether what you'd return to would actually be different, or just familiar.`,
+      ],
+    },
+    Earth: {
+      crush: [
+        `${u}, your ${um} moon has been collecting evidence about ${p} quietly. You have enough. The block right now isn't information — it's the risk of being wrong.`,
+        `${u}, you've built a thorough internal case about ${p}. Your ${um} moon doesn't move without certainty. The problem is that certainty doesn't arrive before you act — it arrives because you act.`,
+        `${u}, your ${um} moon is waiting for a sign that this is safe before it moves. ${p} might be waiting for the same sign from you. Someone has to go first.`,
+        `${u}, the caution your ${um} moon brings to everything is real. It's also possible that what you're protecting yourself from here isn't as likely as you're treating it.`,
+      ],
+      situationship: [
+        `${u}, your ${um} moon has been accommodating uncertainty longer than it's designed to. You're not someone who thrives in ambiguity — you're someone who tolerates it when they have to. You've been tolerating it.`,
+        `${u}, you've analyzed this from every angle and reached the same conclusion each time. Your ${um} moon knows what it needs. You just haven't asked for it directly yet.`,
+        `${u}, your ${um} moon needs something to build on. Right now with ${p} there's nothing solid to build on. That's not a small thing for you — it's the thing.`,
+        `${u}, the patience your ${um} moon is showing is real. What's also real is that your patience has a limit, and you're closer to it than you're admitting to yourself.`,
+      ],
+      relationship: [
+        `${u}, your ${um} moon notices when things shift, even slightly. Something has shifted this week and you haven't spoken it to ${p} yet.`,
+        `${u}, you've been tracking something in the relationship that you haven't named directly. Your ${um} moon runs on what it observes — what's the observation actually telling you?`,
+        `${u}, your ${um} moon can go quiet when it's processing something difficult. ${p} might be reading that quiet as withdrawal. It might be worth explaining.`,
+        `${u}, there's a specific thing you've been thinking about this week that you haven't said to ${p}. Your ${um} moon holds things carefully — sometimes too carefully.`,
+      ],
+      ex: [
+        `${u}, your ${um} moon is doing the practical parts of moving on. The emotional part is a few weeks behind that, and that's exactly how your moon sign processes things — thoroughly, in order.`,
+        `${u}, your ${um} moon doesn't release things quickly or easily. The fact that you're still processing ${p} isn't weakness — it's the depth you bring to everything.`,
+        `${u}, you've been rebuilding slowly and methodically since the ending. That's right for your ${um} moon. Don't let anyone — including yourself — rush this.`,
+        `${u}, your ${um} moon will get through this. It processes at its own pace and it does it completely. You're in the middle of that process right now and it's working.`,
+      ],
+    },
+    Air: {
+      crush: [
+        `${u}, your ${um} moon has been reading ${p}'s messages for things that may or may not be there. The analysis won't give you certainty — only a direct conversation will.`,
+        `${u}, you've had the conversation you need to have with ${p} approximately fifty times in your head. The words are already there. What's missing is the decision to use them.`,
+        `${u}, your ${um} moon creates meaning first and then looks for evidence. Be honest with yourself about whether what you're reading from ${p} is what's there, or what you want to be there.`,
+        `${u}, your ${um} moon knows exactly what it thinks about ${p}. What it's less clear on is what it feels. Right now the feeling is the more important of the two.`,
+      ],
+      situationship: [
+        `${u}, your ${um} moon can talk itself into and out of anything. Check that you're not using your own clarity as a way to avoid the one conversation that would actually give you clarity.`,
+        `${u}, you've got a very articulate internal understanding of why this situationship is what it is. You're also aware that understanding it doesn't change it. Something else has to change it.`,
+        `${u}, your ${um} moon has been explaining this arrangement to yourself in ways that make sense. Check that "makes sense" hasn't quietly become a substitute for "what I actually want."`,
+        `${u}, the conversation you need to have with ${p} is one your ${um} moon has already run through every possible outcome of. You know how to say it. You just haven't decided to.`,
+      ],
+      relationship: [
+        `${u}, your ${um} moon has been rationalizing something instead of feeling it. There's a specific thing you've been explaining away that deserves to actually be felt.`,
+        `${u}, something happened recently that you've analyzed thoroughly and discussed very little. Your ${um} moon is good at understanding things — right now it needs to express them.`,
+        `${u}, you've been in your head about ${p} this week more than usual. Your ${um} moon sometimes processes distance intellectually rather than just closing the distance directly.`,
+        `${u}, your ${um} moon can make almost anything make sense. The question today is not whether it makes sense — it's whether it feels right.`,
+      ],
+      ex: [
+        `${u}, your ${um} moon has constructed a clean narrative about why the ending with ${p} was right. Check whether you're processing or just explaining — they're different.`,
+        `${u}, you've thought through every angle of the ending. Your ${um} moon is good at conclusions. What it's less practiced at is grief. Give the grief its turn today.`,
+        `${u}, your ${um} moon is probably three weeks ahead emotionally. The part of you that still misses ${p} is real and it doesn't need an explanation — it needs to be acknowledged.`,
+        `${u}, you've been on the intellectual side of this for a while. Make sure the emotional layer has actually had its turn and isn't just buried under analysis.`,
+      ],
+    },
+    Water: {
+      crush: [
+        `${u}, your ${um} moon already knows how ${p} feels. You've picked it up without them saying anything. You're just not sure yet what to do with what you know.`,
+        `${u}, your ${um} moon has been absorbing ${p}'s energy without naming it. What you've been feeling around them isn't vague — it's data. Trust it.`,
+        `${u}, you've sensed something real here and you've been quietly talking yourself out of trusting it. Your ${um} moon's instincts have context your logic doesn't. Listen to them.`,
+        `${u}, your ${um} moon is picking up on things ${p} hasn't said yet. The question isn't whether the feeling is right — it's whether you're brave enough to name it first.`,
+      ],
+      situationship: [
+        `${u}, your ${um} moon has been absorbing the ambiguity in this situation and calling it patience. It's not really patience — it's you carrying something that should be shared, not held.`,
+        `${u}, your ${um} moon feels everything and holds most of it. This situationship with ${p} is costing you more than you're showing. You don't have to keep absorbing it alone.`,
+        `${u}, your ${um} moon knows the difference between someone who's figuring things out and someone who's comfortable keeping you waiting. Which one is this?`,
+        `${u}, you've been reading ${p}'s signals carefully. Your ${um} moon doesn't misread people easily. Trust what you've read. Stop needing more evidence.`,
+      ],
+      relationship: [
+        `${u}, there's something between you and ${p} that hasn't been said out loud yet. Your ${um} moon has been holding it. Today is a reasonable day to stop holding it.`,
+        `${u}, your ${um} moon has picked up a shift in the energy this week. Something is different and you haven't named what it is — to yourself or to ${p}.`,
+        `${u}, you've been holding something for ${p} emotionally this week. Your ${um} moon does this automatically. Make sure you're also holding something for yourself.`,
+        `${u}, your ${um} moon is so attuned to ${p} that it's sometimes hard to know where you end and they begin. Check in today: what are you feeling that's actually yours?`,
+      ],
+      ex: [
+        `${u}, the grief comes in waves and your ${um} moon stays in each one until it's done. That's right. Don't rush it and don't apologize to anyone for it.`,
+        `${u}, your ${um} moon is still carrying ${p} in ways that aren't visible on the outside. That's how Water moons grieve — quietly and completely.`,
+        `${u}, you've been checking in on ${p} from a distance — their profile, what mutual people say, small signals. Your ${um} moon is still monitoring something it's not ready to release. Notice that.`,
+        `${u}, your ${um} moon processes through feeling, not through deciding. You haven't fully felt this ending yet. When you do, you'll know. You're not there yet, and that's okay.`,
+      ],
+    },
+  };
+
+  // ── Partner signal pools (what's happening with them right now) ───────────
+  const partnerPools: Record<string, Record<RelationshipType, string[]>> = {
+    Fire: {
+      crush: [
+        `${p}'s ${pm} moon has noticed you. Fire moons act on what they want — if they haven't acted yet, there's a reason. It could be timing, or it could be waiting to see if the interest is mutual.`,
+        `${p}'s ${pm} moon moves toward what it wants once it's confident. Right now they're calibrating. The clearest signal you can give is showing up without ambiguity.`,
+        `${p}'s ${pm} moon is drawn to momentum and directness. Show that you know what you want and watch what happens.`,
+        `${p}'s ${pm} moon is deciding. Fire moons move fast once they decide — the pause means they're still weighing something, not that they're uninterested.`,
+      ],
+      situationship: [
+        `${p}'s ${pm} moon doesn't do indefinite. They have a natural time limit on undefined things and they won't feel guilty about moving on when it expires. The clock is running.`,
+        `${p}'s ${pm} moon is interested but not invested right now. Those are different states. The gap between them is exactly where this situationship lives.`,
+        `${p}'s ${pm} moon is comfortable right now — which is part of the problem. Comfortable doesn't create urgency to define things. Only discomfort does.`,
+        `${p}'s ${pm} moon is in a holding pattern. Fire moons don't hold forever. Watch which direction they move when the pattern breaks.`,
+      ],
+      relationship: [
+        `${p}'s ${pm} moon needs to feel like you're fully present with them right now. Something has made them feel like part of you is somewhere else this week.`,
+        `${p}'s ${pm} moon runs on reciprocity — they show up fully when they feel met. If they've seemed less present lately, check whether they feel seen right now.`,
+        `${p}'s ${pm} moon is carrying something they haven't said yet. Fire moons act when they're ready — give them space to get there without pushing.`,
+        `${p}'s ${pm} moon needs acknowledgment, not big gestures — specific ones. One thing you notice about them today will land more than you think.`,
+      ],
+      ex: [
+        `${p}'s ${pm} moon has moved the energy somewhere else — work, something new, people who are available. That's how Fire moons survive endings. It doesn't mean what it looks like.`,
+        `${p}'s ${pm} moon doesn't linger in endings the way yours might. That doesn't make the connection less real — it makes them different in how they process it.`,
+        `${p}'s ${pm} moon will reach back out if and when it decides to. If it hasn't, that's information. Let that be the answer for right now.`,
+        `${p}'s ${pm} moon has filed the ending and moved on externally. Their internal processing is harder to see. Don't assume "looks fine" means "is fine."`,
+      ],
+    },
+    Earth: {
+      crush: [
+        `${p}'s ${pm} moon is paying close attention to whether you follow through on small things. They're not testing you deliberately — they're building a picture of whether you're consistent.`,
+        `${p}'s ${pm} moon moves slowly and deliberately. The fact that they keep engaging with you means something — Earth moons don't give sustained attention to things that don't matter.`,
+        `${p}'s ${pm} moon notices what you do far more than what you say. Show up in a small, real way today and it will register more than you think.`,
+        `${p}'s ${pm} moon doesn't rush attraction. The slow pace isn't cold — it's how they decide whether something is worth investing in.`,
+      ],
+      situationship: [
+        `${p}'s ${pm} moon is comfortable in this arrangement in a way that may not be serving you. They're not pushing for more because you're already meeting their needs. Are your needs being met?`,
+        `${p}'s ${pm} moon doesn't change things that feel stable. The situationship is stable for them right now. That's actually the issue.`,
+        `${p}'s ${pm} moon is quietly assessing whether what you two have is worth defining. That assessment is ongoing. You can influence it by being direct about what you want.`,
+        `${p}'s ${pm} moon takes time to commit because they take it seriously. They need more consistency, more time, or a direct conversation — probably all three.`,
+      ],
+      relationship: [
+        `${p}'s ${pm} moon goes quiet when they're processing something they don't know how to say. The quietness this week isn't distance — something is building.`,
+        `${p}'s ${pm} moon expresses care through reliability and presence, not declarations. Notice what they're doing, not just what they're saying.`,
+        `${p}'s ${pm} moon needs things to feel solid. If anything has felt unsettled between you recently, it registers more deeply for them than it might for you.`,
+        `${p}'s ${pm} moon holds things inside before saying them. If they seem like they have something on their mind, they do. Ask directly.`,
+      ],
+      ex: [
+        `${p}'s ${pm} moon is doing the slow, thorough work of rebuilding. They're probably further along in that process than their behavior suggests.`,
+        `${p}'s ${pm} moon processes endings carefully and completely. They're not over it — but they're working through it in the methodical way Earth moons do everything.`,
+        `${p}'s ${pm} moon won't reach back out impulsively. If they do, it will be because they've decided to — deliberately, not on a whim.`,
+        `${p}'s ${pm} moon is building toward something different now. Slowly, quietly — the same way they do everything. The trajectory is away from what was.`,
+      ],
+    },
+    Air: {
+      crush: [
+        `${p}'s ${pm} moon engages with things it finds genuinely interesting. The fact that they keep coming back to you is the signal — Air moons disengage from things that don't hold them.`,
+        `${p}'s ${pm} moon is interested but processing it intellectually before feeling it. That's how they work. Give them something real to think about, not just something charming.`,
+        `${p}'s ${pm} moon is figuring out whether you're consistent or just compelling. Compelling is easy for Air moons to walk away from. Consistent is not.`,
+        `${p}'s ${pm} moon is drawn to you. What they're deciding is whether you'll still be interesting when things get real. Show them a real version of yourself today.`,
+      ],
+      situationship: [
+        `${p}'s ${pm} moon has rationalized this arrangement into something that works for them. They're probably not experiencing the ambiguity the same way you are. That matters.`,
+        `${p}'s ${pm} moon stays in situations that are stimulating. You're stimulating. Stimulation and readiness to commit are different things — know which one you're dealing with.`,
+        `${p}'s ${pm} moon keeps things open because Air moons are made for possibility, not definition. The lack of definition is working for them. Whether it works for you is a separate question.`,
+        `${p}'s ${pm} moon isn't unavailable — they're just not being pushed toward clarity. A direct question gets a direct answer with Air moons. Ask it.`,
+      ],
+      relationship: [
+        `${p}'s ${pm} moon is in their head right now — not away from you, but inside a thought process they haven't brought you into yet. Ask where they actually are.`,
+        `${p}'s ${pm} moon processes things verbally or through writing. If they've been quiet, there's something they're working out alone first. Give room, then ask.`,
+        `${p}'s ${pm} moon expresses care through attention and engagement. If they seem less present, notice whether they're engaging less, or just differently.`,
+        `${p}'s ${pm} moon needs the relationship to feel like it's still moving and alive. Check whether you've both settled into routine — they feel that shift first.`,
+      ],
+      ex: [
+        `${p}'s ${pm} moon has moved the story forward in their head. They've found the narrative version of the ending that makes sense to them. The emotional chapter may still be open even if the cognitive one is closed.`,
+        `${p}'s ${pm} moon is probably analyzing you less than you imagine. Air moons move to the next interesting thing. That's not cruelty — it's how they're built to cope.`,
+        `${p}'s ${pm} moon has told itself a version of what happened that made it make sense. They're not wrong. They're just telling the story in a different language than you are.`,
+        `${p}'s ${pm} moon is not unreachable — Air moons stay connected to the idea of people long after things end. Being an idea in their head isn't the same as a real option.`,
+      ],
+    },
+    Water: {
+      crush: [
+        `${p}'s ${pm} moon is picking up on everything you're not saying. They already know more about how you feel than you've told them. What they're deciding is what to do with it.`,
+        `${p}'s ${pm} moon doesn't let just anyone in. The fact that they're still engaged with you means something passed their instinctive filter. That's not nothing.`,
+        `${p}'s ${pm} moon feels things deeply and shares almost none of it. The quiet isn't disinterest — it's protection. What earns their trust isn't intensity. It's consistency over time.`,
+        `${p}'s ${pm} moon reads energy before it reads words. What they're picking up from how you're showing up right now matters more than what you've said.`,
+      ],
+      situationship: [
+        `${p}'s ${pm} moon is more invested in this than they're showing. Water moons protect what they care about by going quiet about it. The quietness is the tell, not evidence of absence.`,
+        `${p}'s ${pm} moon is feeling things they haven't said. That's different from not feeling things. The silence is loaded, not empty.`,
+        `${p}'s ${pm} moon is waiting to feel safe enough to name what this is. Safety for them comes from consistency, not declarations. Show up the same way, repeatedly.`,
+        `${p}'s ${pm} moon is absorbing everything about how you're showing up. Every small thing registers. The pattern you're creating right now matters more than any single moment.`,
+      ],
+      relationship: [
+        `${p}'s ${pm} moon has been absorbing something this week they haven't processed out loud yet. Ask them what's going on — not "are you okay" but something more specific.`,
+        `${p}'s ${pm} moon holds its inner world carefully. If they seem withdrawn, something real is happening underneath. Don't mistake the surface for the full picture.`,
+        `${p}'s ${pm} moon needs to feel genuinely seen right now — not just loved in general, but noticed specifically. Name one specific thing about them today.`,
+        `${p}'s ${pm} moon goes tidal sometimes — close and then distant, without it meaning something changed. Check before you conclude the distance is about you.`,
+      ],
+      ex: [
+        `${p}'s ${pm} moon is still carrying this quietly. Water moons don't put things down easily. They look okay. They're not fully okay.`,
+        `${p}'s ${pm} moon has been grieving this privately in the way Water moons do — completely, without showing it. That doesn't mean they've moved on.`,
+        `${p}'s ${pm} moon absorbs endings as completely as it absorbs connections. The ending with you is still in them — it just lives somewhere you can't see from here.`,
+        `${p}'s ${pm} moon will reach back out if and when they feel safe enough to. Water moons don't reach back impulsively — they reach back when the feeling becomes too heavy to hold alone.`,
+      ],
+    },
+  };
+
+  const uElement = uMoon.element;
+  const pElement = pMoon.element;
+  const userSeed    = `rightnow-u-${userName}-${uElement}-${relType}-${todayKey()}`;
+  const partnerSeed = `rightnow-p-${partnerName}-${pElement}-${relType}-${todayKey()}`;
+  const vars        = { u: userName, p: partnerName, um: uMoon.en, pm: pMoon.en };
+
+  // Try DB bundle first — right_now items tagged by element + rel_type
+  const bundle = getContentBundle();
+  if (bundle?.rightNow?.length) {
+    const matchTag = `element:${uElement}`;
+    const relTag   = `rel_type:${relType}`;
+    const userItems = bundle.rightNow.filter((i) => {
+      const tags = i.tags as string[];
+      return (tags.includes(matchTag) || tags.includes("universal")) && (tags.includes(relTag) || tags.includes("universal")) && !(i.meta as any)?.isPartner;
+    });
+    const partnerItems = bundle.rightNow.filter((i) => {
+      const tags = i.tags as string[];
+      return (tags.includes(`partner_element:${pElement}`) || tags.includes("universal")) && (tags.includes(relTag) || tags.includes("universal")) && !!(i.meta as any)?.isPartner;
+    });
+    const uPool = userItems.length    ? userItems    : bundle.rightNow;
+    const pPool = partnerItems.length ? partnerItems : bundle.rightNow;
+    return {
+      userMoment:    applyVars(uPool[hash(userSeed)    % uPool.length].body, vars),
+      partnerSignal: applyVars(pPool[hash(partnerSeed) % pPool.length].body, vars),
+    };
+  }
+
+  // Local fallback
+  const userPool    = (userPools[uElement]    ?? userPools.Water)[relType];
+  const partnerPool = (partnerPools[pElement] ?? partnerPools.Water)[relType];
+  return {
+    userMoment:    pick(userPool,    userSeed),
+    partnerSignal: pick(partnerPool, partnerSeed),
+  };
 }

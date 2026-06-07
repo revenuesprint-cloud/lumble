@@ -6,7 +6,112 @@ const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
 
 const CACHE_KEY_DAILY   = "@lumble_content_daily";
 const CACHE_KEY_JOURNEY = "@lumble_journey";
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
+const CACHE_KEY_BUNDLE  = "@lumble_content_bundle";
+const CACHE_TTL_MS      = 6 * 60 * 60 * 1000; // 6 hours
+
+// ─── Content Bundle ────────────────────────────────────────────────────────────
+// Single fetch that powers all screens. Fetched once per session (6h TTL).
+// Module-level singleton so every utility (oracle.ts, personalization.ts, etc.)
+// can call getContentBundle() without prop-drilling.
+
+export interface ContentBundle {
+  oracleByIntent:      Record<string, DBContentItem[]>; // keyed by meta.intent
+  heroCards:           DBContentItem[];
+  rightNow:            DBContentItem[];
+  dailyFocus:          DBContentItem[];
+  energyMessages:      DBContentItem[];
+  compatibilityTexts:  DBContentItem[];
+  featureInsights:     DBContentItem[];
+  // Structural content for Stars + Compatibility screens
+  moonProfiles:        DBContentItem[];  // indexed by meta.moonRashiIdx (0-11)
+  nakshatraProfiles:   DBContentItem[];  // indexed by meta.nakshatraIdx (0-26)
+  dashaChapters:       DBContentItem[];  // keyed by meta.dashaLord
+  kootaNarratives:     DBContentItem[];  // keyed by meta.kootaName
+  dailyMessages:       DBContentItem[];
+  fetchedAt:           number;
+}
+
+let _bundle: ContentBundle | null = null;
+
+export function getContentBundle(): ContentBundle | null { return _bundle; }
+export function setContentBundle(b: ContentBundle | null): void { _bundle = b; }
+
+export async function fetchContentBundle(tags: string[], authToken?: string | null): Promise<ContentBundle | null> {
+  // Return in-memory bundle if fresh
+  if (_bundle && Date.now() - _bundle.fetchedAt < CACHE_TTL_MS) return _bundle;
+
+  // Try AsyncStorage cache
+  try {
+    const cached = await AsyncStorage.getItem(CACHE_KEY_BUNDLE);
+    if (cached) {
+      const parsed: ContentBundle = JSON.parse(cached);
+      if (Date.now() - parsed.fetchedAt < CACHE_TTL_MS) {
+        _bundle = parsed;
+        return parsed;
+      }
+    }
+  } catch {}
+
+  if (!API_URL) return null;
+
+  try {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 12000);
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+
+    const res = await fetch(`${API_URL}/api/content/bundle`, {
+      method: "POST",
+      headers,
+      // If auth token present, server resolves tags from stored profile; still send as fallback
+      body: JSON.stringify({ tags }),
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const raw = data.bundle ?? {};
+
+    // Group oracle responses by intent (meta.intent field)
+    const oracleByIntent: Record<string, DBContentItem[]> = {};
+    for (const item of (raw.oracle_response ?? []) as DBContentItem[]) {
+      const intent = (item.meta?.intent as string) ?? "general";
+      if (!oracleByIntent[intent]) oracleByIntent[intent] = [];
+      oracleByIntent[intent].push(item);
+    }
+
+    const bundle: ContentBundle = {
+      oracleByIntent,
+      heroCards:           raw.hero_card           ?? [],
+      rightNow:            raw.right_now            ?? [],
+      dailyFocus:          raw.daily_focus          ?? [],
+      energyMessages:      raw.energy_message       ?? [],
+      compatibilityTexts:  raw.compatibility_text   ?? [],
+      featureInsights:     raw.feature_insight      ?? [],
+      moonProfiles:        raw.moon_profile         ?? [],
+      nakshatraProfiles:   raw.nakshatra_profile    ?? [],
+      dashaChapters:       raw.dasha_chapter        ?? [],
+      kootaNarratives:     raw.koota_narrative      ?? [],
+      dailyMessages:       raw.daily_message        ?? [],
+      fetchedAt:           Date.now(),
+    };
+
+    _bundle = bundle;
+    await AsyncStorage.setItem(CACHE_KEY_BUNDLE, JSON.stringify(bundle));
+    return bundle;
+  } catch {
+    return null;
+  }
+}
+
+/** Simple template variable substitution for DB content strings. */
+export function applyVars(template: string, vars: Record<string, string>): string {
+  let out = template;
+  for (const [k, v] of Object.entries(vars)) {
+    out = out.split(`{{${k}}}`).join(v);
+  }
+  return out;
+}
 
 export interface DBContentItem {
   id: string;

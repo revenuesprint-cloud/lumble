@@ -5,6 +5,7 @@ import { useApp } from "@/context/AppContext";
 import { getAstrologyReading } from "@/utils/astrology";
 import { calculateCompatibility, CompatibilitySection } from "@/utils/compatibility";
 import { getCompatibilityTexts } from "@/utils/personalization";
+import { getContentBundle, applyVars } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,6 +14,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -57,32 +59,107 @@ function OverallScore({ score }: { score: number }) {
         style={styles.scoreOrb}
       >
         <Text style={[styles.scoreNumber, { color }]}>{displayPct}<Text style={styles.scoreMax}>%</Text></Text>
-        <Text style={styles.scoreLabel}>Overall compatibility</Text>
+        <Text style={styles.scoreLabel}>how compatible you are</Text>
         <Text style={[styles.scoreVerdict, { color }]}>{verdict}</Text>
-        <Text style={styles.scoreHint}>based on how your personalities align</Text>
+        <Text style={styles.scoreHint}>based on your birth charts and personality types</Text>
       </LinearGradient>
     </Animated.View>
   );
 }
+
+// ─── Section detail sheet ─────────────────────────────────────────────────────
+
+function SectionDetailSheet({ section, onClose }: { section: CompatibilitySection; onClose: () => void }) {
+  const slideAnim = useRef(new Animated.Value(400)).current;
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const lbl       = sectionLabel(section.score);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(slideAnim, { toValue: 0, duration: 320, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 300, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const close = () => {
+    Animated.parallel([
+      Animated.timing(slideAnim, { toValue: 400, duration: 240, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 0,   duration: 240, useNativeDriver: true }),
+    ]).start(onClose);
+  };
+
+  return (
+    <Animated.View style={[sdStyles.overlay, { opacity: fadeAnim }]}>
+      <Pressable style={sdStyles.backdrop} onPress={close} />
+      <Animated.View style={[sdStyles.sheet, { transform: [{ translateY: slideAnim }] }]}>
+        <View style={sdStyles.handle} />
+
+        {/* Header */}
+        <View style={sdStyles.sheetHeader}>
+          <View style={[sdStyles.dot, { backgroundColor: section.color + "22", borderColor: section.color + "55" }]}>
+            <View style={[sdStyles.dotCore, { backgroundColor: section.color }]} />
+          </View>
+          <Text style={sdStyles.sheetTitle}>{section.label}</Text>
+          <View style={[sdStyles.scoreBadge, { backgroundColor: lbl.color + "18", borderColor: lbl.color + "44" }]}>
+            <Text style={[sdStyles.scoreBadgeText, { color: lbl.color }]}>{lbl.text}</Text>
+          </View>
+        </View>
+
+        {/* Bar */}
+        <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={50} />
+
+        <View style={sdStyles.divider} />
+
+        {/* Full text */}
+        <Text style={sdStyles.fullText}>{section.text}</Text>
+
+        <TouchableOpacity onPress={close} style={sdStyles.closeBtn} activeOpacity={0.7}>
+          <Text style={sdStyles.closeBtnText}>Got it</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+const sdStyles = StyleSheet.create({
+  overlay:       { ...StyleSheet.absoluteFillObject, zIndex: 200, justifyContent: "flex-end" },
+  backdrop:      { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.55)" },
+  sheet:         { backgroundColor: "#110F1E", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "rgba(240,235,248,0.08)", padding: 26, paddingBottom: 44, gap: 18 },
+  handle:        { width: 40, height: 4, borderRadius: 2, backgroundColor: "rgba(240,235,248,0.14)", alignSelf: "center", marginBottom: 4 },
+  sheetHeader:   { flexDirection: "row", alignItems: "center", gap: 10 },
+  dot:           { width: 28, height: 28, borderRadius: 14, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  dotCore:       { width: 10, height: 10, borderRadius: 5 },
+  sheetTitle:    { flex: 1, fontSize: 18, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  scoreBadge:    { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
+  scoreBadgeText:{ fontSize: 11, fontFamily: "Nunito_600SemiBold" },
+  divider:       { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
+  fullText:      { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 26 },
+  closeBtn:      { alignItems: "center", paddingVertical: 14, backgroundColor: "rgba(240,235,248,0.06)", borderRadius: 16 },
+  closeBtnText:  { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.7)" },
+});
+
+// ─── Section card ─────────────────────────────────────────────────────────────
 
 function SectionCard({
   section,
   index,
   isPremium,
   onLockTap,
+  onDetailTap,
 }: {
   section: CompatibilitySection;
   index: number;
   isPremium: boolean;
   onLockTap: () => void;
+  onDetailTap: () => void;
 }) {
   const isLocked = index >= 5 && !isPremium;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 400, delay: index * 100 + 300, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, delay: index * 100 + 300, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, delay: index * 100 + 300, useNativeDriver: true }),
     ]).start();
   }, []);
@@ -90,14 +167,10 @@ function SectionCard({
   return (
     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
       <TouchableOpacity
-        onPress={isLocked ? () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onLockTap(); } : undefined}
-        activeOpacity={isLocked ? 0.8 : 1}
+        onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); isLocked ? onLockTap() : onDetailTap(); }}
+        activeOpacity={0.82}
       >
-        <GlowCard
-          style={styles.sectionCard}
-          glowColor={section.color + "33"}
-          intensity={isLocked ? "low" : "medium"}
-        >
+        <GlowCard style={styles.sectionCard} glowColor={section.color + "33"} intensity={isLocked ? "low" : "medium"}>
           <View style={styles.sectionInner}>
             <View style={styles.sectionHeader}>
               <View style={[styles.sectionDot, { backgroundColor: section.color + "22", borderColor: section.color + "55" }]}>
@@ -112,14 +185,10 @@ function SectionCard({
                   </View>
                 );
               })()}
+              {!isLocked && <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.22)" />}
             </View>
 
-            <AnimatedBar
-              value={section.score}
-              color={section.color}
-              color2={section.color + "88"}
-              delay={index * 100 + 400}
-            />
+            <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={index * 100 + 400} />
 
             {isLocked ? (
               <View style={styles.lockedOverlay}>
@@ -127,7 +196,7 @@ function SectionCard({
                 <Text style={styles.lockedText}>Unlock with Premium</Text>
               </View>
             ) : (
-              <Text style={styles.sectionText}>{section.text}</Text>
+              <Text style={styles.sectionText} numberOfLines={2}>{section.text}</Text>
             )}
           </View>
         </GlowCard>
@@ -139,7 +208,8 @@ function SectionCard({
 export default function CompatibilityScreen() {
   const insets = useSafeAreaInsets();
   const { user, partner, isPremium } = useApp();
-  const [showGate, setShowGate] = useState(false);
+  const [showGate,   setShowGate]   = useState(false);
+  const [activeSection, setActiveSection] = useState<CompatibilitySection | null>(null);
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -149,16 +219,25 @@ export default function CompatibilityScreen() {
   if (!user || !partner) return null;
   if (!reading) return <KundliLoading label="Calculating emotional chemistry…" />;
 
-  // Build compatibility sections using actual guna breakdown texts
+  // Build compatibility sections — DB bundle > personalized local > base
+  const dbBundle = getContentBundle();
+  const dbCompatTexts: Record<string, string> = {};
+  if (dbBundle?.compatibilityTexts?.length) {
+    const vars = { u: user.name, p: partner.name };
+    for (const item of dbBundle.compatibilityTexts) {
+      const section = (item.meta as any)?.section as string | undefined;
+      if (section) dbCompatTexts[section] = applyVars(item.body, vars);
+    }
+  }
   const personalizedTexts = getCompatibilityTexts(reading, partner.relationshipType);
   const baseData = calculateCompatibility(user.birthDate, partner.birthDate, user.name, partner.name, partner.relationshipType);
-  // Override section texts with kundli-derived versions
+  // Override section texts: DB first, then kundli-personalized, then base
   const data = {
     ...baseData,
     overall: reading.guna.total, // Real guna total 0–36
     sections: baseData.sections.map((s) => ({
       ...s,
-      text: personalizedTexts[s.label] ?? s.text,
+      text: dbCompatTexts[s.label] ?? personalizedTexts[s.label] ?? s.text,
       score: (() => {
         // Map each section to its actual koota score
         const kootaMap: Record<string, string> = {
@@ -192,7 +271,7 @@ export default function CompatibilityScreen() {
         ]}
       >
         <Text style={styles.screenTitle}>You & {partner.name}</Text>
-        <Text style={styles.screenSub}>Chemistry · Patterns · Deep reads</Text>
+        <Text style={styles.screenSub}>An honest look at what works and what doesn't</Text>
 
         <OverallScore score={data.overall} />
 
@@ -213,6 +292,7 @@ export default function CompatibilityScreen() {
               index={i}
               isPremium={isPremium}
               onLockTap={() => setShowGate(true)}
+              onDetailTap={() => setActiveSection(section)}
             />
           ))}
         </View>
@@ -238,6 +318,13 @@ export default function CompatibilityScreen() {
         onClose={() => setShowGate(false)}
         featureName="Hidden Relationship Pattern"
       />
+
+      {activeSection && (
+        <SectionDetailSheet
+          section={activeSection}
+          onClose={() => setActiveSection(null)}
+        />
+      )}
     </LinearGradient>
   );
 }
@@ -279,11 +366,10 @@ const styles = StyleSheet.create({
     color: "rgba(240,235,248,0.4)",
   },
   scoreLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.4)",
-    letterSpacing: 1,
-    textTransform: "uppercase",
+    color: "rgba(240,235,248,0.45)",
+    letterSpacing: 0,
   },
   scoreVerdict: {
     fontSize: 15,

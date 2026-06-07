@@ -30,12 +30,15 @@ router.put("/", requireAuth, async (req, res) => {
   const {
     userName, userBirthDate, userBirthTime,
     partnerName, partnerBirthDate, relationshipType,
+    kundliTags,  // computed client-side from birth dates, stored here for server-side content matching
   } = req.body ?? {};
 
   const allowed = ["crush", "situationship", "relationship", "ex"];
   if (!userName || !userBirthDate || !partnerName || !partnerBirthDate || !allowed.includes(relationshipType)) {
     return res.status(400).json({ error: "Missing or invalid profile fields." });
   }
+
+  const tags = Array.isArray(kundliTags) ? kundliTags : [];
 
   try {
     const [existing] = await db
@@ -54,6 +57,7 @@ router.put("/", requireAuth, async (req, res) => {
           partnerName,
           partnerBirthDate,
           relationshipType,
+          kundliTags: tags,
           updatedAt: new Date(),
         })
         .where(eq(profilesTable.userId, userId))
@@ -63,7 +67,7 @@ router.put("/", requireAuth, async (req, res) => {
 
     const [created] = await db
       .insert(profilesTable)
-      .values({ userId, userName, userBirthDate, userBirthTime: userBirthTime ?? null, partnerName, partnerBirthDate, relationshipType })
+      .values({ userId, userName, userBirthDate, userBirthTime: userBirthTime ?? null, partnerName, partnerBirthDate, relationshipType, kundliTags: tags })
       .returning();
     return res.status(201).json(created);
   } catch (err) {

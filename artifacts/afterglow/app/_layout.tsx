@@ -64,8 +64,13 @@ function RootLayoutNav() {
       <Stack.Screen name="login" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="feature-detail" options={{ presentation: "modal" }} />
-      <Stack.Screen name="profile"       options={{ presentation: "modal" }} />
+      <Stack.Screen name="feature-detail"  options={{ presentation: "modal" }} />
+      <Stack.Screen name="profile"         options={{ presentation: "modal" }} />
+      <Stack.Screen name="profile-detail"  options={{ presentation: "modal" }} />
+      <Stack.Screen name="energy-detail"   options={{ presentation: "modal" }} />
+      <Stack.Screen name="reading-detail"  options={{ presentation: "modal" }} />
+      <Stack.Screen name="challenges"      options={{ presentation: "modal" }} />
+      <Stack.Screen name="challenge-detail" options={{ presentation: "modal" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

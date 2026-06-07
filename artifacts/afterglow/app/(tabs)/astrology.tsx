@@ -5,11 +5,17 @@ import {
   MOON_PROFILES_DEEP,
   NAKSHATRA_PROFILES,
   KOOTA_NARRATIVES,
+  type MoonProfile,
+  type NakshatraProfile,
+  type DashaChapter,
+  type KootaNarrative,
 } from "@/utils/content-library";
+import { getContentBundle } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { KundliLoading } from "@/components/KundliLoading";
+import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
   Platform,
@@ -22,6 +28,44 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Tab = "user" | "partner" | "combined";
+
+// ─── DB content resolvers — DB bundle first, local fallback ───────────────────
+
+function getMoonProfile(rashiIdx: number): MoonProfile {
+  const bundle = getContentBundle();
+  if (bundle?.moonProfiles?.length) {
+    const item = bundle.moonProfiles.find((i) => (i.meta as any)?.moonRashiIdx === rashiIdx);
+    if (item) return item.meta as unknown as MoonProfile;
+  }
+  return MOON_PROFILES_DEEP[rashiIdx] ?? MOON_PROFILES_DEEP[0];
+}
+
+function getNakshatraProfile(nakshatraIdx: number): NakshatraProfile {
+  const bundle = getContentBundle();
+  if (bundle?.nakshatraProfiles?.length) {
+    const item = bundle.nakshatraProfiles.find((i) => (i.meta as any)?.nakshatraIdx === nakshatraIdx);
+    if (item) return item.meta as unknown as NakshatraProfile;
+  }
+  return NAKSHATRA_PROFILES[nakshatraIdx] ?? NAKSHATRA_PROFILES[0];
+}
+
+function getDashaChapter(dashaLord: string): DashaChapter | undefined {
+  const bundle = getContentBundle();
+  if (bundle?.dashaChapters?.length) {
+    const item = bundle.dashaChapters.find((i) => (i.meta as any)?.dashaLord === dashaLord);
+    if (item) return item.meta as unknown as DashaChapter;
+  }
+  return DASHA_CHAPTERS[dashaLord];
+}
+
+function getKootaNarrative(kootaName: string): KootaNarrative | undefined {
+  const bundle = getContentBundle();
+  if (bundle?.kootaNarratives?.length) {
+    const item = bundle.kootaNarratives.find((i) => (i.meta as any)?.kootaName === kootaName);
+    if (item) return item.meta as unknown as KootaNarrative;
+  }
+  return KOOTA_NARRATIVES[kootaName];
+}
 
 // ─── Small reusable card ──────────────────────────────────────────────────────
 
@@ -64,24 +108,26 @@ function SignsRow({ sunEn, moonEn, lagnaEn, sunColor, moonColor, lagnaColor }: {
 
 // ─── Profile section ──────────────────────────────────────────────────────────
 
-function PersonProfile({ name, kundliData }: {
+function PersonProfile({ name, kundliData, onOpenFull }: {
   name: string;
   kundliData: ReturnType<typeof getAstrologyReading>["user"];
+  onOpenFull?: () => void;
 }) {
   const moonRashi = RASHIS[kundliData.moonRashi];
   const sunRashi  = RASHIS[kundliData.sunRashi];
   const lagna     = RASHIS[kundliData.lagnaRashi];
   const nak       = NAKSHATRAS[kundliData.nakshatra];
-  const mp        = MOON_PROFILES_DEEP[kundliData.moonRashi] ?? MOON_PROFILES_DEEP[0];
-  const np        = NAKSHATRA_PROFILES[kundliData.nakshatra] ?? NAKSHATRA_PROFILES[0];
-  const dc        = DASHA_CHAPTERS[kundliData.dasha.current];
+  // DB bundle first, local fallback
+  const mp        = getMoonProfile(kundliData.moonRashi);
+  const np        = getNakshatraProfile(kundliData.nakshatra);
+  const dc        = getDashaChapter(kundliData.dasha.current);
 
   return (
     <View style={styles.profileContainer}>
 
       {/* Signs */}
       <View style={styles.sectionBlock}>
-        <Text style={styles.sectionLabel}>✦  Your Signs</Text>
+        <Text style={styles.sectionLabel}>Your signs</Text>
         <SignsRow
           sunEn={sunRashi.en} moonEn={moonRashi.en} lagnaEn={lagna.en}
           sunColor={sunRashi.color} moonColor={moonRashi.color} lagnaColor={lagna.color}
@@ -90,7 +136,7 @@ function PersonProfile({ name, kundliData }: {
 
       {/* How you love */}
       <View style={styles.sectionBlock}>
-        <Text style={styles.sectionLabel}>◉  How {name} Loves</Text>
+        <Text style={styles.sectionLabel}>How {name} loves</Text>
         <View style={[styles.card, { borderColor: moonRashi.color + "22" }]}>
           <LinearGradient colors={[moonRashi.color + "12", "transparent"]} style={styles.cardGrad}>
             <Text style={styles.cardBodyText}>"{mp.insight}"</Text>
@@ -117,11 +163,11 @@ function PersonProfile({ name, kundliData }: {
 
       {/* Relationship pattern */}
       <View style={styles.sectionBlock}>
-        <Text style={styles.sectionLabel}>◈  Relationship Pattern</Text>
+        <Text style={styles.sectionLabel}>Your pattern in love</Text>
         <View style={styles.patternGrid}>
-          <InsightCard icon="↻" label="Pattern" value={np.pattern} color="#B855E0" />
-          <InsightCard icon="✦" label="Drawn to" value={np.craving} color="#7C52C8" />
-          <InsightCard icon="▲" label="Strength" value={np.strength} color="#52C8B8" />
+          <InsightCard icon="↻" label="Your pattern" value={np.pattern} color="#B855E0" />
+          <InsightCard icon="✦" label="You're drawn to" value={np.craving} color="#7C52C8" />
+          <InsightCard icon="▲" label="Your strength" value={np.strength} color="#52C8B8" />
           <InsightCard icon="◎" label="Watch out for" value={np.trap} color="#F5A623" />
         </View>
       </View>
@@ -129,7 +175,7 @@ function PersonProfile({ name, kundliData }: {
       {/* Life chapter */}
       {dc && (
         <View style={styles.sectionBlock}>
-          <Text style={styles.sectionLabel}>◐  Right Now in Life</Text>
+          <Text style={styles.sectionLabel}>Right now in life</Text>
           <View style={[styles.card, { borderColor: "rgba(245,166,35,0.2)" }]}>
             <LinearGradient colors={["rgba(245,166,35,0.1)", "transparent"]} style={styles.cardGrad}>
               <Text style={styles.chapterHeadline}>{dc.headline}</Text>
@@ -152,6 +198,14 @@ function PersonProfile({ name, kundliData }: {
             </LinearGradient>
           </View>
         </View>
+      )}
+
+      {/* Deep dive CTA */}
+      {onOpenFull && (
+        <TouchableOpacity onPress={() => { Haptics.selectionAsync(); onOpenFull(); }} activeOpacity={0.75} style={styles.deepDiveBtn}>
+          <Text style={styles.deepDiveText}>See the full picture about {name}</Text>
+          <Feather name="arrow-right" size={14} color="rgba(184,85,224,0.8)" />
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -182,7 +236,8 @@ function TogetherView({ reading, userName, partnerName }: {
   const midKoota    = sorted[Math.floor(sorted.length / 2)];
 
   const kootaToInsight = (k: typeof sorted[0], type: "strength" | "challenge") => {
-    const narrative = KOOTA_NARRATIVES[k.name];
+    // DB bundle first, then local
+    const narrative = getKootaNarrative(k.name) ?? KOOTA_NARRATIVES[k.name];
     if (!narrative) return null;
     return {
       label: k.name === "Graha Maitri" ? "Mental Connection"
@@ -221,7 +276,7 @@ function TogetherView({ reading, userName, partnerName }: {
         const insight = kootaToInsight(topKoota, "strength");
         return insight ? (
           <View style={styles.sectionBlock}>
-            <Text style={styles.sectionLabel}>✦  What Flows Naturally</Text>
+            <Text style={styles.sectionLabel}>What flows between you</Text>
             <View style={[styles.card, { borderColor: insight.color + "22" }]}>
               <LinearGradient colors={[insight.color + "10", "transparent"]} style={styles.cardGrad}>
                 <Text style={[styles.kootaLabel, { color: insight.color }]}>{insight.label}</Text>
@@ -237,7 +292,7 @@ function TogetherView({ reading, userName, partnerName }: {
         const insight = kootaToInsight(bottomKoota, "challenge");
         return insight ? (
           <View style={styles.sectionBlock}>
-            <Text style={styles.sectionLabel}>◎  Where It Gets Hard</Text>
+            <Text style={styles.sectionLabel}>Where it gets hard</Text>
             <View style={[styles.card, { borderColor: insight.color + "22" }]}>
               <LinearGradient colors={[insight.color + "08", "transparent"]} style={styles.cardGrad}>
                 <Text style={[styles.kootaLabel, { color: insight.color }]}>{insight.label}</Text>
@@ -259,7 +314,7 @@ function TogetherView({ reading, userName, partnerName }: {
 
       {/* Moon dynamic */}
       <View style={styles.sectionBlock}>
-        <Text style={styles.sectionLabel}>☽  How Your Emotional Styles Meet</Text>
+        <Text style={styles.sectionLabel}>How your emotions meet</Text>
         <View style={[styles.card, { borderColor: "rgba(184,85,224,0.2)" }]}>
           <LinearGradient colors={["rgba(184,85,224,0.08)", "transparent"]} style={styles.cardGrad}>
             <View style={styles.moonDynamicRow}>
@@ -290,6 +345,7 @@ function TogetherView({ reading, userName, partnerName }: {
 
 export default function AstrologyScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { user, partner } = useApp();
   const [activeTab, setActiveTab] = useState<Tab>("user");
 
@@ -325,7 +381,7 @@ export default function AstrologyScreen() {
         <View style={styles.titleRow}>
           <View>
             <Text style={styles.screenTitle}>Your Stars</Text>
-            <Text style={styles.screenSub}>Your emotional style and relationship patterns, decoded</Text>
+            <Text style={styles.screenSub}>Who you are, how you love, what connects you</Text>
           </View>
           <View style={styles.starsIcon}>
             <Text style={styles.starsText}>✦</Text>
@@ -357,6 +413,10 @@ export default function AstrologyScreen() {
           <PersonProfile
             name={activeTab === "user" ? user.name : partner.name}
             kundliData={activeTab === "user" ? reading.user : reading.partner}
+            onOpenFull={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push({ pathname: "/profile-detail", params: { person: activeTab } });
+            }}
           />
         )}
       </ScrollView>
@@ -381,7 +441,7 @@ const styles = StyleSheet.create({
 
   profileContainer: { gap: 22 },
   sectionBlock:     { gap: 12 },
-  sectionLabel:     { fontSize: 11, fontFamily: "Nunito_700Bold", color: "rgba(240,235,248,0.5)", letterSpacing: 1.2, textTransform: "uppercase" },
+  sectionLabel:     { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.55)", letterSpacing: 0 },
 
   // Signs row
   signsRow: { flexDirection: "row", gap: 8 },
@@ -391,7 +451,7 @@ const styles = StyleSheet.create({
   },
   signPillIcon:  { fontSize: 20 },
   signPillName:  { fontSize: 16, fontFamily: "Nunito_700Bold" },
-  signPillLabel: { fontSize: 11, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", textTransform: "uppercase", letterSpacing: 0.5 },
+  signPillLabel: { fontSize: 11, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", letterSpacing: 0 },
 
   // Cards
   card:     { borderRadius: 18, borderWidth: 1, overflow: "hidden" },
@@ -412,7 +472,7 @@ const styles = StyleSheet.create({
   insightCardGrad:  { padding: 16, gap: 8, minHeight: 100 },
   insightCardHeader:{ flexDirection: "row", alignItems: "center", gap: 7 },
   insightCardIcon:  { fontSize: 16 },
-  insightCardLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "uppercase", letterSpacing: 0.5 },
+  insightCardLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", letterSpacing: 0 },
   insightCardValue: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.72)", lineHeight: 20 },
 
   // Score
@@ -424,7 +484,7 @@ const styles = StyleSheet.create({
   scoreSubText:    { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.55)", lineHeight: 23, textAlign: "center" },
 
   // Koota insights
-  kootaLabel: { fontSize: 12, fontFamily: "Nunito_700Bold", textTransform: "uppercase", letterSpacing: 0.8 },
+  kootaLabel: { fontSize: 12, fontFamily: "Nunito_600SemiBold", letterSpacing: 0 },
 
   // Moon dynamic
   moonDynamicRow:   { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
@@ -432,4 +492,6 @@ const styles = StyleSheet.create({
   moonPillText:     { fontSize: 14, fontFamily: "Nunito_700Bold" },
   moonPillSign:     { fontSize: 12, fontFamily: "Nunito_400Regular" },
   moonDynamicArrow: { fontSize: 22, color: "rgba(240,235,248,0.25)" },
+  deepDiveBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: "rgba(184,85,224,0.2)", backgroundColor: "rgba(184,85,224,0.06)" },
+  deepDiveText: { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "rgba(184,85,224,0.8)" },
 });

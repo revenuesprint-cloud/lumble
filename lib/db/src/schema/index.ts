@@ -33,6 +33,8 @@ export const profilesTable = pgTable("profiles", {
   relationshipType: relationshipTypeEnum("relationship_type").notNull(),
   isPremium:        boolean("is_premium").default(false).notNull(),
   premiumSince:     timestamp("premium_since", { withTimezone: true }),
+  // Computed kundli tags stored server-side so content can be served without re-sending tags every request
+  kundliTags:       text("kundli_tags").array().notNull().default([]),
   updatedAt:        timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

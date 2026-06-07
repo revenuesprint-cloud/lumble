@@ -367,11 +367,10 @@ const styles = StyleSheet.create({
   form: { gap: 14 },
   fieldGroup: { gap: 7 },
   fieldLabel: {
-    fontSize: 11,
-    fontFamily: "Nunito_600SemiBold",
-    color: "rgba(240,235,248,0.4)",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
+    fontSize: 12,
+    fontFamily: "Nunito_500Medium",
+    color: "rgba(240,235,248,0.45)",
+    letterSpacing: 0,
   },
   fieldRow: {
     flexDirection: "row",

@@ -10,6 +10,7 @@ import {
   NAKSHATRA_PROFILES,
   ORACLE_LIBRARY,
 } from "./content-library";
+import { getContentBundle } from "./dbContent";
 
 // ─── Stable seeded hash ───────────────────────────────────────────────────────
 
@@ -33,17 +34,17 @@ type Intent =
   | "confused" | "red_flag" | "timing" | "general";
 
 const INTENT_PATTERNS: [Intent, RegExp][] = [
-  ["misses_me",   /miss|think about me|thinking of me|remember me|does (he|she|they) think/i],
+  ["misses_me",   /miss|think about me|thinking of me|remember me|does (he|she|they) think|does my crush|like me|likes me|does he like|does she like|does he feel|do they feel/i],
   ["loves_me",    /love me|still feel|have feeling|care about me|in love/i],
   ["come_back",   /come back|get back|return|reconcile|second chance|try again/i],
-  ["should_text", /should i text|should i reach|should i message|reach out|contact|call them/i],
+  ["should_text", /should i text|should i reach|should i message|reach out|contact|call them|hasn.?t replied|hasn.?t responded|not respond|not reply|left on read|ghosted|not texting|no reply|didn.?t reply|hasn.?t texted|ignoring me|what to do now|what should i do|should i reply|how to respond/i],
   ["why_left",    /why did (he|she|they) leave|why did (he|she|they) go|why did (he|she|they) pull|pulled away|disappeared|ghost/i],
   ["why_fight",   /why do we (fight|argue|clash|bicker)|conflict|fight all the time|misunderstand/i],
   ["compatible",  /compatible|right for me|meant to be|soulmate|the one|good match/i],
   ["move_on",     /move on|get over|let go|forget|heal|closure|stuck/i],
   ["future",      /future|will it work|will we last|long term|forever|end up|outcome/i],
   ["addicted",    /addicted|can.t stop thinking|obsessed|can.t let go|hooked/i],
-  ["confused",    /confused|don.t understand|make sense|what does it mean|mixed signal/i],
+  ["confused",    /confused|don.t understand|make sense|what does it mean|mixed signal|care more|i care more|feel more|one sided|one-sided|always me|why am i/i],
   ["red_flag",    /red flag|warning|toxic|manipulat|gasligh|narcissist/i],
   ["timing",      /right time|wrong time|timing|too soon|too late|not ready/i],
 ];
@@ -226,12 +227,20 @@ export function getOracleResponse(
   relationshipType: string,
   turnCount: number = 0,
 ): string {
-  const intent    = detectIntent(userMessage);
-  const templates = ORACLE_LIBRARY[intent] ?? ORACLE_LIBRARY["general"];
-  const ctx       = buildContext(userName, userBirthDate, partnerName, partnerBirthDate, relationshipType);
-
-  // Include turn count so the same question asked multiple times gets a different template
+  const intent = detectIntent(userMessage);
+  const ctx    = buildContext(userName, userBirthDate, partnerName, partnerBirthDate, relationshipType);
   const lenBucket = Math.min(5, Math.floor(userMessage.length / 30));
+
+  // Try DB bundle first — oracle_response items keyed by meta.intent
+  const bundle = getContentBundle();
+  const dbTemplates = bundle?.oracleByIntent[intent] ?? bundle?.oracleByIntent["general"] ?? [];
+  if (dbTemplates.length > 0) {
+    const seed = `${intent}:${ctx.uNak}:${ctx.pNak}:${ctx.dasha}:${lenBucket}:${turnCount % dbTemplates.length}`;
+    return fillTemplate(dbTemplates[hash(seed) % dbTemplates.length].body, ctx);
+  }
+
+  // Local fallback
+  const templates = ORACLE_LIBRARY[intent] ?? ORACLE_LIBRARY["general"];
   const seed      = `${intent}:${ctx.uNak}:${ctx.pNak}:${ctx.dasha}:${lenBucket}:${turnCount % templates.length}`;
   return fillTemplate(pick(templates, seed), ctx);
 }

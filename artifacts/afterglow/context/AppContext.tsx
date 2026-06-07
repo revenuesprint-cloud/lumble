@@ -8,8 +8,14 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Platform } from "react-native";
 import type { Challenge } from "@/utils/challenges";
-import { fetchJourney } from "@/utils/dbContent";
+import { fetchJourney, fetchContentBundle, setContentBundle } from "@/utils/dbContent";
+
+const secureGet = (key: string) =>
+  Platform.OS === "web"
+    ? AsyncStorage.getItem(key)
+    : SecureStore.getItemAsync(key);
 
 export type RelationshipType = "crush" | "situationship" | "relationship" | "ex";
 
@@ -55,6 +61,33 @@ const AppContext = createContext<AppContextType | null>(null);
 const STORAGE_KEY            = "@lumble_data";
 const CHALLENGES_STORAGE_KEY = "@lumble_challenges";
 const API_URL                = (process.env.EXPO_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
+
+// Compute kundli-based tags for content matching (mirrors extractKundliAttributes logic)
+async function buildKundliTags(user: UserProfile, partner: PartnerProfile): Promise<string[]> {
+  try {
+    const { getAstrologyReading, RASHIS, NAKSHATRAS } = await import("@/utils/astrology");
+    const reading = getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
+    const uMoon   = RASHIS[reading.user.moonRashi];
+    const pMoon   = RASHIS[reading.partner.moonRashi];
+    const uNak    = NAKSHATRAS[reading.user.nakshatra];
+    const pNak    = NAKSHATRAS[reading.partner.nakshatra];
+    const elemCombo = `${uMoon.element}_${pMoon.element}`;
+    return [
+      "universal",
+      `rel_type:${partner.relationshipType}`,
+      `moon:${uMoon.en}`,
+      `partner_moon:${pMoon.en}`,
+      `element:${uMoon.element}`,
+      `partner_element:${pMoon.element}`,
+      `element_combo:${elemCombo}`,
+      `nakshatra:${uNak.name}`,
+      `partner_nakshatra:${pNak.name}`,
+      `dasha:${reading.user.dasha.current}`,
+      ...(reading.guna.nadiDosha   ? ["dosha:nadi"]   : []),
+      ...(reading.guna.mangalDosha ? ["dosha:mangal"] : []),
+    ];
+  } catch { return ["universal"]; }
+}
 
 // ─── Minimal API helper ───────────────────────────────────────────────────────
 
@@ -107,8 +140,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       // Sync server state (premium + journey) — fire-and-forget, don't block boot
       if (API_URL) {
         // Token is in SecureStore (moved from AsyncStorage for security)
-        const token = await SecureStore.getItemAsync("lumble_token").catch(() => null);
+        const token = await secureGet("lumble_token").catch(() => null);
         if (token) {
+          // 0. Fetch content bundle with auth — server uses stored kundliTags from profile
+          const parsedData = raw ? JSON.parse(raw) : null;
+          if (parsedData?.user && parsedData?.partner) {
+            buildKundliTags(parsedData.user, parsedData.partner).then((tags) =>
+              fetchContentBundle(tags, token).then((b) => { if (b) setContentBundle(b); })
+            );
+          }
+
           // 1. Premium status
           const me = await apiRequest("GET", "/me", undefined, token).catch(() => null) as any;
           if (me?.profile?.isPremium) {
@@ -151,6 +192,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setPartner(p);
     setHasCompletedOnboarding(true);
     await saveData(u, p, isPremium, guidanceMessages);
+    // Prefetch content bundle for new user (no token yet — server uses body tags)
+    buildKundliTags(u, p).then(async (tags) => {
+      const token = await secureGet("lumble_token").catch(() => null);
+      fetchContentBundle(tags, token).then((b) => { if (b) setContentBundle(b); });
+    });
+
     // Fire-and-forget: load challenges immediately after onboarding
     setTimeout(async () => {
       try {
@@ -172,6 +219,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const p = overridePartner ?? partner;
     if (!API_URL || !u || !p) return;
     try {
+      const kundliTags = await buildKundliTags(u, p);
       await apiRequest("PUT", "/profile", {
         userName:         u.name,
         userBirthDate:    u.birthDate,
@@ -179,6 +227,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         partnerName:      p.name,
         partnerBirthDate: p.birthDate,
         relationshipType: p.relationshipType,
+        kundliTags,
       }, token);
     } catch {}
   }, [user, partner]);
@@ -191,12 +240,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setGuidanceMessages([]);
   }, []);
 
-  // Persist messages whenever they change (skip initial mount)
+  // Persist messages whenever they change (skip initial mount).
+  // All deps included so the closure always captures current profile state.
   const isMounted = useRef(false);
   useEffect(() => {
     if (!isMounted.current) { isMounted.current = true; return; }
     saveData(user, partner, isPremium, guidanceMessages);
-  }, [guidanceMessages]);
+  }, [guidanceMessages, user, partner, isPremium, saveData]);
 
   const loadChallenges = useCallback(async () => {
     if (!user || !partner) return;
@@ -230,7 +280,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       "@lumble_journey",
       "@lumble_content_daily",
       "@lumble_questions",
+      "@lumble_content_bundle",
     ]);
+    setContentBundle(null);
     setUser(null);
     setPartner(null);
     setHasCompletedOnboarding(false);

@@ -26,10 +26,16 @@ const SEVERITY_COLOR: Record<string, string> = {
   severe:   "#E85C7A",
 };
 
+const SEVERITY_DISPLAY: Record<string, string> = {
+  mild:     "low key",
+  moderate: "ongoing",
+  severe:   "front and center",
+};
+
 const SEVERITY_MEANING: Record<string, string> = {
-  mild:     "Worth being aware of",
-  moderate: "Actively affecting the dynamic",
-  severe:   "The core tension in this connection",
+  mild:     "Good to be aware of",
+  moderate: "This one's showing up a lot",
+  severe:   "The main thing between you",
 };
 
 const ALL_CATEGORIES = "All";
@@ -60,7 +66,7 @@ function ChallengeCard({
           <View style={styles.cardTop}>
             <View style={[styles.severityPill, { backgroundColor: color + "14", borderColor: color + "33" }]}>
               <View style={[styles.severityDot, { backgroundColor: color }]} />
-              <Text style={[styles.severityLabel, { color }]}>{challenge.severity}</Text>
+              <Text style={[styles.severityLabel, { color }]}>{SEVERITY_DISPLAY[challenge.severity] ?? challenge.severity}</Text>
             </View>
             <Text style={styles.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
             <View style={styles.categoryPill}>
@@ -145,11 +151,11 @@ export default function PatternsScreen() {
 
       {/* Tab-native header — no back button */}
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
-        <Text style={styles.screenTitle}>Patterns & Remedies</Text>
+        <Text style={styles.screenTitle}>What's going on</Text>
         <Text style={styles.screenSub}>
           {challenges.length > 0
-            ? `${challenges.length} dynamics from your compatibility profile`
-            : "Based on your personality and compatibility data"}
+            ? `${challenges.length} patterns in your connection — with ways through each one`
+            : "Your patterns and what to do about them"}
         </Text>
       </View>
 

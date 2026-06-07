@@ -263,9 +263,8 @@ const styles = StyleSheet.create({
   ringLabel: {
     fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.38)",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
+    color: "rgba(240,235,248,0.45)",
+    letterSpacing: 0,
   },
   resultCard: {
     borderRadius: 20,
