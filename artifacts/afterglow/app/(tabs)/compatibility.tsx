@@ -164,42 +164,46 @@ function SectionCard({
     ]).start();
   }, []);
 
+  const lbl = sectionLabel(section.score);
+
   return (
     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
       <TouchableOpacity
         onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); isLocked ? onLockTap() : onDetailTap(); }}
         activeOpacity={0.82}
       >
-        <GlowCard style={styles.sectionCard} glowColor={section.color + "33"} intensity={isLocked ? "low" : "medium"}>
-          <View style={styles.sectionInner}>
-            <View style={styles.sectionHeader}>
-              <View style={[styles.sectionDot, { backgroundColor: section.color + "22", borderColor: section.color + "55" }]}>
-                <View style={[styles.sectionDotCore, { backgroundColor: section.color }]} />
-              </View>
-              <Text style={styles.sectionLabel}>{section.label}</Text>
-              {(() => {
-                const lbl = sectionLabel(section.score);
-                return (
-                  <View style={[styles.scoreLabelChip, { backgroundColor: lbl.color + "18", borderColor: lbl.color + "44" }]}>
-                    <Text style={[styles.scoreLabelText, { color: lbl.color }]}>{lbl.text}</Text>
-                  </View>
-                );
-              })()}
-              {!isLocked && <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.22)" />}
+        <View style={[styles.sectionCard, { borderColor: section.color + "30" }]}>
+          {/* Top row: icon circle + label + score badge */}
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionIconCircle, { backgroundColor: section.color + "18", borderColor: section.color + "44" }]}>
+              <View style={[styles.sectionDotCore, { backgroundColor: section.color }]} />
             </View>
-
-            <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={index * 100 + 400} />
-
-            {isLocked ? (
-              <View style={styles.lockedOverlay}>
-                <Text style={styles.lockIcon}>◈</Text>
-                <Text style={styles.lockedText}>Unlock with Premium</Text>
-              </View>
-            ) : (
-              <Text style={styles.sectionText} numberOfLines={2}>{section.text}</Text>
-            )}
+            <Text style={styles.sectionLabel}>{section.label}</Text>
+            <View style={[styles.scoreLabelChip, { backgroundColor: lbl.color + "15", borderColor: lbl.color + "44" }]}>
+              <Text style={[styles.scoreLabelText, { color: lbl.color }]}>{lbl.text}</Text>
+            </View>
           </View>
-        </GlowCard>
+
+          <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={index * 100 + 400} />
+
+          {isLocked ? (
+            <View style={styles.lockedOverlay}>
+              <Text style={styles.lockIcon}>◈</Text>
+              <Text style={styles.lockedText}>Unlock with Premium</Text>
+            </View>
+          ) : (
+            <Text style={styles.sectionText} numberOfLines={2}>{section.text}</Text>
+          )}
+
+          {/* Footer CTA */}
+          {!isLocked && (
+            <View style={styles.sectionFooter}>
+              <View style={[styles.sectionCtaBtn, { borderColor: section.color + "44" }]}>
+                <Text style={[styles.sectionCtaBtnText, { color: section.color }]}>See full breakdown</Text>
+              </View>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -400,44 +404,65 @@ const styles = StyleSheet.create({
     gap: 13,
   },
   sectionCard: {
+    backgroundColor: "#13102A",
     borderRadius: 20,
-  },
-  sectionInner: {
-    padding: 22,
+    borderWidth: 1,
+    padding: 20,
     gap: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  sectionIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
-  sectionDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   sectionDotCore: {
-    width: 11,
-    height: 11,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   sectionLabel: {
     flex: 1,
-    fontSize: 17,
-    fontFamily: "Nunito_600SemiBold",
+    fontSize: 16,
+    fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
   },
   scoreLabelChip: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 20,
     paddingHorizontal: 11,
     paddingVertical: 4,
   },
   scoreLabelText: {
     fontSize: 12,
+    fontFamily: "Nunito_600SemiBold",
+  },
+  sectionFooter: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 2,
+  },
+  sectionCtaBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 24,
+    borderWidth: 1,
+    backgroundColor: "transparent",
+  },
+  sectionCtaBtnText: {
+    fontSize: 13,
     fontFamily: "Nunito_600SemiBold",
   },
   scoreHint: {

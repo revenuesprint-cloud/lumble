@@ -57,6 +57,8 @@ function FeatureCard({
     ]).start();
   }, []);
 
+  const intensity = feature.score >= 70 ? "High" : feature.score >= 52 ? "Moderate" : "Low";
+
   return (
     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
       <TouchableOpacity
@@ -65,45 +67,42 @@ function FeatureCard({
           onPress();
         }}
         activeOpacity={0.82}
-        style={styles.cardOuter}
       >
-        <LinearGradient
-          colors={[color + "18", color + "08", "#110F1E"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.card, { borderColor: color + "33" }]}
-        >
+        <View style={[styles.card, { borderColor: color + "30" }]}>
+          {/* Top: icon circle + premium badge */}
           <View style={styles.cardTop}>
-            <View style={[styles.iconCircle, { backgroundColor: color + "22", borderColor: color + "44" }]}>
+            <View style={[styles.iconCircle, { backgroundColor: color + "20", borderColor: color + "44" }]}>
               <Feather name={feature.icon as any} size={18} color={color} />
             </View>
             {isLocked && (
-              <View style={styles.lockBadge}>
-                <Text style={styles.lockBadgeText}>Premium</Text>
+              <View style={[styles.lockBadge, { borderColor: color + "44" }]}>
+                <Text style={[styles.lockBadgeText, { color }]}>Premium</Text>
               </View>
             )}
           </View>
 
+          {/* Title */}
           <Text style={styles.cardTitle}>{feature.title}</Text>
 
+          {/* Intensity tag + preview OR locked state */}
           {!isLocked ? (
             <>
-              <View style={[styles.intensityChip, { backgroundColor: color + "16", borderColor: color + "44" }]}>
-                <Text style={[styles.intensityText, { color }]}>
-                  {feature.score >= 70 ? "High" : feature.score >= 52 ? "Moderate" : "Low"}
-                </Text>
+              <View style={[styles.intensityChip, { borderColor: color + "55" }]}>
+                <Text style={[styles.intensityText, { color }]}>{intensity}</Text>
               </View>
-              <Text style={styles.cardPreview} numberOfLines={3}>
-                {feature.text}
-              </Text>
+              <Text style={styles.cardPreview} numberOfLines={3}>{feature.text}</Text>
             </>
           ) : (
-            <View style={styles.lockedRow}>
-              <Text style={styles.lockedText}>Tap to unlock</Text>
-              <Feather name="lock" size={14} color={color} />
-            </View>
+            <Text style={styles.lockedText}>Unlock with Premium to see this insight.</Text>
           )}
-        </LinearGradient>
+
+          {/* Footer CTA */}
+          <View style={[styles.ctaBtn, { backgroundColor: color + "12", borderColor: color + "44" }]}>
+            <Text style={[styles.ctaBtnText, { color }]}>
+              {isLocked ? "Unlock →" : "Explore →"}
+            </Text>
+          </View>
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -220,16 +219,17 @@ const styles = StyleSheet.create({
   gridItem: {
     width: "47.5%",
   },
-  cardOuter: {
-    borderRadius: 18,
-    overflow: "hidden",
-  },
   card: {
-    padding: 16,
+    backgroundColor: "#13102A",
     borderRadius: 18,
     borderWidth: 1,
-    gap: 10,
-    minHeight: 160,
+    padding: 16,
+    gap: 11,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
+    elevation: 5,
   },
   cardTop: {
     flexDirection: "row",
@@ -237,57 +237,66 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   lockBadge: {
-    backgroundColor: "rgba(240,235,248,0.08)",
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   lockBadgeText: {
     fontSize: 10,
-    fontFamily: "Nunito_500Medium",
-    color: "rgba(240,235,248,0.4)",
+    fontFamily: "Nunito_600SemiBold",
     letterSpacing: 0,
   },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: "Nunito_700Bold",
     color: "#F0EBF8",
-    lineHeight: 20,
+    lineHeight: 21,
   },
   intensityChip: {
     alignSelf: "flex-start",
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: "transparent",
   },
   intensityText: {
     fontSize: 11,
-    fontFamily: "Nunito_500Medium",
-    letterSpacing: 0,
+    fontFamily: "Nunito_600SemiBold",
   },
   cardPreview: {
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.45)",
-    lineHeight: 17,
-  },
-  lockedRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+    color: "rgba(240,235,248,0.5)",
+    lineHeight: 18,
+    flex: 1,
   },
   lockedText: {
     fontSize: 12,
     fontFamily: "Nunito_400Regular",
-    color: "rgba(240,235,248,0.3)",
+    color: "rgba(240,235,248,0.35)",
+    lineHeight: 18,
+    flex: 1,
+  },
+  ctaBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignSelf: "flex-start",
+    marginTop: 2,
+  },
+  ctaBtnText: {
+    fontSize: 12,
+    fontFamily: "Nunito_600SemiBold",
   },
 });

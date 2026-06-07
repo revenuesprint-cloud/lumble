@@ -35,31 +35,36 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── DB-first resolvers ───────────────────────────────────────────────────────
 
+// Only accept a DB override when the returned meta has the key field we need.
+// This prevents blank cards when the DB schema differs from the local fallback.
 function resolveMoonProfile(rashiIdx: number) {
-  const b = getContentBundle();
-  if (b?.moonProfiles?.length) {
-    const item = b.moonProfiles.find((i) => (i.meta as any)?.moonRashiIdx === rashiIdx);
-    if (item) return item.meta as any;
-  }
-  return MOON_PROFILES_DEEP[rashiIdx] ?? MOON_PROFILES_DEEP[0];
+  const local = MOON_PROFILES_DEEP[rashiIdx] ?? MOON_PROFILES_DEEP[0];
+  try {
+    const b = getContentBundle();
+    const item = b?.moonProfiles?.find((i: any) => i?.meta?.moonRashiIdx === rashiIdx);
+    if (item?.meta?.insight) return item.meta;
+  } catch {}
+  return local;
 }
 
 function resolveNakProfile(nakIdx: number) {
-  const b = getContentBundle();
-  if (b?.nakshatraProfiles?.length) {
-    const item = b.nakshatraProfiles.find((i) => (i.meta as any)?.nakshatraIdx === nakIdx);
-    if (item) return item.meta as any;
-  }
-  return NAKSHATRA_PROFILES[nakIdx] ?? NAKSHATRA_PROFILES[0];
+  const local = NAKSHATRA_PROFILES[nakIdx] ?? NAKSHATRA_PROFILES[0];
+  try {
+    const b = getContentBundle();
+    const item = b?.nakshatraProfiles?.find((i: any) => i?.meta?.nakshatraIdx === nakIdx);
+    if (item?.meta?.pattern) return item.meta;
+  } catch {}
+  return local;
 }
 
 function resolveKoota(name: string) {
-  const b = getContentBundle();
-  if (b?.kootaNarratives?.length) {
-    const item = b.kootaNarratives.find((i) => (i.meta as any)?.kootaName === name);
-    if (item) return item.meta as any;
-  }
-  return KOOTA_NARRATIVES[name];
+  const local = KOOTA_NARRATIVES[name];
+  try {
+    const b = getContentBundle();
+    const item = b?.kootaNarratives?.find((i: any) => i?.meta?.kootaName === name);
+    if (item?.meta?.strongText) return item.meta;
+  } catch {}
+  return local;
 }
 
 
@@ -79,20 +84,38 @@ function ProfileTeaserCard({
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <TouchableOpacity onPress={onPress} activeOpacity={0.82}>
-        <View style={[ptStyles.card, { borderColor: moonColor + "28" }]}>
-          <LinearGradient colors={[moonColor + "10", "transparent"]} style={ptStyles.inner}>
-            <View style={ptStyles.topRow}>
-              <Text style={ptStyles.label}>{label}</Text>
-              <View style={[ptStyles.chip, { backgroundColor: moonColor + "18", borderColor: moonColor + "44" }]}>
-                <Text style={[ptStyles.chipText, { color: moonColor }]}>{moonSignName} · {moonElement}</Text>
-              </View>
+        <View style={[ptStyles.card, { borderColor: moonColor + "30" }]}>
+          {/* Top row: icon circle + label */}
+          <View style={ptStyles.topRow}>
+            <View style={[ptStyles.iconCircle, { backgroundColor: moonColor + "18", borderColor: moonColor + "44" }]}>
+              <Text style={[ptStyles.iconGlyph, { color: moonColor }]}>☽</Text>
             </View>
-            <Text style={ptStyles.oneLiner} numberOfLines={3}>{oneLiner}</Text>
-            <View style={ptStyles.cta}>
-              <Text style={[ptStyles.ctaText, { color: moonColor }]}>See what we know about {name}</Text>
-              <Feather name="arrow-right" size={13} color={moonColor} />
+            <Text style={ptStyles.label}>{label}</Text>
+            <Feather name="chevron-right" size={14} color="rgba(240,235,248,0.2)" />
+          </View>
+
+          {/* Big title: moon sign name */}
+          <Text style={ptStyles.title}>{moonSignName}</Text>
+
+          {/* Outlined tag chips */}
+          <View style={ptStyles.tagsRow}>
+            <View style={ptStyles.tag}>
+              <Text style={ptStyles.tagText}>{moonElement}</Text>
             </View>
-          </LinearGradient>
+            <View style={[ptStyles.tag, { borderColor: moonColor + "55" }]}>
+              <Text style={[ptStyles.tagText, { color: moonColor }]}>Moon sign</Text>
+            </View>
+          </View>
+
+          {/* Insight preview */}
+          <Text style={ptStyles.preview} numberOfLines={2}>{oneLiner}</Text>
+
+          {/* Footer CTA */}
+          <View style={ptStyles.footer}>
+            <View style={[ptStyles.ctaBtn, { backgroundColor: moonColor + "15", borderColor: moonColor + "50" }]}>
+              <Text style={[ptStyles.ctaBtnText, { color: moonColor }]}>See full profile</Text>
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -100,15 +123,21 @@ function ProfileTeaserCard({
 }
 
 const ptStyles = StyleSheet.create({
-  card:     { borderRadius: 20, borderWidth: 1, overflow: "hidden" },
-  inner:    { padding: 20, gap: 12 },
-  topRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
-  label:    { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)", flex: 1 },
-  chip:     { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4, flexShrink: 0 },
-  chipText: { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
-  oneLiner: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.82)", lineHeight: 23, fontStyle: "italic" },
-  cta:      { flexDirection: "row", alignItems: "center", gap: 5 },
-  ctaText:  { fontSize: 12, fontFamily: "Nunito_600SemiBold" },
+  card:       { backgroundColor: "#13102A", borderRadius: 20, borderWidth: 1, padding: 18, gap: 13,
+                shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
+  topRow:     { flexDirection: "row", alignItems: "center", gap: 10 },
+  iconCircle: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, alignItems: "center", justifyContent: "center" },
+  iconGlyph:  { fontSize: 16 },
+  label:      { flex: 1, fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)" },
+  title:      { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#F0EBF8", lineHeight: 28 },
+  tagsRow:    { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  tag:        { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1,
+                borderColor: "rgba(240,235,248,0.18)", backgroundColor: "rgba(240,235,248,0.04)" },
+  tagText:    { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.55)" },
+  preview:    { fontSize: 14, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.6)", lineHeight: 21, fontStyle: "italic" },
+  footer:     { flexDirection: "row", justifyContent: "flex-end", marginTop: 2 },
+  ctaBtn:     { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 24, borderWidth: 1 },
+  ctaBtnText: { fontSize: 13, fontFamily: "Nunito_600SemiBold" },
 });
 
 // ─── Teaser: Interaction Snippet Card ─────────────────────────────────────────
@@ -132,30 +161,38 @@ function InteractionTeaserCard({
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <TouchableOpacity onPress={onPress} activeOpacity={0.82}>
-        <View style={[itStyles.card, { borderColor: "rgba(124,82,200,0.22)" }]}>
-          <LinearGradient colors={["rgba(124,82,200,0.1)","transparent"]} style={itStyles.inner}>
-            <View style={itStyles.topRow}>
-              <Text style={itStyles.label}>How you both interact</Text>
-              <View style={[itStyles.scorePill, { backgroundColor: color + "18", borderColor: color + "44" }]}>
-                <Text style={[itStyles.scoreText, { color }]}>{pct}% · {verdict}</Text>
-              </View>
+        <View style={itStyles.card}>
+          {/* Top row: icon + label + score badge */}
+          <View style={itStyles.topRow}>
+            <View style={itStyles.iconCircle}>
+              <Text style={itStyles.iconGlyph}>♡</Text>
             </View>
-            <View style={itStyles.elemRow}>
-              <View style={[itStyles.elemChip, { backgroundColor: userMoonColor + "15", borderColor: userMoonColor + "33" }]}>
-                <Text style={[itStyles.elemName, { color: userMoonColor }]}>{userName}</Text>
-                <Text style={[itStyles.elemEl,   { color: userMoonColor + "AA" }]}>{userElement}</Text>
-              </View>
-              <Text style={itStyles.arrow}>⟷</Text>
-              <View style={[itStyles.elemChip, { backgroundColor: partnerMoonColor + "15", borderColor: partnerMoonColor + "33" }]}>
-                <Text style={[itStyles.elemName, { color: partnerMoonColor }]}>{partnerName}</Text>
-                <Text style={[itStyles.elemEl,   { color: partnerMoonColor + "AA" }]}>{partnerElement}</Text>
-              </View>
+            <Text style={itStyles.label}>Compatibility</Text>
+            <View style={[itStyles.scorePill, { backgroundColor: color + "15", borderColor: color + "44" }]}>
+              <Text style={[itStyles.scoreText, { color }]}>{pct}% · {verdict}</Text>
             </View>
-            <View style={itStyles.cta}>
-              <Text style={itStyles.ctaText}>See the full breakdown</Text>
-              <Feather name="arrow-right" size={13} color="#7C52C8" />
+          </View>
+
+          {/* Title */}
+          <Text style={itStyles.title}>{userName} & {partnerName}</Text>
+
+          {/* Outlined element tags */}
+          <View style={itStyles.tagsRow}>
+            <View style={[itStyles.tag, { borderColor: userMoonColor + "55" }]}>
+              <Text style={[itStyles.tagText, { color: userMoonColor }]}>{userName} · {userElement}</Text>
             </View>
-          </LinearGradient>
+            <View style={[itStyles.tag, { borderColor: partnerMoonColor + "55" }]}>
+              <Text style={[itStyles.tagText, { color: partnerMoonColor }]}>{partnerName} · {partnerElement}</Text>
+            </View>
+          </View>
+
+          {/* Footer */}
+          <View style={itStyles.footer}>
+            <Text style={[itStyles.verdictLabel, { color }]}>{verdict}</Text>
+            <View style={itStyles.ctaBtn}>
+              <Text style={itStyles.ctaBtnText}>Full breakdown</Text>
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -163,19 +200,24 @@ function InteractionTeaserCard({
 }
 
 const itStyles = StyleSheet.create({
-  card:       { borderRadius: 20, borderWidth: 1, overflow: "hidden" },
-  inner:      { padding: 20, gap: 14 },
-  topRow:     { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
-  label:      { fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)" },
-  scorePill:  { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
-  scoreText:  { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
-  elemRow:    { flexDirection: "row", alignItems: "center", gap: 8 },
-  elemChip:   { flex: 1, borderRadius: 12, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10, alignItems: "center", gap: 2 },
-  elemName:   { fontSize: 13, fontFamily: "Nunito_700Bold" },
-  elemEl:     { fontSize: 11, fontFamily: "Nunito_400Regular" },
-  arrow:      { fontSize: 18, color: "rgba(240,235,248,0.2)" },
-  cta:        { flexDirection: "row", alignItems: "center", gap: 5 },
-  ctaText:    { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#7C52C8" },
+  card:         { backgroundColor: "#13102A", borderRadius: 20, borderWidth: 1, borderColor: "rgba(124,82,200,0.28)",
+                  padding: 18, gap: 13, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6 },
+  topRow:       { flexDirection: "row", alignItems: "center", gap: 10 },
+  iconCircle:   { width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(124,82,200,0.18)",
+                  borderWidth: 1, borderColor: "rgba(124,82,200,0.4)", alignItems: "center", justifyContent: "center" },
+  iconGlyph:    { fontSize: 16, color: "#B855E0" },
+  label:        { flex: 1, fontSize: 12, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)" },
+  scorePill:    { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1 },
+  scoreText:    { fontSize: 11, fontFamily: "Nunito_700Bold" },
+  title:        { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
+  tagsRow:      { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  tag:          { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1, backgroundColor: "transparent" },
+  tagText:      { fontSize: 12, fontFamily: "Nunito_500Medium" },
+  footer:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 2 },
+  verdictLabel: { fontSize: 14, fontFamily: "Nunito_600SemiBold" },
+  ctaBtn:       { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 24, borderWidth: 1,
+                  borderColor: "rgba(240,235,248,0.2)", backgroundColor: "rgba(240,235,248,0.07)" },
+  ctaBtnText:   { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8" },
 });
 
 // ─── Right Now Card ───────────────────────────────────────────────────────────
@@ -331,7 +373,7 @@ export default function HomeScreen() {
           moonSignName={uRashi.en}
           moonElement={uRashi.element}
           moonColor={uRashi.color}
-          oneLiner={`"${uMP.insight ?? ""}"`}
+          oneLiner={`"${uMP.insight || uMP.needsToHear || "Your moon sign shapes how you love and attach."}"`}
           onPress={() => { haptic(); router.push({ pathname:"/profile-detail", params:{ person:"user" } }); }}
         />
 
@@ -342,7 +384,7 @@ export default function HomeScreen() {
           moonSignName={pRashi.en}
           moonElement={pRashi.element}
           moonColor={pRashi.color}
-          oneLiner={`"${pMP.insight ?? ""}"`}
+          oneLiner={`"${pMP.insight || pMP.needsToHear || "Their moon sign shapes how they receive love."}"`}
           onPress={() => { haptic(); router.push({ pathname:"/profile-detail", params:{ person:"partner" } }); }}
         />
 
@@ -482,45 +524,46 @@ const styles = StyleSheet.create({
   greeting:            { fontSize:15, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.5)" },
   userName:            { fontSize:32, fontFamily:"Nunito_700Bold", color:"#F0EBF8" },
 
-  heroCard:            { borderRadius:22 },
+  heroCard:            { borderRadius:22, shadowColor:"#000", shadowOffset:{width:0,height:6}, shadowOpacity:0.35, shadowRadius:16, elevation:8 },
   heroInner:           { borderRadius:22, padding:24, gap:14 },
   heroTopRow:          { flexDirection:"row", justifyContent:"space-between", alignItems:"center" },
-  heroMoonTag:         { backgroundColor:"rgba(232,92,122,0.12)", borderWidth:1, borderColor:"rgba(232,92,122,0.28)", borderRadius:20, paddingHorizontal:12, paddingVertical:5 },
-  heroMoonTagText:     { fontSize:12, fontFamily:"Nunito_500Medium", color:"#E85C7A" },
-  heroHeadline:        { fontSize:22, fontFamily:"Nunito_700Bold", color:"#F0EBF8", lineHeight:30 },
-  heroInsight:         { fontSize:16, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.85)", lineHeight:25 },
-  heroDivider:         { height:1, backgroundColor:"rgba(240,235,248,0.08)" },
+  heroMoonTag:         { backgroundColor:"rgba(232,92,122,0.14)", borderWidth:1, borderColor:"rgba(232,92,122,0.35)", borderRadius:20, paddingHorizontal:12, paddingVertical:5 },
+  heroMoonTagText:     { fontSize:12, fontFamily:"Nunito_600SemiBold", color:"#E85C7A" },
+  heroHeadline:        { fontSize:23, fontFamily:"Nunito_700Bold", color:"#F0EBF8", lineHeight:31 },
+  heroInsight:         { fontSize:15, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.82)", lineHeight:24 },
+  heroDivider:         { height:1, backgroundColor:"rgba(240,235,248,0.1)" },
   heroActionRow:       { flexDirection:"row", alignItems:"flex-start", gap:8 },
   heroActionText:      { flex:1, fontSize:14, fontFamily:"Nunito_600SemiBold", color:"#F5A623", lineHeight:21 },
 
-  quoteCard:           { borderRadius:22 },
+  quoteCard:           { borderRadius:22, shadowColor:"#000", shadowOffset:{width:0,height:4}, shadowOpacity:0.28, shadowRadius:12, elevation:6 },
   quoteInner:          { borderRadius:22, padding:24, gap:14 },
   quoteTopRow:         { flexDirection:"row", justifyContent:"space-between", alignItems:"center" },
-  quoteCat:            { fontSize:12, fontFamily:"Nunito_500Medium", color:"#B855E0" },
+  quoteCat:            { fontSize:11, fontFamily:"Nunito_600SemiBold", color:"#B855E0", textTransform:"uppercase", letterSpacing:0.5 },
   quoteStar:           { fontSize:16, color:"rgba(184,85,224,0.5)" },
   quoteText:           { fontSize:19, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.92)", lineHeight:29, fontStyle:"italic" },
-  quoteAuthor:         { fontSize:13, fontFamily:"Nunito_500Medium", color:"rgba(240,235,248,0.4)" },
-  quoteDivider:        { height:1, backgroundColor:"rgba(240,235,248,0.08)" },
+  quoteAuthor:         { fontSize:13, fontFamily:"Nunito_500Medium", color:"rgba(240,235,248,0.38)" },
+  quoteDivider:        { height:1, backgroundColor:"rgba(240,235,248,0.09)" },
   focusRow:            { flexDirection:"row", alignItems:"flex-start", gap:8 },
   focusText:           { flex:1, fontSize:14, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.55)", lineHeight:22 },
 
-  dailyCard:           { borderRadius:22 },
+  dailyCard:           { borderRadius:22, shadowColor:"#000", shadowOffset:{width:0,height:4}, shadowOpacity:0.3, shadowRadius:14, elevation:7 },
   dailyCardInner:      { borderRadius:22, padding:24, gap:14 },
   dailyHeader:         { flexDirection:"row", justifyContent:"space-between", alignItems:"center" },
   dailyHeaderRight:    { flexDirection:"row", alignItems:"center", gap:6 },
-  dailyTitle:          { fontSize:13, fontFamily:"Nunito_600SemiBold", color:"rgba(240,235,248,0.55)" },
-  dailyDate:           { fontSize:12, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.3)" },
+  dailyTitle:          { fontSize:13, fontFamily:"Nunito_700Bold", color:"rgba(240,235,248,0.6)" },
+  dailyDate:           { fontSize:12, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.28)" },
   dailyMessage:        { fontSize:17, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.88)", lineHeight:26, fontStyle:"italic" },
-  withText:            { fontSize:13, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.35)" },
+  withText:            { fontSize:13, fontFamily:"Nunito_500Medium", color:"rgba(240,235,248,0.35)" },
   barsContainer:       { gap:13, marginTop:4 },
-  barLabel:            { fontSize:13, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.55)" },
-  barTrack:            { height:6, backgroundColor:"rgba(240,235,248,0.08)", borderRadius:4, overflow:"hidden" },
+  barLabel:            { fontSize:13, fontFamily:"Nunito_500Medium", color:"rgba(240,235,248,0.6)" },
+  barTrack:            { height:7, backgroundColor:"rgba(240,235,248,0.08)", borderRadius:4, overflow:"hidden" },
 
-  guidanceTeaser:      { borderRadius:20, borderWidth:1, borderColor:"rgba(124,82,200,0.25)", overflow:"hidden" },
+  guidanceTeaser:      { borderRadius:20, borderWidth:1, borderColor:"rgba(124,82,200,0.3)", overflow:"hidden",
+                         shadowColor:"#000", shadowOffset:{width:0,height:4}, shadowOpacity:0.25, shadowRadius:10, elevation:5 },
   guidanceTeaserInner: { padding:22, gap:8 },
   guidanceTeaserTitle: { fontSize:21, fontFamily:"Nunito_700Bold", color:"#F0EBF8", lineHeight:28 },
   guidanceTeaserSub:   { fontSize:15, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.5)" },
   guidanceSuggestions: { flexDirection:"row", gap:8, marginTop:10, flexWrap:"wrap" },
-  suggestionChip:      { backgroundColor:"rgba(124,82,200,0.15)", borderWidth:1, borderColor:"rgba(124,82,200,0.3)", borderRadius:20, paddingHorizontal:14, paddingVertical:8 },
-  suggestionText:      { fontSize:13, fontFamily:"Nunito_400Regular", color:"rgba(240,235,248,0.75)" },
+  suggestionChip:      { borderWidth:1, borderColor:"rgba(124,82,200,0.4)", borderRadius:20, paddingHorizontal:14, paddingVertical:8 },
+  suggestionText:      { fontSize:13, fontFamily:"Nunito_500Medium", color:"rgba(240,235,248,0.75)" },
 });
