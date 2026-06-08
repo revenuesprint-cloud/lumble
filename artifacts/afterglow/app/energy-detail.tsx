@@ -79,42 +79,38 @@ function MetricCard({ icon, label, value, color, what, tip }: {
   const verdictColor = pct >= 52 ? "#10B981" : pct >= 38 ? "#F59E0B" : "#F43F5E";
 
   return (
-    <View style={[mcStyles.card, { borderColor: color + "30" }]}>
-      <View style={[mcStyles.accentStrip, { backgroundColor: color }]} />
-      <View style={mcStyles.inner}>
-        <View style={mcStyles.topRow}>
-          <View style={mcStyles.left}>
-            <Text style={mcStyles.icon}>{icon}</Text>
-            <Text style={mcStyles.label}>{label}</Text>
-          </View>
-          <View style={[mcStyles.badge, { backgroundColor: verdictBg, borderColor: verdictColor + "44" }]}>
-            <Text style={[mcStyles.badgeText, { color: verdictColor }]}>{pct}% · {verdict}</Text>
-          </View>
+    <View style={mcStyles.card}>
+      <View style={mcStyles.topRow}>
+        <View style={mcStyles.left}>
+          <Text style={mcStyles.icon}>{icon}</Text>
+          <Text style={mcStyles.label}>{label}</Text>
         </View>
-        <DetailBar value={value} color={color} />
-        <Text style={mcStyles.what}>{what}</Text>
-        <View style={[mcStyles.tipRow, { borderLeftColor: color }]}>
-          <Text style={[mcStyles.tip, { color: color }]}>{tip}</Text>
+        <View style={[mcStyles.badge, { backgroundColor: verdictBg, borderColor: verdictColor + "44" }]}>
+          <Text style={[mcStyles.badgeText, { color: verdictColor }]}>{pct}% · {verdict}</Text>
         </View>
+      </View>
+      <DetailBar value={value} color={color} />
+      <Text style={mcStyles.what}>{what}</Text>
+      <View style={[mcStyles.tipPill, { backgroundColor: color + "0E" }]}>
+        <Text style={[mcStyles.tip, { color: color }]}>{tip}</Text>
       </View>
     </View>
   );
 }
 
 const mcStyles = StyleSheet.create({
-  card:       { borderRadius: 20, borderWidth: 1, backgroundColor: "#FFFFFF", flexDirection: "row", overflow: "hidden",
-                shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
-  accentStrip:{ width: 4 },
-  inner:      { flex: 1, padding: 18, gap: 12 },
-  topRow:     { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
-  left:       { flexDirection: "row", alignItems: "center", gap: 10 },
-  icon:       { fontSize: 20 },
-  label:      { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#111827" },
-  badge:      { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
-  badgeText:  { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
-  what:       { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 22 },
-  tipRow:     { borderLeftWidth: 3, paddingLeft: 12 },
-  tip:        { fontSize: 14, fontFamily: "Nunito_600SemiBold", lineHeight: 21 },
+  card:     { borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#FFFFFF",
+              padding: 16, gap: 12,
+              shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  topRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
+  left:     { flexDirection: "row", alignItems: "center", gap: 10 },
+  icon:     { fontSize: 20 },
+  label:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  badge:    { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
+  badgeText:{ fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
+  what:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
+  tipPill:  { borderRadius: 10, padding: 12 },
+  tip:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", lineHeight: 21 },
 });
 
 export default function EnergyDetailScreen() {
@@ -205,14 +201,14 @@ export default function EnergyDetailScreen() {
 const styles = StyleSheet.create({
   header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
   backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
-  headerSub:       { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
   scroll:          { paddingHorizontal: 20, gap: 14 },
   contextCard:     { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E5E7EB", padding: 20, gap: 12,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
-  contextTitle:    { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
-  contextBody:     { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 22 },
+  contextTitle:    { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  contextBody:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
   contextNote:     { borderLeftWidth: 3, borderLeftColor: "#C7D2FE", paddingLeft: 12 },
-  contextNoteText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 22, fontStyle: "italic" },
-  footer:          { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 20, paddingTop: 4, paddingBottom: 8 },
+  contextNoteText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22, fontStyle: "italic" },
+  footer:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 20, paddingTop: 4, paddingBottom: 8 },
 });

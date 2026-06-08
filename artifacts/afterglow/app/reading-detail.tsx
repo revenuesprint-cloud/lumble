@@ -38,8 +38,8 @@ function Block({ label, value, color }: { label: string; value: string; color: s
 
 const blkStyles = StyleSheet.create({
   wrap:  { gap: 4 },
-  label: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
-  value: { fontSize: 15, fontFamily: "Nunito_400Regular", lineHeight: 23 },
+  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23 },
 });
 
 export default function ReadingDetailScreen() {
@@ -93,16 +93,13 @@ export default function ReadingDetailScreen() {
         </View>
 
         {/* Main insight */}
-        <View style={[styles.insightBlock, { borderColor: "#C7D2FE" }]}>
-          <View style={[styles.insightAccent, { backgroundColor: "#5B4CE8" }]} />
-          <View style={styles.insightContent}>
-            <Text style={styles.insightHeadline}>{hero.headline}</Text>
-            <Text style={styles.insightBody}>{hero.insight}</Text>
-          </View>
+        <View style={[styles.insightBlock, { borderColor: "#C7D2FE", backgroundColor: "#EEF2FF" }]}>
+          <Text style={styles.insightHeadline}>{hero.headline}</Text>
+          <Text style={styles.insightBody}>{hero.insight}</Text>
         </View>
 
         {/* Today's action */}
-        <View style={[styles.actionBlock, { borderLeftColor: "#F59E0B" }]}>
+        <View style={styles.actionBlock}>
           <View style={styles.actionIconRow}>
             <Feather name="sun" size={14} color="#F59E0B" />
             <Text style={styles.actionLabel}>What to do today</Text>
@@ -131,13 +128,10 @@ export default function ReadingDetailScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Your life phase</Text>
             <View style={styles.dashaCard}>
-              <View style={[styles.dashaAccent, { backgroundColor: "#F59E0B" }]} />
-              <View style={styles.dashaContent}>
-                <Text style={styles.dashaHeadline}>{dc.headline}</Text>
-                <Block label="The gift"                value={dc.gift          ?? ""} color="#D97706" />
-                <Block label="The challenge"           value={dc.challenge     ?? ""} color="#D97706" />
-                <Block label="What this means for love" value={dc.lessonForLove ?? ""} color="#D97706" />
-              </View>
+              <Text style={styles.dashaHeadline}>{dc.headline}</Text>
+              <Block label="The gift"                value={dc.gift          ?? ""} color="#D97706" />
+              <Block label="The challenge"           value={dc.challenge     ?? ""} color="#D97706" />
+              <Block label="What this means for love" value={dc.lessonForLove ?? ""} color="#D97706" />
             </View>
           </View>
         )}
@@ -157,45 +151,41 @@ export default function ReadingDetailScreen() {
 const styles = StyleSheet.create({
   header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
   backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
-  headerSub:       { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
   scroll:          { paddingHorizontal: 20, gap: 18 },
 
   moonTagWrap:     { flexDirection: "row", alignItems: "center", gap: 10 },
   moonTag:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
-  moonTagText:     { fontSize: 12, fontFamily: "Nunito_600SemiBold" },
-  nakLabel:        { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  moonTagText:     { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
+  nakLabel:        { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
 
-  insightBlock:    { borderRadius: 20, borderWidth: 1, backgroundColor: "#FFFFFF", flexDirection: "row", overflow: "hidden",
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
-  insightAccent:   { width: 4 },
-  insightContent:  { flex: 1, padding: 22, gap: 12 },
-  insightHeadline: { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 30 },
-  insightBody:     { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 26 },
+  insightBlock:    { borderRadius: 16, borderWidth: 1, padding: 18, gap: 10,
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  insightHeadline: { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 27 },
+  insightBody:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 24 },
 
-  actionBlock:     { borderLeftWidth: 3, paddingLeft: 16, gap: 6 },
+  actionBlock:     { backgroundColor: "#FFFBEB", borderRadius: 14, padding: 14, gap: 6 },
   actionIconRow:   { flexDirection: "row", alignItems: "center", gap: 8 },
-  actionLabel:     { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#D97706" },
-  actionText:      { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#D97706", lineHeight: 23 },
+  actionLabel:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706" },
+  actionText:      { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 23 },
 
   section:         { gap: 10 },
-  sectionTitle:    { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
+  sectionTitle:    { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
 
   rnCard:          { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E5E7EB", padding: 18, gap: 12,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
   rnRow:           { gap: 4 },
-  rnName:          { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
-  rnBody:          { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 23 },
+  rnName:          { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  rnBody:          { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 23 },
   rnDivider:       { height: 1, backgroundColor: "#F3F4F6" },
 
-  dashaCard:       { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "row", overflow: "hidden",
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
-  dashaAccent:     { width: 4 },
-  dashaContent:    { flex: 1, padding: 18, gap: 12 },
-  dashaHeadline:   { fontSize: 16, fontFamily: "Nunito_600SemiBold", color: "#111827", lineHeight: 24 },
+  dashaCard:       { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 12,
+                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 1 },
+  dashaHeadline:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#111827", lineHeight: 22 },
 
   explainerCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 18, gap: 8,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
-  explainerTitle:  { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
-  explainerBody:   { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 21 },
+  explainerTitle:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  explainerBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 21 },
 });

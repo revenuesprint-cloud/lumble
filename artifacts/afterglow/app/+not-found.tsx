@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontFamily: "Nunito_700Bold",
+    fontFamily: "PlusJakartaSans_700Bold",
     color: "#F0EBF8",
   },
   sub: {
     fontSize: 14,
-    fontFamily: "Nunito_400Regular",
+    fontFamily: "PlusJakartaSans_400Regular",
     color: "rgba(240,235,248,0.4)",
     marginBottom: 8,
   },
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 15,
-    fontFamily: "Nunito_600SemiBold",
+    fontFamily: "PlusJakartaSans_600SemiBold",
     color: "#E85C7A",
   },
 });

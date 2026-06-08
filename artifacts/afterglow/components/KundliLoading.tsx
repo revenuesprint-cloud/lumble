@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   logoCircle: { width: 80, height: 80, borderRadius: 40, overflow: "hidden",
                 shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 4 },
   logoImg:    { width: "100%", height: "100%" },
-  label:      { fontSize: 15, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
+  label:      { fontSize: 15, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
   dotsRow:    { flexDirection: "row", gap: 8 },
   dot:        { width: 7, height: 7, borderRadius: 4, backgroundColor: "#5B4CE8" },
 });

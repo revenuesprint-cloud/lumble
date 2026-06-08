@@ -428,20 +428,20 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, gap: 0 },
 
   titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 },
-  screenTitle: { fontSize: 32, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  screenSub:   { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.45)", marginTop: 4 },
+  screenTitle: { fontSize: 32, fontFamily: "PlusJakartaSans_700Bold", color: "#F0EBF8" },
+  screenSub:   { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.45)", marginTop: 4 },
   starsIcon:   { width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(245,166,35,0.12)", alignItems: "center", justifyContent: "center" },
   starsText:   { fontSize: 20, color: "#F5A623" },
 
   tabBar:          { flexDirection: "row", backgroundColor: "rgba(26,22,48,0.8)", borderRadius: 14, padding: 4, gap: 2, marginBottom: 22 },
   tabBtn:          { flex: 1, paddingVertical: 11, borderRadius: 10, alignItems: "center" },
   tabBtnActive:    { backgroundColor: "#1E1A30" },
-  tabBtnText:      { fontSize: 14, fontFamily: "Nunito_500Medium", color: "rgba(240,235,248,0.4)" },
-  tabBtnTextActive:{ color: "#F0EBF8", fontFamily: "Nunito_600SemiBold" },
+  tabBtnText:      { fontSize: 14, fontFamily: "PlusJakartaSans_500Medium", color: "rgba(240,235,248,0.4)" },
+  tabBtnTextActive:{ color: "#F0EBF8", fontFamily: "PlusJakartaSans_600SemiBold" },
 
   profileContainer: { gap: 22 },
   sectionBlock:     { gap: 12 },
-  sectionLabel:     { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "rgba(240,235,248,0.55)", letterSpacing: 0 },
+  sectionLabel:     { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "rgba(240,235,248,0.55)", letterSpacing: 0 },
 
   // Signs row
   signsRow: { flexDirection: "row", gap: 8 },
@@ -450,21 +450,21 @@ const styles = StyleSheet.create({
     padding: 14, alignItems: "center", gap: 5,
   },
   signPillIcon:  { fontSize: 20 },
-  signPillName:  { fontSize: 16, fontFamily: "Nunito_700Bold" },
-  signPillLabel: { fontSize: 11, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.4)", letterSpacing: 0 },
+  signPillName:  { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold" },
+  signPillLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.4)", letterSpacing: 0 },
 
   // Cards
   card:     { borderRadius: 18, borderWidth: 1, overflow: "hidden" },
   cardGrad: { padding: 20, gap: 12 },
-  cardBodyText: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.83)", lineHeight: 25 },
+  cardBodyText: { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.83)", lineHeight: 25 },
   divider: { height: 1, backgroundColor: "rgba(240,235,248,0.08)" },
   bulletRow: { flexDirection: "row", alignItems: "flex-start", gap: 9 },
-  bulletText: { flex: 1, fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.7)", lineHeight: 23 },
+  bulletText: { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.7)", lineHeight: 23 },
 
   // Dasha / life chapter
-  chapterHeadline: { fontSize: 17, fontFamily: "Nunito_600SemiBold", color: "#F0EBF8", lineHeight: 25 },
+  chapterHeadline: { fontSize: 17, fontFamily: "PlusJakartaSans_600SemiBold", color: "#F0EBF8", lineHeight: 25 },
   timeRow: { alignItems: "center" },
-  timeText: { fontSize: 13, fontFamily: "Nunito_500Medium", color: "rgba(245,166,35,0.65)" },
+  timeText: { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "rgba(245,166,35,0.65)" },
 
   // Pattern grid
   patternGrid:      { flexDirection: "row", flexWrap: "wrap", gap: 9 },
@@ -472,26 +472,26 @@ const styles = StyleSheet.create({
   insightCardGrad:  { padding: 16, gap: 8, minHeight: 100 },
   insightCardHeader:{ flexDirection: "row", alignItems: "center", gap: 7 },
   insightCardIcon:  { fontSize: 16 },
-  insightCardLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", letterSpacing: 0 },
-  insightCardValue: { fontSize: 13, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.72)", lineHeight: 20 },
+  insightCardLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", letterSpacing: 0 },
+  insightCardValue: { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.72)", lineHeight: 20 },
 
   // Score
   scoreCard:     { borderRadius: 22, borderWidth: 1, overflow: "hidden", marginBottom: 4 },
   scoreCardGrad: { padding: 28, alignItems: "center", gap: 10 },
-  scoreBig:      { fontSize: 68, fontFamily: "Nunito_700Bold" },
-  scorePct:      { fontSize: 34, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.5)" },
-  scoreVerdictText:{ fontSize: 20, fontFamily: "Nunito_700Bold", color: "#F0EBF8" },
-  scoreSubText:    { fontSize: 15, fontFamily: "Nunito_400Regular", color: "rgba(240,235,248,0.55)", lineHeight: 23, textAlign: "center" },
+  scoreBig:      { fontSize: 68, fontFamily: "PlusJakartaSans_800ExtraBold" },
+  scorePct:      { fontSize: 34, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.5)" },
+  scoreVerdictText:{ fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#F0EBF8" },
+  scoreSubText:    { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(240,235,248,0.55)", lineHeight: 23, textAlign: "center" },
 
   // Koota insights
-  kootaLabel: { fontSize: 12, fontFamily: "Nunito_600SemiBold", letterSpacing: 0 },
+  kootaLabel: { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", letterSpacing: 0 },
 
   // Moon dynamic
   moonDynamicRow:   { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   moonPill:         { flex: 1, borderRadius: 14, borderWidth: 1, padding: 14, alignItems: "center", gap: 4 },
-  moonPillText:     { fontSize: 14, fontFamily: "Nunito_700Bold" },
-  moonPillSign:     { fontSize: 12, fontFamily: "Nunito_400Regular" },
+  moonPillText:     { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold" },
+  moonPillSign:     { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular" },
   moonDynamicArrow: { fontSize: 22, color: "rgba(240,235,248,0.25)" },
   deepDiveBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: "rgba(184,85,224,0.2)", backgroundColor: "rgba(184,85,224,0.06)" },
-  deepDiveText: { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "rgba(184,85,224,0.8)" },
+  deepDiveText: { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "rgba(184,85,224,0.8)" },
 });

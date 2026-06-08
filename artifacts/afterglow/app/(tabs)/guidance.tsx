@@ -7,7 +7,7 @@ import { getPersonalizedChips } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -366,6 +366,13 @@ export default function GuidanceScreen() {
   const [streamingId,  setStreamingId]  = useState<string | null>(null);
   const [followUps,    setFollowUps]    = useState<string[]>([]);
 
+  // Clear the question sheet whenever the user navigates away from this tab
+  useFocusEffect(
+    useCallback(() => {
+      return () => { setSelectedQ(null); };
+    }, [])
+  );
+
   const flatListRef    = useRef<FlatList>(null);
   const isTypingRef    = useRef(false);
   const turnCountRef   = useRef(0);
@@ -618,13 +625,13 @@ const styles = StyleSheet.create({
   header:        { paddingHorizontal: 20, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "#E5E7EB", backgroundColor: "#F4F5F7" },
   headerLeft:    { flexDirection: "row", alignItems: "center", gap: 12 },
   headerOrb:     { width: 40, height: 40, borderRadius: 20, overflow: "hidden" },
-  headerTitle:   { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
-  headerSub:     { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  headerTitle:   { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  headerSub:     { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
   headerRight:   { flexDirection: "row", alignItems: "center", gap: 8 },
   modeToggle:    { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 10, padding: 3, gap: 2, borderWidth: 1, borderColor: "#E5E7EB" },
   modeBtn:       { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 7, alignItems: "center" },
   modeBtnActive: { backgroundColor: "#5B4CE8" },
-  modeBtnText:   { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  modeBtnText:   { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
   modeBtnTextActive: { color: "#FFFFFF" },
   clearBtn:      { width: 30, height: 30, borderRadius: 15, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "center" },
   // Browse
@@ -632,37 +639,37 @@ const styles = StyleSheet.create({
   catContent:    { paddingHorizontal: 16, paddingVertical: 6, gap: 7 },
   catChip:       { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB" },
   catChipIcon:   { fontSize: 13 },
-  catChipLabel:  { fontSize: 12, fontFamily: "Nunito_500Medium", color: "#6B7280" },
+  catChipLabel:  { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
   qList:         { paddingHorizontal: 16, paddingTop: 8, gap: 6, paddingBottom: 20 },
   qCard:         { borderRadius: 12, overflow: "hidden", borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#FFFFFF",
                    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   qCardInner:    { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, backgroundColor: "#FFFFFF" },
   qCardIcon:     { fontSize: 22, width: 28, textAlign: "center" },
-  qCardTitle:    { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#111827", lineHeight: 20 },
-  qCardShort:    { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 17 },
+  qCardTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#111827", lineHeight: 20 },
+  qCardShort:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 17 },
   emptyCategory: { paddingTop: 40, alignItems: "center" },
-  emptyCategoryText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  emptyCategoryText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
   // Sheet
   sheet:         { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "#E5E7EB", padding: 28, paddingBottom: 52, gap: 16 },
   sheetHandle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: "#D1D5DB", alignSelf: "center", marginBottom: 8 },
-  sheetQ:        { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 32 },
+  sheetQ:        { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 32 },
   sheetDivider:  { height: 1, backgroundColor: "#F3F4F6" },
-  sheetAnswer:   { fontSize: 17, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 27 },
+  sheetAnswer:   { fontSize: 17, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 27 },
   sheetActions:  { gap: 10 },
   sheetAskBtn:   { borderRadius: 14, overflow: "hidden" },
   sheetAskGrad:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 15 },
-  sheetAskText:  { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#fff" },
+  sheetAskText:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
   sheetCloseBtn: { alignItems: "center", paddingVertical: 10 },
-  sheetCloseText:{ fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  sheetCloseText:{ fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
   // Ask empty state
   emptyScroll:   { flexGrow: 1, paddingHorizontal: 20 },
   emptyAsk:      { paddingTop: 28, gap: 18, alignItems: "center" },
-  lumbleWordmark: { fontSize: 32, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8", letterSpacing: 1, marginBottom: 4 },
-  emptyTitle:    { fontSize: 26, fontFamily: "Nunito_700Bold", color: "#111827" },
-  emptySub:      { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 25 },
+  lumbleWordmark: { fontSize: 32, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8", letterSpacing: 1, marginBottom: 4 },
+  emptyTitle:    { fontSize: 26, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  emptySub:      { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 25 },
   emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
   emptyChip:     { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
-  emptyChipText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
+  emptyChipText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
   // Messages
   messageList:   { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
   bubbleRow:     { flexDirection: "row", gap: 11, alignItems: "flex-end" },
@@ -674,16 +681,16 @@ const styles = StyleSheet.create({
   bubbleBot:     { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderBottomLeftRadius: 5,
                    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
   bubbleText:    { lineHeight: 26 },
-  bubbleTextUser:{ fontSize: 16, fontFamily: "Nunito_400Regular", color: "#FFFFFF" },
-  bubbleTextBot: { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#374151" },
+  bubbleTextUser:{ fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#FFFFFF" },
+  bubbleTextBot: { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#374151" },
   cursor:        { width: 2, height: 18, backgroundColor: "#5B4CE8", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
   // Structured bot response
-  structLabel:      { fontSize: 11, fontFamily: "Nunito_700Bold", color: "#5B4CE8", letterSpacing: 0.5, textTransform: "uppercase" },
-  structInsight:    { fontSize: 16, fontFamily: "Nunito_400Regular", color: "#111827", lineHeight: 25, fontStyle: "italic" },
+  structLabel:      { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#5B4CE8", letterSpacing: 0.5, textTransform: "uppercase" },
+  structInsight:    { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#111827", lineHeight: 25, fontStyle: "italic" },
   structDivider:    { height: 1, backgroundColor: "#F3F4F6" },
   structActionRow:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  structCheck:      { fontSize: 14, color: "#10B981", fontFamily: "Nunito_700Bold", marginTop: 1 },
-  structActionText: { flex: 1, fontSize: 15, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 22 },
+  structCheck:      { fontSize: 14, color: "#10B981", fontFamily: "PlusJakartaSans_700Bold", marginTop: 1 },
+  structActionText: { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
   // Typing
   typingRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
   typingBubble:  { backgroundColor: "#FFFFFF", borderRadius: 18, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", gap: 6, alignItems: "center" },
@@ -691,20 +698,20 @@ const styles = StyleSheet.create({
   // Follow-up suggestions
   followUpRow:   { paddingHorizontal: 16, paddingTop: 6, gap: 7 },
   followUpChip:  { alignSelf: "flex-start", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
-  followUpText:  { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
+  followUpText:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
   // Limit
   limitCard:     { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: "#FFF1F2", borderWidth: 1, borderColor: "#FECDD3", borderRadius: 16, padding: 16 },
   limitIcon:     { fontSize: 22, color: "#F43F5E" },
-  limitTitle:    { fontSize: 14, fontFamily: "Nunito_700Bold", color: "#111827" },
-  limitSub:      { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280", marginTop: 2 },
+  limitTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  limitSub:      { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", marginTop: 2 },
   // Input
   inputArea:     { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#E5E7EB", gap: 10, backgroundColor: "#FFFFFF" },
   chipsScroll:   { flexGrow: 0 },
   chipsContent:  { gap: 8, paddingRight: 8 },
   chip:          { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 9 },
-  chipText:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
+  chipText:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
   inputRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
-  inputField:    { flex: 1, backgroundColor: "#F9FAFB", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 18, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 14, fontSize: 16, fontFamily: "Nunito_400Regular", color: "#111827", maxHeight: 110 },
+  inputField:    { flex: 1, backgroundColor: "#F9FAFB", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 18, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 14, fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#111827", maxHeight: 110 },
   sendBtn:       { borderRadius: 16, overflow: "hidden" },
   sendBtnGrad:   { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
 });

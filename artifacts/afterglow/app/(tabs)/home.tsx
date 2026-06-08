@@ -57,29 +57,26 @@ function ProfileTeaserCard({
     <Animated.View style={{ opacity: fadeAnim }}>
       <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
         <View style={ptStyles.card}>
-          <View style={[ptStyles.accentBar, { backgroundColor: moonColor }]} />
-          <View style={ptStyles.content}>
-            <View style={ptStyles.topRow}>
-              <View style={[ptStyles.iconCircle, { backgroundColor: moonColor + "18" }]}>
-                <Text style={[ptStyles.iconGlyph, { color: moonColor }]}>☽</Text>
-              </View>
-              <Text style={ptStyles.label}>{label}</Text>
-              <Feather name="chevron-right" size={14} color="#D1D5DB" />
+          <View style={ptStyles.topRow}>
+            <View style={[ptStyles.iconCircle, { backgroundColor: moonColor + "18" }]}>
+              <Text style={[ptStyles.iconGlyph, { color: moonColor }]}>☽</Text>
             </View>
-            <Text style={ptStyles.title}>{moonSignName}</Text>
-            <View style={ptStyles.tagsRow}>
-              <View style={ptStyles.tag}>
-                <Text style={ptStyles.tagText}>{moonElement}</Text>
-              </View>
-              <View style={[ptStyles.tag, { backgroundColor: moonColor + "12", borderColor: moonColor + "30" }]}>
-                <Text style={[ptStyles.tagText, { color: moonColor }]}>Moon sign</Text>
-              </View>
+            <Text style={ptStyles.label}>{label}</Text>
+            <Feather name="chevron-right" size={13} color="#D1D5DB" />
+          </View>
+          <Text style={ptStyles.title}>{moonSignName}</Text>
+          <View style={ptStyles.tagsRow}>
+            <View style={ptStyles.tag}>
+              <Text style={ptStyles.tagText}>{moonElement}</Text>
             </View>
-            <Text style={ptStyles.preview} numberOfLines={1}>{oneLiner}</Text>
-            <View style={ptStyles.footer}>
-              <View style={[ptStyles.ctaBtn, { backgroundColor: moonColor + "10", borderColor: moonColor + "30" }]}>
-                <Text style={[ptStyles.ctaBtnText, { color: moonColor }]}>See full profile</Text>
-              </View>
+            <View style={[ptStyles.tag, { backgroundColor: moonColor + "12", borderColor: moonColor + "30" }]}>
+              <Text style={[ptStyles.tagText, { color: moonColor }]}>Moon sign</Text>
+            </View>
+          </View>
+          <Text style={ptStyles.preview} numberOfLines={1}>{oneLiner}</Text>
+          <View style={ptStyles.footer}>
+            <View style={[ptStyles.ctaBtn, { backgroundColor: moonColor + "10", borderColor: moonColor + "30" }]}>
+              <Text style={[ptStyles.ctaBtnText, { color: moonColor }]}>See full profile</Text>
             </View>
           </View>
         </View>
@@ -90,23 +87,21 @@ function ProfileTeaserCard({
 
 const ptStyles = StyleSheet.create({
   card:       { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB",
-                flexDirection: "row", overflow: "hidden",
+                padding: 14, gap: 8,
                 shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  accentBar:  { width: 3 },
-  content:    { flex: 1, padding: 14, gap: 8 },
   topRow:     { flexDirection: "row", alignItems: "center", gap: 8 },
   iconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   iconGlyph:  { fontSize: 13 },
-  label:      { flex: 1, fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
-  title:      { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 22 },
+  label:      { flex: 1, fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  title:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 22 },
   tagsRow:    { flexDirection: "row", gap: 6, flexWrap: "wrap" },
   tag:        { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, borderWidth: 1,
                 borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" },
-  tagText:    { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#6B7280" },
-  preview:    { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 18, fontStyle: "italic" },
+  tagText:    { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
+  preview:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 18, fontStyle: "italic" },
   footer:     { flexDirection: "row", justifyContent: "flex-end" },
   ctaBtn:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1 },
-  ctaBtnText: { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
+  ctaBtnText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
 });
 
 // ─── Interaction Teaser Card ──────────────────────────────────────────────────
@@ -168,18 +163,18 @@ const itStyles = StyleSheet.create({
   topRow:     { flexDirection: "row", alignItems: "center", gap: 8 },
   iconCircle: { width: 28, height: 28, borderRadius: 14, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
   iconGlyph:  { fontSize: 13, color: "#5B4CE8" },
-  label:      { flex: 1, fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
+  label:      { flex: 1, fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
   scorePill:  { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
-  scoreText:  { fontSize: 11, fontFamily: "Nunito_700Bold" },
-  title:      { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#111827" },
+  scoreText:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
+  title:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
   tagsRow:    { flexDirection: "row", gap: 6, flexWrap: "wrap" },
   tag:        { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
-  tagText:    { fontSize: 11, fontFamily: "Nunito_500Medium" },
+  tagText:    { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium" },
   footer:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  verdictLabel:{ fontSize: 12, fontFamily: "Nunito_600SemiBold" },
+  verdictLabel:{ fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
   ctaBtn:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1,
                 borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" },
-  ctaBtnText: { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#374151" },
+  ctaBtnText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#374151" },
 });
 
 // ─── Right Now Card ───────────────────────────────────────────────────────────
@@ -212,10 +207,10 @@ const rnStyles = StyleSheet.create({
                  shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   header:      { flexDirection: "row", alignItems: "center", gap: 6 },
   livePip:     { width: 6, height: 6, borderRadius: 3, backgroundColor: "#5B4CE8" },
-  headerLabel: { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8", textTransform: "uppercase", letterSpacing: 0.5 },
+  headerLabel: { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8", textTransform: "uppercase", letterSpacing: 0.5 },
   section:     { gap: 3 },
-  personLabel: { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
-  body:        { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 19 },
+  personLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  body:        { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 19 },
   divider:     { height: 1, backgroundColor: "#F3F4F6" },
 });
 
@@ -477,51 +472,51 @@ const styles = StyleSheet.create({
   header:              { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 2 },
   profileBtn:          { borderRadius: 20, overflow: "hidden" },
   profileBtnGradient:  { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center" },
-  profileBtnInitial:   { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#fff" },
-  greeting:            { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
-  userName:            { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#111827" },
+  profileBtnInitial:   { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+  greeting:            { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  userName:            { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
 
   heroCard:            { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 10,
                          shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   heroTopRow:          { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   heroMoonTag:         { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
-  heroMoonTagText:     { fontSize: 11, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8" },
-  heroHeadline:        { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 24 },
-  heroInsight:         { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 20 },
+  heroMoonTagText:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
+  heroHeadline:        { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 24 },
+  heroInsight:         { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 20 },
   heroDivider:         { height: 1, backgroundColor: "#F3F4F6" },
   heroActionRow:       { flexDirection: "row", alignItems: "flex-start", gap: 7 },
-  heroActionText:      { flex: 1, fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#D97706", lineHeight: 19 },
+  heroActionText:      { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 19 },
 
   quoteCard:           { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 10,
                          shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   quoteTopRow:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  quoteCat:            { fontSize: 10, fontFamily: "Nunito_700Bold", color: "#5B4CE8", textTransform: "uppercase", letterSpacing: 0.8 },
+  quoteCat:            { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#5B4CE8", textTransform: "uppercase", letterSpacing: 0.8 },
   quoteStar:           { fontSize: 12, color: "#C7D2FE" },
-  quoteText:           { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#111827", lineHeight: 23, fontStyle: "italic" },
-  quoteAuthor:         { fontSize: 12, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
+  quoteText:           { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#111827", lineHeight: 23, fontStyle: "italic" },
+  quoteAuthor:         { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
   quoteDivider:        { height: 1, backgroundColor: "#F3F4F6" },
   focusRow:            { flexDirection: "row", alignItems: "flex-start", gap: 7 },
-  focusText:           { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 20 },
+  focusText:           { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 20 },
 
   dailyCard:           { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 10,
                          shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   dailyHeader:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   dailyHeaderRight:    { flexDirection: "row", alignItems: "center", gap: 5 },
-  dailyTitle:          { fontSize: 12, fontFamily: "Nunito_700Bold", color: "#6B7280" },
-  dailyDate:           { fontSize: 11, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
-  dailyMessage:        { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 20, fontStyle: "italic" },
-  withText:            { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
+  dailyTitle:          { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold", color: "#6B7280" },
+  dailyDate:           { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  dailyMessage:        { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 20, fontStyle: "italic" },
+  withText:            { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
   barsContainer:       { gap: 9, marginTop: 2 },
   barLabelRow:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  barLabel:            { fontSize: 12, fontFamily: "Nunito_500Medium", color: "#6B7280" },
-  barValue:            { fontSize: 11, fontFamily: "Nunito_700Bold" },
+  barLabel:            { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
+  barValue:            { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
   barTrack:            { height: 6, backgroundColor: "#F3F4F6", borderRadius: 4, overflow: "hidden" },
 
   guidanceTeaser:      { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#C7D2FE", padding: 16, gap: 8,
                          shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  guidanceTeaserTitle: { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 22 },
-  guidanceTeaserSub:   { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280" },
+  guidanceTeaserTitle: { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 22 },
+  guidanceTeaserSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
   guidanceSuggestions: { flexDirection: "row", gap: 6, marginTop: 4, flexWrap: "wrap" },
   suggestionChip:      { borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "#EEF2FF" },
-  suggestionText:      { fontSize: 12, fontFamily: "Nunito_500Medium", color: "#5B4CE8" },
+  suggestionText:      { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#5B4CE8" },
 });

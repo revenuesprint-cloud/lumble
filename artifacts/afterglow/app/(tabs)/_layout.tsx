@@ -44,7 +44,7 @@ export default function TabLayout() {
           ) : null,
         tabBarLabelStyle: {
           fontSize: 10,
-          fontFamily: "Nunito_600SemiBold",
+          fontFamily: "PlusJakartaSans_600SemiBold",
           letterSpacing: 0.3,
           marginTop: 1,
         },
