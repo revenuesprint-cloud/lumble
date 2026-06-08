@@ -1,0 +1,28 @@
+plugins = []
+headers = []
+redirects = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\Users\\aksha\\OneDrive\\Desktop\\Afterglow-Mobile\\Afterglow-Mobile\\artifacts\\afterglow\\artifacts\\afterglow\\dist"
+publishOrigin = "ui"
+commandOrigin = "ui"
+base = "C:\\Users\\aksha\\OneDrive\\Desktop\\Afterglow-Mobile\\Afterglow-Mobile\\artifacts\\afterglow"
+command = "pnpm --filter @workspace/lumble... run build"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]

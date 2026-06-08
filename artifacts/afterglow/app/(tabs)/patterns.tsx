@@ -67,20 +67,26 @@ function ChallengeCard({
         <View style={[styles.cardAccentBar, { backgroundColor: color }]} />
         <View style={styles.cardContent}>
           <View style={styles.cardTop}>
-            <View style={[styles.severityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-              <View style={[styles.severityDot, { backgroundColor: color }]} />
-              <Text style={[styles.severityLabel, { color }]}>{SEVERITY_DISPLAY[challenge.severity] ?? challenge.severity}</Text>
-            </View>
-            <Text style={styles.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
-            <View style={styles.categoryPill}>
-              <Text style={styles.categoryText}>{challenge.category}</Text>
-            </View>
-            {js && (
-              <View style={[styles.journeyBadge, { backgroundColor: js.bg, borderColor: js.color + "44" }]}>
-                <Feather name={js.icon as any} size={10} color={js.color} />
-                <Text style={[styles.journeyBadgeText, { color: js.color }]}>{js.label}</Text>
+            {/* Left: severity pill + meaning */}
+            <View style={styles.cardTopLeft}>
+              <View style={[styles.severityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
+                <View style={[styles.severityDot, { backgroundColor: color }]} />
+                <Text style={[styles.severityLabel, { color }]}>{SEVERITY_DISPLAY[challenge.severity] ?? challenge.severity}</Text>
               </View>
-            )}
+              <Text style={styles.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
+            </View>
+            {/* Right: category + journey badge */}
+            <View style={styles.cardTopRight}>
+              <View style={styles.categoryPill}>
+                <Text style={styles.categoryText}>{challenge.category}</Text>
+              </View>
+              {js && (
+                <View style={[styles.journeyBadge, { backgroundColor: js.bg, borderColor: js.color + "44" }]}>
+                  <Feather name={js.icon as any} size={10} color={js.color} />
+                  <Text style={[styles.journeyBadgeText, { color: js.color }]}>{js.label}</Text>
+                </View>
+              )}
+            </View>
           </View>
           <Text style={styles.cardTitle}>{challenge.title}</Text>
           <Text style={styles.cardDesc} numberOfLines={2}>{challenge.description}</Text>
@@ -341,12 +347,14 @@ const styles = StyleSheet.create({
                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 2 },
   cardAccentBar:  { width: 4 },
   cardContent:    { flex: 1, padding: 18, gap: 10 },
-  cardTop:        { flexDirection: "row", alignItems: "center", gap: 7, flexWrap: "wrap" },
-  severityPill:   { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+  cardTop:        { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 10 },
+  cardTopLeft:    { flex: 1, gap: 5 },
+  cardTopRight:   { alignItems: "flex-end", gap: 5, flexShrink: 0 },
+  severityPill:   { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, alignSelf: "flex-start" },
   severityDot:    { width: 6, height: 6, borderRadius: 3 },
   severityLabel:  { fontSize: 11, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize", letterSpacing: 0.2 },
-  severityMeaning:{ fontSize: 11, fontFamily: "Nunito_400Regular", color: "#9CA3AF", flex: 1 },
-  categoryPill:   { marginLeft: "auto", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+  severityMeaning:{ fontSize: 11, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  categoryPill:   { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
   categoryText:   { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#5B4CE8" },
   journeyBadge:   { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 11, paddingHorizontal: 8, paddingVertical: 3 },
   journeyBadgeText:{ fontSize: 10, fontFamily: "Nunito_600SemiBold" },
