@@ -179,13 +179,11 @@ export default function ChallengeDetailScreen() {
   if (!challenge) {
     return (
       <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
-        <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 8) }]}>
-          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 10 }}>
+          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={[styles.backBtn, { position: "absolute", top: insets.top + 12, left: 20 }]}>
             <Feather name="arrow-left" size={22} color="#6B7280" />
           </TouchableOpacity>
-        </View>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 10 }}>
-          <Text style={{ color: "#9CA3AF", fontFamily: "Nunito_400Regular", fontSize: 15 }}>Challenge not found.</Text>
+          <Text style={{ color: "#9CA3AF", fontFamily: "PlusJakartaSans_400Regular", fontSize: 15 }}>Challenge not found.</Text>
         </View>
       </View>
     );
@@ -216,19 +214,23 @@ export default function ChallengeDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
-      <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 8) }]}>
-        <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
-          <Feather name="arrow-left" size={22} color="#6B7280" />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: insets.top + (Platform.OS === "web" ? 120 : 64), paddingBottom: insets.bottom + 100 },
+          { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16), paddingBottom: insets.bottom + 100 },
         ]}
       >
+        {/* Inline back button — part of scroll flow, never overlaps content */}
+        <TouchableOpacity
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
+          style={styles.backBtn}
+          activeOpacity={0.7}
+        >
+          <Feather name="arrow-left" size={22} color="#6B7280" />
+        </TouchableOpacity>
+
         {/* Hero card */}
         <View style={[styles.heroCard, { borderColor: severityColor + "30" }]}>
           <View style={[styles.heroAccent, { backgroundColor: severityColor }]} />
@@ -326,7 +328,6 @@ export default function ChallengeDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  fixedHeader:    { position: "absolute", top: 0, left: 0, right: 0, zIndex: 10, paddingHorizontal: 16, paddingBottom: 8 },
   scroll:         { paddingHorizontal: 20, gap: 14 },
   backBtn:        { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
 
@@ -337,38 +338,38 @@ const styles = StyleSheet.create({
   heroTopRow:     { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   severityPill:   { flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
   severityDot:    { width: 7, height: 7, borderRadius: 4 },
-  severityText:   { fontSize: 12, fontFamily: "Nunito_600SemiBold", textTransform: "capitalize" },
-  severityMeaning:{ fontSize: 13, fontFamily: "Nunito_500Medium", lineHeight: 19 },
+  severityText:   { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
+  severityMeaning:{ fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", lineHeight: 19 },
   categoryPill:   { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
-  categoryText:   { fontSize: 12, fontFamily: "Nunito_500Medium", color: "#5B4CE8" },
-  heroTitle:      { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 30 },
-  heroDesc:       { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 24 },
+  categoryText:   { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#5B4CE8" },
+  heroTitle:      { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 30 },
+  heroDesc:       { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 24 },
   matchRow:       { flexDirection: "row", alignItems: "center", gap: 6 },
-  matchText:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8" },
+  matchText:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
 
   acknowledgeBlock:        { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 20, padding: 20, gap: 10,
                              shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
-  acknowledgeQuestion:     { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
-  acknowledgeHint:         { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 22 },
+  acknowledgeQuestion:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  acknowledgeHint:         { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
   acknowledgeButtons:      { flexDirection: "row", gap: 10, marginTop: 4 },
   acknowledgeBtnPrimary:   { flex: 1, borderRadius: 22, overflow: "hidden" },
   acknowledgeBtnSecondary: { flex: 1, backgroundColor: "#FFFBEB", borderWidth: 1, borderColor: "#FDE68A", borderRadius: 22,
                              flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14 },
   acknowledgeBtnGrad:      { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14 },
-  acknowledgeBtnTextPrimary:{ fontSize: 14, fontFamily: "Nunito_700Bold", color: "#fff" },
-  acknowledgeBtnText:      { fontSize: 14, fontFamily: "Nunito_600SemiBold" },
+  acknowledgeBtnTextPrimary:{ fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+  acknowledgeBtnText:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold" },
 
   stateBanner:     { flexDirection: "row", alignItems: "center", gap: 9, borderWidth: 1, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12 },
-  stateBannerText: { flex: 1, fontSize: 14, fontFamily: "Nunito_600SemiBold" },
+  stateBannerText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold" },
   stateClear:      { padding: 4 },
 
   sectionHeader:   { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" },
-  sectionTitle:    { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
-  sectionSub:      { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  sectionTitle:    { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
+  sectionSub:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
   solutionsHint:   { flexDirection: "row", gap: 9, alignItems: "flex-start" },
-  solutionsHintText:{ flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8", lineHeight: 20 },
+  solutionsHintText:{ flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8", lineHeight: 20 },
   progressRow:     { flexDirection: "row", alignItems: "center", gap: 9 },
-  progressText:    { fontSize: 14, fontFamily: "Nunito_500Medium", color: "#F59E0B" },
+  progressText:    { fontSize: 14, fontFamily: "PlusJakartaSans_500Medium", color: "#F59E0B" },
 
   solutionCard:    { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, flexDirection: "row", overflow: "hidden",
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
@@ -376,21 +377,21 @@ const styles = StyleSheet.create({
   solutionContent: { flex: 1, padding: 18, gap: 10 },
   solutionHeader:  { flexDirection: "row", alignItems: "center", gap: 8 },
   solutionIconBg:  { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
-  solutionType:    { fontSize: 12, fontFamily: "Nunito_600SemiBold" },
+  solutionType:    { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
   premiumBadge:    { marginLeft: "auto", backgroundColor: "#FFFBEB", borderWidth: 1, borderColor: "#FDE68A", borderRadius: 11, paddingHorizontal: 9, paddingVertical: 3 },
-  premiumBadgeText:{ fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#D97706" },
+  premiumBadgeText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706" },
   triedBadge:      { marginLeft: "auto", backgroundColor: "#ECFDF5", borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 11, paddingHorizontal: 9, paddingVertical: 3 },
-  triedText:       { fontSize: 10, fontFamily: "Nunito_600SemiBold", color: "#10B981" },
-  solutionTitle:   { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#111827" },
-  solutionDesc:    { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 22 },
+  triedText:       { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
+  solutionTitle:   { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  solutionDesc:    { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
   tryBtn:          { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", marginTop: 4, backgroundColor: "#ECFDF5", borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8 },
-  tryBtnText:      { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#10B981" },
+  tryBtnText:      { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
   unlockRow:       { flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB" },
-  unlockText:      { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF", fontStyle: "italic" },
+  unlockText:      { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", fontStyle: "italic" },
 
   resolvedBtn:     { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, backgroundColor: "#ECFDF5", borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 16, paddingVertical: 16 },
-  resolvedBtnText: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#10B981" },
+  resolvedBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
 
   noteCard:  { flexDirection: "row", gap: 10, padding: 16, backgroundColor: "#EEF2FF", borderRadius: 14, borderWidth: 1, borderColor: "#C7D2FE" },
-  noteText:  { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "#5B4CE8", lineHeight: 20 },
+  noteText:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8", lineHeight: 20 },
 });

@@ -61,7 +61,7 @@ function Section({ title, accent, children }: { title: string; accent: string; c
 const secStyles = StyleSheet.create({
   section:  { gap: 14 },
   titleRow: { borderLeftWidth: 3, paddingLeft: 12 },
-  title:    { fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  title:    { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
   content:  { gap: 14, paddingLeft: 4 },
 });
 
@@ -77,8 +77,8 @@ function DataRow({ label, value, accent }: { label: string; value: string; accen
 
 const drStyles = StyleSheet.create({
   row:   { gap: 4 },
-  label: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
-  value: { fontSize: 15, fontFamily: "Nunito_400Regular", lineHeight: 23, color: "#374151" },
+  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23, color: "#374151" },
 });
 
 function QuoteBlock({ text, accent }: { text: string; accent: string }) {
@@ -92,7 +92,7 @@ function QuoteBlock({ text, accent }: { text: string; accent: string }) {
 
 const qbStyles = StyleSheet.create({
   wrap: { borderRadius: 14, borderWidth: 1, padding: 16 },
-  text: { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 24, fontStyle: "italic" },
+  text: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 24, fontStyle: "italic" },
 });
 
 export default function ProfileDetailScreen() {
@@ -153,7 +153,7 @@ export default function ProfileDetailScreen() {
               ].map((s) => (
                 <View key={s.label} style={[styles.signPill, { borderColor: s.color + "40", backgroundColor: s.color + "10" }]}>
                   <Text style={[styles.signIcon, { color: s.color }]}>{s.icon}</Text>
-                  <Text style={[styles.signVal,  { color: s.color }]}>{s.val}</Text>
+                  <Text style={[styles.signVal,  { color: s.color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{s.val}</Text>
                   <Text style={styles.signLabel}>{s.label}</Text>
                 </View>
               ))}
@@ -212,7 +212,7 @@ export default function ProfileDetailScreen() {
 const styles = StyleSheet.create({
   header:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
   backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
-  headerTitle:     { flex: 1, fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827", textAlign: "center" },
+  headerTitle:     { flex: 1, fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", textAlign: "center" },
   headerSpacer:    { width: 40 },
   scroll:          { paddingHorizontal: 20, gap: 24 },
 
@@ -223,9 +223,9 @@ const styles = StyleSheet.create({
   signsRow:        { flexDirection: "row", gap: 8 },
   signPill:        { flex: 1, borderRadius: 14, borderWidth: 1, padding: 12, alignItems: "center", gap: 4 },
   signIcon:        { fontSize: 18 },
-  signVal:         { fontSize: 14, fontFamily: "Nunito_700Bold" },
-  signLabel:       { fontSize: 10, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  signVal:         { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold" },
+  signLabel:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
   nakRow:          { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   nakChip:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
-  nakText:         { fontSize: 12, fontFamily: "Nunito_500Medium" },
+  nakText:         { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium" },
 });

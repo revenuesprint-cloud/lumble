@@ -151,6 +151,7 @@ export default function FeaturesScreen() {
     <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[styles.scroll, {
           paddingTop: insets.top + (Platform.OS === "web" ? 67 : 20),
           paddingBottom: insets.bottom + 100,
@@ -160,18 +161,25 @@ export default function FeaturesScreen() {
         <Text style={styles.subtitle}>
           10 things worth knowing about {user.name} & {partner.name}
         </Text>
-        <View style={styles.grid}>
-          {features.map((feature, i) => (
-            <View key={feature.key} style={styles.gridItem}>
-              <FeatureCard
-                feature={feature}
-                index={i}
-                isPremium={isPremium}
-                onPress={() => handleFeaturePress(feature)}
-              />
+        {/* Pair features into rows of 2 so both cards in a row are equal height */}
+        {Array.from({ length: Math.ceil(features.length / 2) }, (_, rowIdx) => {
+          const left  = features[rowIdx * 2];
+          const right = features[rowIdx * 2 + 1];
+          return (
+            <View key={rowIdx} style={styles.gridRow}>
+              <View style={styles.gridItem}>
+                <FeatureCard feature={left} index={rowIdx * 2} isPremium={isPremium} onPress={() => handleFeaturePress(left)} />
+              </View>
+              {right ? (
+                <View style={styles.gridItem}>
+                  <FeatureCard feature={right} index={rowIdx * 2 + 1} isPremium={isPremium} onPress={() => handleFeaturePress(right)} />
+                </View>
+              ) : (
+                <View style={styles.gridItem} />
+              )}
             </View>
-          ))}
-        </View>
+          );
+        })}
       </ScrollView>
       <PremiumGate visible={showGate} onClose={() => setShowGate(false)} featureName={gateFeature} />
     </View>
@@ -181,27 +189,29 @@ export default function FeaturesScreen() {
 const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 16, gap: 16 },
   title: {
-    fontSize: 28, fontFamily: "Nunito_700Bold", color: "#111827", paddingHorizontal: 4,
+    fontSize: 28, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", paddingHorizontal: 4,
   },
   subtitle: {
-    fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280", paddingHorizontal: 4, marginTop: -8,
+    fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", paddingHorizontal: 4, marginTop: -8,
   },
-  grid:     { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  gridItem: { width: "47.5%" },
+  gridRow:  { flexDirection: "row", gap: 12 },
+  gridItem: { flex: 1 },
   card: {
-    backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
-    padding: 13, gap: 8,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    flex: 1,
+    backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB",
+    padding: 16, gap: 10,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 3,
+    justifyContent: "space-between",
   },
   cardTop:      { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   iconCircle:   { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center" },
   lockBadge:    { flexDirection: "row", alignItems: "center", gap: 3, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" },
-  lockBadgeText:{ fontSize: 9, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
-  cardTitle:    { fontSize: 13, fontFamily: "Nunito_700Bold", color: "#111827", lineHeight: 18 },
+  lockBadgeText:{ fontSize: 9, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  cardTitle:    { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 18 },
   intensityChip:{ alignSelf: "flex-start", borderWidth: 1, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
-  intensityText:{ fontSize: 10, fontFamily: "Nunito_600SemiBold" },
-  cardPreview:  { fontSize: 11, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 16, flex: 1 },
-  lockedText:   { fontSize: 11, fontFamily: "Nunito_400Regular", color: "#9CA3AF", lineHeight: 16, flex: 1 },
+  intensityText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
+  cardPreview:  { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 16, flex: 1 },
+  lockedText:   { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", lineHeight: 16, flex: 1 },
   ctaBtn:       { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, borderWidth: 1, alignSelf: "flex-start", marginTop: 2 },
-  ctaBtnText:   { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
+  ctaBtnText:   { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
 });

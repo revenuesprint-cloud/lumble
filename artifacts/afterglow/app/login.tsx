@@ -142,6 +142,7 @@ export default function LoginScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 36, paddingBottom: insets.bottom + 40 }]}
+          style={Platform.OS === "web" ? { maxWidth: 480, alignSelf: "center", width: "100%" } : undefined}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -289,8 +290,8 @@ const styles = StyleSheet.create({
     shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3,
   },
   logo:    { width: "100%", height: "100%" },
-  appName: { fontSize: 28, fontFamily: "Nunito_700Bold", color: "#111827", letterSpacing: -0.5 },
-  tagline: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280" },
+  appName: { fontSize: 28, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", letterSpacing: -0.5 },
+  tagline: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
 
   // Toggle
   toggle: {
@@ -300,14 +301,14 @@ const styles = StyleSheet.create({
   },
   toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center" },
   toggleBtnActive: { backgroundColor: "#5B4CE8" },
-  toggleText:      { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#9CA3AF" },
+  toggleText:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
   toggleTextActive:{ color: "#FFFFFF" },
 
   // Form
   form:       { gap: 14 },
   fieldGroup: { gap: 7 },
   fieldLabel: {
-    fontSize: 13, fontFamily: "Nunito_600SemiBold", color: "#374151",
+    fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#374151",
   },
   fieldRow: {
     flexDirection: "row", alignItems: "center",
@@ -317,7 +318,7 @@ const styles = StyleSheet.create({
   icon:    { flexShrink: 0 },
   input: {
     flex: 1, paddingVertical: 15, fontSize: 15,
-    fontFamily: "Nunito_400Regular", color: "#111827",
+    fontFamily: "PlusJakartaSans_400Regular", color: "#111827",
   },
   eyeBtn: { padding: 4 },
 
@@ -326,12 +327,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF1F2", borderRadius: 10, padding: 12,
     borderWidth: 1, borderColor: "#FECDD3",
   },
-  errorText: { flex: 1, fontSize: 13, fontFamily: "Nunito_400Regular", color: "#F43F5E" },
+  errorText: { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#F43F5E" },
 
   submitBtn:      { borderRadius: 16, overflow: "hidden" },
   submitGradient: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
     gap: 10, paddingVertical: 17,
   },
-  submitText: { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
+  submitText: { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
 });

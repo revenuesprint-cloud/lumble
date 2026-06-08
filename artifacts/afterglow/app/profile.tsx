@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import type { RelationshipType } from "@/context/AppContext";
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -139,19 +140,19 @@ const pwStyles = StyleSheet.create({
   backdrop:     { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.4)" },
   sheet:        { backgroundColor: "#FFFFFF", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 14, borderTopWidth: 1, borderColor: "#E5E7EB" },
   handle:       { width: 36, height: 4, borderRadius: 2, backgroundColor: "#D1D5DB", alignSelf: "center", marginBottom: 6 },
-  title:        { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827" },
-  sub:          { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 20 },
-  input:        { backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, fontFamily: "Nunito_400Regular", color: "#111827" },
-  error:        { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#F43F5E" },
+  title:        { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  sub:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 20 },
+  input:        { backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#111827" },
+  error:        { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#F43F5E" },
   saveBtn:      { borderRadius: 14, overflow: "hidden" },
   saveBtnGrad:  { alignItems: "center", justifyContent: "center", paddingVertical: 16 },
-  saveBtnText:  { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
+  saveBtnText:  { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
   accountRow:   { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#ECFDF5", borderRadius: 12, padding: 14, borderWidth: 1, borderColor: "#A7F3D0" },
   accountIcon:  { width: 36, height: 36, borderRadius: 18, backgroundColor: "#D1FAE5", alignItems: "center", justifyContent: "center" },
-  accountLabel: { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
-  accountEmail: { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#111827", marginTop: 2 },
+  accountLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  accountEmail: { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#111827", marginTop: 2 },
   successRow:   { flexDirection: "row", alignItems: "center", gap: 10, justifyContent: "center", paddingVertical: 20 },
-  successText:  { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#10B981" },
+  successText:  { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
 });
 
 // ─── Edit Profile Modal ────────────────────────────────────────────────────────
@@ -238,20 +239,20 @@ const editStyles = StyleSheet.create({
   sheet:            { backgroundColor: "#FFFFFF", borderTopLeftRadius: 24, borderTopRightRadius: 24, borderTopWidth: 1, borderColor: "#E5E7EB", maxHeight: "92%" },
   sheetContent:     { padding: 24, paddingBottom: 48, gap: 12 },
   handle:           { width: 36, height: 4, borderRadius: 2, backgroundColor: "#D1D5DB", alignSelf: "center", marginBottom: 8 },
-  title:            { fontSize: 20, fontFamily: "Nunito_700Bold", color: "#111827", marginBottom: 4 },
-  sectionLabel:     { fontSize: 11, fontFamily: "Nunito_700Bold", color: "#9CA3AF", letterSpacing: 0.8, textTransform: "uppercase" },
-  input:            { backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, fontFamily: "Nunito_400Regular", color: "#111827" },
+  title:            { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", marginBottom: 4 },
+  sectionLabel:     { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#9CA3AF", letterSpacing: 0.8, textTransform: "uppercase" },
+  input:            { backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#111827" },
   relRow:           { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   relChip:          { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#FFFFFF" },
   relChipActive:    { borderColor: "#C7D2FE", backgroundColor: "#EEF2FF" },
-  relChipText:      { fontSize: 14, fontFamily: "Nunito_500Medium", color: "#6B7280" },
-  relChipTextActive:{ color: "#5B4CE8", fontFamily: "Nunito_600SemiBold" },
-  error:            { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#F43F5E" },
+  relChipText:      { fontSize: 14, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
+  relChipTextActive:{ color: "#5B4CE8", fontFamily: "PlusJakartaSans_600SemiBold" },
+  error:            { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#F43F5E" },
   saveBtn:          { borderRadius: 14, overflow: "hidden", marginTop: 4 },
   saveGrad:         { alignItems: "center", justifyContent: "center", paddingVertical: 16 },
-  saveBtnText:      { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff" },
+  saveBtnText:      { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
   cancelBtn:        { alignItems: "center", padding: 8 },
-  cancelText:       { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  cancelText:       { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
 });
 
 // ─── Profile Screen ────────────────────────────────────────────────────────────
@@ -325,6 +326,7 @@ export default function ProfileScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
       >
         {/* Avatar */}
@@ -435,53 +437,53 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   header:            { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingBottom: 12, backgroundColor: "#F4F5F7" },
   backBtn:           { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
-  headerTitle:       { fontSize: 19, fontFamily: "Nunito_700Bold", color: "#111827" },
+  headerTitle:       { fontSize: 19, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
   scroll:            { paddingHorizontal: 20, gap: 18, paddingTop: 8 },
 
   avatarSection:     { alignItems: "center", gap: 10, paddingVertical: 16 },
   avatar:            { width: 80, height: 80, borderRadius: 40, alignItems: "center", justifyContent: "center" },
-  avatarInitial:     { fontSize: 36, fontFamily: "Nunito_700Bold", color: "#fff" },
-  userName:          { fontSize: 26, fontFamily: "Nunito_700Bold", color: "#111827" },
+  avatarInitial:     { fontSize: 36, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+  userName:          { fontSize: 26, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
   premiumBadge:      { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 5 },
-  premiumBadgeText:  { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8" },
+  premiumBadgeText:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
   freeBadge:         { backgroundColor: "#F9FAFB", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 5 },
-  freeBadgeText:     { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  freeBadgeText:     { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
 
   section:           { gap: 8 },
-  sectionTitle:      { fontSize: 11, fontFamily: "Nunito_700Bold", color: "#9CA3AF", letterSpacing: 0.8, textTransform: "uppercase", paddingHorizontal: 4 },
+  sectionTitle:      { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#9CA3AF", letterSpacing: 0.8, textTransform: "uppercase", paddingHorizontal: 4 },
   sectionCard:       { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E5E7EB", overflow: "hidden",
                        shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 1 },
   infoRow:           { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 18, paddingVertical: 14 },
-  infoLabel:         { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#6B7280" },
-  infoValue:         { fontSize: 15, fontFamily: "Nunito_500Medium", color: "#111827" },
+  infoLabel:         { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
+  infoValue:         { fontSize: 15, fontFamily: "PlusJakartaSans_500Medium", color: "#111827" },
   separator:         { height: 1, backgroundColor: "#F3F4F6", marginHorizontal: 18 },
   editRow:           { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 18, paddingVertical: 13 },
-  editRowText:       { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8" },
+  editRowText:       { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
 
   partnerRow:        { flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 18, paddingVertical: 14 },
   partnerAvatar:     { width: 42, height: 42, borderRadius: 21, backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", alignItems: "center", justifyContent: "center" },
-  partnerInitial:    { fontSize: 18, fontFamily: "Nunito_700Bold", color: "#5B4CE8" },
-  partnerName:       { fontSize: 17, fontFamily: "Nunito_600SemiBold", color: "#111827" },
-  partnerType:       { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  partnerInitial:    { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#5B4CE8" },
+  partnerName:       { fontSize: 17, fontFamily: "PlusJakartaSans_600SemiBold", color: "#111827" },
+  partnerType:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
 
   upgradeCard:       { borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: "#C7D2FE" },
   upgradeCardInner:  { flexDirection: "row", alignItems: "center", padding: 18, gap: 12, backgroundColor: "#EEF2FF" },
-  upgradeTitle:      { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#111827" },
-  upgradeSub:        { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280" },
-  upgradePrice:      { fontSize: 17, fontFamily: "Nunito_700Bold", color: "#5B4CE8" },
+  upgradeTitle:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  upgradeSub:        { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
+  upgradePrice:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#5B4CE8" },
 
   premiumActiveCard: { flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 18, paddingVertical: 16 },
   premiumActiveIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#ECFDF5", alignItems: "center", justifyContent: "center" },
-  premiumActiveTitle:{ fontSize: 15, fontFamily: "Nunito_700Bold", color: "#111827" },
-  premiumActiveSub:  { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  premiumActiveTitle:{ fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  premiumActiveSub:  { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
 
   actionRow:         { flexDirection: "row", alignItems: "center", gap: 14, paddingHorizontal: 18, paddingVertical: 14 },
   actionIcon:        { width: 34, height: 34, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  actionLabel:       { fontSize: 15, fontFamily: "Nunito_500Medium", color: "#111827" },
-  actionSublabel:    { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 2 },
+  actionLabel:       { fontSize: 15, fontFamily: "PlusJakartaSans_500Medium", color: "#111827" },
+  actionSublabel:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
 
   signOutBtn:        { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: "#FFF1F2", borderRadius: 16, borderWidth: 1, borderColor: "#FECDD3", paddingVertical: 15 },
-  signOutText:       { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#F43F5E" },
+  signOutText:       { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#F43F5E" },
   appInfo:           { alignItems: "center", gap: 4, paddingVertical: 8 },
-  appInfoText:       { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  appInfoText:       { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
 });

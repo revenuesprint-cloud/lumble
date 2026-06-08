@@ -2,11 +2,14 @@ import { useApp } from "@/context/AppContext";
 import { getAstrologyReading } from "@/utils/astrology";
 import { getAllViralFeatures } from "@/utils/compatibility";
 import { getPersonalizedFeatureText } from "@/utils/personalization";
+import { SCREEN_W } from "@/constants/layout";
 import { Feather } from "@expo/vector-icons";
+
+const RING_SIZE = Math.min(160, Math.round(SCREEN_W * 0.42));
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef } from "react";
-import { Animated, Easing, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, Easing, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const CARD_COLORS: Record<string, string> = {
@@ -49,7 +52,7 @@ function ScoreRing({ score, color, colorBg }: { score: number; color: string; co
   return (
     <Animated.View style={{ opacity: opacityAnim, transform: [{ scale: scaleAnim }], alignItems: "center" }}>
       <View style={[styles.ring, { borderColor: color + "40", backgroundColor: colorBg }]}>
-        <Text style={[styles.ringScore, { color }]}>{score}</Text>
+        <Text style={[styles.ringScore, { color }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.6}>{score}</Text>
         <Text style={styles.ringLabel}>out of 100</Text>
       </View>
     </Animated.View>
@@ -132,6 +135,7 @@ export default function FeatureDetail() {
 
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
         showsVerticalScrollIndicator={false}
       >
         <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], gap: 24 }}>
@@ -181,29 +185,29 @@ const styles = StyleSheet.create({
   scroll:       { paddingHorizontal: 20, paddingTop: 8 },
   titleSection: { alignItems: "center", gap: 12 },
   iconCircle:   { width: 72, height: 72, borderRadius: 36, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
-  featureTitle: { fontSize: 30, fontFamily: "Nunito_700Bold", color: "#111827", textAlign: "center" },
-  featureSub:   { fontSize: 15, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  featureTitle: { fontSize: 30, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", textAlign: "center" },
+  featureSub:   { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
 
-  ring:         { width: 160, height: 160, borderRadius: 80, borderWidth: 2, alignItems: "center", justifyContent: "center", alignSelf: "center",
+  ring:         { width: RING_SIZE, height: RING_SIZE, borderRadius: RING_SIZE / 2, borderWidth: 2, alignItems: "center", justifyContent: "center", alignSelf: "center",
                   shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
-  ringScore:    { fontSize: 54, fontFamily: "Nunito_700Bold" },
-  ringLabel:    { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  ringScore:    { fontSize: 54, fontFamily: "PlusJakartaSans_800ExtraBold" },
+  ringLabel:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
 
   resultCard:    { borderRadius: 20, borderWidth: 1, backgroundColor: "#FFFFFF", flexDirection: "row", overflow: "hidden",
                    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
   resultAccent:  { width: 4 },
   resultContent: { flex: 1, padding: 22 },
-  resultText:    { fontSize: 17, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 28 },
+  resultText:    { fontSize: 17, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 28 },
 
   shareCard:     { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
                    padding: 16, flexDirection: "row", alignItems: "center", gap: 12 },
-  shareCardTitle:{ fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#374151" },
-  shareCardSub:  { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF", marginTop: 1 },
+  shareCardTitle:{ fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#374151" },
+  shareCardSub:  { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 1 },
 
-  contextNote:   { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 18, paddingHorizontal: 20 },
+  contextNote:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 18, paddingHorizontal: 20 },
 
   errorState:    { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, paddingHorizontal: 40 },
   errorIconWrap: { width: 72, height: 72, borderRadius: 36, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "center" },
-  errorTitle:    { fontSize: 22, fontFamily: "Nunito_700Bold", color: "#111827", textAlign: "center" },
-  errorSub:      { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 22 },
+  errorTitle:    { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", textAlign: "center" },
+  errorSub:      { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 22 },
 });

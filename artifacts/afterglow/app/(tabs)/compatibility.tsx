@@ -2,6 +2,9 @@ import { AnimatedBar } from "@/components/AnimatedBar";
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/context/AppContext";
 import { getAstrologyReading, RASHIS } from "@/utils/astrology";
+import { SCREEN_W } from "@/constants/layout";
+
+const ORB_SIZE = Math.min(150, Math.round(SCREEN_W * 0.40));
 import { calculateCompatibility, CompatibilitySection } from "@/utils/compatibility";
 import { getCompatibilityTexts } from "@/utils/personalization";
 import { getContentBundle, applyVars } from "@/utils/dbContent";
@@ -53,7 +56,7 @@ function OverallScore({ score }: { score: number }) {
   return (
     <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }] }}>
       <View style={[styles.scoreOrb, { backgroundColor: colorBg, borderColor: color + "30" }]}>
-        <Text style={[styles.scoreNumber, { color }]}>{displayPct}<Text style={styles.scoreMax}>%</Text></Text>
+        <Text style={[styles.scoreNumber, { color }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.6}>{displayPct}<Text style={styles.scoreMax}>%</Text></Text>
         <Text style={styles.scoreLabel}>compatibility</Text>
         <View style={[styles.scoreVerdictPill, { backgroundColor: color + "18", borderColor: color + "44" }]}>
           <Text style={[styles.scoreVerdict, { color }]}>{verdict}</Text>
@@ -121,14 +124,14 @@ const sdStyles = StyleSheet.create({
                     borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
   dot:            { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   dotCore:        { width: 10, height: 10, borderRadius: 5 },
-  headerTitle:    { flex: 1, fontSize: 18, fontFamily: "Nunito_700Bold", color: "#111827" },
+  headerTitle:    { flex: 1, fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
   scoreBadge:     { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
-  scoreBadgeText: { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
+  scoreBadgeText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
   scroll:         { paddingHorizontal: 24, paddingTop: 28, gap: 24 },
   divider:        { height: 1, backgroundColor: "#F3F4F6" },
-  fullText:       { fontSize: 18, fontFamily: "Nunito_400Regular", color: "#374151", lineHeight: 30 },
+  fullText:       { fontSize: 18, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 30 },
   closeBtn:       { alignItems: "center", paddingVertical: 16, backgroundColor: "#F9FAFB", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB" },
-  closeBtnText:   { fontSize: 15, fontFamily: "Nunito_600SemiBold", color: "#6B7280" },
+  closeBtnText:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#6B7280" },
 });
 
 // ─── Section card ─────────────────────────────────────────────────────────────
@@ -159,13 +162,12 @@ function SectionCard({
         activeOpacity={0.82}
       >
         <View style={styles.sectionCard}>
-          <View style={[styles.sectionAccentBar, { backgroundColor: section.color }]} />
           <View style={styles.sectionContent}>
             <View style={styles.sectionHeader}>
               <View style={[styles.sectionIconCircle, { backgroundColor: section.color + "14" }]}>
                 <View style={[styles.sectionDotCore, { backgroundColor: section.color }]} />
               </View>
-              <Text style={styles.sectionLabel}>{section.label}</Text>
+              <Text style={styles.sectionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{section.label}</Text>
               <View style={[styles.scoreLabelChip, { backgroundColor: lbl.bg, borderColor: lbl.color + "44" }]}>
                 <Text style={[styles.scoreLabelText, { color: lbl.color }]}>{lbl.text}</Text>
               </View>
@@ -315,48 +317,46 @@ export default function CompatibilityScreen() {
 
 const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, gap: 16 },
-  screenTitle: { fontSize: 24, fontFamily: "Nunito_700Bold", color: "#111827" },
-  screenSub:   { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", marginTop: -2 },
+  screenTitle: { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  screenSub:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", marginTop: -2 },
 
   scoreOrb: {
-    width: 150, height: 150, borderRadius: 75,
+    width: ORB_SIZE, height: ORB_SIZE, borderRadius: ORB_SIZE / 2,
     alignItems: "center", justifyContent: "center", alignSelf: "center",
     borderWidth: 2, gap: 3,
   },
-  scoreNumber:     { fontSize: 46, fontFamily: "Nunito_700Bold" },
-  scoreMax:        { fontSize: 22, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
-  scoreLabel:      { fontSize: 11, fontFamily: "Nunito_500Medium", color: "#6B7280" },
+  scoreNumber:     { fontSize: 46, fontFamily: "PlusJakartaSans_800ExtraBold" },
+  scoreMax:        { fontSize: 22, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  scoreLabel:      { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
   scoreVerdictPill:{ borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3, marginTop: 2 },
-  scoreVerdict:    { fontSize: 12, fontFamily: "Nunito_700Bold" },
-  scoreHint:       { fontSize: 10, fontFamily: "Nunito_400Regular", color: "#9CA3AF", textAlign: "center", marginTop: 1 },
+  scoreVerdict:    { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold" },
+  scoreHint:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", marginTop: 1 },
 
   tagRow:  { flexDirection: "row", gap: 6, justifyContent: "center" },
   tag:     { borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#F9FAFB", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
-  tagText: { fontSize: 12, fontFamily: "Nunito_600SemiBold", color: "#6B7280", textTransform: "capitalize" },
+  tagText: { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#6B7280", textTransform: "capitalize" },
 
   sectionsContainer: { gap: 8 },
   sectionCard:       { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
-                       flexDirection: "row", overflow: "hidden",
                        shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
-  sectionAccentBar:  { width: 3 },
-  sectionContent:    { flex: 1, padding: 13, gap: 9 },
+  sectionContent:    { padding: 13, gap: 9 },
   sectionHeader:     { flexDirection: "row", alignItems: "center", gap: 8 },
   sectionIconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   sectionDotCore:    { width: 8, height: 8, borderRadius: 4 },
-  sectionLabel:      { flex: 1, fontSize: 13, fontFamily: "Nunito_700Bold", color: "#111827" },
+  sectionLabel:      { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
   scoreLabelChip:    { borderWidth: 1, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
-  scoreLabelText:    { fontSize: 10, fontFamily: "Nunito_600SemiBold" },
+  scoreLabelText:    { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
   sectionFooter:     { flexDirection: "row", justifyContent: "flex-end" },
   sectionCtaBtn:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1, backgroundColor: "transparent" },
-  sectionCtaBtnText: { fontSize: 11, fontFamily: "Nunito_600SemiBold" },
-  sectionText:       { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 18 },
+  sectionCtaBtnText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
+  sectionText:       { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 18 },
   lockedOverlay:     { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#F9FAFB", borderRadius: 10, padding: 12 },
-  lockedText:        { fontSize: 13, fontFamily: "Nunito_500Medium", color: "#9CA3AF" },
+  lockedText:        { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
 
   upgradeTeaser:      { borderRadius: 20, overflow: "hidden", borderWidth: 1, borderColor: "#C7D2FE",
                         backgroundColor: "#FFFFFF", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
   upgradeTeaserInner: { padding: 20, gap: 8 },
   upgradeIconRow:     { flexDirection: "row", alignItems: "center", gap: 8 },
-  upgradeTeaserTitle: { fontSize: 18, fontFamily: "Nunito_700Bold", color: "#111827" },
-  upgradeTeaserSub:   { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#6B7280" },
+  upgradeTeaserTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  upgradeTeaserSub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
 });

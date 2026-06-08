@@ -8,6 +8,7 @@ import {
   Animated,
   Easing,
   Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -73,7 +74,7 @@ export default function WelcomeScreen() {
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
       />
 
-      <View style={[styles.container, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 28 }]}>
+      <View style={[styles.container, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 28, maxWidth: Platform.OS === "web" ? 480 : undefined, alignSelf: Platform.OS === "web" ? "center" : undefined, width: Platform.OS === "web" ? "100%" : undefined }]}>
 
         {/* Brand */}
         <Animated.View style={[styles.brand, { opacity: fadeAnim, transform: [{ scale: logoScale }] }]}>
@@ -163,18 +164,18 @@ const styles = StyleSheet.create({
   },
   logo:    { width: "100%", height: "100%" },
   appName: {
-    fontSize: 13, fontFamily: "Nunito_700Bold",
+    fontSize: 13, fontFamily: "PlusJakartaSans_700Bold",
     color: "#9CA3AF", letterSpacing: 4, textTransform: "uppercase",
   },
 
   // Headline
   headlineBlock: { gap: 12 },
   headline: {
-    fontSize: 32, fontFamily: "Nunito_700Bold",
+    fontSize: 32, fontFamily: "PlusJakartaSans_700Bold",
     color: "#111827", lineHeight: 41, letterSpacing: -0.3,
   },
   subline: {
-    fontSize: 15, fontFamily: "Nunito_400Regular",
+    fontSize: 15, fontFamily: "PlusJakartaSans_400Regular",
     color: "#6B7280", lineHeight: 23,
   },
 
@@ -186,8 +187,8 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center", flexShrink: 0,
   },
   featureText:  { flex: 1, gap: 2 },
-  featureTitle: { fontSize: 15, fontFamily: "Nunito_700Bold", color: "#111827" },
-  featureSub:   { fontSize: 13, fontFamily: "Nunito_400Regular", color: "#6B7280", lineHeight: 19 },
+  featureTitle: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  featureSub:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 19 },
 
   // CTA
   cta:          { gap: 12 },
@@ -196,15 +197,15 @@ const styles = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "center",
     paddingVertical: 17, gap: 9,
   },
-  primaryBtnText: { fontSize: 16, fontFamily: "Nunito_700Bold", color: "#fff", letterSpacing: 0.2 },
+  primaryBtnText: { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff", letterSpacing: 0.2 },
 
   trustRow: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
   },
-  trustText: { fontSize: 12, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
+  trustText: { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
   trustDot:  { width: 3, height: 3, borderRadius: 2, backgroundColor: "#D1D5DB" },
 
   signInRow:  { flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 2 },
-  signInText: { fontSize: 14, fontFamily: "Nunito_400Regular", color: "#9CA3AF" },
-  signInLink: { fontSize: 14, fontFamily: "Nunito_600SemiBold", color: "#5B4CE8" },
+  signInText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  signInLink: { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
 });
