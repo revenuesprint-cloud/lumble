@@ -6,6 +6,18 @@ import { requireAuth } from "../lib/auth";
 const router = Router();
 type AuthReq = Parameters<typeof requireAuth>[0] & { userId: string };
 
+// DELETE /api/me — permanently deletes the authenticated user and all their data
+router.delete("/", requireAuth, async (req, res) => {
+  const userId = (req as AuthReq).userId;
+  try {
+    await db.delete(usersTable).where(eq(usersTable.id, userId));
+    return res.json({ message: "Account deleted." });
+  } catch (err) {
+    console.error("delete me error:", err);
+    return res.status(500).json({ error: "Something went wrong. Please try again." });
+  }
+});
+
 // GET /api/me — returns current user + profile from token
 router.get("/", requireAuth, async (req, res) => {
   const userId = (req as AuthReq).userId;
