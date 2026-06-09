@@ -61,7 +61,7 @@ function Section({ title, accent, children }: { title: string; accent: string; c
 const secStyles = StyleSheet.create({
   section:  { gap: 14 },
   titleRow: { borderLeftWidth: 3, paddingLeft: 12 },
-  title:    { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  title:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
   content:  { gap: 14, paddingLeft: 4 },
 });
 
@@ -77,7 +77,7 @@ function DataRow({ label, value, accent }: { label: string; value: string; accen
 
 const drStyles = StyleSheet.create({
   row:   { gap: 4 },
-  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
   value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23, color: "#374151" },
 });
 
@@ -123,14 +123,14 @@ export default function ProfileDetailScreen() {
   const accent = rashi.color;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7}
           style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="#6B7280" />
+          <Feather name="arrow-left" size={20} color="#64748B" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{name}</Text>
         <View style={styles.headerSpacer} />
@@ -210,9 +210,9 @@ export default function ProfileDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
-  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
-  headerTitle:     { flex: 1, fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", textAlign: "center" },
+  header:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F7F5F0" },
+  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
+  headerTitle:     { flex: 1, fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", textAlign: "center" },
   headerSpacer:    { width: 40 },
   scroll:          { paddingHorizontal: 20, gap: 24 },
 
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   signPill:        { flex: 1, borderRadius: 14, borderWidth: 1, padding: 12, alignItems: "center", gap: 4 },
   signIcon:        { fontSize: 18 },
   signVal:         { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold" },
-  signLabel:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  signLabel:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
   nakRow:          { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   nakChip:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
   nakText:         { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium" },

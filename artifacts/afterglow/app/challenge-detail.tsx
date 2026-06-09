@@ -5,7 +5,6 @@ import type { Challenge, ChallengeSolution } from "@/utils/challenges";
 import { getLocalStates, saveChallengeState, removeChallengeState } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -33,7 +32,7 @@ const SEVERITY_MEANING: Record<string, string> = {
 
 const SOLUTION_TYPE_META: Record<ChallengeSolution["type"], { icon: string; label: string; color: string; bg: string }> = {
   practical:     { icon: "tool",           label: "Practical",       color: "#10B981", bg: "#ECFDF5" },
-  communication: { icon: "message-circle", label: "Communication",   color: "#5B4CE8", bg: "#EEF2FF" },
+  communication: { icon: "message-circle", label: "Communication",   color: "#4A3DE8", bg: "#EEF2FF" },
   spiritual:     { icon: "sun",            label: "Spiritual",       color: "#F59E0B", bg: "#FFFBEB" },
   ritual:        { icon: "moon",           label: "Mindful Practice",color: "#8B5CF6", bg: "#F5F3FF" },
   professional:  { icon: "briefcase",      label: "Professional",    color: "#F43F5E", bg: "#FFF1F2" },
@@ -59,7 +58,7 @@ function AcknowledgeBanner({
         <Feather name={meta.icon as any} size={16} color={meta.color} />
         <Text style={[styles.stateBannerText, { color: meta.color }]}>{meta.label}</Text>
         <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onRemove(); }} style={styles.stateClear}>
-          <Feather name="x" size={14} color="#9CA3AF" />
+          <Feather name="x" size={14} color="#94A3B8" />
         </TouchableOpacity>
       </View>
     );
@@ -75,10 +74,10 @@ function AcknowledgeBanner({
           onPress={() => onSelect("resonates")}
           activeOpacity={0.8}
         >
-          <LinearGradient colors={["#5B4CE8", "#8B5CF6"]} style={styles.acknowledgeBtnGrad}>
+          <View style={styles.acknowledgeBtnGrad}>
             <Feather name="heart" size={14} color="#fff" />
             <Text style={styles.acknowledgeBtnTextPrimary}>Yes, this is me</Text>
-          </LinearGradient>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.acknowledgeBtnSecondary}
@@ -102,7 +101,7 @@ function SolutionCard({
   const meta   = SOLUTION_TYPE_META[solution.type];
   const locked = solution.isPremium && !isPremium;
 
-  const borderColor = tried ? meta.color + "60" : "#E5E7EB";
+  const borderColor = tried ? meta.color + "60" : "#E2E8F0";
 
   return (
     <View style={[styles.solutionCard, { borderColor }]}>
@@ -125,11 +124,11 @@ function SolutionCard({
           )}
         </View>
 
-        <Text style={styles.solutionTitle}>{solution.title}</Text>
+        <Text style={styles.solutionTitle} numberOfLines={2}>{solution.title}</Text>
 
         {locked ? (
           <TouchableOpacity style={styles.unlockRow} onPress={onUnlockPress} activeOpacity={0.8}>
-            <Feather name="lock" size={13} color="#9CA3AF" />
+            <Feather name="lock" size={13} color="#94A3B8" />
             <Text style={styles.unlockText}>Unlock with Premium to see this step</Text>
           </TouchableOpacity>
         ) : (
@@ -178,18 +177,18 @@ export default function ChallengeDetailScreen() {
 
   if (!challenge) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+      <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 10 }}>
           <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={[styles.backBtn, { position: "absolute", top: insets.top + 12, left: 20 }]}>
-            <Feather name="arrow-left" size={22} color="#6B7280" />
+            <Feather name="arrow-left" size={22} color="#64748B" />
           </TouchableOpacity>
-          <Text style={{ color: "#9CA3AF", fontFamily: "PlusJakartaSans_400Regular", fontSize: 15 }}>Challenge not found.</Text>
+          <Text style={{ color: "#94A3B8", fontFamily: "PlusJakartaSans_400Regular", fontSize: 15 }}>Challenge not found.</Text>
         </View>
       </View>
     );
   }
 
-  const severityColor   = SEVERITY_COLOR[challenge.severity] ?? "#5B4CE8";
+  const severityColor   = SEVERITY_COLOR[challenge.severity] ?? "#4A3DE8";
   const severityBg      = SEVERITY_BG[challenge.severity]    ?? "#EEF2FF";
   const solutions       = (challenge.solutions ?? []) as ChallengeSolution[];
   const isAcknowledged  = !!challengeState;
@@ -213,24 +212,25 @@ export default function ChallengeDetailScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
-        contentContainerStyle={[
-          styles.scroll,
-          { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16), paddingBottom: insets.bottom + 100 },
-        ]}
-      >
-        {/* Inline back button — part of scroll flow, never overlaps content */}
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+      {/* Fixed header — always reachable */}
+      <View style={[styles.fixedHeader, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 12) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           style={styles.backBtn}
           activeOpacity={0.7}
         >
-          <Feather name="arrow-left" size={22} color="#6B7280" />
+          <Feather name="arrow-left" size={20} color="#64748B" />
         </TouchableOpacity>
+        <Text style={styles.fixedHeaderTitle} numberOfLines={1}>{challenge.title}</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
+        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
+      >
         {/* Hero card */}
         <View style={[styles.heroCard, { borderColor: severityColor + "30" }]}>
           <View style={[styles.heroAccent, { backgroundColor: severityColor }]} />
@@ -247,10 +247,10 @@ export default function ChallengeDetailScreen() {
             <Text style={[styles.severityMeaning, { color: severityColor }]}>
               {SEVERITY_MEANING[challenge.severity] ?? ""}
             </Text>
-            <Text style={styles.heroTitle}>{challenge.title}</Text>
+            <Text style={styles.heroTitle} numberOfLines={2}>{challenge.title}</Text>
             <Text style={styles.heroDesc}>{challenge.description}</Text>
             <View style={styles.matchRow}>
-              <Feather name="target" size={12} color="#5B4CE8" />
+              <Feather name="target" size={12} color="#4A3DE8" />
               <Text style={styles.matchText}>
                 Matched {challenge.match_score ?? "?"} compatibility indicator{challenge.match_score !== 1 ? "s" : ""} in your profile
               </Text>
@@ -271,7 +271,7 @@ export default function ChallengeDetailScreen() {
 
         {!isAcknowledged && (
           <View style={styles.solutionsHint}>
-            <Feather name="info" size={12} color="#5B4CE8" />
+            <Feather name="info" size={12} color="#4A3DE8" />
             <Text style={styles.solutionsHintText}>Tap "Yes, this is me" above to start tracking which steps you're trying.</Text>
           </View>
         )}
@@ -315,7 +315,7 @@ export default function ChallengeDetailScreen() {
         )}
 
         <View style={styles.noteCard}>
-          <Feather name="info" size={13} color="#5B4CE8" style={{ marginTop: 1 }} />
+          <Feather name="info" size={13} color="#4A3DE8" style={{ marginTop: 1 }} />
           <Text style={styles.noteText}>
             These patterns are identified from your personality profiles and compatibility data. They're here to support your self-awareness — not replace professional help when you need it.
           </Text>
@@ -328,8 +328,10 @@ export default function ChallengeDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  scroll:         { paddingHorizontal: 20, gap: 14 },
-  backBtn:        { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
+  fixedHeader:      { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingBottom: 12, backgroundColor: "#F7F5F0", borderBottomWidth: 1, borderBottomColor: "#E2E8F0" },
+  fixedHeaderTitle: { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A" },
+  scroll:           { paddingHorizontal: 20, paddingTop: 14, gap: 14 },
+  backBtn:          { width: 40, height: 40, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", flexShrink: 0 },
 
   heroCard:       { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, flexDirection: "row", overflow: "hidden",
                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
@@ -341,21 +343,21 @@ const styles = StyleSheet.create({
   severityText:   { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
   severityMeaning:{ fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", lineHeight: 19 },
   categoryPill:   { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 },
-  categoryText:   { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#5B4CE8" },
-  heroTitle:      { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 30 },
-  heroDesc:       { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 24 },
+  categoryText:   { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
+  heroTitle:      { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", lineHeight: 30 },
+  heroDesc:       { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 24 },
   matchRow:       { flexDirection: "row", alignItems: "center", gap: 6 },
-  matchText:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
+  matchText:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#4A3DE8" },
 
-  acknowledgeBlock:        { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 20, padding: 20, gap: 10,
+  acknowledgeBlock:        { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 20, padding: 20, gap: 10,
                              shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
-  acknowledgeQuestion:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  acknowledgeHint:         { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
+  acknowledgeQuestion:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  acknowledgeHint:         { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 22 },
   acknowledgeButtons:      { flexDirection: "row", gap: 10, marginTop: 4 },
   acknowledgeBtnPrimary:   { flex: 1, borderRadius: 22, overflow: "hidden" },
   acknowledgeBtnSecondary: { flex: 1, backgroundColor: "#FFFBEB", borderWidth: 1, borderColor: "#FDE68A", borderRadius: 22,
                              flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14 },
-  acknowledgeBtnGrad:      { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14 },
+  acknowledgeBtnGrad:      { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingVertical: 14, backgroundColor: "#0F172A" },
   acknowledgeBtnTextPrimary:{ fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
   acknowledgeBtnText:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold" },
 
@@ -364,10 +366,10 @@ const styles = StyleSheet.create({
   stateClear:      { padding: 4 },
 
   sectionHeader:   { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" },
-  sectionTitle:    { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
-  sectionSub:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  sectionTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
+  sectionSub:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
   solutionsHint:   { flexDirection: "row", gap: 9, alignItems: "flex-start" },
-  solutionsHintText:{ flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8", lineHeight: 20 },
+  solutionsHintText:{ flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#4A3DE8", lineHeight: 20 },
   progressRow:     { flexDirection: "row", alignItems: "center", gap: 9 },
   progressText:    { fontSize: 14, fontFamily: "PlusJakartaSans_500Medium", color: "#F59E0B" },
 
@@ -382,16 +384,16 @@ const styles = StyleSheet.create({
   premiumBadgeText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706" },
   triedBadge:      { marginLeft: "auto", backgroundColor: "#ECFDF5", borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 11, paddingHorizontal: 9, paddingVertical: 3 },
   triedText:       { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
-  solutionTitle:   { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  solutionDesc:    { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
+  solutionTitle:   { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  solutionDesc:    { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 22 },
   tryBtn:          { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", marginTop: 4, backgroundColor: "#ECFDF5", borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8 },
   tryBtnText:      { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
-  unlockRow:       { flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E5E7EB" },
-  unlockText:      { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", fontStyle: "italic" },
+  unlockRow:       { flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 12, paddingHorizontal: 14, backgroundColor: "#F9FAFB", borderRadius: 12, borderWidth: 1, borderColor: "#E2E8F0" },
+  unlockText:      { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", fontStyle: "italic" },
 
   resolvedBtn:     { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, backgroundColor: "#ECFDF5", borderWidth: 1, borderColor: "#A7F3D0", borderRadius: 16, paddingVertical: 16 },
   resolvedBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
 
   noteCard:  { flexDirection: "row", gap: 10, padding: 16, backgroundColor: "#EEF2FF", borderRadius: 14, borderWidth: 1, borderColor: "#C7D2FE" },
-  noteText:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8", lineHeight: 20 },
+  noteText:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#4A3DE8", lineHeight: 20 },
 });

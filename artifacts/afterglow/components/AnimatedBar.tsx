@@ -12,7 +12,7 @@ interface AnimatedBarProps {
 
 export function AnimatedBar({
   value,
-  color = "#5B4CE8",
+  color = "#4A3DE8",
   color2,
   height = 7,
   delay = 0,
@@ -51,8 +51,8 @@ export function AnimatedBar({
 
 const styles = StyleSheet.create({
   track: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 10,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 6,
     overflow: "hidden",
     width: "100%",
   },

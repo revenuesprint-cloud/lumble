@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import {
@@ -24,7 +23,7 @@ const FEATURES = [
     icon: "moon"           as const,
     title: "Why you clash",
     sub:   "Moon signs, rising, and dasha phase decoded",
-    color: "#5B4CE8",
+    color: "#4A3DE8",
     bg:    "#EEF2FF",
   },
   {
@@ -48,14 +47,14 @@ export default function WelcomeScreen() {
   const router  = useRouter();
 
   const fadeAnim  = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(24)).current;
-  const logoScale = useRef(new Animated.Value(0.88)).current;
+  const slideAnim = useRef(new Animated.Value(28)).current;
+  const logoScale = useRef(new Animated.Value(0.85)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 350, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      Animated.spring(logoScale, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.spring(logoScale, { toValue: 1, friction: 7, tension: 80, useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -66,19 +65,12 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
-      {/* Top decorative band */}
-      <LinearGradient
-        colors={["#5B4CE8", "#8B5CF6"]}
-        style={styles.topBand}
-        start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-      />
+    <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+      <View style={[styles.container, Platform.OS === "web" && styles.webContainer]}>
 
-      <View style={[styles.container, { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 28, maxWidth: Platform.OS === "web" ? 480 : undefined, alignSelf: Platform.OS === "web" ? "center" : undefined, width: Platform.OS === "web" ? "100%" : undefined }]}>
-
-        {/* Brand */}
+        {/* Brand block */}
         <Animated.View style={[styles.brand, { opacity: fadeAnim, transform: [{ scale: logoScale }] }]}>
-          <View style={styles.logoCircle}>
+          <View style={styles.logoWrap}>
             <Image
               source={require("../assets/images/logo.png")}
               style={styles.logo}
@@ -90,9 +82,10 @@ export default function WelcomeScreen() {
 
         {/* Headline */}
         <Animated.View style={[styles.headlineBlock, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-          <Text style={styles.headline}>Read your relationship{"\n"}through the stars.</Text>
+          <Text style={styles.headlineLight}>Read your relationship</Text>
+          <Text style={styles.headlineBold}>through the stars.</Text>
           <Text style={styles.subline}>
-            Ancient Vedic astrology, built around your birth chart — not generic horoscopes.
+            Vedic astrology built around your birth chart — not generic horoscopes.
           </Text>
         </Animated.View>
 
@@ -100,7 +93,7 @@ export default function WelcomeScreen() {
         <Animated.View style={[styles.features, { opacity: fadeAnim }]}>
           {FEATURES.map((f, i) => (
             <View key={i} style={styles.featureRow}>
-              <View style={[styles.featureIconWrap, { backgroundColor: f.bg }]}>
+              <View style={[styles.featureIcon, { backgroundColor: f.bg }]}>
                 <Feather name={f.icon} size={18} color={f.color} />
               </View>
               <View style={styles.featureText}>
@@ -111,17 +104,14 @@ export default function WelcomeScreen() {
           ))}
         </Animated.View>
 
-        {/* CTA */}
-        <Animated.View style={[styles.cta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        {/* CTA block */}
+        <Animated.View style={[styles.ctaBlock, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+
           <TouchableOpacity onPress={() => go("register")} activeOpacity={0.88} style={styles.primaryBtn}>
-            <LinearGradient
-              colors={["#5B4CE8", "#8B5CF6"]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={styles.primaryBtnGrad}
-            >
-              <Text style={styles.primaryBtnText}>Begin Your Reading</Text>
-              <Feather name="arrow-right" size={17} color="#fff" />
-            </LinearGradient>
+            <Text style={styles.primaryBtnText}>Get Started Free</Text>
+            <View style={styles.primaryBtnArrow}>
+              <Feather name="arrow-right" size={16} color="#0F172A" />
+            </View>
           </TouchableOpacity>
 
           <View style={styles.trustRow}>
@@ -133,10 +123,16 @@ export default function WelcomeScreen() {
           </View>
 
           <Pressable onPress={() => go("signin")} style={styles.signInRow}>
-            <Text style={styles.signInText}>Already have an account?</Text>
-            <Text style={styles.signInLink}> Sign In →</Text>
+            <Text style={styles.signInText}>Already have an account? </Text>
+            <Text style={styles.signInLink}>Sign In</Text>
           </Pressable>
+
         </Animated.View>
+
+        {/* Footer */}
+        <Text style={styles.footer}>
+          Lumble is built by Tirthantech. All astrological insights are for reflection purposes only.
+        </Text>
 
       </View>
     </View>
@@ -144,68 +140,160 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  topBand: {
-    position: "absolute",
-    top: 0, left: 0, right: 0,
-    height: 4,
+  root: {
+    flex: 1,
+    backgroundColor: "#F7F5F0",
   },
   container: {
     flex: 1,
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
+    paddingTop: 36,
+    paddingBottom: 20,
     justifyContent: "space-between",
+  },
+  webContainer: {
+    maxWidth: 480,
+    alignSelf: "center",
+    width: "100%",
   },
 
   // Brand
-  brand: { alignItems: "center", gap: 12 },
-  logoCircle: {
-    width: 72, height: 72, borderRadius: 36,
-    overflow: "hidden", borderWidth: 2, borderColor: "#E5E7EB",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 4,
+  brand: {
+    alignItems: "center",
+    gap: 10,
   },
-  logo:    { width: "100%", height: "100%" },
+  logoWrap: {
+    width: 72, height: 72,
+    borderRadius: 20,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  logo: { width: "100%", height: "100%" },
   appName: {
-    fontSize: 13, fontFamily: "PlusJakartaSans_700Bold",
-    color: "#9CA3AF", letterSpacing: 4, textTransform: "uppercase",
+    fontSize: 15,
+    fontFamily: "PlusJakartaSans_700Bold",
+    color: "#94A3B8",
+    letterSpacing: 4,
+    textTransform: "uppercase",
   },
 
   // Headline
-  headlineBlock: { gap: 12 },
-  headline: {
-    fontSize: 32, fontFamily: "PlusJakartaSans_700Bold",
-    color: "#111827", lineHeight: 41, letterSpacing: -0.3,
+  headlineBlock: { gap: 8 },
+  headlineLight: {
+    fontSize: 30,
+    fontFamily: "PlusJakartaSans_500Medium",
+    color: "#0F172A",
+    lineHeight: 38,
+    letterSpacing: -0.3,
+  },
+  headlineBold: {
+    fontSize: 30,
+    fontFamily: "PlusJakartaSans_800ExtraBold",
+    color: "#0F172A",
+    lineHeight: 38,
+    letterSpacing: -0.5,
   },
   subline: {
-    fontSize: 15, fontFamily: "PlusJakartaSans_400Regular",
-    color: "#6B7280", lineHeight: 23,
+    marginTop: 4,
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#64748B",
+    lineHeight: 22,
   },
 
   // Features
-  features:    { gap: 14 },
+  features:    { gap: 16 },
   featureRow:  { flexDirection: "row", alignItems: "center", gap: 14 },
-  featureIconWrap: {
-    width: 44, height: 44, borderRadius: 14,
-    alignItems: "center", justifyContent: "center", flexShrink: 0,
+  featureIcon: {
+    width: 46, height: 46,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   featureText:  { flex: 1, gap: 2 },
-  featureTitle: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  featureSub:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 19 },
-
-  // CTA
-  cta:          { gap: 12 },
-  primaryBtn:   { borderRadius: 16, overflow: "hidden" },
-  primaryBtnGrad: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    paddingVertical: 17, gap: 9,
+  featureTitle: {
+    fontSize: 15,
+    fontFamily: "PlusJakartaSans_700Bold",
+    color: "#0F172A",
   },
-  primaryBtnText: { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff", letterSpacing: 0.2 },
+  featureSub: {
+    fontSize: 13,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#64748B",
+    lineHeight: 19,
+  },
+
+  // CTA block
+  ctaBlock: { gap: 12 },
+  primaryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#0F172A",
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingLeft: 22,
+    paddingRight: 8,
+  },
+  primaryBtnText: {
+    fontSize: 16,
+    fontFamily: "PlusJakartaSans_700Bold",
+    color: "#FFFFFF",
+    letterSpacing: 0.2,
+  },
+  primaryBtnArrow: {
+    width: 38, height: 38,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
   trustRow: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
-  trustText: { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
-  trustDot:  { width: 3, height: 3, borderRadius: 2, backgroundColor: "#D1D5DB" },
+  trustText: {
+    fontSize: 12,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#94A3B8",
+  },
+  trustDot: {
+    width: 3, height: 3,
+    borderRadius: 2,
+    backgroundColor: "#CBD5E1",
+  },
 
-  signInRow:  { flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 2 },
-  signInText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
-  signInLink: { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
+  signInRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 4,
+  },
+  signInText: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#94A3B8",
+  },
+  signInLink: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans_700Bold",
+    color: "#4A3DE8",
+  },
+
+  // Footer
+  footer: {
+    fontSize: 11,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#CBD5E1",
+    textAlign: "center",
+    lineHeight: 16,
+  },
 });

@@ -26,7 +26,7 @@ const METRIC_INFO: Record<string, { icon: string; color: string; what: string; h
     low:  "Don't read into the distance. Give it space and come back tonight.",
   },
   communication: {
-    icon: "🗣️", color: "#5B4CE8",
+    icon: "🗣️", color: "#4A3DE8",
     what: "How easy it is for you two to understand each other today. This is about emotional translation — are you speaking the same language right now?",
     high: "Good day for the conversation you've been avoiding.",
     low:  "Keep it simple. Today is not the day for a big confrontation.",
@@ -67,7 +67,7 @@ function DetailBar({ value, color }: { value: number; color: string }) {
 }
 
 const barStyles = StyleSheet.create({
-  track: { height: 8, backgroundColor: "#F3F4F6", borderRadius: 6, overflow: "hidden" },
+  track: { height: 8, backgroundColor: "#F1F5F9", borderRadius: 6, overflow: "hidden" },
 });
 
 function MetricCard({ icon, label, value, color, what, tip }: {
@@ -99,16 +99,16 @@ function MetricCard({ icon, label, value, color, what, tip }: {
 }
 
 const mcStyles = StyleSheet.create({
-  card:     { borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#FFFFFF",
+  card:     { borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#FFFFFF",
               padding: 16, gap: 12,
               shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
   topRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
   left:     { flexDirection: "row", alignItems: "center", gap: 10 },
   icon:     { fontSize: 20 },
-  label:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+  label:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
   badge:    { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
   badgeText:{ fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-  what:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
+  what:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 22 },
   tipPill:  { borderRadius: 10, padding: 12 },
   tip:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", lineHeight: 21 },
 });
@@ -139,14 +139,14 @@ export default function EnergyDetailScreen() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7}
           style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="#6B7280" />
+          <Feather name="arrow-left" size={20} color="#64748B" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Your energy today</Text>
@@ -199,16 +199,16 @@ export default function EnergyDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
-  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
+  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F7F5F0" },
+  backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", marginTop: 2 },
+  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
   scroll:          { paddingHorizontal: 20, gap: 14 },
-  contextCard:     { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E5E7EB", padding: 20, gap: 12,
+  contextCard:     { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E2E8F0", padding: 20, gap: 12,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
-  contextTitle:    { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
-  contextBody:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 22 },
+  contextTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
+  contextBody:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 22 },
   contextNote:     { borderLeftWidth: 3, borderLeftColor: "#C7D2FE", paddingLeft: 12 },
   contextNoteText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22, fontStyle: "italic" },
-  footer:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 20, paddingTop: 4, paddingBottom: 8 },
+  footer:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", lineHeight: 20, paddingTop: 4, paddingBottom: 8 },
 });

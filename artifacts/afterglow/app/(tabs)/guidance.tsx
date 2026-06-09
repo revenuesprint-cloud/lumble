@@ -6,7 +6,6 @@ import { getOracleResponse, getIntentFromMessage, FOLLOW_UP_SUGGESTIONS } from "
 import { getPersonalizedChips } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -102,10 +101,12 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
         <Text style={styles.sheetAnswer}>{question.body}</Text>
         <View style={styles.sheetActions}>
           <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); onAsk(question.meta.question ?? question.title); close(); }} style={styles.sheetAskBtn} activeOpacity={0.85}>
-            <LinearGradient colors={["#5B4CE8","#8B5CF6"]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.sheetAskGrad}>
+            <View style={styles.sheetAskGrad}>
               <Text style={styles.sheetAskText}>Ask the Guide for more</Text>
-              <Feather name="arrow-right" size={16} color="#fff" />
-            </LinearGradient>
+              <View style={styles.sheetAskArrow}>
+                <Feather name="arrow-right" size={16} color="#0F172A" />
+              </View>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={close} style={styles.sheetCloseBtn} activeOpacity={0.7}>
             <Text style={styles.sheetCloseText}>Close</Text>
@@ -119,27 +120,59 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
 // ─── Browse tab ───────────────────────────────────────────────────────────────
 
 function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult; onSelectQuestion: (q: QuestionItem) => void }) {
-  const [activeCategory, setActiveCategory] = useState<keyof QuestionsResult>("about_them");
-  const items = questions[activeCategory] ?? [];
+  const [activeCategory, setActiveCategory] = useState<keyof QuestionsResult | null>(null);
+  const items = activeCategory ? (questions[activeCategory] ?? []) : [];
 
+  // 2-column grid of category cards
+  const catRows: (typeof CATEGORY_CONFIG)[] = [];
+  for (let i = 0; i < CATEGORY_CONFIG.length; i += 2) {
+    catRows.push(CATEGORY_CONFIG.slice(i, i + 2));
+  }
+
+  if (!activeCategory) {
+    return (
+      <ScrollView contentContainerStyle={browseStyles.grid} showsVerticalScrollIndicator={false}>
+        <Text style={browseStyles.gridHint}>What do you want to explore?</Text>
+        {catRows.map((row, ri) => (
+          <View key={ri} style={browseStyles.gridRow}>
+            {row.map((cat) => {
+              const count = (questions[cat.key] ?? []).length;
+              return (
+                <TouchableOpacity
+                  key={cat.key}
+                  onPress={() => { setActiveCategory(cat.key); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                  activeOpacity={0.82}
+                  style={browseStyles.catCard}
+                >
+                  <Text style={browseStyles.catCardEmoji}>{cat.icon}</Text>
+                  <Text style={browseStyles.catCardLabel}>{cat.label}</Text>
+                  <View style={[browseStyles.catCardBadge, { backgroundColor: cat.color + "18", borderColor: cat.color + "44" }]}>
+                    <Text style={[browseStyles.catCardCount, { color: cat.color }]}>{count} questions</Text>
+                  </View>
+                  <Feather name="chevron-right" size={14} color="#CBD5E1" style={{ alignSelf: "flex-end" }} />
+                </TouchableOpacity>
+              );
+            })}
+            {row.length < 2 && <View style={{ flex: 1 }} />}
+          </View>
+        ))}
+      </ScrollView>
+    );
+  }
+
+  const cat = CATEGORY_CONFIG.find((c) => c.key === activeCategory)!;
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll} contentContainerStyle={styles.catContent}>
-        {CATEGORY_CONFIG.map((cat) => {
-          const active = activeCategory === cat.key;
-          return (
-            <TouchableOpacity
-              key={cat.key}
-              onPress={() => { setActiveCategory(cat.key); Haptics.selectionAsync(); }}
-              style={[styles.catChip, active && { backgroundColor: cat.color + "22", borderColor: cat.color + "55" }]}
-              activeOpacity={0.75}
-            >
-              <Text style={styles.catChipIcon}>{cat.icon}</Text>
-              <Text style={[styles.catChipLabel, active && { color: cat.color }]}>{cat.label}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      {/* Sub-header */}
+      <TouchableOpacity
+        onPress={() => { setActiveCategory(null); Haptics.selectionAsync(); }}
+        style={browseStyles.backRow}
+        activeOpacity={0.7}
+      >
+        <Feather name="arrow-left" size={16} color="#64748B" />
+        <Text style={browseStyles.backLabel}>{cat.icon}  {cat.label}</Text>
+      </TouchableOpacity>
+
       <FlatList
         data={items}
         keyExtractor={(q) => q.id}
@@ -154,19 +187,29 @@ function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult
           >
             <View style={styles.qCardInner}>
               <Text style={styles.qCardIcon}>{item.meta?.icon ?? "✦"}</Text>
-              <View style={{ flex: 1, gap: 4 }}>
-                <Text style={styles.qCardTitle}>{item.title}</Text>
-                <Text style={styles.qCardShort} numberOfLines={2}>{item.meta?.shortAnswer ?? item.body}</Text>
-              </View>
-              <Feather name="chevron-right" size={16} color="#D1D5DB" />
+              <Text style={[styles.qCardTitle, { flex: 1 }]}>{item.title}</Text>
+              <Feather name="chevron-right" size={15} color="#CBD5E1" />
             </View>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<View style={styles.emptyCategory}><Text style={styles.emptyCategoryText}>Loading your questions...</Text></View>}
+        ListEmptyComponent={<View style={styles.emptyCategory}><Text style={styles.emptyCategoryText}>Loading…</Text></View>}
       />
     </View>
   );
 }
+
+const browseStyles = StyleSheet.create({
+  grid:          { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 20, gap: 12 },
+  gridHint:      { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", letterSpacing: 1.2, textTransform: "uppercase" },
+  gridRow:       { flexDirection: "row", gap: 10 },
+  catCard:       { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 16, gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  catCardEmoji:  { fontSize: 26 },
+  catCardLabel:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  catCardBadge:  { alignSelf: "flex-start", borderWidth: 1, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3 },
+  catCardCount:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
+  backRow:       { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#F1F5F9" },
+  backLabel:     { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A" },
+});
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
 
@@ -457,7 +500,7 @@ export default function GuidanceScreen() {
   const hasMessages = guidanceMessages.length > 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={0}>
 
         {/* Header */}
@@ -598,9 +641,9 @@ export default function GuidanceScreen() {
                 pressed && { transform: [{ scale: 0.94 }] },
               ]}
             >
-              <LinearGradient colors={["#5B4CE8","#8B5CF6"]} style={styles.sendBtnGrad}>
+              <View style={styles.sendBtnInner}>
                 <Feather name="send" size={15} color="#fff" />
-              </LinearGradient>
+              </View>
             </Pressable>
           </View>
         </View>
@@ -622,96 +665,94 @@ export default function GuidanceScreen() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  header:        { paddingHorizontal: 20, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "#E5E7EB", backgroundColor: "#F4F5F7" },
-  headerLeft:    { flexDirection: "row", alignItems: "center", gap: 12 },
-  headerOrb:     { width: 40, height: 40, borderRadius: 20, overflow: "hidden" },
-  headerTitle:   { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  headerSub:     { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
-  headerRight:   { flexDirection: "row", alignItems: "center", gap: 8 },
-  modeToggle:    { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 10, padding: 3, gap: 2, borderWidth: 1, borderColor: "#E5E7EB" },
-  modeBtn:       { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 7, alignItems: "center" },
-  modeBtnActive: { backgroundColor: "#5B4CE8" },
-  modeBtnText:   { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  header:            { paddingHorizontal: 18, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "#E2E8F0", backgroundColor: "#F7F5F0" },
+  headerLeft:        { flexDirection: "row", alignItems: "center", gap: 12 },
+  headerOrb:         { width: 40, height: 40, borderRadius: 14, overflow: "hidden" },
+  headerTitle:       { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.3 },
+  headerSub:         { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
+  headerRight:       { flexDirection: "row", alignItems: "center", gap: 8 },
+  modeToggle:        { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 3, gap: 2, borderWidth: 1, borderColor: "#E2E8F0" },
+  modeBtn:           { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 9, alignItems: "center" },
+  modeBtnActive:     { backgroundColor: "#0F172A" },
+  modeBtnText:       { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
   modeBtnTextActive: { color: "#FFFFFF" },
-  clearBtn:      { width: 30, height: 30, borderRadius: 15, backgroundColor: "#F3F4F6", alignItems: "center", justifyContent: "center" },
+  clearBtn:          { width: 32, height: 32, borderRadius: 10, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
   // Browse
-  catScroll:     { flexGrow: 0, maxHeight: 44 },
-  catContent:    { paddingHorizontal: 16, paddingVertical: 6, gap: 7 },
-  catChip:       { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB" },
-  catChipIcon:   { fontSize: 13 },
-  catChipLabel:  { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
-  qList:         { paddingHorizontal: 16, paddingTop: 8, gap: 6, paddingBottom: 20 },
-  qCard:         { borderRadius: 12, overflow: "hidden", borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#FFFFFF",
-                   shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
-  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, backgroundColor: "#FFFFFF" },
-  qCardIcon:     { fontSize: 22, width: 28, textAlign: "center" },
-  qCardTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#111827", lineHeight: 20 },
-  qCardShort:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 17 },
+  catScroll:     { flexGrow: 0, maxHeight: 48 },
+  catContent:    { paddingHorizontal: 18, paddingVertical: 6, gap: 8 },
+  catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 22, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0" },
+  catChipIcon:   { fontSize: 14 },
+  catChipLabel:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#64748B" },
+  qList:         { paddingHorizontal: 18, paddingTop: 10, gap: 8, paddingBottom: 20 },
+  qCard:         { borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#FFFFFF", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
+  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 14 },
+  qCardIcon:     { fontSize: 20, width: 28, textAlign: "center" },
+  qCardTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A", lineHeight: 21 },
   emptyCategory: { paddingTop: 40, alignItems: "center" },
-  emptyCategoryText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  emptyCategoryText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
   // Sheet
-  sheet:         { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "#E5E7EB", padding: 28, paddingBottom: 52, gap: 16 },
-  sheetHandle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: "#D1D5DB", alignSelf: "center", marginBottom: 8 },
-  sheetQ:        { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 32 },
-  sheetDivider:  { height: 1, backgroundColor: "#F3F4F6" },
-  sheetAnswer:   { fontSize: 17, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 27 },
-  sheetActions:  { gap: 10 },
-  sheetAskBtn:   { borderRadius: 14, overflow: "hidden" },
-  sheetAskGrad:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 15 },
-  sheetAskText:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
-  sheetCloseBtn: { alignItems: "center", paddingVertical: 10 },
-  sheetCloseText:{ fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  sheet:          { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "#E2E8F0", padding: 28, paddingBottom: 52, gap: 16 },
+  sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: "#CBD5E1", alignSelf: "center", marginBottom: 8 },
+  sheetQ:         { fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 30, letterSpacing: -0.3 },
+  sheetDivider:   { height: 1, backgroundColor: "#F1F5F9" },
+  sheetAnswer:    { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 26 },
+  sheetActions:   { gap: 10 },
+  sheetAskBtn:    { borderRadius: 14, overflow: "hidden" },
+  sheetAskGrad:   { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0F172A", paddingVertical: 16, paddingLeft: 20, paddingRight: 8 },
+  sheetAskText:   { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+  sheetAskArrow:  { width: 36, height: 36, borderRadius: 10, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  sheetCloseBtn:  { alignItems: "center", paddingVertical: 10 },
+  sheetCloseText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
   // Ask empty state
-  emptyScroll:   { flexGrow: 1, paddingHorizontal: 20 },
-  emptyAsk:      { paddingTop: 28, gap: 18, alignItems: "center" },
-  lumbleWordmark: { fontSize: 32, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8", letterSpacing: 1, marginBottom: 4 },
-  emptyTitle:    { fontSize: 26, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  emptySub:      { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 25 },
-  emptyChips:    { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
-  emptyChip:     { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
-  emptyChipText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
+  emptyScroll:    { flexGrow: 1, paddingHorizontal: 18 },
+  emptyAsk:       { paddingTop: 28, gap: 18, alignItems: "center" },
+  lumbleWordmark: { fontSize: 30, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", letterSpacing: -0.5, marginBottom: 4 },
+  emptyTitle:     { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", letterSpacing: -0.3 },
+  emptySub:       { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", textAlign: "center", lineHeight: 24 },
+  emptyChips:     { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
+  emptyChip:      { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
+  emptyChipText:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
   // Messages
-  messageList:   { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
-  bubbleRow:     { flexDirection: "row", gap: 11, alignItems: "flex-end" },
-  bubbleRowUser: { justifyContent: "flex-end" },
-  bubbleRowBot:  { justifyContent: "flex-start" },
-  botAvatar:     { width: 32, height: 32, borderRadius: 16, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
-  bubble:        { maxWidth: "80%", borderRadius: 20, padding: 16, gap: 6 },
-  bubbleUser:    { backgroundColor: "#5B4CE8", borderBottomRightRadius: 5 },
-  bubbleBot:     { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderBottomLeftRadius: 5,
-                   shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
-  bubbleText:    { lineHeight: 26 },
-  bubbleTextUser:{ fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#FFFFFF" },
-  bubbleTextBot: { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#374151" },
-  cursor:        { width: 2, height: 18, backgroundColor: "#5B4CE8", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
+  messageList:    { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
+  bubbleRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
+  bubbleRowUser:  { justifyContent: "flex-end" },
+  bubbleRowBot:   { justifyContent: "flex-start" },
+  botAvatar:      { width: 32, height: 32, borderRadius: 10, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
+  bubble:         { maxWidth: "80%", borderRadius: 18, padding: 16, gap: 6 },
+  bubbleUser:     { backgroundColor: "#0F172A", borderBottomRightRadius: 5 },
+  bubbleBot:      { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", borderBottomLeftRadius: 5, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
+  bubbleText:     { lineHeight: 26 },
+  bubbleTextUser: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#FFFFFF" },
+  bubbleTextBot:  { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151" },
+  cursor:         { width: 2, height: 18, backgroundColor: "#4A3DE8", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
   // Structured bot response
-  structLabel:      { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#5B4CE8", letterSpacing: 0.5, textTransform: "uppercase" },
-  structInsight:    { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#111827", lineHeight: 25, fontStyle: "italic" },
-  structDivider:    { height: 1, backgroundColor: "#F3F4F6" },
+  structLabel:      { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", letterSpacing: 1, textTransform: "uppercase" },
+  structInsight:    { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#0F172A", lineHeight: 24, fontStyle: "italic" },
+  structDivider:    { height: 1, backgroundColor: "#F1F5F9" },
   structActionRow:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  structCheck:      { fontSize: 14, color: "#10B981", fontFamily: "PlusJakartaSans_700Bold", marginTop: 1 },
-  structActionText: { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
+  structCheck:      { fontSize: 13, color: "#10B981", fontFamily: "PlusJakartaSans_700Bold", marginTop: 1 },
+  structActionText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
   // Typing
-  typingRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
-  typingBubble:  { backgroundColor: "#FFFFFF", borderRadius: 18, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "#E5E7EB", paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", gap: 6, alignItems: "center" },
-  typingDot:     { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#5B4CE8" },
+  typingRow:    { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
+  typingBubble: { backgroundColor: "#FFFFFF", borderRadius: 16, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "#E2E8F0", paddingHorizontal: 16, paddingVertical: 13, flexDirection: "row", gap: 6, alignItems: "center" },
+  typingDot:    { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#4A3DE8" },
   // Follow-up suggestions
-  followUpRow:   { paddingHorizontal: 16, paddingTop: 6, gap: 7 },
-  followUpChip:  { alignSelf: "flex-start", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
-  followUpText:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
+  followUpRow:  { paddingHorizontal: 16, paddingTop: 6, gap: 7 },
+  followUpChip: { alignSelf: "flex-start", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
+  followUpText: { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
   // Limit
-  limitCard:     { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: "#FFF1F2", borderWidth: 1, borderColor: "#FECDD3", borderRadius: 16, padding: 16 },
-  limitIcon:     { fontSize: 22, color: "#F43F5E" },
-  limitTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  limitSub:      { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", marginTop: 2 },
+  limitCard:  { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: "#FFF1F2", borderWidth: 1, borderColor: "#FECDD3", borderRadius: 16, padding: 16 },
+  limitIcon:  { fontSize: 22, color: "#F43F5E" },
+  limitTitle: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  limitSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", marginTop: 2 },
   // Input
-  inputArea:     { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#E5E7EB", gap: 10, backgroundColor: "#FFFFFF" },
-  chipsScroll:   { flexGrow: 0 },
-  chipsContent:  { gap: 8, paddingRight: 8 },
-  chip:          { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 9 },
-  chipText:      { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#5B4CE8" },
-  inputRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
-  inputField:    { flex: 1, backgroundColor: "#F9FAFB", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 18, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 14, fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#111827", maxHeight: 110 },
-  sendBtn:       { borderRadius: 16, overflow: "hidden" },
-  sendBtnGrad:   { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
+  inputArea:    { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#E2E8F0", gap: 10, backgroundColor: "#FFFFFF" },
+  chipsScroll:  { flexGrow: 0 },
+  chipsContent: { gap: 8, paddingRight: 8 },
+  chip:         { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 14, paddingVertical: 8 },
+  chipText:     { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
+  inputRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end" },
+  inputField:   { flex: 1, backgroundColor: "#F8FAFC", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 16, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 13, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#0F172A", maxHeight: 110 },
+  sendBtn:      { borderRadius: 14, overflow: "hidden" },
+  sendBtnInner: { width: 48, height: 48, backgroundColor: "#0F172A", alignItems: "center", justifyContent: "center", borderRadius: 14 },
 });

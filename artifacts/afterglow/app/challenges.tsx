@@ -2,7 +2,7 @@ import { useApp } from "@/context/AppContext";
 import { getLocalStates } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
+
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -45,7 +45,7 @@ function ChallengeCard({
 }: {
   challenge: Challenge; journeyState: string | null; onPress: () => void;
 }) {
-  const color   = SEVERITY_COLOR[challenge.severity] ?? "#5B4CE8";
+  const color   = SEVERITY_COLOR[challenge.severity] ?? "#4A3DE8";
   const colorBg = SEVERITY_BG[challenge.severity]    ?? "#EEF2FF";
   const js      = journeyState ? JOURNEY_STATE_META[journeyState] : null;
 
@@ -136,10 +136,10 @@ export default function ChallengesScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
         <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
-          <Feather name="arrow-left" size={22} color="#6B7280" />
+          <Feather name="arrow-left" size={22} color="#64748B" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Patterns & What Helps</Text>
@@ -151,20 +151,20 @@ export default function ChallengesScreen() {
 
       {challengesLoading && challenges.length === 0 ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator color="#5B4CE8" size="large" />
+          <ActivityIndicator color="#4A3DE8" size="large" />
           <Text style={styles.loadingText}>Loading your compatibility patterns…</Text>
         </View>
       ) : challenges.length === 0 ? (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIconWrap}>
-            <Feather name="layers" size={28} color="#5B4CE8" />
+            <Feather name="layers" size={28} color="#4A3DE8" />
           </View>
           <Text style={styles.emptyTitle}>No challenges loaded</Text>
           <Text style={styles.emptySub}>Tap below to load your personalised patterns</Text>
           <TouchableOpacity style={styles.fetchBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); loadChallenges(); }}>
-            <LinearGradient colors={["#5B4CE8", "#8B5CF6"]} style={styles.fetchBtnGradient}>
+            <View style={styles.fetchBtnGradient}>
               <Text style={styles.fetchBtnText}>Load my patterns</Text>
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
         </View>
       ) : (
@@ -172,12 +172,12 @@ export default function ChallengesScreen() {
           showsVerticalScrollIndicator={false}
           style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
           contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#5B4CE8" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A3DE8" />}
         >
           {journeyCount.total > 0 && (
             <View style={styles.journeyBanner}>
               <View style={styles.journeyBannerRow}>
-                <Feather name="trending-up" size={14} color="#5B4CE8" />
+                <Feather name="trending-up" size={14} color="#4A3DE8" />
                 <Text style={styles.journeyBannerTitle}>Your Healing Journey</Text>
               </View>
               <View style={styles.journeyStats}>
@@ -261,19 +261,19 @@ export default function ChallengesScreen() {
 }
 
 const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "flex-start", gap: 14, paddingHorizontal: 20, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: "#E5E7EB", backgroundColor: "#F4F5F7" },
-  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
+  header:          { flexDirection: "row", alignItems: "flex-start", gap: 14, paddingHorizontal: 20, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: "#E2E8F0", backgroundColor: "#F7F5F0" },
+  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", marginTop: 2 },
+  headerTitle:     { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
 
   loadingContainer:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 18 },
-  loadingText:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
+  loadingText:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
   emptyContainer:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, paddingHorizontal: 40 },
   emptyIconWrap:   { width: 72, height: 72, borderRadius: 36, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
-  emptyTitle:      { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  emptySub:        { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", textAlign: "center" },
+  emptyTitle:      { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  emptySub:        { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", textAlign: "center" },
   fetchBtn:        { marginTop: 10, borderRadius: 26, overflow: "hidden" },
-  fetchBtnGradient:{ paddingHorizontal: 32, paddingVertical: 16 },
+  fetchBtnGradient:{ paddingHorizontal: 32, paddingVertical: 16, backgroundColor: "#0F172A" },
   fetchBtnText:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
 
   scroll:          { paddingTop: 16, gap: 12 },
@@ -281,26 +281,26 @@ const styles = StyleSheet.create({
   journeyBanner:    { marginHorizontal: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 18, padding: 16, gap: 12,
                       shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
   journeyBannerRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  journeyBannerTitle:{ fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
+  journeyBannerTitle:{ fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#4A3DE8" },
   journeyStats:     { flexDirection: "row", alignItems: "center" },
   journeyStatItem:  { flex: 1, alignItems: "center", gap: 3 },
   journeyStatNum:   { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold" },
-  journeyStatLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF", textTransform: "capitalize" },
-  journeyDivider:   { width: 1, height: 30, backgroundColor: "#E5E7EB" },
+  journeyStatLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8", textTransform: "capitalize" },
+  journeyDivider:   { width: 1, height: 30, backgroundColor: "#E2E8F0" },
 
   chips:        { marginBottom: 4 },
-  chip:         { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 8 },
+  chip:         { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 8 },
   chipActive:   { backgroundColor: "#EEF2FF", borderColor: "#C7D2FE" },
   chipSmall:    { paddingHorizontal: 11, paddingVertical: 6 },
-  chipText:     { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
-  chipTextActive:{ color: "#5B4CE8", fontFamily: "PlusJakartaSans_600SemiBold" },
+  chipText:     { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#64748B" },
+  chipTextActive:{ color: "#4A3DE8", fontFamily: "PlusJakartaSans_600SemiBold" },
 
   statsRow:  { flexDirection: "row", gap: 10, paddingHorizontal: 20, marginBottom: 2 },
   statItem:  { flex: 1, alignItems: "center", gap: 4, borderRadius: 14, paddingVertical: 12 },
   statCount: { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold" },
   statLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
 
-  card:           { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E5E7EB", flexDirection: "row", overflow: "hidden", marginHorizontal: 20,
+  card:           { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E2E8F0", flexDirection: "row", overflow: "hidden", marginHorizontal: 20,
                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 2 },
   cardAccent:     { width: 4 },
   cardContent:    { flex: 1, padding: 18, gap: 10 },
@@ -308,18 +308,18 @@ const styles = StyleSheet.create({
   severityPill:   { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
   severityDot:    { width: 6, height: 6, borderRadius: 3 },
   severityLabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
-  severityMeaning:{ fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", flex: 1 },
+  severityMeaning:{ fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", flex: 1 },
   categoryPill:   { marginLeft: "auto", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-  categoryText:   { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#5B4CE8" },
+  categoryText:   { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
   journeyBadge:   { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 11, paddingHorizontal: 8, paddingVertical: 3 },
   journeyBadgeText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
-  cardTitle:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 24 },
-  cardDesc:       { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 21 },
+  cardTitle:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", lineHeight: 24 },
+  cardDesc:       { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 21 },
   cardFooter:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  solutionsHint:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  solutionsHint:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
 
   emptyJourney:      { alignItems: "center", justifyContent: "center", padding: 40, gap: 12 },
   emptyJourneyIcon:  { fontSize: 36, color: "#D1D5DB" },
-  emptyJourneyTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#6B7280" },
-  emptyJourneySub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 21 },
+  emptyJourneyTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#64748B" },
+  emptyJourneySub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", lineHeight: 21 },
 });

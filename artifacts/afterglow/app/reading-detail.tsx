@@ -38,7 +38,7 @@ function Block({ label, value, color }: { label: string; value: string; color: s
 
 const blkStyles = StyleSheet.create({
   wrap:  { gap: 4 },
-  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
   value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23 },
 });
 
@@ -64,13 +64,13 @@ export default function ReadingDetailScreen() {
   const date     = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7} style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="#6B7280" />
+          <Feather name="arrow-left" size={20} color="#64748B" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Today's read</Text>
@@ -149,20 +149,20 @@ export default function ReadingDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F4F5F7" },
-  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", marginTop: 2 },
+  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F7F5F0" },
+  backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", marginTop: 2 },
+  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
   scroll:          { paddingHorizontal: 20, gap: 18 },
 
   moonTagWrap:     { flexDirection: "row", alignItems: "center", gap: 10 },
   moonTag:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
   moonTagText:     { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
-  nakLabel:        { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
+  nakLabel:        { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
 
   insightBlock:    { borderRadius: 16, borderWidth: 1, padding: 18, gap: 10,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  insightHeadline: { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 27 },
+  insightHeadline: { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 27, letterSpacing: -0.2 },
   insightBody:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 24 },
 
   actionBlock:     { backgroundColor: "#FFFBEB", borderRadius: 14, padding: 14, gap: 6 },
@@ -171,21 +171,21 @@ const styles = StyleSheet.create({
   actionText:      { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 23 },
 
   section:         { gap: 10 },
-  sectionTitle:    { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF", textTransform: "uppercase", letterSpacing: 0.5 },
+  sectionTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
 
-  rnCard:          { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E5E7EB", padding: 18, gap: 12,
+  rnCard:          { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 12,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
   rnRow:           { gap: 4 },
-  rnName:          { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  rnName:          { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
   rnBody:          { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 23 },
-  rnDivider:       { height: 1, backgroundColor: "#F3F4F6" },
+  rnDivider:       { height: 1, backgroundColor: "#F1F5F9" },
 
-  dashaCard:       { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 12,
+  dashaCard:       { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", padding: 16, gap: 12,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 1 },
-  dashaHeadline:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#111827", lineHeight: 22 },
+  dashaHeadline:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A", lineHeight: 22 },
 
-  explainerCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 18, gap: 8,
+  explainerCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 8,
                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
-  explainerTitle:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
-  explainerBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 21 },
+  explainerTitle:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
+  explainerBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 21 },
 });

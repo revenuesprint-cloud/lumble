@@ -2,24 +2,19 @@ import { useApp } from "@/context/AppContext";
 import { getAstrologyReading, RASHIS } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
-  getPersonalizedFocus,
-  getPersonalizedQuoteCategory,
   getPersonalizedHero,
   getTodayBetweenYou,
 } from "@/utils/personalization";
-import { getQuoteByCategory } from "@/utils/quotes";
-import { fetchDailyContent, getContentBundle, type DailyContent } from "@/utils/dbContent";
-import { MOON_PROFILES_DEEP } from "@/utils/content-library";
+import { fetchDailyContent, type DailyContent } from "@/utils/dbContent";
 import { extractKundliAttributes } from "@/utils/challenges";
+import { getLuckyFeatures, type LuckyFeatures } from "@/utils/lucky";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  Animated,
   Platform,
-  Easing,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,231 +23,240 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// ─── DB-first resolver ────────────────────────────────────────────────────────
+// ─── Stats strip ──────────────────────────────────────────────────────────────
 
-function resolveMoonProfile(rashiIdx: number) {
-  const local = MOON_PROFILES_DEEP[rashiIdx] ?? MOON_PROFILES_DEEP[0];
-  try {
-    const b = getContentBundle();
-    const item = b?.moonProfiles?.find((i: any) => i?.meta?.moonRashiIdx === rashiIdx);
-    if (item?.meta?.insight) return item.meta;
-  } catch {}
-  return local;
+function StatsStrip({
+  compatPct, patternCount, dasha,
+}: { compatPct: number; patternCount: number; dasha: string }) {
+  const items = [
+    { value: `${compatPct}%`, label: "Compatibility" },
+    { value: String(patternCount), label: "Patterns" },
+    { value: dasha, label: "Dasha Phase" },
+  ];
+  return (
+    <View style={s.statsRow}>
+      {items.map((item, i) => (
+        <View key={i} style={[s.statItem, i < items.length - 1 && s.statItemBorder]}>
+          <Text style={s.statValue}>{item.value}</Text>
+          <Text style={s.statLabel}>{item.label}</Text>
+        </View>
+      ))}
+    </View>
+  );
 }
 
-// ─── Profile Teaser Card ──────────────────────────────────────────────────────
+// ─── Today's Focus hero card ──────────────────────────────────────────────────
 
-function ProfileTeaserCard({
-  label, moonSignName, moonElement, moonColor, oneLiner, onPress,
+function TodayFocusCard({
+  moonTag, headline, insight, action, dailyMsg, onPress,
 }: {
-  label: string; moonSignName: string;
-  moonElement: string; moonColor: string; oneLiner: string; onPress: () => void;
+  moonTag: string; headline: string; insight: string;
+  action: string; dailyMsg: string | null; onPress: () => void;
 }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 200, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
-  }, []);
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={s.focusCard}>
+      {/* Tag row */}
+      <View style={s.focusTagRow}>
+        <View style={s.focusTag}>
+          <Text style={s.focusTagText}>{moonTag}</Text>
+        </View>
+        <View style={s.liveRow}>
+          <View style={s.liveDot} />
+          <Text style={s.liveText}>Today</Text>
+        </View>
+      </View>
+
+      {/* Headline */}
+      <Text style={s.focusHeadline}>{headline}</Text>
+
+      {/* Insight */}
+      <Text style={s.focusInsight} numberOfLines={3}>{insight}</Text>
+
+      {/* Divider + action */}
+      <View style={s.focusDivider} />
+      <View style={s.focusFooter}>
+        <Text style={s.focusSunIcon}>☀</Text>
+        <Text style={s.focusAction} numberOfLines={2}>{dailyMsg ?? action}</Text>
+        <View style={s.focusArrow}>
+          <Feather name="chevron-right" size={14} color="#4A3DE8" />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+// ─── Right Now card ───────────────────────────────────────────────────────────
+
+function RightNowCard({
+  userName, partnerName, userMoment, partnerSignal,
+}: {
+  userName: string; partnerName: string;
+  userMoment: string; partnerSignal: string;
+}) {
+  return (
+    <View style={s.rightNowCard}>
+      <View style={s.rightNowHeader}>
+        <View style={s.rightNowPip} />
+        <Text style={s.rightNowTitle}>Right Now Between You</Text>
+      </View>
+      <View style={s.rightNowRow}>
+        <View style={s.rightNowBlock}>
+          <Text style={s.rightNowName}>{userName}</Text>
+          <Text style={s.rightNowBody}>{userMoment}</Text>
+        </View>
+        <View style={s.rightNowDivider} />
+        <View style={s.rightNowBlock}>
+          <Text style={s.rightNowName}>{partnerName}</Text>
+          <Text style={s.rightNowBody}>{partnerSignal}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ─── Quick access grid ────────────────────────────────────────────────────────
+
+type NavItem = {
+  icon: keyof typeof Feather.glyphMap;
+  label: string;
+  sublabel: string;
+  color: string;
+  bg: string;
+  route: string;
+};
+
+function QuickAccessGrid({
+  compatPct, patternCount, onPress,
+}: {
+  compatPct: number; patternCount: number; onPress: (route: string) => void;
+}) {
+  const items: NavItem[] = [
+    {
+      icon:     "heart",
+      label:    "Us",
+      sublabel: `${compatPct}% compatibility`,
+      color:    "#4A3DE8",
+      bg:       "#EEF2FF",
+      route:    "/(tabs)/compatibility",
+    },
+    {
+      icon:     "layers",
+      label:    "Patterns",
+      sublabel: `${patternCount} detected`,
+      color:    "#F43F5E",
+      bg:       "#FFF1F2",
+      route:    "/(tabs)/patterns",
+    },
+    {
+      icon:     "zap",
+      label:    "Insights",
+      sublabel: "10 things about you two",
+      color:    "#F59E0B",
+      bg:       "#FFFBEB",
+      route:    "/(tabs)/features",
+    },
+    {
+      icon:     "message-circle",
+      label:    "Ask",
+      sublabel: "Oracle guidance",
+      color:    "#10B981",
+      bg:       "#ECFDF5",
+      route:    "/(tabs)/guidance",
+    },
+    {
+      icon:     "activity",
+      label:    "Energy",
+      sublabel: "Today's metrics",
+      color:    "#8B5CF6",
+      bg:       "#F5F3FF",
+      route:    "/energy-detail",
+    },
+    {
+      icon:     "user",
+      label:    "Your Chart",
+      sublabel: "Moon & nakshatra",
+      color:    "#64748B",
+      bg:       "#F1F5F9",
+      route:    "profile-detail",
+    },
+  ];
+
+  // render as 2-column grid
+  const rows: NavItem[][] = [];
+  for (let i = 0; i < items.length; i += 2) {
+    rows.push(items.slice(i, i + 2));
+  }
 
   return (
-    <Animated.View style={{ opacity: fadeAnim }}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-        <View style={ptStyles.card}>
-          <View style={ptStyles.topRow}>
-            <View style={[ptStyles.iconCircle, { backgroundColor: moonColor + "18" }]}>
-              <Text style={[ptStyles.iconGlyph, { color: moonColor }]}>☽</Text>
-            </View>
-            <Text style={ptStyles.label}>{label}</Text>
-            <Feather name="chevron-right" size={13} color="#D1D5DB" />
-          </View>
-          <Text style={ptStyles.title}>{moonSignName}</Text>
-          <View style={ptStyles.tagsRow}>
-            <View style={ptStyles.tag}>
-              <Text style={ptStyles.tagText}>{moonElement}</Text>
-            </View>
-            <View style={[ptStyles.tag, { backgroundColor: moonColor + "12", borderColor: moonColor + "30" }]}>
-              <Text style={[ptStyles.tagText, { color: moonColor }]}>Moon sign</Text>
-            </View>
-          </View>
-          <Text style={ptStyles.preview} numberOfLines={1}>{oneLiner}</Text>
-          <View style={ptStyles.footer}>
-            <View style={[ptStyles.ctaBtn, { backgroundColor: moonColor + "10", borderColor: moonColor + "30" }]}>
-              <Text style={[ptStyles.ctaBtnText, { color: moonColor }]}>See full profile</Text>
-            </View>
-          </View>
+    <View style={s.gridWrap}>
+      {rows.map((row, ri) => (
+        <View key={ri} style={s.gridRow}>
+          {row.map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(item.route); }}
+              activeOpacity={0.8}
+              style={s.gridCard}
+            >
+              <View style={[s.gridIconBox, { backgroundColor: item.bg }]}>
+                <Feather name={item.icon} size={20} color={item.color} />
+              </View>
+              <View style={s.gridTextBlock}>
+                <Text style={s.gridLabel}>{item.label}</Text>
+                <Text style={s.gridSublabel}>{item.sublabel}</Text>
+              </View>
+              <Feather name="chevron-right" size={14} color="#CBD5E1" />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+// ─── Today's Luck row ────────────────────────────────────────────────────────
+
+function LuckyRow({ features, onPress }: { features: LuckyFeatures; onPress: () => void }) {
+  return (
+    <View style={s.luckyRow}>
+      {/* Lucky Number card */}
+      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.82} style={s.luckyCard}>
+        <Text style={s.luckyCardLabel}>TODAY'S NUMBER</Text>
+        <Text style={s.luckyNumber}>{features.number}</Text>
+        <Text style={s.luckyArchetype}>{features.archetype}</Text>
+        <Text style={s.luckyEnergy} numberOfLines={1}>{features.energy}</Text>
+        <View style={s.luckyTapRow}>
+          <Text style={s.luckyTap}>Reveal meaning</Text>
+          <Feather name="arrow-right" size={11} color="#4A3DE8" />
         </View>
       </TouchableOpacity>
-    </Animated.View>
-  );
-}
 
-const ptStyles = StyleSheet.create({
-  card:       { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB",
-                padding: 14, gap: 8,
-                shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  topRow:     { flexDirection: "row", alignItems: "center", gap: 8 },
-  iconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  iconGlyph:  { fontSize: 13 },
-  label:      { flex: 1, fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
-  title:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 22 },
-  tagsRow:    { flexDirection: "row", gap: 6, flexWrap: "wrap" },
-  tag:        { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, borderWidth: 1,
-                borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" },
-  tagText:    { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
-  preview:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 18, fontStyle: "italic" },
-  footer:     { flexDirection: "row", justifyContent: "flex-end" },
-  ctaBtn:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1 },
-  ctaBtnText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-});
-
-// ─── Interaction Teaser Card ──────────────────────────────────────────────────
-
-function InteractionTeaserCard({
-  userName, partnerName, userElement, partnerElement,
-  userMoonColor, partnerMoonColor, gunaTotal, onPress,
-}: {
-  userName: string; partnerName: string; userElement: string; partnerElement: string;
-  userMoonColor: string; partnerMoonColor: string; gunaTotal: number; onPress: () => void;
-}) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(fadeAnim, { toValue: 1, duration: 200, delay: 60, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
-  }, []);
-
-  const pct     = Math.round((gunaTotal / 36) * 100);
-  const color   = gunaTotal >= 28 ? "#10B981" : gunaTotal >= 21 ? "#F59E0B" : "#F43F5E";
-  const colorBg = gunaTotal >= 28 ? "#ECFDF5" : gunaTotal >= 21 ? "#FFFBEB" : "#FFF1F2";
-  const verdict = gunaTotal >= 28 ? "strong match" : gunaTotal >= 21 ? "good foundation" : gunaTotal >= 18 ? "workable" : "challenging";
-
-  return (
-    <Animated.View style={{ opacity: fadeAnim }}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.82}>
-        <View style={itStyles.card}>
-          <View style={itStyles.topRow}>
-            <View style={itStyles.iconCircle}>
-              <Text style={itStyles.iconGlyph}>♡</Text>
-            </View>
-            <Text style={itStyles.label}>Compatibility</Text>
-            <View style={[itStyles.scorePill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-              <Text style={[itStyles.scoreText, { color }]}>{pct}% · {verdict}</Text>
-            </View>
-          </View>
-          <Text style={itStyles.title}>{userName} & {partnerName}</Text>
-          <View style={itStyles.tagsRow}>
-            <View style={[itStyles.tag, { backgroundColor: userMoonColor + "10", borderColor: userMoonColor + "30" }]}>
-              <Text style={[itStyles.tagText, { color: userMoonColor }]}>{userName} · {userElement}</Text>
-            </View>
-            <View style={[itStyles.tag, { backgroundColor: partnerMoonColor + "10", borderColor: partnerMoonColor + "30" }]}>
-              <Text style={[itStyles.tagText, { color: partnerMoonColor }]}>{partnerName} · {partnerElement}</Text>
-            </View>
-          </View>
-          <View style={itStyles.footer}>
-            <Text style={[itStyles.verdictLabel, { color }]}>{verdict}</Text>
-            <View style={itStyles.ctaBtn}>
-              <Text style={itStyles.ctaBtnText}>Full breakdown</Text>
-            </View>
-          </View>
+      {/* Lucky Color card */}
+      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.82} style={s.luckyCard}>
+        <Text style={s.luckyCardLabel}>TODAY'S COLOR</Text>
+        <LinearGradient
+          colors={features.color.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={s.colorSwatch}
+        />
+        <Text style={s.luckyArchetype}>{features.color.name}</Text>
+        <Text style={s.luckyEnergy} numberOfLines={1}>♄ {features.planet}</Text>
+        <View style={s.luckyTapRow}>
+          <Text style={s.luckyTap}>See meaning</Text>
+          <Feather name="arrow-right" size={11} color="#4A3DE8" />
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 }
 
-const itStyles = StyleSheet.create({
-  card:       { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB",
-                padding: 14, gap: 9, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  topRow:     { flexDirection: "row", alignItems: "center", gap: 8 },
-  iconCircle: { width: 28, height: 28, borderRadius: 14, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
-  iconGlyph:  { fontSize: 13, color: "#5B4CE8" },
-  label:      { flex: 1, fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
-  scorePill:  { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
-  scoreText:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
-  title:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  tagsRow:    { flexDirection: "row", gap: 6, flexWrap: "wrap" },
-  tag:        { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
-  tagText:    { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium" },
-  footer:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  verdictLabel:{ fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
-  ctaBtn:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1,
-                borderColor: "#E5E7EB", backgroundColor: "#F9FAFB" },
-  ctaBtnText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#374151" },
-});
-
-// ─── Right Now Card ───────────────────────────────────────────────────────────
-
-function RightNowCard({ userMoment, partnerSignal, userName, partnerName }:
-  { userMoment: string; partnerSignal: string; userName: string; partnerName: string }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => { Animated.timing(fadeAnim, { toValue: 1, duration: 250, delay: 80, easing: Easing.out(Easing.quad), useNativeDriver: true }).start(); }, []);
-  return (
-    <Animated.View style={[rnStyles.card, { opacity: fadeAnim }]}>
-      <View style={rnStyles.header}>
-        <View style={rnStyles.livePip} />
-        <Text style={rnStyles.headerLabel}>Right now</Text>
-      </View>
-      <View style={rnStyles.section}>
-        <Text style={rnStyles.personLabel}>{userName}</Text>
-        <Text style={rnStyles.body}>{userMoment}</Text>
-      </View>
-      <View style={rnStyles.divider} />
-      <View style={rnStyles.section}>
-        <Text style={rnStyles.personLabel}>{partnerName}</Text>
-        <Text style={rnStyles.body}>{partnerSignal}</Text>
-      </View>
-    </Animated.View>
-  );
-}
-
-const rnStyles = StyleSheet.create({
-  card:        { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 14, gap: 10,
-                 shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  header:      { flexDirection: "row", alignItems: "center", gap: 6 },
-  livePip:     { width: 6, height: 6, borderRadius: 3, backgroundColor: "#5B4CE8" },
-  headerLabel: { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8", textTransform: "uppercase", letterSpacing: 0.5 },
-  section:     { gap: 3 },
-  personLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
-  body:        { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 19 },
-  divider:     { height: 1, backgroundColor: "#F3F4F6" },
-});
-
-// ─── Energy Bar ───────────────────────────────────────────────────────────────
-
-function EnergyBar({ label, value, color, delay }: { label: string; value: number; color: string; delay: number }) {
-  const widthAnim   = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
-  const [displayVal, setDisplayVal] = useState(0);
-
-  useEffect(() => {
-    const listenerId = widthAnim.addListener(({ value: v }) => setDisplayVal(Math.round(v)));
-    Animated.parallel([
-      Animated.timing(opacityAnim, { toValue: 1, duration: 220, delay, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.timing(widthAnim,   { toValue: value, duration: 520, delay, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-    ]).start();
-    return () => widthAnim.removeListener(listenerId);
-  }, [value, delay]);
-
-  const w = widthAnim.interpolate({ inputRange: [0, 100], outputRange: ["0%", "100%"], extrapolate: "clamp" });
-
-  return (
-    <Animated.View style={{ opacity: opacityAnim, gap: 6 }}>
-      <View style={styles.barLabelRow}>
-        <Text style={styles.barLabel}>{label}</Text>
-        <Text style={[styles.barValue, { color }]}>{displayVal}</Text>
-      </View>
-      <View style={styles.barTrack}>
-        <Animated.View style={{ width: w, height: "100%", overflow: "hidden", borderRadius: 6 }}>
-          <LinearGradient colors={[color + "88", color]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1 }} />
-        </Animated.View>
-      </View>
-    </Animated.View>
-  );
-}
-
-// ─── Home Screen ──────────────────────────────────────────────────────────────
+// ─── Home screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const { user, partner } = useApp();
+  const insets  = useSafeAreaInsets();
+  const router  = useRouter();
+  const { user, partner, challenges } = useApp();
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -261,262 +265,183 @@ export default function HomeScreen() {
 
   const [dbContent, setDbContent] = useState<DailyContent | null>(null);
   useEffect(() => {
-    if (!reading) return;
-    const attrs = extractKundliAttributes(reading, partner?.relationshipType ?? "relationship");
-    const tags = Object.entries(attrs).map(([k, v]) => `${k}:${v}`).filter(Boolean);
+    if (!reading || !partner) return;
+    const attrs = extractKundliAttributes(reading, partner.relationshipType ?? "relationship");
+    const tags  = Object.entries(attrs).map(([k, v]) => `${k}:${v}`).filter(Boolean);
     fetchDailyContent(tags).then((d) => { if (d) setDbContent(d); });
   }, [reading]);
 
   if (!user || !partner || !reading) return null;
 
-  const uRashi = RASHIS[reading.user.moonRashi];
-  const pRashi = RASHIS[reading.partner.moonRashi];
-  const uMP    = resolveMoonProfile(reading.user.moonRashi);
-  const pMP    = resolveMoonProfile(reading.partner.moonRashi);
+  const hero      = getPersonalizedHero(user.name, partner.name, reading, partner.relationshipType);
+  const rightNow  = getTodayBetweenYou(reading, partner.relationshipType, user.name, partner.name);
+  const energy    = getDailyEnergyPersonalized(reading, reading.user.dasha.current);
 
-  const energy     = getDailyEnergyPersonalized(reading, reading.user.dasha.current);
-  const qCat       = getPersonalizedQuoteCategory(reading.user.moonRashi, reading.user.dasha.current);
-  const today      = new Date();
-  const qSeed      = today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate();
-  const localQuote = getQuoteByCategory(qCat, qSeed + reading.user.nakshatra);
-  const dailyFocus = getPersonalizedFocus(user.name, reading.user.moonRashi, reading.user.dasha.current, partner.relationshipType);
-  const quoteText  = dbContent?.quote?.body ?? `"${localQuote.text}"`;
-  const quoteAuthor = dbContent?.quote?.meta?.author as string | undefined ?? localQuote.author;
-  const quoteLabel  = (dbContent?.quote?.meta?.category as string | undefined) ?? localQuote.category;
-  const dailyMsg   = dbContent?.message?.body ?? null;
+  const uRashi       = RASHIS[reading.user.moonRashi];
+  const luckyFeatures = getLuckyFeatures(user.birthDate, uRashi.element);
 
-  const hero     = getPersonalizedHero(user.name, partner.name, reading, partner.relationshipType);
-  const rightNow = getTodayBetweenYou(reading, partner.relationshipType, user.name, partner.name);
+  const compatPct    = Math.round((reading.guna.total / 36) * 100);
+  const patternCount = (challenges ?? []).length;
+  const dashaShort   = reading.user.dasha.current.split(" ")[0];
+  const dailyMsg     = dbContent?.message?.body ?? null;
 
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? "Good morning," : hour < 18 ? "Good afternoon," : "Good evening,";
 
-  const energyBars = [
-    { label: "❤️  Affection",     value: energy.closeness,    color: "#F43F5E" },
-    { label: "🗣️  Communication",  value: energy.communication, color: "#5B4CE8" },
-    { label: "🤝  Trust",          value: energy.trust,         color: "#10B981" },
-    { label: "⚡  Attraction",     value: energy.attraction,    color: "#F59E0B" },
-    { label: "😊  Positivity",     value: energy.positivity,    color: "#8B5CF6" },
-  ];
-
   const haptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
+  const navigate = (route: string) => {
+    router.push(route as any);
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={s.root}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
-        contentContainerStyle={[styles.scroll, {
-          paddingTop: insets.top + (Platform.OS === "web" ? 67 : 20),
+        style={Platform.OS === "web" ? s.webScroll : undefined}
+        contentContainerStyle={[s.scroll, {
+          paddingTop:    insets.top + (Platform.OS === "web" ? 67 : 20),
           paddingBottom: insets.bottom + 100,
         }]}
       >
-        {/* Header */}
-        <View style={styles.header}>
+
+        {/* ── Header ── */}
+        <View style={s.header}>
           <View>
-            <Text style={styles.greeting}>{greeting}</Text>
-            <Text style={styles.userName}>{user.name}</Text>
+            <Text style={s.greeting}>{greeting}</Text>
+            <Text style={s.userName}>{user.name}</Text>
           </View>
           <TouchableOpacity
             onPress={() => { haptic(); router.push("/profile"); }}
             activeOpacity={0.75}
-            style={styles.profileBtn}
+            style={s.avatar}
           >
-            <LinearGradient colors={["#5B4CE8", "#8B5CF6"]} style={styles.profileBtnGradient}>
-              <Text style={styles.profileBtnInitial}>{user.name.charAt(0) || "?"}</Text>
-            </LinearGradient>
+            <Text style={s.avatarInitial}>{user.name.charAt(0)?.toUpperCase() || "?"}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* About You */}
-        <ProfileTeaserCard
-          label="What we can tell about you"
-          moonSignName={uRashi.en}
-          moonElement={uRashi.element}
-          moonColor={uRashi.color}
-          oneLiner={`"${uMP.insight || uMP.needsToHear || "Your moon sign shapes how you love and attach."}"`}
-          onPress={() => { haptic(); router.push({ pathname: "/profile-detail", params: { person: "user" } }); }}
+        {/* ── Stats strip ── */}
+        <StatsStrip
+          compatPct={compatPct}
+          patternCount={patternCount}
+          dasha={dashaShort}
         />
 
-        {/* About Partner */}
-        <ProfileTeaserCard
-          label={`What we can tell about ${partner.name}`}
-          moonSignName={pRashi.en}
-          moonElement={pRashi.element}
-          moonColor={pRashi.color}
-          oneLiner={`"${pMP.insight || pMP.needsToHear || "Their moon sign shapes how they receive love."}"`}
-          onPress={() => { haptic(); router.push({ pathname: "/profile-detail", params: { person: "partner" } }); }}
-        />
-
-        {/* Compatibility */}
-        <InteractionTeaserCard
-          userName={user.name}
-          partnerName={partner.name}
-          userElement={uRashi.element}
-          partnerElement={pRashi.element}
-          userMoonColor={uRashi.color}
-          partnerMoonColor={pRashi.color}
-          gunaTotal={reading.guna.total}
-          onPress={() => { haptic(); router.push("/(tabs)/compatibility"); }}
-        />
-
-        {/* Today's Read */}
-        <TouchableOpacity
-          onPress={() => { haptic(); router.push({ pathname: "/reading-detail", params: { headline: hero.headline, insight: hero.insight, action: hero.action, moonTag: hero.moonTag } }); }}
-          activeOpacity={0.85}
-        >
-          <View style={styles.heroCard}>
-            <View style={styles.heroTopRow}>
-              <View style={styles.heroMoonTag}>
-                <Text style={styles.heroMoonTagText}>{hero.moonTag}</Text>
-              </View>
-              <Feather name="chevron-right" size={14} color="#9CA3AF" />
-            </View>
-            <Text style={styles.heroHeadline}>{hero.headline}</Text>
-            <Text style={styles.heroInsight} numberOfLines={3}>{hero.insight}</Text>
-            <View style={styles.heroDivider} />
-            <View style={styles.heroActionRow}>
-              <Feather name="sun" size={13} color="#F59E0B" />
-              <Text style={styles.heroActionText}>{hero.action}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-
-        {/* Right Now */}
-        <RightNowCard
-          userMoment={rightNow.userMoment}
-          partnerSignal={rightNow.partnerSignal}
-          userName={user.name}
-          partnerName={partner.name}
-        />
-
-        {/* Quote + Focus */}
-        <View style={styles.quoteCard}>
-          <View style={styles.quoteTopRow}>
-            <Text style={styles.quoteCat}>
-              {quoteLabel === "self" ? "self-worth" : quoteLabel === "communication" ? "honesty"
-                : quoteLabel === "intuition" ? "inner knowing" : quoteLabel === "patience" ? "timing"
-                : quoteLabel === "healing" ? "healing" : quoteLabel ?? "reflection"}
-            </Text>
-            <Text style={styles.quoteStar}>✦</Text>
-          </View>
-          <Text style={styles.quoteText}>{quoteText.startsWith('"') ? quoteText : `"${quoteText}"`}</Text>
-          {quoteAuthor ? <Text style={styles.quoteAuthor}>— {quoteAuthor}</Text> : null}
-          <View style={styles.quoteDivider} />
-          <View style={styles.focusRow}>
-            <Feather name="sun" size={13} color="#F59E0B" />
-            <Text style={styles.focusText}>{dailyMsg ?? dailyFocus}</Text>
-          </View>
+        {/* ── Today's Focus ── */}
+        <View style={s.section}>
+          <Text style={s.sectionLabel}>TODAY'S FOCUS</Text>
+          <TodayFocusCard
+            moonTag={hero.moonTag}
+            headline={hero.headline}
+            insight={hero.insight}
+            action={hero.action}
+            dailyMsg={dailyMsg}
+            onPress={() => {
+              haptic();
+              router.push({
+                pathname: "/reading-detail",
+                params: { headline: hero.headline, insight: hero.insight, action: hero.action, moonTag: hero.moonTag },
+              });
+            }}
+          />
         </View>
 
-        {/* Energy Today */}
-        <TouchableOpacity
-          onPress={() => { haptic(); router.push({ pathname: "/energy-detail" }); }}
-          activeOpacity={0.85}
-        >
-          <View style={styles.dailyCard}>
-            <View style={styles.dailyHeader}>
-              <Text style={styles.dailyTitle}>Your energy today</Text>
-              <View style={styles.dailyHeaderRight}>
-                <Text style={styles.dailyDate}>{energy.date}</Text>
-                <Feather name="chevron-right" size={14} color="#9CA3AF" />
-              </View>
-            </View>
-            <Text style={styles.dailyMessage}>"{energy.message}"</Text>
-            <Text style={styles.withText}>with {partner.name}</Text>
-            <View style={styles.barsContainer}>
-              {energyBars.map((bar, i) => (
-                <EnergyBar key={bar.label} {...bar} delay={i * 80} />
-              ))}
-            </View>
-          </View>
-        </TouchableOpacity>
+        {/* ── Right Now ── */}
+        <RightNowCard
+          userName={user.name}
+          partnerName={partner.name}
+          userMoment={rightNow.userMoment}
+          partnerSignal={rightNow.partnerSignal}
+        />
 
-        {/* Guidance teaser */}
-        <TouchableOpacity
-          onPress={() => { haptic(); router.push("/(tabs)/guidance"); }}
-          activeOpacity={0.8}
-          style={styles.guidanceTeaser}
-        >
-          <Text style={styles.guidanceTeaserTitle}>The question you keep not asking</Text>
-          <Text style={styles.guidanceTeaserSub}>Say it out loud. Get an honest answer.</Text>
-          <View style={styles.guidanceSuggestions}>
-            {[
-              partner.relationshipType === "ex"             ? "Do they actually miss me or just the comfort?"
-              : partner.relationshipType === "situationship" ? "Why am I always the one who wants more?"
-              : partner.relationshipType === "crush"         ? "Am I misreading this or do they feel it too?"
-              : "Why do I feel like I care more than they do?",
-              partner.relationshipType === "ex"             ? "Why can I not let go even when I know I should?"
-              : partner.relationshipType === "situationship" ? "Am I just convenient for them right now?"
-              : partner.relationshipType === "crush"         ? "What if I say something and it ruins everything?"
-              : "Do they actually want to be with me?",
-            ].map((q, i) => (
-              <TouchableOpacity
-                key={i}
-                onPress={(e) => { e.stopPropagation?.(); haptic(); router.push({ pathname: "/(tabs)/guidance", params: { autoSend: q } }); }}
-                activeOpacity={0.75}
-                style={styles.suggestionChip}
-              >
-                <Text style={styles.suggestionText}>{q}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
+        {/* ── Today's Luck ── */}
+        <View style={s.section}>
+          <Text style={s.sectionLabel}>TODAY'S LUCK</Text>
+          <LuckyRow features={luckyFeatures} onPress={() => { haptic(); navigate("/lucky-detail"); }} />
+        </View>
+
+        {/* ── Explore ── */}
+        <View style={s.section}>
+          <Text style={s.sectionLabel}>EXPLORE</Text>
+          <QuickAccessGrid
+            compatPct={compatPct}
+            patternCount={patternCount}
+            onPress={navigate}
+          />
+        </View>
+
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  scroll:              { paddingHorizontal: 16, gap: 10 },
-  header:              { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 2 },
-  profileBtn:          { borderRadius: 20, overflow: "hidden" },
-  profileBtnGradient:  { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center" },
-  profileBtnInitial:   { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
-  greeting:            { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
-  userName:            { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
+const s = StyleSheet.create({
+  root:     { flex: 1, backgroundColor: "#F7F5F0" },
+  webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
+  scroll:   { paddingHorizontal: 18, gap: 16 },
 
-  heroCard:            { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 10,
-                         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  heroTopRow:          { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  heroMoonTag:         { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
-  heroMoonTagText:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
-  heroHeadline:        { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 24 },
-  heroInsight:         { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 20 },
-  heroDivider:         { height: 1, backgroundColor: "#F3F4F6" },
-  heroActionRow:       { flexDirection: "row", alignItems: "flex-start", gap: 7 },
-  heroActionText:      { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 19 },
+  // Header
+  header:        { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  greeting:      { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
+  userName:      { fontSize: 28, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.5 },
+  avatar:        { width: 46, height: 46, borderRadius: 23, backgroundColor: "#4A3DE8", alignItems: "center", justifyContent: "center" },
+  avatarInitial: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
 
-  quoteCard:           { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 10,
-                         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  quoteTopRow:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  quoteCat:            { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#5B4CE8", textTransform: "uppercase", letterSpacing: 0.8 },
-  quoteStar:           { fontSize: 12, color: "#C7D2FE" },
-  quoteText:           { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#111827", lineHeight: 23, fontStyle: "italic" },
-  quoteAuthor:         { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
-  quoteDivider:        { height: 1, backgroundColor: "#F3F4F6" },
-  focusRow:            { flexDirection: "row", alignItems: "flex-start", gap: 7 },
-  focusText:           { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 20 },
+  // Stats strip
+  statsRow:       { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  statItem:       { flex: 1, alignItems: "center", paddingVertical: 14 },
+  statItemBorder: { borderRightWidth: 1, borderRightColor: "#F1F5F9" },
+  statValue:      { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.3 },
+  statLabel:      { marginTop: 2, fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5 },
 
-  dailyCard:           { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB", padding: 16, gap: 10,
-                         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  dailyHeader:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  dailyHeaderRight:    { flexDirection: "row", alignItems: "center", gap: 5 },
-  dailyTitle:          { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold", color: "#6B7280" },
-  dailyDate:           { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
-  dailyMessage:        { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 20, fontStyle: "italic" },
-  withText:            { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
-  barsContainer:       { gap: 9, marginTop: 2 },
-  barLabelRow:         { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  barLabel:            { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
-  barValue:            { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
-  barTrack:            { height: 6, backgroundColor: "#F3F4F6", borderRadius: 4, overflow: "hidden" },
+  // Section wrapper
+  section:      { gap: 10 },
+  sectionLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
 
-  guidanceTeaser:      { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#C7D2FE", padding: 16, gap: 8,
-                         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  guidanceTeaserTitle: { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 22 },
-  guidanceTeaserSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
-  guidanceSuggestions: { flexDirection: "row", gap: 6, marginTop: 4, flexWrap: "wrap" },
-  suggestionChip:      { borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "#EEF2FF" },
-  suggestionText:      { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#5B4CE8" },
+  // Today's Focus card
+  focusCard:    { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
+  focusTagRow:  { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  focusTag:     { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+  focusTagText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+  liveRow:      { flexDirection: "row", alignItems: "center", gap: 5 },
+  liveDot:      { width: 6, height: 6, borderRadius: 3, backgroundColor: "#10B981" },
+  liveText:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
+  focusHeadline:{ fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 27, letterSpacing: -0.3 },
+  focusInsight: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
+  focusDivider: { height: 1, backgroundColor: "#F1F5F9" },
+  focusFooter:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  focusSunIcon: { fontSize: 14, color: "#F59E0B", marginTop: 1 },
+  focusAction:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 19 },
+  focusArrow:   { width: 26, height: 26, borderRadius: 8, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+
+  // Right Now card
+  rightNowCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 16, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  rightNowHeader: { flexDirection: "row", alignItems: "center", gap: 7 },
+  rightNowPip:    { width: 6, height: 6, borderRadius: 3, backgroundColor: "#4A3DE8" },
+  rightNowTitle:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", textTransform: "uppercase", letterSpacing: 0.8 },
+  rightNowRow:    { flexDirection: "row", gap: 14 },
+  rightNowBlock:  { flex: 1, gap: 4 },
+  rightNowName:   { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.6 },
+  rightNowBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 19 },
+  rightNowDivider:{ width: 1, backgroundColor: "#F1F5F9" },
+
+  // Lucky row
+  luckyRow:       { flexDirection: "row", gap: 12 },
+  luckyCard:      { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 14, gap: 6, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  luckyCardLabel: { fontSize: 9, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 },
+  luckyNumber:    { fontSize: 52, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", lineHeight: 58, letterSpacing: -1 },
+  luckyArchetype: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  luckyEnergy:    { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
+  luckyTapRow:    { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+  luckyTap:       { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+  colorSwatch:    { height: 44, borderRadius: 10, marginBottom: 2 },
+
+  // Quick access grid
+  gridWrap: { gap: 10 },
+  gridRow:  { flexDirection: "row", gap: 10 },
+  gridCard: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  gridIconBox:   { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  gridTextBlock: { flex: 1 },
+  gridLabel:     { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  gridSublabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 1 },
 });

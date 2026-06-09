@@ -6,12 +6,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -135,58 +133,72 @@ export default function LoginScreen() {
     }
   };
 
-  const greeting = mode === "signin" ? "Welcome back" : "Create your account";
+  const heading = mode === "signin" ? "Welcome back" : "Create account";
+  const subHeading = mode === "signin"
+    ? "Sign in to access your insights"
+    : "Set up your astrology profile";
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView
-          contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 36, paddingBottom: insets.bottom + 40 }]}
-          style={Platform.OS === "web" ? { maxWidth: 480, alignSelf: "center", width: "100%" } : undefined}
+          contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
+          style={Platform.OS === "web" ? styles.webScroll : undefined}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo */}
-          <View style={styles.logoArea}>
-            <View style={styles.logoCircle}>
-              <Image source={require("../assets/images/logo.png")} style={styles.logo} resizeMode="cover" />
+
+          {/* Back + toggle row */}
+          <View style={styles.topRow}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              activeOpacity={0.7}
+              style={styles.backBtn}
+            >
+              <Feather name="arrow-left" size={20} color="#0F172A" />
+            </TouchableOpacity>
+
+            <View style={styles.toggle}>
+              <TouchableOpacity
+                onPress={() => switchMode("register")}
+                style={[styles.toggleBtn, mode === "register" && styles.toggleBtnActive]}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.toggleText, mode === "register" && styles.toggleTextActive]}>
+                  New Account
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => switchMode("signin")}
+                style={[styles.toggleBtn, mode === "signin" && styles.toggleBtnActive]}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.toggleText, mode === "signin" && styles.toggleTextActive]}>
+                  Sign In
+                </Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.appName}>Lumble</Text>
-            <Text style={styles.tagline}>{greeting}</Text>
           </View>
 
-          {/* Mode toggle */}
-          <View style={styles.toggle}>
-            <TouchableOpacity
-              onPress={() => switchMode("signin")}
-              style={[styles.toggleBtn, mode === "signin" && styles.toggleBtnActive]}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.toggleText, mode === "signin" && styles.toggleTextActive]}>Sign In</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => switchMode("register")}
-              style={[styles.toggleBtn, mode === "register" && styles.toggleBtnActive]}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.toggleText, mode === "register" && styles.toggleTextActive]}>Create Account</Text>
-            </TouchableOpacity>
+          {/* Heading */}
+          <View style={styles.headingBlock}>
+            <Text style={styles.heading}>{heading}</Text>
+            <Text style={styles.subHeading}>{subHeading}</Text>
           </View>
 
           {/* Form */}
           <Animated.View style={[styles.form, { transform: [{ translateX: shakeAnim }] }]}>
 
             {/* Email */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Email</Text>
+            <View style={styles.fieldWrap}>
               <View style={styles.fieldRow}>
-                <Feather name="mail" size={16} color="#9CA3AF" style={styles.icon} />
+                <Feather name="mail" size={16} color="#94A3B8" />
                 <TextInput
                   style={styles.input}
                   value={email}
                   onChangeText={(t) => { setEmail(t); clear(); }}
-                  placeholder="your@email.com"
-                  placeholderTextColor="#D1D5DB"
+                  placeholder="Email address"
+                  placeholderTextColor="#CBD5E1"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -196,46 +208,44 @@ export default function LoginScreen() {
             </View>
 
             {/* Password */}
-            <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Password</Text>
+            <View style={styles.fieldWrap}>
               <View style={styles.fieldRow}>
-                <Feather name="lock" size={16} color="#9CA3AF" style={styles.icon} />
+                <Feather name="lock" size={16} color="#94A3B8" />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
                   value={password}
                   onChangeText={(t) => { setPassword(t); clear(); }}
-                  placeholder={mode === "register" ? "Min. 6 characters" : "Your password"}
-                  placeholderTextColor="#D1D5DB"
+                  placeholder={mode === "register" ? "Password (min. 6 chars)" : "Password"}
+                  placeholderTextColor="#CBD5E1"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   returnKeyType={mode === "register" ? "next" : "done"}
                   onSubmitEditing={mode === "signin" ? handleSubmit : undefined}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color="#9CA3AF" />
+                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color="#94A3B8" />
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Confirm password — register only */}
+            {/* Confirm password */}
             {mode === "register" && (
-              <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Confirm Password</Text>
+              <View style={styles.fieldWrap}>
                 <View style={styles.fieldRow}>
-                  <Feather name="lock" size={16} color="#9CA3AF" style={styles.icon} />
+                  <Feather name="lock" size={16} color="#94A3B8" />
                   <TextInput
                     style={[styles.input, { flex: 1 }]}
                     value={confirm}
                     onChangeText={(t) => { setConfirm(t); clear(); }}
-                    placeholder="Re-enter password"
-                    placeholderTextColor="#D1D5DB"
+                    placeholder="Confirm password"
+                    placeholderTextColor="#CBD5E1"
                     secureTextEntry={!showConfirm}
                     autoCapitalize="none"
                     returnKeyType="done"
                     onSubmitEditing={handleSubmit}
                   />
                   <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
-                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color="#9CA3AF" />
+                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color="#94A3B8" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -254,22 +264,43 @@ export default function LoginScreen() {
               onPress={handleSubmit}
               disabled={loading}
               activeOpacity={0.85}
-              style={[styles.submitBtn, loading && { opacity: 0.7 }]}
+              style={[styles.submitBtn, loading && { opacity: 0.6 }]}
             >
-              <LinearGradient
-                colors={["#5B4CE8", "#8B5CF6"]}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                style={styles.submitGradient}
-              >
-                <Text style={styles.submitText}>
-                  {loading
-                    ? (mode === "signin" ? "Signing in…" : "Creating account…")
-                    : (mode === "signin" ? "Sign In" : "Create Account")}
-                </Text>
-                {!loading && <Feather name="arrow-right" size={18} color="#fff" />}
-              </LinearGradient>
+              <Text style={styles.submitText}>
+                {loading
+                  ? (mode === "signin" ? "Signing in…" : "Creating account…")
+                  : (mode === "signin" ? "Sign In" : "Create Account")}
+              </Text>
+              {!loading && (
+                <View style={styles.submitArrow}>
+                  <Feather name="arrow-right" size={16} color="#0F172A" />
+                </View>
+              )}
             </TouchableOpacity>
+
           </Animated.View>
+
+          {/* Bottom links */}
+          <View style={styles.bottomLinks}>
+            {mode === "signin" ? (
+              <>
+                <TouchableOpacity onPress={() => switchMode("register")} activeOpacity={0.7}>
+                  <Text style={styles.bottomLinkText}>
+                    Don't have an account?{" "}
+                    <Text style={styles.bottomLinkAccent}>Create one</Text>
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.forgotLink}>Forgot password?</Text>
+              </>
+            ) : (
+              <TouchableOpacity onPress={() => switchMode("signin")} activeOpacity={0.7}>
+                <Text style={styles.bottomLinkText}>
+                  Already have an account?{" "}
+                  <Text style={styles.bottomLinkAccent}>Sign in</Text>
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
         </ScrollView>
       </KeyboardAvoidingView>
@@ -278,61 +309,149 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#F7F5F0",
+  },
+  webScroll: {
+    maxWidth: 480,
+    alignSelf: "center",
+    width: "100%",
+  },
   scroll: {
-    flexGrow: 1, paddingHorizontal: 28, gap: 24,
-    alignItems: "stretch", justifyContent: "center",
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    gap: 28,
   },
 
-  logoArea:   { alignItems: "center", gap: 10 },
-  logoCircle: {
-    width: 76, height: 76, borderRadius: 38, overflow: "hidden",
-    borderWidth: 2, borderColor: "#E5E7EB",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3,
+  // Top row
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
   },
-  logo:    { width: "100%", height: "100%" },
-  appName: { fontSize: 28, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", letterSpacing: -0.5 },
-  tagline: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
-
-  // Toggle
+  backBtn: {
+    width: 40, height: 40,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   toggle: {
-    flexDirection: "row", backgroundColor: "#FFFFFF",
-    borderRadius: 14, padding: 4, gap: 2,
-    borderWidth: 1, borderColor: "#E5E7EB",
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
-  toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center" },
-  toggleBtnActive: { backgroundColor: "#5B4CE8" },
-  toggleText:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#9CA3AF" },
+  toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 11, alignItems: "center" },
+  toggleBtnActive: { backgroundColor: "#0F172A" },
+  toggleText:      { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
   toggleTextActive:{ color: "#FFFFFF" },
 
+  // Heading
+  headingBlock: { gap: 6 },
+  heading: {
+    fontSize: 26,
+    fontFamily: "PlusJakartaSans_800ExtraBold",
+    color: "#0F172A",
+    letterSpacing: -0.4,
+  },
+  subHeading: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#64748B",
+  },
+
   // Form
-  form:       { gap: 14 },
-  fieldGroup: { gap: 7 },
-  fieldLabel: {
-    fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#374151",
+  form:     { gap: 12 },
+  fieldWrap: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    overflow: "hidden",
   },
   fieldRow: {
-    flexDirection: "row", alignItems: "center",
-    backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
-    paddingHorizontal: 14, gap: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    gap: 10,
   },
-  icon:    { flexShrink: 0 },
   input: {
-    flex: 1, paddingVertical: 15, fontSize: 15,
-    fontFamily: "PlusJakartaSans_400Regular", color: "#111827",
+    flex: 1,
+    paddingVertical: 16,
+    fontSize: 15,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#0F172A",
   },
   eyeBtn: { padding: 4 },
 
   errorBanner: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: "#FFF1F2", borderRadius: 10, padding: 12,
-    borderWidth: 1, borderColor: "#FECDD3",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#FFF1F2",
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#FECDD3",
   },
-  errorText: { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#F43F5E" },
+  errorText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#F43F5E",
+  },
 
-  submitBtn:      { borderRadius: 16, overflow: "hidden" },
-  submitGradient: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 10, paddingVertical: 17,
+  submitBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#0F172A",
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingLeft: 22,
+    paddingRight: 8,
+    marginTop: 4,
   },
-  submitText: { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+  submitText: {
+    fontSize: 16,
+    fontFamily: "PlusJakartaSans_700Bold",
+    color: "#FFFFFF",
+  },
+  submitArrow: {
+    width: 38, height: 38,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Bottom links
+  bottomLinks: {
+    alignItems: "center",
+    gap: 12,
+    paddingBottom: 8,
+  },
+  bottomLinkText: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans_400Regular",
+    color: "#94A3B8",
+    textAlign: "center",
+  },
+  bottomLinkAccent: {
+    fontFamily: "PlusJakartaSans_700Bold",
+    color: "#4A3DE8",
+  },
+  forgotLink: {
+    fontSize: 14,
+    fontFamily: "PlusJakartaSans_600SemiBold",
+    color: "#4A3DE8",
+  },
 });

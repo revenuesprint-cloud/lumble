@@ -65,11 +65,11 @@ function WheelPicker({
     <View style={{ width, height: ITEM_H * 5, overflow: "hidden" }}>
       {/* Top fade */}
       <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, height: ITEM_H * 2, zIndex: 10 }}>
-        <LinearGradient colors={["rgba(244,245,247,0.97)", "rgba(244,245,247,0)"]} style={{ flex: 1 }} />
+        <LinearGradient colors={["rgba(247,245,240,0.97)", "rgba(247,245,240,0)"]} style={{ flex: 1 }} />
       </View>
       {/* Bottom fade */}
       <View pointerEvents="none" style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: ITEM_H * 2, zIndex: 10 }}>
-        <LinearGradient colors={["rgba(244,245,247,0)", "rgba(244,245,247,0.97)"]} style={{ flex: 1 }} />
+        <LinearGradient colors={["rgba(247,245,240,0)", "rgba(247,245,240,0.97)"]} style={{ flex: 1 }} />
       </View>
       {/* Selection highlight */}
       <View pointerEvents="none" style={{
@@ -94,8 +94,8 @@ function WheelPicker({
           <View key={i} style={{ height: ITEM_H, alignItems: "center", justifyContent: "center" }}>
             <Text style={{
               fontSize: rf(16),
-              color: i === selectedIndex ? "#111827" : "rgba(17,24,39,0.3)",
-              fontFamily: "Nunito_600SemiBold",
+              color: i === selectedIndex ? "#0F172A" : "rgba(17,24,39,0.3)",
+              fontFamily: "PlusJakartaSans_600SemiBold",
               fontWeight: i === selectedIndex ? "700" : "400",
             }}>
               {item}
@@ -221,7 +221,7 @@ export default function Onboarding() {
     // 0: Welcome
     <View key={0} style={styles.stepContainer}>
       <View style={styles.logoCircle}>
-        <LinearGradient colors={["#5B4CE8", "#8B5CF6"]} style={styles.logoGradient}>
+        <LinearGradient colors={["#4A3DE8", "#8B5CF6"]} style={styles.logoGradient}>
           <Text style={styles.logoInitial}>L</Text>
         </LinearGradient>
       </View>
@@ -302,7 +302,7 @@ export default function Onboarding() {
           style={[styles.relTypeCard, form.relationshipType === r.key && styles.relTypeCardSelected]}
           activeOpacity={0.8}
         >
-          <Text style={[styles.relTypeLabel, form.relationshipType === r.key && { color: "#5B4CE8" }]}>{r.label}</Text>
+          <Text style={[styles.relTypeLabel, form.relationshipType === r.key && { color: "#4A3DE8" }]}>{r.label}</Text>
           <Text style={styles.relTypeDesc}>{r.desc}</Text>
         </TouchableOpacity>
       ))}
@@ -317,7 +317,7 @@ export default function Onboarding() {
   const isCalculating = step === TOTAL_STEPS - 1;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView
           style={webScrollStyle}
@@ -333,7 +333,7 @@ export default function Onboarding() {
             <View style={styles.topNav}>
               {step > 0 ? (
                 <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}>
-                  <Ionicons name="chevron-back" size={22} color="#6B7280" />
+                  <Ionicons name="chevron-back" size={22} color="#64748B" />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.backBtnPlaceholder} />
@@ -362,16 +362,16 @@ export default function Onboarding() {
 
           {!isCalculating && (
             <Pressable onPress={next} disabled={!canProceed()} style={[styles.nextBtn, !canProceed() && { opacity: 0.4 }]}>
-              <LinearGradient
-                colors={["#5B4CE8", "#8B5CF6"]}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                style={styles.nextBtnGradient}
-              >
+              <View style={styles.nextBtnInner}>
                 <Text style={styles.nextBtnText}>
                   {step === 0 ? "Begin" : step === TOTAL_STEPS - 2 ? "Reveal" : "Continue"}
                 </Text>
-                {step > 0 && <Ionicons name="arrow-forward" size={20} color="#fff" />}
-              </LinearGradient>
+                {step > 0 && (
+                  <View style={styles.nextBtnArrow}>
+                    <Ionicons name="arrow-forward" size={18} color="#0F172A" />
+                  </View>
+                )}
+              </View>
             </Pressable>
           )}
         </ScrollView>
@@ -400,7 +400,7 @@ function CalcAnimation({ name }: { name: string }) {
     <View style={{ alignItems: "center", gap: 24 }}>
       <Animated.View style={{ opacity: pulseAnim, transform: [{ scale: pulseAnim.interpolate({ inputRange: [0.6, 1], outputRange: [0.94, 1.04] }) }] }}>
         <LinearGradient
-          colors={["#5B4CE8", "#8B5CF6", "#10B981"]}
+          colors={["#4A3DE8", "#8B5CF6", "#10B981"]}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={styles.calcOrb}
         />
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB",
+    backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0",
     alignItems: "center", justifyContent: "center",
   },
   backBtnPlaceholder: { width: 40, height: 40 },
@@ -437,10 +437,10 @@ const styles = StyleSheet.create({
     flex: 1, justifyContent: "center",
   },
   progressDot: {
-    width: 6, height: 6, borderRadius: 3, backgroundColor: "#E5E7EB",
+    width: 6, height: 6, borderRadius: 3, backgroundColor: "#E2E8F0",
   },
   progressDotActive:  { backgroundColor: "#C7D2FE" },
-  progressDotCurrent: { backgroundColor: "#5B4CE8", width: 18, borderRadius: 3 },
+  progressDotCurrent: { backgroundColor: "#4A3DE8", width: 18, borderRadius: 3 },
 
   stepContainer: {
     flex: 1, gap: 14, paddingTop: 16,
@@ -454,64 +454,62 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12, shadowRadius: 16, elevation: 5,
   },
   logoGradient: { flex: 1, alignItems: "center", justifyContent: "center" },
-  logoInitial: { fontSize: rf(42), fontFamily: "Nunito_700Bold", color: "#fff" },
+  logoInitial: { fontSize: rf(42), fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
 
   appName: {
-    fontSize: rf(36), fontFamily: "Nunito_700Bold",
-    color: "#111827", textAlign: "center", letterSpacing: -0.5,
+    fontSize: rf(34), fontFamily: "PlusJakartaSans_800ExtraBold",
+    color: "#0F172A", textAlign: "center", letterSpacing: -0.8,
   },
   tagline: {
-    fontSize: rf(17), fontFamily: "Nunito_400Regular",
-    color: "#6B7280", textAlign: "center", lineHeight: rf(17) * 1.6,
+    fontSize: rf(16), fontFamily: "PlusJakartaSans_400Regular",
+    color: "#64748B", textAlign: "center", lineHeight: rf(16) * 1.65,
   },
   stepLabel: {
-    fontSize: rf(24), fontFamily: "Nunito_700Bold",
-    color: "#111827", lineHeight: rf(24) * 1.35,
+    fontSize: rf(26), fontFamily: "PlusJakartaSans_800ExtraBold",
+    color: "#0F172A", lineHeight: rf(26) * 1.3, letterSpacing: -0.4,
   },
   stepSub: {
-    fontSize: rf(15), fontFamily: "Nunito_400Regular", color: "#6B7280",
+    fontSize: rf(15), fontFamily: "PlusJakartaSans_400Regular", color: "#64748B",
   },
   textInput: {
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5, borderColor: "#C7D2FE",
     borderRadius: 14,
     paddingHorizontal: 18, paddingVertical: 16,
-    fontSize: rf(18), fontFamily: "Nunito_600SemiBold",
-    color: "#111827", marginTop: 8,
+    fontSize: rf(18), fontFamily: "PlusJakartaSans_600SemiBold",
+    color: "#0F172A", marginTop: 8,
     shadowColor: "#000", shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
   },
   skipBtn:  { alignSelf: "center", padding: 8 },
-  skipText: { fontSize: rf(14), color: "#9CA3AF", fontFamily: "Nunito_400Regular" },
+  skipText: { fontSize: rf(14), color: "#94A3B8", fontFamily: "PlusJakartaSans_400Regular" },
 
   relTypeCard: {
-    backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB",
+    backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0",
     borderRadius: 14, padding: 16, gap: 4,
     shadowColor: "#000", shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
   relTypeCardSelected: { borderColor: "#C7D2FE", backgroundColor: "#EEF2FF" },
-  relTypeLabel: { fontSize: rf(16), fontFamily: "Nunito_700Bold", color: "#111827" },
-  relTypeDesc:  { fontSize: rf(13), fontFamily: "Nunito_400Regular", color: "#6B7280" },
+  relTypeLabel: { fontSize: rf(16), fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  relTypeDesc:  { fontSize: rf(13), fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
 
-  nextBtn: { marginTop: 8, borderRadius: 16, overflow: "hidden" },
-  nextBtnGradient: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    paddingVertical: 17, gap: 8,
-  },
-  nextBtnText: { fontSize: rf(16), fontFamily: "Nunito_700Bold", color: "#fff" },
+  nextBtn:      { marginTop: 8, borderRadius: 16, overflow: "hidden" },
+  nextBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0F172A", paddingVertical: 17, paddingLeft: 22, paddingRight: 8 },
+  nextBtnText:  { fontSize: rf(16), fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+  nextBtnArrow: { width: 38, height: 38, borderRadius: 11, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" },
 
   calcOrb: { width: rs(120), height: rs(120), borderRadius: rs(60) },
   calcTitle: {
-    fontSize: rf(22), fontFamily: "Nunito_700Bold",
-    color: "#111827", textAlign: "center",
+    fontSize: rf(22), fontFamily: "PlusJakartaSans_700Bold",
+    color: "#0F172A", textAlign: "center",
   },
   calcSub: {
-    fontSize: rf(15), fontFamily: "Nunito_400Regular",
-    color: "#6B7280", textAlign: "center",
+    fontSize: rf(15), fontFamily: "PlusJakartaSans_400Regular",
+    color: "#64748B", textAlign: "center",
   },
   calcSub2: {
-    fontSize: rf(13), fontFamily: "Nunito_400Regular",
-    color: "#5B4CE8", textAlign: "center", lineHeight: rf(13) * 1.7,
+    fontSize: rf(13), fontFamily: "PlusJakartaSans_400Regular",
+    color: "#4A3DE8", textAlign: "center", lineHeight: rf(13) * 1.7,
   },
 });

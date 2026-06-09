@@ -3,7 +3,6 @@ import { getLocalStates } from "@/utils/dbContent";
 import type { Challenge } from "@/utils/challenges";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -19,122 +18,118 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const SEVERITY_COLOR: Record<string, string> = {
+const SEV_COLOR: Record<string, string> = {
   mild:     "#10B981",
   moderate: "#F59E0B",
   severe:   "#F43F5E",
 };
-
-const SEVERITY_BG: Record<string, string> = {
+const SEV_BG: Record<string, string> = {
   mild:     "#ECFDF5",
   moderate: "#FFFBEB",
   severe:   "#FFF1F2",
 };
-
-const SEVERITY_DISPLAY: Record<string, string> = {
-  mild:     "low key",
-  moderate: "ongoing",
-  severe:   "front and center",
+const SEV_LABEL: Record<string, string> = {
+  mild:     "Worth knowing",
+  moderate: "Actively present",
+  severe:   "At the core",
+};
+const SEV_ICON: Record<string, string> = {
+  mild:     "🌱",
+  moderate: "⚡",
+  severe:   "🔥",
 };
 
-const SEVERITY_MEANING: Record<string, string> = {
-  mild:     "Good to be aware of",
-  moderate: "This one's showing up a lot",
-  severe:   "The main thing between you",
-};
-
-const ALL_CATEGORIES = "All";
 const JOURNEY_TABS = ["All", "My Journey", "Working On", "Resolved"] as const;
-
-const JOURNEY_STATE_META: Record<string, { icon: string; color: string; bg: string; label: string }> = {
+const JOURNEY_META: Record<string, { icon: keyof typeof Feather.glyphMap; color: string; bg: string; label: string }> = {
   resonates:  { icon: "heart",        color: "#F43F5E", bg: "#FFF1F2", label: "Resonates" },
   working_on: { icon: "activity",     color: "#F59E0B", bg: "#FFFBEB", label: "Working on" },
   resolved:   { icon: "check-circle", color: "#10B981", bg: "#ECFDF5", label: "Resolved" },
 };
 
-function ChallengeCard({
-  challenge, journeyState, onPress,
-}: {
+// ─── Challenge card ───────────────────────────────────────────────────────────
+
+function ChallengeCard({ challenge, journeyState, onPress }: {
   challenge: Challenge; journeyState: string | null; onPress: () => void;
 }) {
-  const color   = SEVERITY_COLOR[challenge.severity] ?? "#5B4CE8";
-  const colorBg = SEVERITY_BG[challenge.severity] ?? "#EEF2FF";
-  const js      = journeyState ? JOURNEY_STATE_META[journeyState] : null;
+  const color   = SEV_COLOR[challenge.severity] ?? "#4A3DE8";
+  const colorBg = SEV_BG[challenge.severity]   ?? "#EEF2FF";
+  const icon    = SEV_ICON[challenge.severity]  ?? "◦";
+  const js      = journeyState ? JOURNEY_META[journeyState] : null;
 
   return (
-    <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.8}>
-      <View style={styles.card}>
-        <View style={[styles.cardAccentBar, { backgroundColor: color }]} />
-        <View style={styles.cardContent}>
-          <View style={styles.cardTop}>
-            {/* Left: severity pill + meaning */}
-            <View style={styles.cardTopLeft}>
-              <View style={[styles.severityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-                <View style={[styles.severityDot, { backgroundColor: color }]} />
-                <Text style={[styles.severityLabel, { color }]}>{SEVERITY_DISPLAY[challenge.severity] ?? challenge.severity}</Text>
-              </View>
-              <Text style={styles.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
+    <TouchableOpacity
+      onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }}
+      activeOpacity={0.8}
+      style={cStyles.card}
+    >
+      <View style={cStyles.row}>
+        <View style={[cStyles.iconBox, { backgroundColor: colorBg }]}>
+          <Text style={{ fontSize: 18 }}>{icon}</Text>
+        </View>
+        <View style={cStyles.mid}>
+          <Text style={cStyles.title} numberOfLines={1}>{challenge.title}</Text>
+          <View style={cStyles.metaRow}>
+            <View style={cStyles.categoryPill}>
+              <Text style={cStyles.categoryText}>{challenge.category}</Text>
             </View>
-            {/* Right: category + journey badge */}
-            <View style={styles.cardTopRight}>
-              <View style={styles.categoryPill}>
-                <Text style={styles.categoryText}>{challenge.category}</Text>
+            {js && (
+              <View style={[cStyles.journeyBadge, { backgroundColor: js.bg, borderColor: js.color + "44" }]}>
+                <Feather name={js.icon} size={9} color={js.color} />
+                <Text style={[cStyles.journeyBadgeText, { color: js.color }]}>{js.label}</Text>
               </View>
-              {js && (
-                <View style={[styles.journeyBadge, { backgroundColor: js.bg, borderColor: js.color + "44" }]}>
-                  <Feather name={js.icon as any} size={10} color={js.color} />
-                  <Text style={[styles.journeyBadgeText, { color: js.color }]}>{js.label}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-          <Text style={styles.cardTitle}>{challenge.title}</Text>
-          <Text style={styles.cardDesc} numberOfLines={2}>{challenge.description}</Text>
-          <View style={styles.cardFooter}>
-            <Text style={styles.solutionsHint}>{challenge.solutions?.length ?? 0} remedies to try</Text>
-            <Feather name="chevron-right" size={16} color="#D1D5DB" />
+            )}
+            <Text style={cStyles.remediesHint}>{challenge.solutions?.length ?? 0} steps to try</Text>
           </View>
         </View>
+        <View style={[cStyles.sevBadge, { backgroundColor: colorBg, borderColor: color + "44" }]}>
+          <Text style={[cStyles.sevBadgeText, { color }]}>{SEV_LABEL[challenge.severity]}</Text>
+        </View>
+        <Feather name="chevron-right" size={15} color="#CBD5E1" />
       </View>
     </TouchableOpacity>
   );
 }
 
+const cStyles = StyleSheet.create({
+  card:         { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", paddingHorizontal: 14, paddingVertical: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  row:          { flexDirection: "row", alignItems: "center", gap: 12 },
+  iconBox:      { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  mid:          { flex: 1, gap: 5 },
+  title:        { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A", lineHeight: 20 },
+  metaRow:      { flexDirection: "row", alignItems: "center", gap: 6 },
+  categoryPill: { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
+  categoryText: { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold", color: "#4A3DE8" },
+  journeyBadge: { flexDirection: "row", alignItems: "center", gap: 3, borderWidth: 1, borderRadius: 20, paddingHorizontal: 7, paddingVertical: 3 },
+  journeyBadgeText: { fontSize: 9, fontFamily: "PlusJakartaSans_600SemiBold" },
+  remediesHint: { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
+  sevBadge:     { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20, borderWidth: 1, flexShrink: 0 },
+  sevBadgeText: { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold" },
+});
+
+// ─── Patterns screen ──────────────────────────────────────────────────────────
+
 export default function PatternsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { challenges, challengesLoading, loadChallenges } = useApp();
-  const [activeCategory,   setActiveCategory]   = useState(ALL_CATEGORIES);
   const [activeJourneyTab, setActiveJourneyTab] = useState<typeof JOURNEY_TABS[number]>("All");
   const [journeyStates,    setJourneyStates]    = useState<Record<string, string>>({});
   const [refreshing,       setRefreshing]       = useState(false);
 
-  const refreshStates = useCallback(() => {
-    getLocalStates().then(setJourneyStates);
-  }, []);
-
+  const refreshStates = useCallback(() => { getLocalStates().then(setJourneyStates); }, []);
   useEffect(() => { refreshStates(); }, []);
   useFocusEffect(useCallback(() => { refreshStates(); }, [refreshStates]));
 
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(challenges.map((c) => c.category)));
-    return [ALL_CATEGORIES, ...cats];
-  }, [challenges]);
-
   const filtered = useMemo(() => {
-    let base = activeCategory === ALL_CATEGORIES ? challenges : challenges.filter((c) => c.category === activeCategory);
+    let base = [...challenges];
     if (activeJourneyTab === "My Journey")  base = base.filter((c) => !!journeyStates[c.id]);
     else if (activeJourneyTab === "Working On") base = base.filter((c) => journeyStates[c.id] === "working_on");
     else if (activeJourneyTab === "Resolved")   base = base.filter((c) => journeyStates[c.id] === "resolved");
-    return base;
-  }, [challenges, activeCategory, activeJourneyTab, journeyStates]);
-
-  const grouped = useMemo(() => {
-    const severe   = filtered.filter((c) => c.severity === "severe");
-    const moderate = filtered.filter((c) => c.severity === "moderate");
-    const mild     = filtered.filter((c) => c.severity === "mild");
+    const severe   = base.filter((c) => c.severity === "severe");
+    const moderate = base.filter((c) => c.severity === "moderate");
+    const mild     = base.filter((c) => c.severity === "mild");
     return [...severe, ...moderate, ...mild];
-  }, [filtered]);
+  }, [challenges, activeJourneyTab, journeyStates]);
 
   const journeyCount = useMemo(() => ({
     total:      Object.keys(journeyStates).length,
@@ -149,140 +144,120 @@ export default function PatternsScreen() {
     setRefreshing(false);
   };
 
-  useEffect(() => {
-    if (challenges.length === 0) loadChallenges();
-  }, []);
+  useEffect(() => { if (challenges.length === 0) loadChallenges(); }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
-      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
-        <Text style={styles.screenTitle}>What's going on</Text>
-        <Text style={styles.screenSub}>
-          {challenges.length > 0
-            ? `${challenges.length} patterns in your connection — with ways through each one`
-            : "Your patterns and what to do about them"}
-        </Text>
+    <View style={styles.root}>
+      {/* Fixed header */}
+      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 18) }]}>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.screenTitle}>Your Patterns</Text>
+            <Text style={styles.screenSub}>
+              {challenges.length > 0
+                ? `${challenges.length} patterns identified, each with steps you can try`
+                : "What keeps repeating between you two"}
+            </Text>
+          </View>
+          {challenges.length > 0 && (
+            <View style={styles.totalBadge}>
+              <Text style={styles.totalBadgeNum}>{challenges.length}</Text>
+              <Text style={styles.totalBadgeLabel}>total</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {challengesLoading && challenges.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator color="#5B4CE8" size="large" />
-          <Text style={styles.loadingText}>Identifying your patterns…</Text>
+        <View style={styles.loadingBox}>
+          <ActivityIndicator color="#4A3DE8" size="large" />
+          <Text style={styles.loadingText}>Reading your birth charts and finding your patterns...</Text>
         </View>
       ) : challenges.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <View style={styles.emptyIconCircle}>
-            <Feather name="layers" size={28} color="#5B4CE8" />
+        <View style={styles.emptyBox}>
+          <View style={styles.emptyIcon}>
+            <Feather name="layers" size={28} color="#4A3DE8" />
           </View>
-          <Text style={styles.emptyTitle}>No patterns loaded yet</Text>
-          <Text style={styles.emptySub}>Tap below to load your personalised patterns and remedies</Text>
+          <Text style={styles.emptyTitle}>See what keeps repeating</Text>
+          <Text style={styles.emptySub}>Your personalised patterns come from your birth charts. Each one comes with practical steps to try, not just descriptions of the problem.</Text>
           <TouchableOpacity
-            style={styles.fetchBtn}
+            style={styles.loadBtn}
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); loadChallenges(); }}
+            activeOpacity={0.85}
           >
-            <LinearGradient colors={["#5B4CE8", "#8B5CF6"]} style={styles.fetchBtnGradient}>
-              <Text style={styles.fetchBtnText}>Load my patterns</Text>
-            </LinearGradient>
+            <Text style={styles.loadBtnText}>Show my patterns</Text>
+            <View style={styles.loadBtnArrow}>
+              <Feather name="arrow-right" size={15} color="#0F172A" />
+            </View>
           </TouchableOpacity>
         </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
+          style={Platform.OS === "web" ? styles.webScroll : undefined}
           contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 100 }]}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#5B4CE8" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A3DE8" />}
         >
-          {/* Journey progress banner */}
+
+          {/* Journey stats strip */}
           {journeyCount.total > 0 && (
-            <View style={styles.journeyBanner}>
-              <View style={styles.journeyBannerRow}>
-                <Feather name="trending-up" size={14} color="#5B4CE8" />
-                <Text style={styles.journeyBannerTitle}>Your Healing Journey</Text>
+            <View style={styles.journeyStrip}>
+              <View style={styles.journeyStripItem}>
+                <Text style={[styles.journeyStripNum, { color: "#F43F5E" }]}>{journeyCount.total}</Text>
+                <Text style={styles.journeyStripLabel}>Acknowledged</Text>
               </View>
-              <View style={styles.journeyStats}>
-                <View style={styles.journeyStatItem}>
-                  <Text style={[styles.journeyStatNum, { color: "#F43F5E" }]}>{journeyCount.total}</Text>
-                  <Text style={styles.journeyStatLabel}>acknowledged</Text>
-                </View>
-                <View style={styles.journeyDivider} />
-                <View style={styles.journeyStatItem}>
-                  <Text style={[styles.journeyStatNum, { color: "#F59E0B" }]}>{journeyCount.working_on}</Text>
-                  <Text style={styles.journeyStatLabel}>working on</Text>
-                </View>
-                <View style={styles.journeyDivider} />
-                <View style={styles.journeyStatItem}>
-                  <Text style={[styles.journeyStatNum, { color: "#10B981" }]}>{journeyCount.resolved}</Text>
-                  <Text style={styles.journeyStatLabel}>resolved</Text>
-                </View>
+              <View style={styles.journeyStripDiv} />
+              <View style={styles.journeyStripItem}>
+                <Text style={[styles.journeyStripNum, { color: "#F59E0B" }]}>{journeyCount.working_on}</Text>
+                <Text style={styles.journeyStripLabel}>Working On</Text>
+              </View>
+              <View style={styles.journeyStripDiv} />
+              <View style={styles.journeyStripItem}>
+                <Text style={[styles.journeyStripNum, { color: "#10B981" }]}>{journeyCount.resolved}</Text>
+                <Text style={styles.journeyStripLabel}>Resolved</Text>
               </View>
             </View>
           )}
 
-          {/* Journey filter tabs */}
+          {/* Journey tabs */}
           <ScrollView
-            horizontal showsHorizontalScrollIndicator={false}
-            style={styles.chips}
-            contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabsRow}
           >
             {JOURNEY_TABS.map((tab) => (
               <Pressable
                 key={tab}
                 onPress={() => { Haptics.selectionAsync(); setActiveJourneyTab(tab); }}
-                style={[styles.chip, activeJourneyTab === tab && styles.chipActive]}
+                style={[styles.tab, activeJourneyTab === tab && styles.tabActive]}
               >
-                <Text style={[styles.chipText, activeJourneyTab === tab && styles.chipTextActive]}>{tab}</Text>
+                <Text style={[styles.tabText, activeJourneyTab === tab && styles.tabTextActive]}>{tab}</Text>
               </Pressable>
             ))}
           </ScrollView>
 
-          {/* Category filter */}
-          {activeJourneyTab === "All" && (
-            <ScrollView
-              horizontal showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}
-            >
-              {categories.map((cat) => (
-                <Pressable
-                  key={cat}
-                  onPress={() => { Haptics.selectionAsync(); setActiveCategory(cat); }}
-                  style={[styles.chip, styles.chipSmall, activeCategory === cat && styles.chipActive]}
-                >
-                  <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>{cat}</Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          )}
-
-          {/* Severity stats */}
-          <View style={styles.statsRow}>
-            {(["severe", "moderate", "mild"] as const).map((sev) => {
-              const count = filtered.filter((c) => c.severity === sev).length;
-              return (
-                <View key={sev} style={[styles.statItem, { backgroundColor: SEVERITY_BG[sev] }]}>
-                  <Text style={[styles.statCount, { color: SEVERITY_COLOR[sev] }]}>{count}</Text>
-                  <Text style={[styles.statLabel, { color: SEVERITY_COLOR[sev] }]}>{sev}</Text>
-                </View>
-              );
-            })}
-          </View>
+          {/* Section label */}
+          <Text style={styles.sectionLabel}>
+            {activeJourneyTab === "All" ? "ALL PATTERNS" : activeJourneyTab.toUpperCase()}
+            {"  "}{filtered.length}
+          </Text>
 
           {/* Empty journey state */}
-          {grouped.length === 0 && activeJourneyTab !== "All" && (
-            <View style={styles.emptyJourney}>
-              <Text style={styles.emptyJourneyIcon}>{activeJourneyTab === "Resolved" ? "✦" : "◎"}</Text>
+          {filtered.length === 0 && activeJourneyTab !== "All" && (
+            <View style={styles.emptyJourneyBox}>
               <Text style={styles.emptyJourneyTitle}>
                 {activeJourneyTab === "Resolved" ? "Nothing resolved yet" : "Nothing here yet"}
               </Text>
               <Text style={styles.emptyJourneySub}>
                 {activeJourneyTab === "Resolved"
-                  ? "Mark patterns as resolved from their detail screen."
-                  : "Open a pattern and tap 'This is me' to start your journey."}
+                  ? "When you work through a pattern and mark it resolved, it will show up here."
+                  : "Open any pattern below and tap Yes, this is me to start tracking it."}
               </Text>
             </View>
           )}
 
           {/* Pattern cards */}
-          {grouped.map((challenge) => (
+          {filtered.map((challenge) => (
             <ChallengeCard
               key={challenge.id}
               challenge={challenge}
@@ -293,6 +268,7 @@ export default function PatternsScreen() {
               }}
             />
           ))}
+
         </ScrollView>
       )}
     </View>
@@ -300,71 +276,45 @@ export default function PatternsScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 20, paddingBottom: 16, gap: 4,
-    borderBottomWidth: 1, borderBottomColor: "#E5E7EB", backgroundColor: "#F4F5F7",
-  },
-  screenTitle: { fontSize: 30, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  screenSub:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
+  root:     { flex: 1, backgroundColor: "#F7F5F0" },
+  webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
 
-  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
-  loadingText:      { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
-  emptyContainer:   { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, paddingHorizontal: 40 },
-  emptyIconCircle:  { width: 72, height: 72, borderRadius: 36, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
-  emptyTitle:       { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  emptySub:         { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", textAlign: "center", lineHeight: 22 },
-  fetchBtn:         { marginTop: 10, borderRadius: 26, overflow: "hidden" },
-  fetchBtnGradient: { paddingHorizontal: 32, paddingVertical: 16 },
-  fetchBtnText:     { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+  header:    { paddingHorizontal: 18, paddingBottom: 14, backgroundColor: "#F7F5F0", borderBottomWidth: 1, borderBottomColor: "#E2E8F0" },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  screenTitle:{ fontSize: 26, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.4 },
+  screenSub:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", marginTop: 3 },
+  totalBadge: { alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "#E2E8F0", paddingHorizontal: 12, paddingVertical: 8 },
+  totalBadgeNum:  { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 24 },
+  totalBadgeLabel:{ fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5 },
 
-  scroll: { paddingTop: 16, gap: 12 },
+  loadingBox: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
+  loadingText:{ fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
 
-  journeyBanner:    { marginHorizontal: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE",
-                      borderRadius: 18, padding: 16, gap: 12,
-                      shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
-  journeyBannerRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  journeyBannerTitle:{ fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#5B4CE8" },
-  journeyStats:     { flexDirection: "row", alignItems: "center" },
-  journeyStatItem:  { flex: 1, alignItems: "center", gap: 3 },
-  journeyStatNum:   { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold" },
-  journeyStatLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF", textTransform: "capitalize" },
-  journeyDivider:   { width: 1, height: 30, backgroundColor: "#E5E7EB" },
+  emptyBox: { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, paddingHorizontal: 40 },
+  emptyIcon:{ width: 72, height: 72, borderRadius: 22, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
+  emptyTitle:{ fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  emptySub: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", textAlign: "center", lineHeight: 22 },
+  loadBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0F172A", borderRadius: 16, paddingVertical: 16, paddingLeft: 22, paddingRight: 8, marginTop: 8, width: 240 },
+  loadBtnText:{ fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+  loadBtnArrow:{ width: 36, height: 36, borderRadius: 10, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
 
-  chips:        { marginBottom: 4 },
-  chip:         { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5E7EB", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 8 },
-  chipActive:   { backgroundColor: "#EEF2FF", borderColor: "#C7D2FE" },
-  chipSmall:    { paddingHorizontal: 11, paddingVertical: 6 },
-  chipText:     { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
-  chipTextActive:{ color: "#5B4CE8", fontFamily: "PlusJakartaSans_600SemiBold" },
+  scroll: { paddingHorizontal: 18, paddingTop: 12, gap: 10 },
 
-  statsRow:  { flexDirection: "row", gap: 10, paddingHorizontal: 20, marginBottom: 2 },
-  statItem:  { flex: 1, alignItems: "center", gap: 4, borderRadius: 14, paddingVertical: 12 },
-  statCount: { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold" },
-  statLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
+  journeyStrip:     { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  journeyStripItem: { flex: 1, alignItems: "center", paddingVertical: 12 },
+  journeyStripDiv:  { width: 1, backgroundColor: "#F1F5F9" },
+  journeyStripNum:  { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", lineHeight: 26 },
+  journeyStripLabel:{ fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5, marginTop: 1 },
 
-  card:           { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E5E7EB",
-                    flexDirection: "row", overflow: "hidden", marginHorizontal: 20,
-                    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 2 },
-  cardAccentBar:  { width: 4 },
-  cardContent:    { flex: 1, padding: 18, gap: 10 },
-  cardTop:        { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 10 },
-  cardTopLeft:    { flex: 1, gap: 5 },
-  cardTopRight:   { alignItems: "flex-end", gap: 5, flexShrink: 0 },
-  severityPill:   { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, alignSelf: "flex-start" },
-  severityDot:    { width: 6, height: 6, borderRadius: 3 },
-  severityLabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize", letterSpacing: 0.2 },
-  severityMeaning:{ fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
-  categoryPill:   { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-  categoryText:   { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#5B4CE8" },
-  journeyBadge:   { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 11, paddingHorizontal: 8, paddingVertical: 3 },
-  journeyBadgeText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
-  cardTitle:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#111827", lineHeight: 24 },
-  cardDesc:       { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 21 },
-  cardFooter:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  solutionsHint:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  tabsRow:    { gap: 8, paddingVertical: 2, paddingHorizontal: 18 },
+  tab:        { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 8 },
+  tabActive:  { backgroundColor: "#0F172A", borderColor: "#0F172A" },
+  tabText:    { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#64748B" },
+  tabTextActive:{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_600SemiBold" },
 
-  emptyJourney:      { alignItems: "center", justifyContent: "center", padding: 40, gap: 12 },
-  emptyJourneyIcon:  { fontSize: 36, color: "#D1D5DB" },
-  emptyJourneyTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#6B7280" },
-  emptyJourneySub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", lineHeight: 21 },
+  sectionLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", letterSpacing: 1.2, marginTop: 2 },
+
+  emptyJourneyBox:  { alignItems: "center", padding: 32, gap: 10 },
+  emptyJourneyTitle:{ fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#64748B" },
+  emptyJourneySub:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", lineHeight: 20 },
 });

@@ -11,7 +11,6 @@ export default function TabLayout() {
   const { isAuthenticated, isAuthLoading } = useAuth();
   const { hasCompletedOnboarding, isLoading: appLoading } = useApp();
 
-  // Guard: redirect away from tabs if auth state is wrong
   if (!isAuthLoading && !appLoading) {
     if (!isAuthenticated) return <Redirect href="/login" />;
     if (!hasCompletedOnboarding) return <Redirect href="/onboarding" />;
@@ -24,19 +23,20 @@ export default function TabLayout() {
       }}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#5B4CE8",
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarActiveTintColor: "#4A3DE8",
+        tabBarInactiveTintColor: "#94A3B8",
         tabBarStyle: {
           position: "absolute",
           backgroundColor: "#FFFFFF",
           borderTopWidth: 1,
-          borderTopColor: "#EAECEF",
-          elevation: 20,
+          borderTopColor: "#F1F5F9",
+          elevation: 16,
           shadowColor: "#000",
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.1,
-          shadowRadius: 20,
-          ...(isWeb ? { height: 64, paddingBottom: 8 } : {}),
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.07,
+          shadowRadius: 16,
+          height: isWeb ? 64 : undefined,
+          paddingBottom: isWeb ? 8 : undefined,
         },
         tabBarBackground: () =>
           isWeb ? (
@@ -45,11 +45,11 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontSize: 10,
           fontFamily: "PlusJakartaSans_600SemiBold",
-          letterSpacing: 0.3,
-          marginTop: 1,
+          letterSpacing: 0.2,
+          marginTop: 2,
         },
         tabBarItemStyle: {
-          paddingVertical: 4,
+          paddingVertical: 6,
         },
       }}
     >
@@ -57,35 +57,35 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Feather name="home" size={22} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="home" size={21} color={color} />,
         }}
       />
       <Tabs.Screen
         name="compatibility"
         options={{
           title: "Us",
-          tabBarIcon: ({ color }) => <Feather name="heart" size={22} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="heart" size={21} color={color} />,
         }}
       />
       <Tabs.Screen
         name="patterns"
         options={{
           title: "Patterns",
-          tabBarIcon: ({ color }) => <Feather name="layers" size={22} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="layers" size={21} color={color} />,
         }}
       />
       <Tabs.Screen
         name="features"
         options={{
-          title: "Reads",
-          tabBarIcon: ({ color }) => <Feather name="zap" size={22} color={color} />,
+          title: "Insights",
+          tabBarIcon: ({ color }) => <Feather name="zap" size={21} color={color} />,
         }}
       />
       <Tabs.Screen
         name="guidance"
         options={{
           title: "Ask",
-          tabBarIcon: ({ color }) => <Feather name="message-circle" size={22} color={color} />,
+          tabBarIcon: ({ color }) => <Feather name="message-circle" size={21} color={color} />,
         }}
       />
       <Tabs.Screen

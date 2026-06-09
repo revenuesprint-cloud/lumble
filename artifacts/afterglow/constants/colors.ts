@@ -1,27 +1,27 @@
 const colors = {
   light: {
     // Backgrounds
-    background:     "#F4F5F7",
+    background:     "#F7F5F0",   // warm cream — TradeSathi-inspired
     card:           "#FFFFFF",
-    cardElevated:   "#FAFAFA",
-    foreground:     "#111827",
+    cardElevated:   "#FAFAF8",
+    foreground:     "#0F172A",
 
     // Text
-    text:           "#111827",
-    textMuted:      "#6B7280",
-    textFaint:      "#9CA3AF",
-    cardForeground: "#111827",
+    text:           "#0F172A",
+    textMuted:      "#64748B",
+    textFaint:      "#94A3B8",
+    cardForeground: "#0F172A",
 
     // Primary — indigo
-    primary:          "#5B4CE8",
-    primaryLight:     "#EEF2FF",
-    primaryDark:      "#3730A3",
-    primaryForeground:"#FFFFFF",
-    tint:             "#5B4CE8",
+    primary:           "#4A3DE8",
+    primaryLight:      "#EEF2FF",
+    primaryDark:       "#3730A3",
+    primaryForeground: "#FFFFFF",
+    tint:              "#4A3DE8",
 
-    // Accent — orange
-    accent:           "#FF6B35",
-    accentLight:      "#FFF3EE",
+    // Accent — warm amber
+    accent:           "#E8832A",
+    accentLight:      "#FEF3C7",
     accentForeground: "#FFFFFF",
 
     // Semantic
@@ -38,15 +38,19 @@ const colors = {
     violetDeep:   "#6D28D9",
 
     // Compat aliases
-    secondary:           "#F4F5F7",
+    secondary:           "#F7F5F0",
     secondaryForeground: "#374151",
-    muted:               "#F3F4F6",
-    mutedForeground:     "#6B7280",
+    muted:               "#F1F5F9",
+    mutedForeground:     "#64748B",
 
     // Borders & inputs
-    border:      "#E5E7EB",
-    borderLight: "#F3F4F6",
-    input:       "#F9FAFB",
+    border:      "#E2E8F0",
+    borderLight: "#F1F5F9",
+    input:       "#F8FAFC",
+
+    // Dark button (CTA)
+    cta:           "#0F172A",
+    ctaForeground: "#FFFFFF",
 
     // Destructive
     destructive:           "#EF4444",
@@ -54,12 +58,12 @@ const colors = {
 
     // Effects
     overlay:    "rgba(0, 0, 0, 0.5)",
-    glow:       "rgba(91, 76, 232, 0.08)",
-    glowStrong: "rgba(91, 76, 232, 0.15)",
-    glowGold:   "rgba(245, 158, 11, 0.1)",
-    glowViolet: "rgba(139, 92, 246, 0.1)",
+    glow:       "rgba(74, 61, 232, 0.08)",
+    glowStrong: "rgba(74, 61, 232, 0.15)",
+    glowGold:   "rgba(245, 158, 11, 0.10)",
+    glowViolet: "rgba(139, 92, 246, 0.10)",
     shadow:     "rgba(0, 0, 0, 0.06)",
-    shadowMd:   "rgba(0, 0, 0, 0.1)",
+    shadowMd:   "rgba(0, 0, 0, 0.10)",
   },
 
   radius: 16,

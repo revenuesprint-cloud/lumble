@@ -1,13 +1,14 @@
 import { AnimatedBar } from "@/components/AnimatedBar";
 import { PremiumGate } from "@/components/PremiumGate";
+import { ShareCardModal } from "@/components/ShareCardModal";
 import { useApp } from "@/context/AppContext";
 import { getAstrologyReading, RASHIS } from "@/utils/astrology";
 import { SCREEN_W } from "@/constants/layout";
 
-const ORB_SIZE = Math.min(150, Math.round(SCREEN_W * 0.40));
+const ORB_SIZE = Math.min(140, Math.round(SCREEN_W * 0.38));
 import { calculateCompatibility, CompatibilitySection } from "@/utils/compatibility";
 import { getCompatibilityTexts } from "@/utils/personalization";
-import { getContentBundle, applyVars } from "@/utils/dbContent";
+import { getContentBundle, fetchContentBundle, applyVars } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { KundliLoading } from "@/components/KundliLoading";
@@ -17,7 +18,6 @@ import {
   Dimensions,
   Easing,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,55 +26,70 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-function sectionLabel(score: number): { text: string; color: string; bg: string } {
-  if (score >= 72) return { text: "Strong",     color: "#10B981", bg: "#ECFDF5" };
-  if (score >= 57) return { text: "Good",       color: "#10B981", bg: "#ECFDF5" };
-  if (score >= 44) return { text: "Building",   color: "#F59E0B", bg: "#FFFBEB" };
-  return              { text: "Needs work", color: "#F43F5E", bg: "#FFF1F2" };
+function sectionStrength(score: number): { text: string; color: string; bg: string } {
+  if (score >= 72) return { text: "Strong",      color: "#10B981", bg: "#ECFDF5" };
+  if (score >= 57) return { text: "Good",        color: "#10B981", bg: "#ECFDF5" };
+  if (score >= 44) return { text: "Building",    color: "#F59E0B", bg: "#FFFBEB" };
+  return              { text: "Needs Work",   color: "#F43F5E", bg: "#FFF1F2" };
 }
 
-function OverallScore({ score }: { score: number }) {
+// ─── Score circle ─────────────────────────────────────────────────────────────
+
+function ScoreCircle({ score }: { score: number }) {
   const countAnim = useRef(new Animated.Value(0)).current;
   const [display, setDisplay] = useState(0);
   const scaleAnim = useRef(new Animated.Value(0.7)).current;
 
   useEffect(() => {
     countAnim.setValue(0);
-    const listenerId = countAnim.addListener(({ value }) => setDisplay(Math.round(value)));
+    const id = countAnim.addListener(({ value }) => setDisplay(Math.round(value)));
     Animated.parallel([
       Animated.timing(countAnim, { toValue: score, duration: 750, delay: 100, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
       Animated.spring(scaleAnim, { toValue: 1, friction: 5, tension: 90, delay: 80, useNativeDriver: true }),
     ]).start();
-    return () => countAnim.removeListener(listenerId);
+    return () => countAnim.removeListener(id);
   }, [score]);
 
   const color   = score >= 28 ? "#10B981" : score >= 21 ? "#F59E0B" : "#F43F5E";
   const colorBg = score >= 28 ? "#ECFDF5" : score >= 21 ? "#FFFBEB" : "#FFF1F2";
-  const displayPct = Math.round((display / 36) * 100);
+  const pct     = Math.round((display / 36) * 100);
   const verdict = score >= 28 ? "Strong" : score >= 21 ? "Good" : score >= 18 ? "Average" : "Challenging";
 
   return (
-    <Animated.View style={{ alignItems: "center", transform: [{ scale: scaleAnim }] }}>
-      <View style={[styles.scoreOrb, { backgroundColor: colorBg, borderColor: color + "30" }]}>
-        <Text style={[styles.scoreNumber, { color }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.6}>{displayPct}<Text style={styles.scoreMax}>%</Text></Text>
-        <Text style={styles.scoreLabel}>compatibility</Text>
-        <View style={[styles.scoreVerdictPill, { backgroundColor: color + "18", borderColor: color + "44" }]}>
-          <Text style={[styles.scoreVerdict, { color }]}>{verdict}</Text>
+    <Animated.View style={[scoreStyles.wrap, { transform: [{ scale: scaleAnim }] }]}>
+      <View style={[scoreStyles.orb, { backgroundColor: colorBg, borderColor: color + "40", width: ORB_SIZE, height: ORB_SIZE, borderRadius: ORB_SIZE / 2 }]}>
+        <Text style={[scoreStyles.pct, { color }]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.6}>
+          {pct}<Text style={scoreStyles.pctSign}>%</Text>
+        </Text>
+        <Text style={scoreStyles.orbLabel}>compatibility</Text>
+        <View style={[scoreStyles.verdictPill, { backgroundColor: color + "18", borderColor: color + "40" }]}>
+          <Text style={[scoreStyles.verdictText, { color }]}>{verdict}</Text>
         </View>
-        <Text style={styles.scoreHint}>based on your birth charts</Text>
+        <Text style={scoreStyles.orbHint}>from your birth charts</Text>
       </View>
     </Animated.View>
   );
 }
 
-// ─── Section detail — full-screen page ───────────────────────────────────────
+const scoreStyles = StyleSheet.create({
+  wrap:        { alignItems: "center", paddingVertical: 8 },
+  orb:         { alignItems: "center", justifyContent: "center", borderWidth: 2, gap: 3 },
+  pct:         { fontSize: 44, fontFamily: "PlusJakartaSans_800ExtraBold" },
+  pctSign:     { fontSize: 22, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
+  orbLabel:    { fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: "#64748B", textTransform: "uppercase", letterSpacing: 0.6 },
+  verdictPill: { borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3, marginTop: 2 },
+  verdictText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
+  orbHint:     { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", marginTop: 1 },
+});
+
+// ─── Section detail sheet ─────────────────────────────────────────────────────
 
 const SCREEN_H = Dimensions.get("window").height;
 
 function SectionDetailSheet({ section, onClose }: { section: CompatibilitySection; onClose: () => void }) {
   const insets    = useSafeAreaInsets();
   const slideAnim = useRef(new Animated.Value(SCREEN_H)).current;
-  const lbl       = sectionLabel(section.score);
+  const lbl       = sectionStrength(section.score);
 
   useEffect(() => {
     Animated.spring(slideAnim, { toValue: 0, friction: 9, tension: 100, useNativeDriver: true }).start();
@@ -85,56 +100,72 @@ function SectionDetailSheet({ section, onClose }: { section: CompatibilitySectio
   };
 
   return (
-    <Animated.View style={[sdStyles.page, { transform: [{ translateY: slideAnim }] }]}>
-      {/* Header */}
-      <View style={[sdStyles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity onPress={close} style={sdStyles.backBtn} activeOpacity={0.7}>
-          <Feather name="arrow-left" size={22} color="#6B7280" />
+    <Animated.View style={[sheetStyles.page, { transform: [{ translateY: slideAnim }] }]}>
+      <View style={[sheetStyles.header, { paddingTop: insets.top + 12 }]}>
+        <TouchableOpacity onPress={close} style={sheetStyles.backBtn} activeOpacity={0.7}>
+          <Feather name="arrow-left" size={20} color="#64748B" />
         </TouchableOpacity>
-        <View style={[sdStyles.dot, { backgroundColor: section.color + "14" }]}>
-          <View style={[sdStyles.dotCore, { backgroundColor: section.color }]} />
+        <View style={[sheetStyles.iconCircle, { backgroundColor: section.color + "14" }]}>
+          <View style={[sheetStyles.iconDot, { backgroundColor: section.color }]} />
         </View>
-        <Text style={sdStyles.headerTitle} numberOfLines={1}>{section.label}</Text>
-        <View style={[sdStyles.scoreBadge, { backgroundColor: lbl.bg, borderColor: lbl.color + "44" }]}>
-          <Text style={[sdStyles.scoreBadgeText, { color: lbl.color }]}>{lbl.text}</Text>
+        <Text style={sheetStyles.title} numberOfLines={1}>{section.label}</Text>
+        <View style={[sheetStyles.badge, { backgroundColor: lbl.bg, borderColor: lbl.color + "44" }]}>
+          <Text style={[sheetStyles.badgeText, { color: lbl.color }]}>{lbl.text}</Text>
         </View>
       </View>
-
-      {/* Scrollable content */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[sdStyles.scroll, { paddingBottom: insets.bottom + 40 }]}
+        contentContainerStyle={[sheetStyles.scroll, { paddingBottom: insets.bottom + 40 }]}
       >
         <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={120} height={8} />
-        <View style={sdStyles.divider} />
-        <Text style={sdStyles.fullText}>{section.text}</Text>
-        <TouchableOpacity onPress={close} style={sdStyles.closeBtn} activeOpacity={0.7}>
-          <Text style={sdStyles.closeBtnText}>Got it</Text>
-        </TouchableOpacity>
+        <View style={sheetStyles.divider} />
+        <Text style={sheetStyles.body}>{section.text}</Text>
+        <View style={sheetStyles.ctaBlock}>
+          <Text style={sheetStyles.ctaLabel}>WHAT TO DO WITH THIS</Text>
+          <TouchableOpacity onPress={close} style={[sheetStyles.actionBtn, { backgroundColor: section.color }]} activeOpacity={0.8}>
+            <Text style={sheetStyles.actionBtnText}>Start this conversation</Text>
+            <Feather name="arrow-right" size={15} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={close} style={sheetStyles.doneBtn} activeOpacity={0.7}>
+            <Text style={sheetStyles.doneBtnText}>I already know this one</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </Animated.View>
   );
 }
 
-const sdStyles = StyleSheet.create({
-  page:           { ...StyleSheet.absoluteFillObject, zIndex: 200, backgroundColor: "#FFFFFF" },
-  header:         { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20,
-                    paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: "#F3F4F6" },
-  backBtn:        { width: 40, height: 40, borderRadius: 20, backgroundColor: "#F9FAFB", borderWidth: 1,
-                    borderColor: "#E5E7EB", alignItems: "center", justifyContent: "center" },
-  dot:            { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  dotCore:        { width: 10, height: 10, borderRadius: 5 },
-  headerTitle:    { flex: 1, fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  scoreBadge:     { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
-  scoreBadgeText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-  scroll:         { paddingHorizontal: 24, paddingTop: 28, gap: 24 },
-  divider:        { height: 1, backgroundColor: "#F3F4F6" },
-  fullText:       { fontSize: 18, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 30 },
-  closeBtn:       { alignItems: "center", paddingVertical: 16, backgroundColor: "#F9FAFB", borderRadius: 16, borderWidth: 1, borderColor: "#E5E7EB" },
-  closeBtnText:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#6B7280" },
+const sheetStyles = StyleSheet.create({
+  page:      { ...StyleSheet.absoluteFillObject, zIndex: 200, backgroundColor: "#FFFFFF" },
+  header:    { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: "#F1F5F9" },
+  backBtn:   { width: 40, height: 40, borderRadius: 12, backgroundColor: "#F8FAFC", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
+  iconCircle:{ width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  iconDot:   { width: 10, height: 10, borderRadius: 5 },
+  title:     { flex: 1, fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  badge:     { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
+  badgeText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
+  scroll:       { paddingHorizontal: 24, paddingTop: 28, gap: 24 },
+  divider:      { height: 1, backgroundColor: "#F1F5F9" },
+  body:         { fontSize: 17, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 29 },
+  ctaBlock:     { gap: 10 },
+  ctaLabel:     { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
+  actionBtn:    { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: 16, paddingVertical: 16 },
+  actionBtnText:{ fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+  doneBtn:      { alignItems: "center", paddingVertical: 16, backgroundColor: "#F8FAFC", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0" },
+  doneBtnText:  { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#64748B" },
 });
 
-// ─── Section card ─────────────────────────────────────────────────────────────
+// ─── Section card (TradeSathi-inspired) ──────────────────────────────────────
+
+const SECTION_ICONS: Record<string, string> = {
+  "Emotional Chemistry":        "💞",
+  "Communication Energy":       "💬",
+  "Attachment Dynamics":        "🔗",
+  "Emotional Tension":          "⚡",
+  "Long-Term Potential":        "🌱",
+  "Why This Feels Addictive":   "🔥",
+  "Hidden Relationship Pattern":"✨",
+};
 
 function SectionCard({
   section, index, isPremium, onLockTap, onDetailTap,
@@ -143,68 +174,87 @@ function SectionCard({
   onLockTap: () => void; onDetailTap: () => void;
 }) {
   const isLocked  = index >= 5 && !isPremium;
-  const fadeAnim  = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
+  const lbl       = sectionStrength(section.score);
+  const scorePct  = Math.min(100, Math.round(section.score));
+  const icon      = SECTION_ICONS[section.label] ?? "◦";
 
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(16)).current;
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 250, delay: index * 50 + 80, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 250, delay: index * 50 + 80, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 240, delay: index * 60 + 80, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 240, delay: index * 60 + 80, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
     ]).start();
   }, []);
-
-  const lbl = sectionLabel(section.score);
 
   return (
     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
       <TouchableOpacity
         onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); isLocked ? onLockTap() : onDetailTap(); }}
         activeOpacity={0.82}
+        style={scStyles.card}
       >
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionContent}>
-            <View style={styles.sectionHeader}>
-              <View style={[styles.sectionIconCircle, { backgroundColor: section.color + "14" }]}>
-                <View style={[styles.sectionDotCore, { backgroundColor: section.color }]} />
-              </View>
-              <Text style={styles.sectionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{section.label}</Text>
-              <View style={[styles.scoreLabelChip, { backgroundColor: lbl.bg, borderColor: lbl.color + "44" }]}>
-                <Text style={[styles.scoreLabelText, { color: lbl.color }]}>{lbl.text}</Text>
-              </View>
-            </View>
-            <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={index * 100 + 400} />
-            {isLocked ? (
-              <View style={styles.lockedOverlay}>
-                <Feather name="lock" size={14} color="#9CA3AF" />
-                <Text style={styles.lockedText}>Unlock with Premium</Text>
-              </View>
-            ) : (
-              <Text style={styles.sectionText} numberOfLines={2}>{section.text}</Text>
-            )}
+        <View style={scStyles.row}>
+          <View style={[scStyles.iconBox, { backgroundColor: section.color + "15" }]}>
+            <Text style={{ fontSize: 17 }}>{icon}</Text>
+          </View>
+          <View style={scStyles.mid}>
+            <Text style={scStyles.label}>{section.label}</Text>
             {!isLocked && (
-              <View style={styles.sectionFooter}>
-                <View style={[styles.sectionCtaBtn, { borderColor: section.color + "44" }]}>
-                  <Text style={[styles.sectionCtaBtnText, { color: section.color }]}>See full breakdown</Text>
-                </View>
-              </View>
+              <AnimatedBar value={section.score} color={section.color} color2={section.color + "70"} delay={index * 80 + 300} height={4} />
             )}
           </View>
+          {isLocked ? (
+            <View style={scStyles.lockBadge}>
+              <Feather name="lock" size={12} color="#94A3B8" />
+            </View>
+          ) : (
+            <View style={[scStyles.scoreBadge, { backgroundColor: lbl.bg, borderColor: lbl.color + "40" }]}>
+              <Text style={[scStyles.scoreNum, { color: lbl.color }]}>{lbl.text}</Text>
+            </View>
+          )}
+          <Feather name="chevron-right" size={15} color="#CBD5E1" />
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
+const scStyles = StyleSheet.create({
+  card:      { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", paddingHorizontal: 14, paddingVertical: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  row:       { flexDirection: "row", alignItems: "center", gap: 12 },
+  iconBox:   { width: 38, height: 38, borderRadius: 11, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  mid:       { flex: 1, gap: 6 },
+  label:     { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A" },
+  scoreBadge:{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20, borderWidth: 1 },
+  scoreNum:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
+  lockBadge: { width: 30, height: 30, borderRadius: 9, backgroundColor: "#F8FAFC", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
+});
+
+// ─── Compatibility screen ─────────────────────────────────────────────────────
+
 export default function CompatibilityScreen() {
   const insets = useSafeAreaInsets();
   const { user, partner, isPremium } = useApp();
   const [showGate,      setShowGate]      = useState(false);
   const [activeSection, setActiveSection] = useState<CompatibilitySection | null>(null);
+  const [showShare,     setShowShare]     = useState(false);
+  const [, forceUpdate] = useState(0);
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
     return getAstrologyReading(user.name, user.birthDate, partner.name, partner.birthDate, user.birthTime);
   }, [user?.birthDate, user?.name, user?.birthTime, partner?.birthDate, partner?.name]);
+
+  // Ensure the content bundle is loaded so DB text overrides work
+  useEffect(() => {
+    if (!user || !partner || !reading) return;
+    if (getContentBundle()) return;
+    const { extractKundliAttributes } = require("@/utils/challenges");
+    const attrs = extractKundliAttributes(reading, partner.relationshipType ?? "relationship");
+    const tags = Object.entries(attrs).map(([k, v]) => `${k}:${v}`).filter(Boolean) as string[];
+    fetchContentBundle(tags).then((b) => { if (b) forceUpdate((n) => n + 1); });
+  }, [reading]);
 
   if (!user || !partner) return null;
   if (!reading) return <KundliLoading label="Calculating emotional chemistry…" />;
@@ -215,14 +265,7 @@ export default function CompatibilityScreen() {
   const dbBundle = getContentBundle();
   const dbCompatTexts: Record<string, string> = {};
   if (dbBundle?.compatibilityTexts?.length) {
-    const vars = {
-      u:        user.name,
-      p:        partner.name,
-      uElement: uRashi.element,
-      pElement: pRashi.element,
-      uSign:    uRashi.en,
-      pSign:    pRashi.en,
-    };
+    const vars = { u: user.name, p: partner.name, uElement: uRashi.element, pElement: pRashi.element, uSign: uRashi.en, pSign: pRashi.en };
     for (const item of dbBundle.compatibilityTexts) {
       const section = (item.meta as any)?.section as string | undefined;
       if (section) dbCompatTexts[section] = applyVars(item.body, vars);
@@ -254,30 +297,58 @@ export default function CompatibilityScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F4F5F7" }}>
+    <View style={styles.root}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={Platform.OS === "web" ? { maxWidth: 640, alignSelf: "center", width: "100%" } : undefined}
+        style={Platform.OS === "web" ? styles.webScroll : undefined}
         contentContainerStyle={[styles.scroll, {
-          paddingTop: insets.top + (Platform.OS === "web" ? 67 : 20),
+          paddingTop:    insets.top + (Platform.OS === "web" ? 67 : 20),
           paddingBottom: insets.bottom + 100,
         }]}
       >
-        <Text style={styles.screenTitle}>You & {partner.name}</Text>
-        <Text style={styles.screenSub}>An honest look at what works and what doesn't</Text>
+        {/* Header */}
+        <View style={styles.headerBlock}>
+          <View style={styles.headerRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.screenTitle}>You & {partner.name}</Text>
+              <Text style={styles.screenSub}>What your birth charts actually say about this connection</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowShare(true); }}
+              activeOpacity={0.75}
+              style={styles.shareIconBtn}
+            >
+              <Feather name="share-2" size={18} color="#4A3DE8" />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        <OverallScore score={data.overall} />
+        {/* Overall score circle */}
+        <ScoreCircle score={data.overall} />
 
+        {/* Share nudge */}
+        <TouchableOpacity
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowShare(true); }}
+          activeOpacity={0.8}
+          style={styles.shareNudge}
+        >
+          <Feather name="send" size={13} color="#4A3DE8" />
+          <Text style={styles.shareNudgeText}>Share with {partner.name} and see if they agree</Text>
+          <Feather name="chevron-right" size={13} color="#C7D2FE" />
+        </TouchableOpacity>
+
+        {/* Relationship type tags */}
         <View style={styles.tagRow}>
           <View style={styles.tag}>
             <Text style={styles.tagText}>{partner.relationshipType}</Text>
           </View>
           <View style={[styles.tag, { backgroundColor: "#EEF2FF", borderColor: "#C7D2FE" }]}>
-            <Text style={[styles.tagText, { color: "#5B4CE8" }]}>Deep analysis</Text>
+            <Text style={[styles.tagText, { color: "#4A3DE8" }]}>Vedic analysis</Text>
           </View>
         </View>
 
-        <View style={styles.sectionsContainer}>
+        {/* Section cards */}
+        <View style={styles.sectionsList}>
           {data.sections.map((section, i) => (
             <SectionCard
               key={section.label}
@@ -290,73 +361,71 @@ export default function CompatibilityScreen() {
           ))}
         </View>
 
+        {/* Upgrade teaser */}
         {!isPremium && (
           <TouchableOpacity
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowGate(true); }}
             activeOpacity={0.85}
-            style={styles.upgradeTeaser}
+            style={styles.upgradeBanner}
           >
-            <View style={styles.upgradeTeaserInner}>
-              <View style={styles.upgradeIconRow}>
-                <Feather name="lock" size={16} color="#5B4CE8" />
-                <Text style={styles.upgradeTeaserTitle}>Unlock the full picture</Text>
+            <View style={styles.upgradeBannerLeft}>
+              <View style={styles.upgradeIcon}>
+                <Feather name="lock" size={16} color="#4A3DE8" />
               </View>
-              <Text style={styles.upgradeTeaserSub}>
-                2 insights locked, including your hidden relationship pattern
-              </Text>
+              <View>
+                <Text style={styles.upgradeBannerTitle}>See the full picture</Text>
+                <Text style={styles.upgradeBannerSub}>2 deeper insights waiting, including your hidden pattern</Text>
+              </View>
+            </View>
+            <View style={styles.upgradeBannerArrow}>
+              <Feather name="arrow-right" size={16} color="#4A3DE8" />
             </View>
           </TouchableOpacity>
         )}
+
       </ScrollView>
 
       <PremiumGate visible={showGate} onClose={() => setShowGate(false)} featureName="Hidden Relationship Pattern" />
       {activeSection && <SectionDetailSheet section={activeSection} onClose={() => setActiveSection(null)} />}
+      <ShareCardModal
+        visible={showShare}
+        onClose={() => setShowShare(false)}
+        userName={user.name}
+        partnerName={partner.name}
+        compatibilityScore={data.overall}
+        userMoonSign={uRashi.en}
+        partnerMoonSign={pRashi.en}
+        userElement={uRashi.element}
+        partnerElement={pRashi.element}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { paddingHorizontal: 20, gap: 16 },
-  screenTitle: { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  screenSub:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", marginTop: -2 },
+  root:     { flex: 1, backgroundColor: "#F7F5F0" },
+  webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
+  scroll:   { paddingHorizontal: 18, gap: 16 },
 
-  scoreOrb: {
-    width: ORB_SIZE, height: ORB_SIZE, borderRadius: ORB_SIZE / 2,
-    alignItems: "center", justifyContent: "center", alignSelf: "center",
-    borderWidth: 2, gap: 3,
-  },
-  scoreNumber:     { fontSize: 46, fontFamily: "PlusJakartaSans_800ExtraBold" },
-  scoreMax:        { fontSize: 22, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF" },
-  scoreLabel:      { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#6B7280" },
-  scoreVerdictPill:{ borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3, marginTop: 2 },
-  scoreVerdict:    { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold" },
-  scoreHint:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#9CA3AF", textAlign: "center", marginTop: 1 },
+  headerBlock:{ gap: 4 },
+  headerRow:  { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  screenTitle:{ fontSize: 26, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.4 },
+  screenSub:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
+  shareIconBtn:{ width: 42, height: 42, borderRadius: 13, backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 },
 
-  tagRow:  { flexDirection: "row", gap: 6, justifyContent: "center" },
-  tag:     { borderWidth: 1, borderColor: "#E5E7EB", backgroundColor: "#F9FAFB", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
-  tagText: { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#6B7280", textTransform: "capitalize" },
+  shareNudge:     { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#EEF2FF", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: "#C7D2FE", justifyContent: "center" },
+  shareNudgeText: { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#4A3DE8", textAlign: "center" },
 
-  sectionsContainer: { gap: 8 },
-  sectionCard:       { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
-                       shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
-  sectionContent:    { padding: 13, gap: 9 },
-  sectionHeader:     { flexDirection: "row", alignItems: "center", gap: 8 },
-  sectionIconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  sectionDotCore:    { width: 8, height: 8, borderRadius: 4 },
-  sectionLabel:      { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  scoreLabelChip:    { borderWidth: 1, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
-  scoreLabelText:    { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
-  sectionFooter:     { flexDirection: "row", justifyContent: "flex-end" },
-  sectionCtaBtn:     { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1, backgroundColor: "transparent" },
-  sectionCtaBtnText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-  sectionText:       { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280", lineHeight: 18 },
-  lockedOverlay:     { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#F9FAFB", borderRadius: 10, padding: 12 },
-  lockedText:        { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#9CA3AF" },
+  tagRow:  { flexDirection: "row", gap: 8, justifyContent: "center" },
+  tag:     { borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#F8FAFC", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  tagText: { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#64748B", textTransform: "capitalize" },
 
-  upgradeTeaser:      { borderRadius: 20, overflow: "hidden", borderWidth: 1, borderColor: "#C7D2FE",
-                        backgroundColor: "#FFFFFF", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
-  upgradeTeaserInner: { padding: 20, gap: 8 },
-  upgradeIconRow:     { flexDirection: "row", alignItems: "center", gap: 8 },
-  upgradeTeaserTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#111827" },
-  upgradeTeaserSub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#6B7280" },
+  sectionsList: { gap: 10 },
+
+  upgradeBanner:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#C7D2FE", padding: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+  upgradeBannerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+  upgradeIcon:       { width: 40, height: 40, borderRadius: 12, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
+  upgradeBannerTitle:{ fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
+  upgradeBannerSub:  { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
+  upgradeBannerArrow:{ width: 36, height: 36, borderRadius: 10, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
 });

@@ -24,59 +24,59 @@ function score(rng: () => number, min = 62, max = 97): number {
 // ─── Text libraries ─────────────────────────────────────────────────────────
 
 const emotionalChemistryTexts = [
-  "The emotional pull here is real — and it runs deeper than either of you has fully admitted. Deep chemistry without direction tends to become the hardest kind to walk away from. That's not a compliment. It's a warning and an opportunity at the same time.",
-  "Something clicks between you that doesn't click with most people. When something rare happens, it gets mistaken for a sign. It might be a sign. It might also just be chemistry. The question worth sitting with: which one is it for you?",
-  "You understand each other in ways that don't require explanation. That kind of shorthand takes years with most people. Here it was there almost immediately. That's worth paying attention to — but it isn't the same as compatibility.",
-  "The emotional frequency between you is unusually matched — which means the highs hit differently, and so do the lows. This connection will teach you something significant. The only question is whether you're paying attention to what it's actually teaching.",
-  "There's a specific kind of connection where the chemistry is unmistakable but the dynamic is unresolved. This is that. The chemistry is real. What it means — that requires a harder conversation than either of you has had yet.",
+  "You both sense something deeper in this connection than either of you has fully said out loud. Calling it just chemistry undersells what is actually happening here. Your moon placements create an emotional pull that does not show up in most pairings. Have the conversation you have been postponing about what you actually want from each other.",
+  "There is a shorthand between you that took almost no time to build, and that kind of understanding is genuinely rare. Most people spend years getting to where you already are. Your birth chart compatibility shows strong emotional resonance between your natures. The risk is using that closeness as a way to avoid being more specific about where this is actually going.",
+  "The pull you feel toward this person is real and specific to this pairing. You have probably looked for something like it elsewhere and found it does not easily replicate. Your chart placements create an emotional resonance that is stronger than average for this type of connection. That specificity deserves a direct conversation rather than more time passing.",
+  "You have both felt the weight of this connection but may not have said the same thing to each other about it. The intensity is there and you both know it. Your planetary positions show emotional natures that interact in a way that creates unusual closeness. What that closeness needs now is honesty about what you both actually want.",
+  "Something about this connection feels irreplaceable even when the situation is frustrating. You may have tried to logic your way out of the feeling and found that it does not work that way. Your moon signs create a specific pull that is built into how your energies work together. Use that as a reason to be more direct with each other, not less.",
 ];
 
 const communicationTexts = [
-  "One of you leads with feeling, the other with logic. That gap isn't the problem — it becomes the problem when one person keeps having to translate and the other keeps not noticing that they're the one who should be.",
-  "You communicate well when things are good and poorly when things matter most. That's exactly backwards from what actually counts. How you talk to each other when something is hard is the only measure that tells you anything real.",
-  "There's an unspoken shorthand between you. It works until it doesn't — and when it breaks down, neither of you is sure what happened. That gap gets wider every time it doesn't get named directly.",
-  "Your best conversations happen when neither of you is performing. The problem is that performance has become the default in this connection. What it would look like to drop it completely — that's worth finding out.",
-  "What doesn't get said between you carries more weight than what does. Both of you know this. The question is which of you goes first into what's actually true — and what happens when they do.",
+  "One of you processes feelings out loud and the other thinks everything through before speaking, and that difference creates friction when something important needs to be said. Your birth chart planets ruling communication have different natures, which is why timing feels so off sometimes. Before the next important conversation, agree on pace instead of figuring it out mid-discussion.",
+  "You communicate easily when things are light and get stuck when things actually matter, which is exactly the wrong way around. Your moon elements create different emotional processing speeds between you. Pick one conversation you have been avoiding and have it this week, even if the timing does not feel perfect.",
+  "There is a gap between what gets said and what actually lands, and both of you feel it even if you have not named it. Your planetary placements create a natural friction in how meaning travels between you. The shortcut is asking each other to say the actual thing instead of the easier version of it.",
+  "The best conversations between you happen when neither of you is trying to manage how you come across. Your charts show different communication styles that make performance the automatic default even when you do not mean it to be. Try talking without a hidden agenda once this week and notice how different it feels.",
+  "What does not get said between you carries more weight than what does, and both of you sense this. Your birth placements create a pattern of circling the real thing rather than going directly to it. Whoever goes first into an honest exchange changes the whole dynamic permanently.",
 ];
 
 const attachmentTexts = [
-  "One of you moves closer. The other pulls back. Then it switches. This isn't chemistry — it's two attachment styles running on different timelines, creating a loop that feels like electricity but is really two people trying not to get hurt first.",
-  "You're both more attached than either of you has said out loud. The gap between what you feel and what you show is where most of the confusion in this connection lives — and where most of the distance gets manufactured.",
-  "There's an anxious-avoidant pattern at work here. The moments of closeness feel extraordinary precisely because of the uncertainty before them. Your system has learned to call that cycle love. That equation is worth examining.",
-  "Both of you invest deeply but show it differently. One goes in fast and then gets scared. The other holds back and then can't leave. You keep arriving at the same place on different schedules. That one-step gap is the whole story.",
-  "The attachment is already more significant than either of you has acknowledged. What happens when that gets named out loud will tell you more about this connection than months of the current pattern.",
+  "One of you moves closer when things feel good and the other pulls back when things get real, then it switches. This creates a push and pull rhythm that can feel exciting but keeps both of you slightly off balance. Your moon sign natures create naturally different attachment speeds. The way out is naming this loop when you both can see it clearly rather than from inside it.",
+  "You are both more attached than either of you has actually admitted out loud. The gap between what you feel and what you show is where most of the confusion in this connection lives. Your chart compatibility shows a strong emotional bond that neither of you is fully acknowledging. Name what you actually feel to each other, not just what feels safe to say.",
+  "There is a cycle of closeness followed by distance that has become the architecture of how this connection works. The moments of genuine closeness feel so good precisely because of the uncertainty that surrounds them. Your moon placements create different comfort levels with emotional vulnerability. One of you needs to break the cycle by staying present when the instinct is to pull back.",
+  "Both of you invest deeply but show it in completely different ways. One goes in fast and then gets scared. The other holds back and then cannot leave. You keep arriving at the same place on different schedules. Your birth natures create this one-step gap. Naming the pattern directly is more useful than waiting for the timing to line up on its own.",
+  "The attachment between you is already more significant than either of you has acknowledged. What happens when that gets said out loud will tell you more about this connection than months of the current pattern. Your chart placements show a depth of emotional entanglement that is looking for honesty to resolve into something clearer.",
 ];
 
 const tensionTexts = [
-  "The tension isn't the problem — it's the symptom. There are two or three specific things that haven't been said between you, and the tension is where they're living right now. Both of you know what they are. One of you needs to say them.",
-  "Something sits unresolved and surfaces in unexpected moments. Not always as conflict — just as weight. That kind of weight doesn't come from nowhere. It needs a direct conversation, not more time.",
-  "The friction is only useful if it's moving you toward something. Right now it's more likely being used as a reason to maintain distance that would be harder to justify without it. That's worth noticing.",
-  "Most tension in a connection is one person waiting for the other to acknowledge something. Identify exactly what needs acknowledging here. The tension changes shape entirely when it gets named — almost always for the better.",
-  "Both of you are more in this than you're showing each other. The tension is the gap between what you feel and what you'll admit to. Every time that gap doesn't close, it gets fractionally larger. This is one of those moments.",
+  "The tension between you is not the actual problem. It is where two or three specific unspoken things are living right now. Your moon signs process conflict differently, which is part of why resolution keeps feeling just out of reach. Both of you know what needs to be said. One of you needs to say it in a calm moment rather than in the middle of a fight.",
+  "Something sits unresolved between you and surfaces in moments you do not expect. Not always as conflict, just as weight. Your birth placements create a pattern where unresolved tension accumulates quietly rather than releasing. A direct conversation addresses this faster than more time will.",
+  "The friction between you is only useful if it is moving you both toward something. Your chart compatibility shows an area of natural tension that needs active attention rather than passive hope. Identify specifically what keeps resurfacing and agree to address it as a shared issue rather than each other's fault.",
+  "Most tension in a close connection is one person waiting for the other to acknowledge something they both know is there. Your moon elements create different thresholds for when discomfort needs to be named. Identify exactly what needs acknowledging in this connection and name it. The tension changes shape entirely when it gets spoken aloud.",
+  "Both of you are more invested in this than you are showing each other. The tension is the gap between what you feel and what you will admit. Your planetary placements create this specific pattern of holding back the most important part. Every time that gap does not close, it gets a little wider. This is a good moment to close it.",
 ];
 
 const longTermTexts = [
-  "This connection has real staying power — not because it's easy, but because the emotional pull survives hard moments. That's rarer than it sounds. Most connections don't have it. This one does. What you do with that is the question.",
-  "Long-term potential is genuinely here. What it requires: a degree of honesty that neither of you is fully used to offering. The capability exists. The question is whether you're both willing to use it at the same time.",
-  "For this to last, one of you has to go first — into vulnerability, into naming what's been hovering. Whoever does it will change the dynamic permanently. It won't go back to how it was before. That's the point.",
-  "This could become something significant. What it requires is both people choosing depth over comfort at the exact moment those two things start to feel different. That moment is either approaching or already here.",
-  "The raw material for something real is present. What it needs is both of you deciding that the discomfort of honesty is less costly than the slow erosion of staying vague. That decision tends to only get made once.",
+  "This connection has real staying power, not because it is easy, but because the emotional pull between you survives difficult moments. Your chart compatibility shows a strong alignment that indicates long-term potential when both people are honest with each other. What you do with that potential is the actual question.",
+  "Long-term potential is genuinely present in this pairing. Your birth chart compatibility points to a strong foundation when both people choose depth over comfort. The capability for something real is here. The question is whether you are both willing to use it at the same time and in the same direction.",
+  "For this to become what it could be, one of you has to go first into the vulnerable conversation. Your charts show a connection that deepens significantly when emotional honesty is chosen over emotional safety. Whoever makes that move changes the dynamic permanently. That is the whole point.",
+  "This could become something that matters in a lasting way. What it requires is both of you choosing the uncomfortable honest thing over the comfortable vague thing at the exact moment those two feel different. Your chart placements show the raw material for that is genuinely here. Your next step is acting like it.",
+  "The foundation for something real exists in this pairing. Your birth chart compatibility indicates long-term resonance when both people lean in rather than wait. What it needs is both of you deciding that the discomfort of honesty costs less than the slow erosion of staying unclear about what you actually want.",
 ];
 
 const addictiveTexts = [
-  "What makes this hard to step away from is specific: you found someone who makes you feel known — not just liked, actually known. That doesn't happen often. Once it does, the mind doesn't release it easily. That's what you're caught in, not necessarily the person.",
-  "The addiction is to those moments when everything clicked. They were real. The problem: chasing them means tolerating significant uncertainty in between. Your system has learned to call that cycle love. It's worth asking whether it is.",
-  "You return because this connection reaches something in you that most people don't get close to. That depth is real. The question is whether it's sustainable or just intense — those are very different things with very different futures.",
-  "The pull back is emotional recognition — the feeling of being fully seen by someone. Once you've had that, ordinary connection feels like not quite enough. You may be more attached to that feeling than to this specific person. Worth knowing.",
-  "The hardest truth here: you're not just attached to them. You're attached to the version of yourself that exists in this connection. That person is what you're not ready to lose. The question is whether you can find them without this.",
+  "What makes this hard to step away from is specific. You found someone who makes you feel genuinely known, not just liked or desired, actually known. That does not happen often. Your chart placements show a deep emotional recognition between your natures that is rare. The pull is real. The question is whether this connection is sustainable or just intense, because those are very different things.",
+  "You keep coming back because of the moments when everything clicked. Those moments were real. Your birth chart shows an unusual compatibility in how your emotional natures interact, which is what makes those moments possible. The question worth asking is whether the connection as a whole supports those moments or only produces them occasionally.",
+  "You return because this connection reaches something in you that most people do not get close to. Your planetary placements show a depth of compatibility that creates that specific feeling of being fully met. That depth is real. Knowing whether it is sustainable requires a more honest conversation than you have had yet.",
+  "The pull back to this connection is emotional recognition, the feeling of being seen by someone in a way that is complete. Your chart compatibility shows your emotional wiring creates exactly that for each other. Once you have had that experience, ordinary connection can feel like it is missing something. Worth knowing whether you are attached to this person or to that feeling.",
+  "The hardest truth about this pull is that you may be attached to the version of yourself that exists in this connection, not just to the person. Your moon signs interact in a way that brings out specific parts of each of you. That version of you is what you are not ready to lose. Whether you can find that without this specific person is the real question.",
 ];
 
 const hiddenPatternTexts = [
-  "The pattern underneath everything: both of you are more afraid of getting what you want than of not getting it. That fear is what's actually running the show. The distance, the ambiguity, the cycles — all of it is in service of that fear.",
-  "There's a testing pattern here. Small actions, small withdrawals — all designed to find out if the other person will stay. The test never officially ends because neither of you has decided it's safe to stop running it. That's the loop.",
-  "Both of you are holding back about 30% of what you actually feel. That 30% is the most important part. It's also the part that, when it finally comes out, changes everything. The question is who's willing to go there first.",
-  "The pattern no one is naming: you've both built walls that look like preferences. 'I need space.' 'I'm not ready.' Those aren't preferences — they're defences wearing a more acceptable label. The real thing is underneath.",
-  "The real hidden pattern: you're both waiting for the other person to make it safe to want this fully. That's not going to happen on its own. Someone has to make it safe by wanting it first, out loud, without a guarantee. That's the only move that changes anything.",
+  "The pattern underneath everything is that both of you are more afraid of getting exactly what you want than of not getting it. Your birth placements show a shadow dynamic that runs beneath the surface of this connection. The distance, the ambiguity, the cycles, all of it is protecting both of you from something you actually want. Name that fear to yourself first, then to each other.",
+  "There is a testing pattern running in this connection. Small actions, small withdrawals, all designed to find out if the other person will stay. Your chart compatibility shows a trust dynamic that requires active building rather than passive waiting. The test never officially ends because neither of you has decided it is safe to stop running it. That is the loop you are in.",
+  "Both of you are holding back the most important part of what you feel. Your moon signs create a pattern where the part that stays hidden is actually the part that would change everything if it came out. That is the piece worth examining. Who goes first into saying the fuller version of what is true for them?",
+  "The pattern no one is naming is that both of you have built walls that look like preferences. I need space. I am not ready. Your planetary placements can create emotional defenses that wear more acceptable labels. Those are not preferences. They are protection wearing a costume. The real thing is underneath. Finding it requires one person to speak plainly.",
+  "The real hidden pattern here is that both of you are waiting for the other person to make it safe enough to want this fully. Your charts show a connection that is asking for one person to go first into genuine openness without a guarantee that it will be met. That is the only move that actually changes anything.",
 ];
 
 // ─── Viral Features ──────────────────────────────────────────────────────────
@@ -87,9 +87,9 @@ const viralFeatures = {
     icon: "heart",
     locked: false,
     results: [
-      (u: string, p: string) => `${u} falls harder. Not because they're more vulnerable — because they're less defended. The way ${u} processes connection means they feel the weight of it before they have words for it. ${p} catches feelings too. By the time ${p} admits it, ${u} is already all in.`,
-      (u: string, p: string) => `${p} falls harder. They just hide it better. There's a specific way ${p} behaves around ${u} — not what they say, what they actually do — that makes this clear. The intensity is there. The acknowledgment isn't yet.`,
-      (u: string, _p: string) => `${u} falls first and falls deeper. The twist: the one who falls slower often ends up with more influence over how things develop, without meaning to. That dynamic is already playing out in how small decisions get made between you.`,
+      (u: string, p: string) => `${u} falls harder. Not because they are more vulnerable, but because they are less defended. The way ${u} processes connection means they feel the weight of it before they have words for it. ${p} catches feelings too. By the time ${p} admits it, ${u} is already all in. That timing gap is worth understanding before it creates confusion between you.`,
+      (u: string, p: string) => `${p} falls harder. They just hide it better. There is a specific way ${p} behaves around ${u}, not what they say but what they actually do, that makes this clear. The intensity is there. The acknowledgment is not yet. ${u} can either wait for ${p} to catch up or create the space for that conversation to happen.`,
+      (u: string, _p: string) => `${u} falls first and falls deeper. The person who falls slower often ends up with more influence over how things develop, without meaning to. That dynamic is already playing out in how small decisions get made between you. Naming this dynamic directly instead of feeling it silently changes how it moves.`,
     ],
   },
   "attached-first": {
@@ -97,9 +97,9 @@ const viralFeatures = {
     icon: "link",
     locked: false,
     results: [
-      (u: string, p: string) => `${u} got attached first. Not because they're more sensitive — because they pay closer attention. ${p} got there shortly after, they just filed it under a different name and waited longer to say it.`,
-      (u: string, p: string) => `${p} got attached first. There was probably a specific moment they remember clearly that ${u} doesn't. That asymmetry — one person knowing the exact moment, the other not — is still quietly shaping how this connection moves.`,
-      (u: string, p: string) => `Both got attached at almost the same moment but gave it different names. ${u} called it interest. ${p} called it enjoying the time. It was the same thing in two different languages.`,
+      (u: string, p: string) => `${u} got attached first. Not because they are more sensitive, but because they pay closer attention. ${p} got there shortly after but filed it under a different name and waited longer to say it. That asymmetry, one person knowing the exact moment, the other not, is still quietly shaping how this connection moves.`,
+      (u: string, p: string) => `${p} got attached first. There was probably a specific moment they remember clearly that ${u} does not. That gap is still present in how each of you thinks about this connection. Getting on the same page about when things shifted matters more than you might think.`,
+      (u: string, p: string) => `Both got attached at almost the same moment but gave it different names. ${u} called it interest. ${p} called it enjoying the time. It was the same thing in two different languages. You are actually more aligned in this than either of you has fully acknowledged.`,
     ],
   },
   "dependency-index": {
@@ -107,9 +107,9 @@ const viralFeatures = {
     icon: "activity",
     locked: false,
     results: [
-      (_u: string, p: string) => `The dependency is high — and it's not one-sided. You've woven ${p} into the way you process your own emotional state. Their mood moves yours. Their silence changes your day. That's not weakness. That's entanglement. Knowing the difference matters.`,
-      (u: string, _p: string) => `${u}'s dependency runs through the mind first: replaying interactions, reading between lines, analysing what things meant. This is deep bonding wearing the clothes of obsession. The line between them is thinner than most people admit.`,
-      (_u: string, _p: string) => `The dependency is asymmetric but mutual. One person is more emotionally dependent; the other is more dependent on the dynamic itself — on having this available. Together they've created something that sustains itself without either person choosing it consciously.`,
+      (_u: string, p: string) => `The dependency is high and it is not one-sided. You have woven ${p} into the way you process your own emotional state. Their mood moves yours. Their silence changes your day. That is not weakness. That is entanglement. Knowing the difference between deep connection and entanglement is the most useful thing you can do with this information.`,
+      (u: string, _p: string) => `${u}'s dependency runs through the mind first, replaying interactions, reading between lines, analyzing what things meant. This is deep bonding wearing the clothes of obsession. The line between them is thinner than most people admit. Channeling that mental energy into direct conversation is more productive than letting it loop.`,
+      (_u: string, _p: string) => `The dependency is not equal but it is mutual. One person is more emotionally dependent. The other is more dependent on the dynamic itself, on having this available. Together they have created something that sustains itself without either person consciously choosing it. Making that choice consciously, one way or another, is the next step.`,
     ],
   },
   "ghosting-probability": {
@@ -117,9 +117,9 @@ const viralFeatures = {
     icon: "eye-off",
     locked: true,
     results: [
-      (_u: string, p: string) => `The chance of being ghosted is lower than the fear suggests. ${p} has avoidant tendencies, not disappearing ones. What looks like pulling away is almost always internal processing. The distinction matters a lot for how you respond to it.`,
-      (_u: string, p: string) => `Moderate risk of emotional withdrawal, not full exit. ${p} goes quiet when overwhelmed — it can feel identical to disappearing, but it isn't. Knowing the difference changes everything about how you handle the next silence.`,
-      (_u: string, _p: string) => `Full ghosting is unlikely. This connection carries too much emotional weight for a clean disappearance. What's more probable is inconsistency — which can feel worse than ghosting because it doesn't give you permission to stop hoping.`,
+      (_u: string, p: string) => `The chance of being ghosted is lower than the fear suggests. ${p} has avoidant tendencies, not disappearing ones. What looks like pulling away is almost always internal processing. The distinction matters a lot for how you respond to it. Reacting to avoidance as if it is abandonment accelerates the very thing you are afraid of.`,
+      (_u: string, p: string) => `There is a moderate risk of emotional withdrawal, not full exit. ${p} goes quiet when overwhelmed and it can feel identical to disappearing, but it is not. Knowing the difference changes everything about how you handle the next silence. Giving space without interpreting it as rejection breaks the cycle.`,
+      (_u: string, _p: string) => `Full ghosting is unlikely. This connection carries too much emotional weight for a clean disappearance. What is more probable is inconsistency, which can feel worse than ghosting because it does not give you permission to stop hoping. Asking for clarity directly is the only way to resolve that uncertainty.`,
     ],
   },
   "reunion-potential": {
@@ -127,9 +127,9 @@ const viralFeatures = {
     icon: "refresh-cw",
     locked: true,
     results: [
-      (_u: string, _p: string) => `Reunion potential is real. Not because nothing went wrong, but because what was genuine between you doesn't simply stop being genuine when the relationship does. The question worth answering first: would you be returning to something, or rebuilding something? Those are very different conversations.`,
-      (u: string, p: string) => `If ${u} and ${p} came back together, it wouldn't be the same thing — it would be the next version of it. Whether that version is better depends entirely on what each person actually did with the time apart, not on what feelings remained.`,
-      (_u: string, _p: string) => `The pull toward each other hasn't dissolved. A reunion is possible, but there's a specific conversation that hasn't happened yet — and until it does, any return lands at the same starting point as before.`,
+      (_u: string, _p: string) => `Reunion potential is real. Not because nothing went wrong, but because what was genuine between you does not simply stop being genuine when the relationship does. The question worth answering first is whether you would be returning to something or rebuilding something. Those are very different conversations and they require very different honesty.`,
+      (u: string, p: string) => `If ${u} and ${p} came back together, it would not be the same thing. It would be the next version of it. Whether that version is better depends entirely on what each person actually did with the time apart, not on what feelings remained. Feelings alone are not evidence that a reunion would work. Genuine change on both sides is.`,
+      (_u: string, _p: string) => `The pull toward each other has not dissolved. A reunion is possible, but there is a specific conversation that has not happened yet. Until it does, any return lands at the same starting point as before and creates the same patterns. Having that conversation first, even if it is uncomfortable, is what makes a reunion mean something different.`,
     ],
   },
   "toxic-or-soulmate": {
@@ -137,9 +137,9 @@ const viralFeatures = {
     icon: "zap",
     locked: true,
     results: [
-      (_u: string, _p: string) => `Neither fully — and both partly. This connection lives where intensity and damage are hard to tell apart. What feels like a soulmate dynamic and what activates old wounds can come from the exact same source. That's the complication worth sitting with.`,
-      (_u: string, _p: string) => `The answer changes depending on which version of you is asking. At your clearest, this is a soulmate dynamic. At your most defended or hurt, it activates patterns that cost you. Both readings are accurate. Both are yours to understand.`,
-      (_u: string, _p: string) => `Soulmate — but not in the comfortable sense. Real soulmate connections don't arrive to make you comfortable. They arrive to open something up that needed opening. This one is doing that. Whether it feels beautiful or painful right now depends entirely on where you are.`,
+      (_u: string, _p: string) => `Neither fully and both partly. This connection lives where intensity and damage are hard to tell apart. What feels like a soulmate dynamic and what activates old wounds can come from the exact same source. That is the complication worth sitting with. The question is not which one it is. The question is what you are going to do with that understanding.`,
+      (_u: string, _p: string) => `The answer changes depending on which version of you is asking. At your clearest, this is a soulmate dynamic. At your most defended, it activates patterns that cost you. Both readings are accurate. The goal is not to pick one label but to be honest about which version is running the show right now and whether you want that to change.`,
+      (_u: string, _p: string) => `Soulmate, but not in the comfortable sense. Real connections like this do not arrive to make you comfortable. They arrive to open something up that needed opening. This one is doing that. Whether it feels beautiful or painful right now depends entirely on where you are. The depth itself is not the problem. What you do with it is.`,
     ],
   },
   "cant-let-go": {
@@ -147,9 +147,9 @@ const viralFeatures = {
     icon: "anchor",
     locked: false,
     results: [
-      (_u: string, p: string) => `You can't let go because ${p} showed you a version of love that felt like what you'd always been looking for. It wasn't always there, but you saw it clearly enough to believe in it. That glimpse is the hook — and it's a real one. The question is what you do with a real hook.`,
-      (_u: string, _p: string) => `You can't let go because leaving would require accepting something uncomfortable: that intensity doesn't equal the right match. Staying is how you avoid that conclusion. It won't work indefinitely. At some point the question has to get answered.`,
-      (u: string, _p: string) => `${u} can't leave because this connection reaches a part of them that most connections don't get close to. Leaving doesn't just mean losing the person — it means losing access to that version of themselves. That's the real attachment. It's also the thing worth examining.`,
+      (_u: string, p: string) => `You cannot let go because ${p} showed you a version of love that felt like what you had always been looking for. It was not always there, but you saw it clearly enough to believe in it. That glimpse is the hook and it is a real one. The question is not whether the connection was real. It was. The question is whether it is enough on its own to build something on.`,
+      (_u: string, _p: string) => `You cannot let go because leaving would require accepting something uncomfortable, that intensity does not automatically equal the right match. Staying is how you avoid that conclusion. At some point the question has to get answered directly. Giving yourself a clear window to get honest about this, rather than leaving it open ended, is the most useful thing you can do.`,
+      (u: string, _p: string) => `${u} cannot leave because this connection reaches a part of them that most connections do not get close to. Leaving does not just mean losing the person. It means losing access to that version of themselves. That is the real attachment. Understanding this, really understanding it, is what gives you the power to make a conscious choice rather than staying by default.`,
     ],
   },
   "red-flags": {
@@ -157,9 +157,9 @@ const viralFeatures = {
     icon: "flag",
     locked: false,
     results: [
-      (_u: string, p: string) => `${p} is emotionally inconsistent in a specific way: fully present when things feel easy, significantly less available when things get uncertain. That's not cruelty — it's unresolved avoidance. But the impact on you is the same regardless of the intention behind it.`,
-      (_u: string, _p: string) => `The red flag isn't a single moment. It's the pattern. The cycle of closeness and withdrawal has repeated enough times to stop being an accident — it's become the architecture of how this connection works. Patterns don't change without being named directly.`,
-      (_u: string, _p: string) => `The main signal: something in this connection makes you regularly question your own read on reality. When you consistently have to recalibrate what's true, that recalibration is the data. Trust the pattern you observe over time — not the individual explanation given in the moment.`,
+      (_u: string, p: string) => `${p} is emotionally inconsistent in a specific way. Fully present when things feel easy, significantly less available when things get uncertain. That is not cruelty. It is unresolved avoidance. The impact on you is the same regardless of the intention behind it. Naming this pattern directly, outside of a conflict moment, is the only thing that has a chance of changing it.`,
+      (_u: string, _p: string) => `The red flag is not a single moment. It is the pattern. The cycle of closeness and withdrawal has repeated enough times to stop being an accident. It has become the architecture of how this connection works. Patterns do not change without being named. Naming it together, as a shared dynamic rather than anyone's fault, is where change actually starts.`,
+      (_u: string, _p: string) => `The main signal is that something in this connection makes you regularly question your own read on reality. When you consistently have to recalibrate what is true, that recalibration is the data. Trust the pattern you observe over time, not the individual explanation given in the moment. Your gut has been tracking something real.`,
     ],
   },
   "green-flags": {
@@ -167,9 +167,9 @@ const viralFeatures = {
     icon: "check-circle",
     locked: false,
     results: [
-      (u: string, p: string) => `${p} remembers the small things about ${u} — specific things that weren't worth mentioning twice. That's real attention, not performance. It's one of the rarest things in any connection and one of the most meaningful signals of genuine investment.`,
-      (_u: string, _p: string) => `The biggest green flag here: somewhere in this connection, you became able to say something you normally keep hidden. Safety to be fully yourself — without editing or performance — is genuinely rare. If this gave you that, even briefly, that matters more than almost anything else.`,
-      (u: string, p: string) => `${u} and ${p} both move toward difficulty rather than away from it when they're at their best. That direction — toward the uncomfortable thing instead of around it — is the actual foundation of intimacy. It's less common than people think.`,
+      (u: string, p: string) => `${p} remembers the small things about ${u}, specific things that were not worth mentioning twice. That is real attention, not performance. It is one of the rarest things in any connection and one of the most meaningful signals of genuine investment. That kind of attention does not just happen. It means you matter in a way that is worth acknowledging directly.`,
+      (_u: string, _p: string) => `The biggest green flag here is that somewhere in this connection, you became able to say something you normally keep hidden. Safety to be fully yourself without editing or performance is genuinely rare. If this connection gave you that, even briefly, that matters more than almost anything else. It tells you something real about what is possible here.`,
+      (u: string, p: string) => `${u} and ${p} both move toward difficulty rather than away from it when they are at their best. That direction, toward the uncomfortable thing instead of around it, is the actual foundation of intimacy. It is less common than people think and it is the one thing that actually makes a relationship grow rather than just continue.`,
     ],
   },
   "pulling-back": {
@@ -177,9 +177,9 @@ const viralFeatures = {
     icon: "repeat",
     locked: false,
     results: [
-      (_u: string, _p: string) => `You return because of the feeling of being actually seen — not just liked or desired, but seen. That doesn't happen with most people. When it does, it creates a pull that outlasts the logic for staying away. The question isn't whether the pull is real. It is. The question is what it's pointing toward.`,
-      (_u: string, p: string) => `${p} shows up, in specific moments, as exactly the person you've been looking for. Those moments are real. They're also rare enough to make every absence feel like a temporary interruption rather than a pattern. That framing is worth questioning.`,
-      (_u: string, _p: string) => `The pull is specific to this pairing — the exact combination of this person and this version of you. You may have looked for it elsewhere and found something close but not quite the same. That specificity is real. The question is whether specificity is enough on its own.`,
+      (_u: string, _p: string) => `You return because of the feeling of being actually seen, not just liked or desired, but seen. That does not happen with most people. When it does, it creates a pull that outlasts the logic for staying away. The question is not whether the pull is real. It is. The question is what it is pointing toward and whether you are willing to have the conversation that actually answers that.`,
+      (_u: string, p: string) => `${p} shows up, in specific moments, as exactly the person you have been looking for. Those moments are real. They are also rare enough to make every absence feel like a temporary interruption rather than a pattern. That framing is worth questioning. Is this an interrupted story or a repeating cycle? The answer changes what the right move is.`,
+      (_u: string, _p: string) => `The pull is specific to this pairing, the exact combination of this person and this version of you. You may have looked for it elsewhere and found something close but not quite the same. That specificity is real. The question is whether specificity alone is enough to build something on, and that question only gets answered by having a direct conversation about what you both actually want.`,
     ],
   },
 };
@@ -248,6 +248,7 @@ export function calculateCompatibility(
     (emotionalScore + commScore + attachScore + ltScore + addictiveScore) / 5
   );
 
+  // Section labels MUST match the kootaMap keys in compatibility.tsx exactly
   const sections: CompatibilitySection[] = [
     {
       label: "Emotional Chemistry",
@@ -262,7 +263,7 @@ export function calculateCompatibility(
       color: "#B855E0",
     },
     {
-      label: "Attachment Style",
+      label: "Attachment Dynamics",
       score: attachScore,
       text: pick(attachmentTexts, seededRng(seed + 3)),
       color: "#7C52C8",
@@ -274,7 +275,7 @@ export function calculateCompatibility(
       color: "#F5A623",
     },
     {
-      label: "Future Potential",
+      label: "Long-Term Potential",
       score: ltScore,
       text: pick(longTermTexts, seededRng(seed + 5)),
       color: "#52C8B8",
@@ -286,7 +287,7 @@ export function calculateCompatibility(
       color: "#E85C7A",
     },
     {
-      label: "Hidden Pattern",
+      label: "Hidden Relationship Pattern",
       score: patternScore,
       text: pick(hiddenPatternTexts, seededRng(seed + 7)),
       color: "#B855E0",
@@ -397,8 +398,8 @@ export interface GuidanceResponse {
 
 const guidanceResponses: Record<string, string[]> = {
   withdraw: [
-    "When someone pulls away, it is rarely about you. It is almost always about how much they can handle emotionally at that moment. Pulling back is usually a way to calm down, not a rejection. The real question is: is this space temporary, or is it becoming a pattern?",
-    "They pulled away because getting close triggered something in them, maybe an old fear or a feeling of too much. This is not about you being wrong or too intense. It is about them reaching their emotional limit. Most people who pull away have not fully processed what they feel yet.",
+    "When someone pulls away, it is rarely about you. It is almost always about how much they can handle emotionally at that moment. Pulling back is usually a way to calm down, not a rejection. The real question is whether this space is temporary or becoming a pattern.",
+    "They pulled away because getting close triggered something in them, maybe an old fear or a feeling of too much too fast. This is not about you being wrong or too intense. It is about them reaching their emotional limit. Most people who pull away have not fully processed what they feel yet.",
   ],
   "move-on": [
     "You cannot move on yet because part of you is still waiting for the version of this that you believed was possible. That version felt real, and it may have been for a moment. Moving on means accepting that the potential you saw was real, but the timing or circumstances did not allow it. That is a real loss and it is okay to grieve.",
