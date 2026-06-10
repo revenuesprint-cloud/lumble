@@ -1,5 +1,6 @@
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
+import { useColors } from "@/hooks/useColors";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Redirect, Tabs } from "expo-router";
@@ -10,6 +11,7 @@ export default function TabLayout() {
   const isWeb = Platform.OS === "web";
   const { isAuthenticated, isAuthLoading } = useAuth();
   const { hasCompletedOnboarding, isLoading: appLoading } = useApp();
+  const c = useColors();
 
   if (!isAuthLoading && !appLoading) {
     if (!isAuthenticated) return <Redirect href="/login" />;
@@ -23,13 +25,13 @@ export default function TabLayout() {
       }}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A3DE8",
-        tabBarInactiveTintColor: "#94A3B8",
+        tabBarActiveTintColor: c.primary,
+        tabBarInactiveTintColor: c.textFaint,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "#FFFFFF",
+          backgroundColor: c.card,
           borderTopWidth: 1,
-          borderTopColor: "#F1F5F9",
+          borderTopColor: c.borderLight,
           elevation: 16,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -2 },
@@ -40,7 +42,7 @@ export default function TabLayout() {
         },
         tabBarBackground: () =>
           isWeb ? (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: "#FFFFFF" }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: c.card }]} />
           ) : null,
         tabBarLabelStyle: {
           fontSize: 10,

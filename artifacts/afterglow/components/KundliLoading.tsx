@@ -1,7 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import { useColors } from "@/hooks/useColors";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Animated, Easing, Image, StyleSheet, Text, View } from "react-native";
 
 export function KundliLoading({ label = "Loading your profile…" }: { label?: string }) {
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
   const pulse = useRef(new Animated.Value(0.4)).current;
   const dots  = [
     useRef(new Animated.Value(0)).current,
@@ -55,15 +58,17 @@ export function KundliLoading({ label = "Loading your profile…" }: { label?: s
   );
 }
 
-const styles = StyleSheet.create({
-  container:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 20, backgroundColor: "#F7F5F0" },
-  logoCircle: {
-    width: 80, height: 80, borderRadius: 24, overflow: "hidden",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
-  },
-  logoImg:  { width: "100%", height: "100%" },
-  label:    { fontSize: 15, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
-  dotsRow:  { flexDirection: "row", gap: 8 },
-  dot:      { width: 7, height: 7, borderRadius: 4, backgroundColor: "#4A3DE8" },
-});
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    container:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 20, backgroundColor: c.background },
+    logoCircle: {
+      width: 80, height: 80, borderRadius: 24, overflow: "hidden",
+      shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+    },
+    logoImg:  { width: "100%", height: "100%" },
+    label:    { fontSize: 15, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint },
+    dotsRow:  { flexDirection: "row", gap: 8 },
+    dot:      { width: 7, height: 7, borderRadius: 4, backgroundColor: "#4A3DE8" },
+  });
+}

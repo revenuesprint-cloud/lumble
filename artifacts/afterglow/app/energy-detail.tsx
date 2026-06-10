@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getAstrologyReading, RASHIS } from "@/utils/astrology";
 import { getDailyEnergyPersonalized } from "@/utils/personalization";
 import { Feather } from "@expo/vector-icons";
@@ -51,14 +52,14 @@ const METRIC_INFO: Record<string, { icon: string; color: string; what: string; h
   },
 };
 
-function DetailBar({ value, color }: { value: number; color: string }) {
+function DetailBar({ value, color, c }: { value: number; color: string; c: ReturnType<typeof useColors> }) {
   const widthAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(widthAnim, { toValue: value, duration: 600, delay: 100, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
   }, [value]);
   const w = widthAnim.interpolate({ inputRange: [0, 100], outputRange: ["0%", "100%"], extrapolate: "clamp" });
   return (
-    <View style={barStyles.track}>
+    <View style={[barStyles.track, { backgroundColor: c.borderLight }]}>
       <Animated.View style={{ width: w, height: "100%", overflow: "hidden", borderRadius: 6 }}>
         <LinearGradient colors={[color + "88", color]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1 }} />
       </Animated.View>
@@ -67,11 +68,12 @@ function DetailBar({ value, color }: { value: number; color: string }) {
 }
 
 const barStyles = StyleSheet.create({
-  track: { height: 8, backgroundColor: "#F1F5F9", borderRadius: 6, overflow: "hidden" },
+  track: { height: 8, borderRadius: 6, overflow: "hidden" },
 });
 
-function MetricCard({ icon, label, value, color, what, tip }: {
+function MetricCard({ icon, label, value, color, what, tip, c, mcStylesMemo }: {
   icon: string; label: string; value: number; color: string; what: string; tip: string;
+  c: ReturnType<typeof useColors>; mcStylesMemo: any;
 }) {
   const pct     = Math.round(value);
   const verdict = pct >= 72 ? "Strong" : pct >= 52 ? "Good" : pct >= 38 ? "Moderate" : "Low";
@@ -79,44 +81,49 @@ function MetricCard({ icon, label, value, color, what, tip }: {
   const verdictColor = pct >= 52 ? "#10B981" : pct >= 38 ? "#F59E0B" : "#F43F5E";
 
   return (
-    <View style={mcStyles.card}>
-      <View style={mcStyles.topRow}>
-        <View style={mcStyles.left}>
-          <Text style={mcStyles.icon}>{icon}</Text>
-          <Text style={mcStyles.label}>{label}</Text>
+    <View style={mcStylesMemo.card}>
+      <View style={mcStylesMemo.topRow}>
+        <View style={mcStylesMemo.left}>
+          <Text style={mcStylesMemo.icon}>{icon}</Text>
+          <Text style={mcStylesMemo.label}>{label}</Text>
         </View>
-        <View style={[mcStyles.badge, { backgroundColor: verdictBg, borderColor: verdictColor + "44" }]}>
-          <Text style={[mcStyles.badgeText, { color: verdictColor }]}>{pct}% · {verdict}</Text>
+        <View style={[mcStylesMemo.badge, { backgroundColor: verdictBg, borderColor: verdictColor + "44" }]}>
+          <Text style={[mcStylesMemo.badgeText, { color: verdictColor }]}>{pct}% · {verdict}</Text>
         </View>
       </View>
-      <DetailBar value={value} color={color} />
-      <Text style={mcStyles.what}>{what}</Text>
-      <View style={[mcStyles.tipPill, { backgroundColor: color + "0E" }]}>
-        <Text style={[mcStyles.tip, { color: color }]}>{tip}</Text>
+      <DetailBar value={value} color={color} c={c} />
+      <Text style={mcStylesMemo.what}>{what}</Text>
+      <View style={[mcStylesMemo.tipPill, { backgroundColor: color + "0E" }]}>
+        <Text style={[mcStylesMemo.tip, { color: color }]}>{tip}</Text>
       </View>
     </View>
   );
 }
 
-const mcStyles = StyleSheet.create({
-  card:     { borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#FFFFFF",
-              padding: 16, gap: 12,
-              shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  topRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
-  left:     { flexDirection: "row", alignItems: "center", gap: 10 },
-  icon:     { fontSize: 20 },
-  label:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  badge:    { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
-  badgeText:{ fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-  what:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 22 },
-  tipPill:  { borderRadius: 10, padding: 12 },
-  tip:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", lineHeight: 21 },
-});
+function createMcStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    card:     { borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.card,
+                padding: 16, gap: 12,
+                shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+    topRow:   { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10 },
+    left:     { flexDirection: "row", alignItems: "center", gap: 10 },
+    icon:     { fontSize: 20 },
+    label:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    badge:    { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
+    badgeText:{ fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
+    what:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, lineHeight: 22 },
+    tipPill:  { borderRadius: 10, padding: 12 },
+    tip:      { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", lineHeight: 21 },
+  });
+}
 
 export default function EnergyDetailScreen() {
   const insets  = useSafeAreaInsets();
   const router  = useRouter();
   const { user, partner } = useApp();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
+  const mcStylesMemo = useMemo(() => createMcStyles(c), [c]);
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -139,14 +146,14 @@ export default function EnergyDetailScreen() {
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+    <View style={{ flex: 1, backgroundColor: c.background }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7}
           style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="#64748B" />
+          <Feather name="arrow-left" size={20} color={c.textMuted} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Your energy today</Text>
@@ -186,6 +193,8 @@ export default function EnergyDetailScreen() {
               color={info.color}
               what={info.what}
               tip={tip}
+              c={c}
+              mcStylesMemo={mcStylesMemo}
             />
           );
         })}
@@ -198,17 +207,19 @@ export default function EnergyDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F7F5F0" },
-  backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
-  scroll:          { paddingHorizontal: 20, gap: 14 },
-  contextCard:     { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E2E8F0", padding: 20, gap: 12,
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
-  contextTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
-  contextBody:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 22 },
-  contextNote:     { borderLeftWidth: 3, borderLeftColor: "#C7D2FE", paddingLeft: 12 },
-  contextNoteText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22, fontStyle: "italic" },
-  footer:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", lineHeight: 20, paddingTop: 4, paddingBottom: 8 },
-});
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: c.background },
+    backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center", marginTop: 2 },
+    headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 2 },
+    scroll:          { paddingHorizontal: 20, gap: 14 },
+    contextCard:     { backgroundColor: c.card, borderRadius: 20, borderWidth: 1, borderColor: c.border, padding: 20, gap: 12,
+                       shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 2 },
+    contextTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2 },
+    contextBody:     { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, lineHeight: 22 },
+    contextNote:     { borderLeftWidth: 3, borderLeftColor: c.primaryBorder, paddingLeft: 12 },
+    contextNoteText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 22, fontStyle: "italic" },
+    footer:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, textAlign: "center", lineHeight: 20, paddingTop: 4, paddingBottom: 8 },
+  });
+}

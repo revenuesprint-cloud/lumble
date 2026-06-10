@@ -1,5 +1,6 @@
 import { useApp } from "@/context/AppContext";
 import { useAuth, type ServerProfile } from "@/context/AuthContext";
+import { useColors } from "@/hooks/useColors";
 import { useLocalSearchParams } from "expo-router";
 import { fetchJourney } from "@/utils/dbContent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,7 +8,7 @@ import * as SecureStore from "expo-secure-store";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   KeyboardAvoidingView,
@@ -29,6 +30,8 @@ export default function LoginScreen() {
   const { mode: modeParam } = useLocalSearchParams<{ mode?: string }>();
   const { login, register, isAuthenticated, isAuthLoading } = useAuth();
   const { hasCompletedOnboarding, completeOnboarding, resetApp, clearGuidanceMessages } = useApp();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -155,7 +158,7 @@ export default function LoginScreen() {
               activeOpacity={0.7}
               style={styles.backBtn}
             >
-              <Feather name="arrow-left" size={20} color="#0F172A" />
+              <Feather name="arrow-left" size={20} color={c.text} />
             </TouchableOpacity>
 
             <View style={styles.toggle}>
@@ -192,13 +195,13 @@ export default function LoginScreen() {
             {/* Email */}
             <View style={styles.fieldWrap}>
               <View style={styles.fieldRow}>
-                <Feather name="mail" size={16} color="#94A3B8" />
+                <Feather name="mail" size={16} color={c.textFaint} />
                 <TextInput
                   style={styles.input}
                   value={email}
                   onChangeText={(t) => { setEmail(t); clear(); }}
                   placeholder="Email address"
-                  placeholderTextColor="#CBD5E1"
+                  placeholderTextColor={c.borderLight}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -210,20 +213,20 @@ export default function LoginScreen() {
             {/* Password */}
             <View style={styles.fieldWrap}>
               <View style={styles.fieldRow}>
-                <Feather name="lock" size={16} color="#94A3B8" />
+                <Feather name="lock" size={16} color={c.textFaint} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
                   value={password}
                   onChangeText={(t) => { setPassword(t); clear(); }}
                   placeholder={mode === "register" ? "Password (min. 6 chars)" : "Password"}
-                  placeholderTextColor="#CBD5E1"
+                  placeholderTextColor={c.borderLight}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   returnKeyType={mode === "register" ? "next" : "done"}
                   onSubmitEditing={mode === "signin" ? handleSubmit : undefined}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color="#94A3B8" />
+                  <Feather name={showPassword ? "eye-off" : "eye"} size={16} color={c.textFaint} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -232,20 +235,20 @@ export default function LoginScreen() {
             {mode === "register" && (
               <View style={styles.fieldWrap}>
                 <View style={styles.fieldRow}>
-                  <Feather name="lock" size={16} color="#94A3B8" />
+                  <Feather name="lock" size={16} color={c.textFaint} />
                   <TextInput
                     style={[styles.input, { flex: 1 }]}
                     value={confirm}
                     onChangeText={(t) => { setConfirm(t); clear(); }}
                     placeholder="Confirm password"
-                    placeholderTextColor="#CBD5E1"
+                    placeholderTextColor={c.borderLight}
                     secureTextEntry={!showConfirm}
                     autoCapitalize="none"
                     returnKeyType="done"
                     onSubmitEditing={handleSubmit}
                   />
                   <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn}>
-                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color="#94A3B8" />
+                    <Feather name={showConfirm ? "eye-off" : "eye"} size={16} color={c.textFaint} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -273,7 +276,7 @@ export default function LoginScreen() {
               </Text>
               {!loading && (
                 <View style={styles.submitArrow}>
-                  <Feather name="arrow-right" size={16} color="#0F172A" />
+                  <Feather name="arrow-right" size={16} color={c.ctaForeground} />
                 </View>
               )}
             </TouchableOpacity>
@@ -308,150 +311,152 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#F7F5F0",
-  },
-  webScroll: {
-    maxWidth: 480,
-    alignSelf: "center",
-    width: "100%",
-  },
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    gap: 28,
-  },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    webScroll: {
+      maxWidth: 480,
+      alignSelf: "center",
+      width: "100%",
+    },
+    scroll: {
+      flexGrow: 1,
+      paddingHorizontal: 24,
+      paddingTop: 16,
+      gap: 28,
+    },
 
-  // Top row
-  topRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-  },
-  backBtn: {
-    width: 40, height: 40,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  toggle: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 11, alignItems: "center" },
-  toggleBtnActive: { backgroundColor: "#0F172A" },
-  toggleText:      { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
-  toggleTextActive:{ color: "#FFFFFF" },
+    // Top row
+    topRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 16,
+    },
+    backBtn: {
+      width: 40, height: 40,
+      borderRadius: 12,
+      backgroundColor: c.card,
+      borderWidth: 1,
+      borderColor: c.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    toggle: {
+      flex: 1,
+      flexDirection: "row",
+      backgroundColor: c.card,
+      borderRadius: 14,
+      padding: 3,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 11, alignItems: "center" },
+    toggleBtnActive: { backgroundColor: c.cta },
+    toggleText:      { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textFaint },
+    toggleTextActive:{ color: c.ctaForeground },
 
-  // Heading
-  headingBlock: { gap: 6 },
-  heading: {
-    fontSize: 26,
-    fontFamily: "PlusJakartaSans_800ExtraBold",
-    color: "#0F172A",
-    letterSpacing: -0.4,
-  },
-  subHeading: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#64748B",
-  },
+    // Heading
+    headingBlock: { gap: 6 },
+    heading: {
+      fontSize: 26,
+      fontFamily: "PlusJakartaSans_800ExtraBold",
+      color: c.text,
+      letterSpacing: -0.4,
+    },
+    subHeading: {
+      fontSize: 14,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textMuted,
+    },
 
-  // Form
-  form:     { gap: 12 },
-  fieldWrap: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    overflow: "hidden",
-  },
-  fieldRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    gap: 10,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 16,
-    fontSize: 15,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#0F172A",
-  },
-  eyeBtn: { padding: 4 },
+    // Form
+    form:     { gap: 12 },
+    fieldWrap: {
+      backgroundColor: c.card,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: c.border,
+      overflow: "hidden",
+    },
+    fieldRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 14,
+      gap: 10,
+    },
+    input: {
+      flex: 1,
+      paddingVertical: 16,
+      fontSize: 15,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.text,
+    },
+    eyeBtn: { padding: 4 },
 
-  errorBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#FFF1F2",
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#FECDD3",
-  },
-  errorText: {
-    flex: 1,
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#F43F5E",
-  },
+    errorBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      backgroundColor: c.roseLight,
+      borderRadius: 12,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: c.roseBorder,
+    },
+    errorText: {
+      flex: 1,
+      fontSize: 13,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: "#F43F5E",
+    },
 
-  submitBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#0F172A",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingLeft: 22,
-    paddingRight: 8,
-    marginTop: 4,
-  },
-  submitText: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSans_700Bold",
-    color: "#FFFFFF",
-  },
-  submitArrow: {
-    width: 38, height: 38,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    submitBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: c.cta,
+      borderRadius: 16,
+      paddingVertical: 18,
+      paddingLeft: 22,
+      paddingRight: 8,
+      marginTop: 4,
+    },
+    submitText: {
+      fontSize: 16,
+      fontFamily: "PlusJakartaSans_700Bold",
+      color: c.ctaForeground,
+    },
+    submitArrow: {
+      width: 38, height: 38,
+      borderRadius: 12,
+      backgroundColor: c.card,
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  // Bottom links
-  bottomLinks: {
-    alignItems: "center",
-    gap: 12,
-    paddingBottom: 8,
-  },
-  bottomLinkText: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#94A3B8",
-    textAlign: "center",
-  },
-  bottomLinkAccent: {
-    fontFamily: "PlusJakartaSans_700Bold",
-    color: "#4A3DE8",
-  },
-  forgotLink: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_600SemiBold",
-    color: "#4A3DE8",
-  },
-});
+    // Bottom links
+    bottomLinks: {
+      alignItems: "center",
+      gap: 12,
+      paddingBottom: 8,
+    },
+    bottomLinkText: {
+      fontSize: 14,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textFaint,
+      textAlign: "center",
+    },
+    bottomLinkAccent: {
+      fontFamily: "PlusJakartaSans_700Bold",
+      color: "#4A3DE8",
+    },
+    forgotLink: {
+      fontSize: 14,
+      fontFamily: "PlusJakartaSans_600SemiBold",
+      color: "#4A3DE8",
+    },
+  });
+}

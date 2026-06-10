@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getAstrologyReading, RASHIS } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
@@ -28,6 +29,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 function StatsStrip({
   compatPct, patternCount, dasha,
 }: { compatPct: number; patternCount: number; dasha: string }) {
+  const c = useColors();
+  const s = useMemo(() => createStatsStyles(c), [c]);
   const items = [
     { value: `${compatPct}%`, label: "Compatibility" },
     { value: String(patternCount), label: "Patterns" },
@@ -45,6 +48,16 @@ function StatsStrip({
   );
 }
 
+function createStatsStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    statsRow:       { flexDirection: "row", backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+    statItem:       { flex: 1, alignItems: "center", paddingVertical: 14 },
+    statItemBorder: { borderRightWidth: 1, borderRightColor: c.borderLight },
+    statValue:      { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.3 },
+    statLabel:      { marginTop: 2, fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint, textTransform: "uppercase", letterSpacing: 0.5 },
+  });
+}
+
 // ─── Today's Focus hero card ──────────────────────────────────────────────────
 
 function TodayFocusCard({
@@ -53,6 +66,8 @@ function TodayFocusCard({
   moonTag: string; headline: string; insight: string;
   action: string; dailyMsg: string | null; onPress: () => void;
 }) {
+  const c = useColors();
+  const s = useMemo(() => createFocusStyles(c), [c]);
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={s.focusCard}>
       {/* Tag row */}
@@ -85,6 +100,25 @@ function TodayFocusCard({
   );
 }
 
+function createFocusStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    focusCard:    { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 18, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
+    focusTagRow:  { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    focusTag:     { backgroundColor: c.primaryLight, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+    focusTagText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+    liveRow:      { flexDirection: "row", alignItems: "center", gap: 5 },
+    liveDot:      { width: 6, height: 6, borderRadius: 3, backgroundColor: "#10B981" },
+    liveText:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
+    focusHeadline:{ fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 27, letterSpacing: -0.3 },
+    focusInsight: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 22 },
+    focusDivider: { height: 1, backgroundColor: c.borderLight },
+    focusFooter:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+    focusSunIcon: { fontSize: 14, color: "#F59E0B", marginTop: 1 },
+    focusAction:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 19 },
+    focusArrow:   { width: 26, height: 26, borderRadius: 8, backgroundColor: c.primaryLight, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  });
+}
+
 // ─── Right Now card ───────────────────────────────────────────────────────────
 
 function RightNowCard({
@@ -93,6 +127,8 @@ function RightNowCard({
   userName: string; partnerName: string;
   userMoment: string; partnerSignal: string;
 }) {
+  const c = useColors();
+  const s = useMemo(() => createRightNowStyles(c), [c]);
   return (
     <View style={s.rightNowCard}>
       <View style={s.rightNowHeader}>
@@ -114,6 +150,20 @@ function RightNowCard({
   );
 }
 
+function createRightNowStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    rightNowCard:   { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 16, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+    rightNowHeader: { flexDirection: "row", alignItems: "center", gap: 7 },
+    rightNowPip:    { width: 6, height: 6, borderRadius: 3, backgroundColor: "#4A3DE8" },
+    rightNowTitle:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", textTransform: "uppercase", letterSpacing: 0.8 },
+    rightNowRow:    { flexDirection: "row", gap: 14 },
+    rightNowBlock:  { flex: 1, gap: 4 },
+    rightNowName:   { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 0.6 },
+    rightNowBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 19 },
+    rightNowDivider:{ width: 1, backgroundColor: c.borderLight },
+  });
+}
+
 // ─── Quick access grid ────────────────────────────────────────────────────────
 
 type NavItem = {
@@ -130,13 +180,16 @@ function QuickAccessGrid({
 }: {
   compatPct: number; patternCount: number; onPress: (route: string) => void;
 }) {
+  const c = useColors();
+  const s = useMemo(() => createGridStyles(c), [c]);
+
   const items: NavItem[] = [
     {
       icon:     "heart",
       label:    "Us",
       sublabel: `${compatPct}% compatibility`,
       color:    "#4A3DE8",
-      bg:       "#EEF2FF",
+      bg:       c.primaryLight,
       route:    "/(tabs)/compatibility",
     },
     {
@@ -144,7 +197,7 @@ function QuickAccessGrid({
       label:    "Patterns",
       sublabel: `${patternCount} detected`,
       color:    "#F43F5E",
-      bg:       "#FFF1F2",
+      bg:       c.roseLight,
       route:    "/(tabs)/patterns",
     },
     {
@@ -152,7 +205,7 @@ function QuickAccessGrid({
       label:    "Insights",
       sublabel: "10 things about you two",
       color:    "#F59E0B",
-      bg:       "#FFFBEB",
+      bg:       c.goldLight,
       route:    "/(tabs)/features",
     },
     {
@@ -160,7 +213,7 @@ function QuickAccessGrid({
       label:    "Ask",
       sublabel: "Oracle guidance",
       color:    "#10B981",
-      bg:       "#ECFDF5",
+      bg:       c.emeraldLight,
       route:    "/(tabs)/guidance",
     },
     {
@@ -168,7 +221,7 @@ function QuickAccessGrid({
       label:    "Energy",
       sublabel: "Today's metrics",
       color:    "#8B5CF6",
-      bg:       "#F5F3FF",
+      bg:       c.violetLight,
       route:    "/energy-detail",
     },
     {
@@ -176,7 +229,7 @@ function QuickAccessGrid({
       label:    "Your Chart",
       sublabel: "Moon & nakshatra",
       color:    "#64748B",
-      bg:       "#F1F5F9",
+      bg:       c.borderLight,
       route:    "profile-detail",
     },
   ];
@@ -205,7 +258,7 @@ function QuickAccessGrid({
                 <Text style={s.gridLabel}>{item.label}</Text>
                 <Text style={s.gridSublabel}>{item.sublabel}</Text>
               </View>
-              <Feather name="chevron-right" size={14} color="#CBD5E1" />
+              <Feather name="chevron-right" size={14} color={c.borderLight} />
             </TouchableOpacity>
           ))}
         </View>
@@ -214,9 +267,23 @@ function QuickAccessGrid({
   );
 }
 
+function createGridStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    gridWrap: { gap: 10 },
+    gridRow:  { flexDirection: "row", gap: 10 },
+    gridCard: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+    gridIconBox:   { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+    gridTextBlock: { flex: 1 },
+    gridLabel:     { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    gridSublabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 1 },
+  });
+}
+
 // ─── Today's Luck row ────────────────────────────────────────────────────────
 
 function LuckyRow({ features, onPress }: { features: LuckyFeatures; onPress: () => void }) {
+  const c = useColors();
+  const s = useMemo(() => createLuckyStyles(c), [c]);
   return (
     <View style={s.luckyRow}>
       {/* Lucky Number card */}
@@ -251,12 +318,28 @@ function LuckyRow({ features, onPress }: { features: LuckyFeatures; onPress: () 
   );
 }
 
+function createLuckyStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    luckyRow:       { flexDirection: "row", gap: 12 },
+    luckyCard:      { flex: 1, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 14, gap: 6, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+    luckyCardLabel: { fontSize: 9, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 },
+    luckyNumber:    { fontSize: 52, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", lineHeight: 58, letterSpacing: -1 },
+    luckyArchetype: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    luckyEnergy:    { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
+    luckyTapRow:    { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+    luckyTap:       { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+    colorSwatch:    { height: 44, borderRadius: 10, marginBottom: 2 },
+  });
+}
+
 // ─── Home screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
   const insets  = useSafeAreaInsets();
   const router  = useRouter();
   const { user, partner, challenges } = useApp();
+  const c = useColors();
+  const s = useMemo(() => createStyles(c), [c]);
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -314,9 +397,14 @@ export default function HomeScreen() {
           <TouchableOpacity
             onPress={() => { haptic(); router.push("/profile"); }}
             activeOpacity={0.75}
-            style={s.avatar}
+            style={s.avatarWrap}
           >
-            <Text style={s.avatarInitial}>{user.name.charAt(0)?.toUpperCase() || "?"}</Text>
+            <View style={s.avatar}>
+              <Text style={s.avatarInitial}>{user.name.charAt(0)?.toUpperCase() || "?"}</Text>
+            </View>
+            <View style={s.avatarChevron}>
+              <Feather name="chevron-right" size={8} color="#4A3DE8" />
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -375,73 +463,23 @@ export default function HomeScreen() {
   );
 }
 
-const s = StyleSheet.create({
-  root:     { flex: 1, backgroundColor: "#F7F5F0" },
-  webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
-  scroll:   { paddingHorizontal: 18, gap: 16 },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    root:     { flex: 1, backgroundColor: c.background },
+    webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
+    scroll:   { paddingHorizontal: 18, gap: 16 },
 
-  // Header
-  header:        { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-  greeting:      { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
-  userName:      { fontSize: 28, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.5 },
-  avatar:        { width: 46, height: 46, borderRadius: 23, backgroundColor: "#4A3DE8", alignItems: "center", justifyContent: "center" },
-  avatarInitial: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+    // Header
+    header:        { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+    greeting:      { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
+    userName:      { fontSize: 28, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.5 },
+    avatarWrap:    { position: "relative" },
+    avatar:        { width: 46, height: 46, borderRadius: 23, backgroundColor: "#4A3DE8", alignItems: "center", justifyContent: "center" },
+    avatarInitial: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+    avatarChevron: { position: "absolute", bottom: 0, right: 0, width: 16, height: 16, borderRadius: 8, backgroundColor: c.card, borderWidth: 1.5, borderColor: c.border, alignItems: "center", justifyContent: "center" },
 
-  // Stats strip
-  statsRow:       { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  statItem:       { flex: 1, alignItems: "center", paddingVertical: 14 },
-  statItemBorder: { borderRightWidth: 1, borderRightColor: "#F1F5F9" },
-  statValue:      { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.3 },
-  statLabel:      { marginTop: 2, fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.5 },
-
-  // Section wrapper
-  section:      { gap: 10 },
-  sectionLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
-
-  // Today's Focus card
-  focusCard:    { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
-  focusTagRow:  { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  focusTag:     { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  focusTagText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
-  liveRow:      { flexDirection: "row", alignItems: "center", gap: 5 },
-  liveDot:      { width: 6, height: 6, borderRadius: 3, backgroundColor: "#10B981" },
-  liveText:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
-  focusHeadline:{ fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 27, letterSpacing: -0.3 },
-  focusInsight: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
-  focusDivider: { height: 1, backgroundColor: "#F1F5F9" },
-  focusFooter:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  focusSunIcon: { fontSize: 14, color: "#F59E0B", marginTop: 1 },
-  focusAction:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 19 },
-  focusArrow:   { width: 26, height: 26, borderRadius: 8, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center", flexShrink: 0 },
-
-  // Right Now card
-  rightNowCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 16, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  rightNowHeader: { flexDirection: "row", alignItems: "center", gap: 7 },
-  rightNowPip:    { width: 6, height: 6, borderRadius: 3, backgroundColor: "#4A3DE8" },
-  rightNowTitle:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", textTransform: "uppercase", letterSpacing: 0.8 },
-  rightNowRow:    { flexDirection: "row", gap: 14 },
-  rightNowBlock:  { flex: 1, gap: 4 },
-  rightNowName:   { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 0.6 },
-  rightNowBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 19 },
-  rightNowDivider:{ width: 1, backgroundColor: "#F1F5F9" },
-
-  // Lucky row
-  luckyRow:       { flexDirection: "row", gap: 12 },
-  luckyCard:      { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 14, gap: 6, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  luckyCardLabel: { fontSize: 9, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 },
-  luckyNumber:    { fontSize: 52, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", lineHeight: 58, letterSpacing: -1 },
-  luckyArchetype: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  luckyEnergy:    { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
-  luckyTapRow:    { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
-  luckyTap:       { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
-  colorSwatch:    { height: 44, borderRadius: 10, marginBottom: 2 },
-
-  // Quick access grid
-  gridWrap: { gap: 10 },
-  gridRow:  { flexDirection: "row", gap: 10 },
-  gridCard: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
-  gridIconBox:   { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  gridTextBlock: { flex: 1 },
-  gridLabel:     { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  gridSublabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 1 },
-});
+    // Section wrapper
+    section:      { gap: 10 },
+    sectionLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2 },
+  });
+}

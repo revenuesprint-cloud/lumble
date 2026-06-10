@@ -1,4 +1,5 @@
 import { GuidanceMessage, useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getAstrologyReading } from "@/utils/astrology";
 import { extractKundliAttributes } from "@/utils/challenges";
 import { fetchQuestions, type QuestionsResult, type QuestionItem } from "@/utils/dbContent";
@@ -10,6 +11,7 @@ import { useLocalSearchParams, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
+  BackHandler,
   Easing,
   FlatList,
   Image,
@@ -74,6 +76,8 @@ const CATEGORY_CONFIG: { key: keyof QuestionsResult; label: string; icon: string
 // ─── Question Answer Sheet ────────────────────────────────────────────────────
 
 function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; onAsk: (q: string) => void; onClose: () => void }) {
+  const c = useColors();
+  const sheetStylesMemo = useMemo(() => createSheetStyles(c), [c]);
   const slideAnim = useRef(new Animated.Value(300)).current;
   const fadeAnim  = useRef(new Animated.Value(0)).current;
 
@@ -91,25 +95,30 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
     ]).start(onClose);
   };
 
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => { close(); return true; });
+    return () => sub.remove();
+  }, []);
+
   return (
     <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim, zIndex: 50, elevation: 50 }]}>
       <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.65)" }]} onPress={close} />
-      <Animated.View style={[styles.sheet, { transform: [{ translateY: slideAnim }] }]}>
-        <View style={styles.sheetHandle} />
-        <Text style={styles.sheetQ}>{question.title}</Text>
-        <View style={styles.sheetDivider} />
-        <Text style={styles.sheetAnswer}>{question.body}</Text>
-        <View style={styles.sheetActions}>
-          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); onAsk(question.meta.question ?? question.title); close(); }} style={styles.sheetAskBtn} activeOpacity={0.85}>
-            <View style={styles.sheetAskGrad}>
-              <Text style={styles.sheetAskText}>Ask the Guide for more</Text>
-              <View style={styles.sheetAskArrow}>
-                <Feather name="arrow-right" size={16} color="#0F172A" />
+      <Animated.View style={[sheetStylesMemo.sheet, { transform: [{ translateY: slideAnim }] }]}>
+        <View style={sheetStylesMemo.sheetHandle} />
+        <Text style={sheetStylesMemo.sheetQ}>{question.title}</Text>
+        <View style={sheetStylesMemo.sheetDivider} />
+        <Text style={sheetStylesMemo.sheetAnswer}>{question.body}</Text>
+        <View style={sheetStylesMemo.sheetActions}>
+          <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); onAsk(question.meta.question ?? question.title); close(); }} style={sheetStylesMemo.sheetAskBtn} activeOpacity={0.85}>
+            <View style={sheetStylesMemo.sheetAskGrad}>
+              <Text style={sheetStylesMemo.sheetAskText}>Ask the Guide for more</Text>
+              <View style={sheetStylesMemo.sheetAskArrow}>
+                <Feather name="arrow-right" size={16} color={c.ctaForeground} />
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={close} style={styles.sheetCloseBtn} activeOpacity={0.7}>
-            <Text style={styles.sheetCloseText}>Close</Text>
+          <TouchableOpacity onPress={close} style={sheetStylesMemo.sheetCloseBtn} activeOpacity={0.7}>
+            <Text style={sheetStylesMemo.sheetCloseText}>Close</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -117,13 +126,32 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
   );
 }
 
+function createSheetStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    sheet:          { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: c.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: c.border, padding: 28, paddingBottom: 52, gap: 16 },
+    sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: c.borderLight, alignSelf: "center", marginBottom: 8 },
+    sheetQ:         { fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 30, letterSpacing: -0.3 },
+    sheetDivider:   { height: 1, backgroundColor: c.borderLight },
+    sheetAnswer:    { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 26 },
+    sheetActions:   { gap: 10 },
+    sheetAskBtn:    { borderRadius: 14, overflow: "hidden" },
+    sheetAskGrad:   { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: c.cta, paddingVertical: 16, paddingLeft: 20, paddingRight: 8 },
+    sheetAskText:   { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.ctaForeground },
+    sheetAskArrow:  { width: 36, height: 36, borderRadius: 10, backgroundColor: c.card, alignItems: "center", justifyContent: "center" },
+    sheetCloseBtn:  { alignItems: "center", paddingVertical: 10 },
+    sheetCloseText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
+  });
+}
+
 // ─── Browse tab ───────────────────────────────────────────────────────────────
 
 function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult; onSelectQuestion: (q: QuestionItem) => void }) {
+  const c = useColors();
+  const browseStylesMemo = useMemo(() => createBrowseStyles(c), [c]);
+  const mainStylesMemo = useMemo(() => createMainStyles(c), [c]);
   const [activeCategory, setActiveCategory] = useState<keyof QuestionsResult | null>(null);
   const items = activeCategory ? (questions[activeCategory] ?? []) : [];
 
-  // 2-column grid of category cards
   const catRows: (typeof CATEGORY_CONFIG)[] = [];
   for (let i = 0; i < CATEGORY_CONFIG.length; i += 2) {
     catRows.push(CATEGORY_CONFIG.slice(i, i + 2));
@@ -131,10 +159,10 @@ function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult
 
   if (!activeCategory) {
     return (
-      <ScrollView contentContainerStyle={browseStyles.grid} showsVerticalScrollIndicator={false}>
-        <Text style={browseStyles.gridHint}>What do you want to explore?</Text>
+      <ScrollView contentContainerStyle={browseStylesMemo.grid} showsVerticalScrollIndicator={false}>
+        <Text style={browseStylesMemo.gridHint}>What do you want to explore?</Text>
         {catRows.map((row, ri) => (
-          <View key={ri} style={browseStyles.gridRow}>
+          <View key={ri} style={browseStylesMemo.gridRow}>
             {row.map((cat) => {
               const count = (questions[cat.key] ?? []).length;
               return (
@@ -142,14 +170,14 @@ function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult
                   key={cat.key}
                   onPress={() => { setActiveCategory(cat.key); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
                   activeOpacity={0.82}
-                  style={browseStyles.catCard}
+                  style={browseStylesMemo.catCard}
                 >
-                  <Text style={browseStyles.catCardEmoji}>{cat.icon}</Text>
-                  <Text style={browseStyles.catCardLabel}>{cat.label}</Text>
-                  <View style={[browseStyles.catCardBadge, { backgroundColor: cat.color + "18", borderColor: cat.color + "44" }]}>
-                    <Text style={[browseStyles.catCardCount, { color: cat.color }]}>{count} questions</Text>
+                  <Text style={browseStylesMemo.catCardEmoji}>{cat.icon}</Text>
+                  <Text style={browseStylesMemo.catCardLabel}>{cat.label}</Text>
+                  <View style={[browseStylesMemo.catCardBadge, { backgroundColor: cat.color + "18", borderColor: cat.color + "44" }]}>
+                    <Text style={[browseStylesMemo.catCardCount, { color: cat.color }]}>{count} questions</Text>
                   </View>
-                  <Feather name="chevron-right" size={14} color="#CBD5E1" style={{ alignSelf: "flex-end" }} />
+                  <Feather name="chevron-right" size={14} color={c.borderLight} style={{ alignSelf: "flex-end" }} />
                 </TouchableOpacity>
               );
             })}
@@ -163,57 +191,60 @@ function BrowseTab({ questions, onSelectQuestion }: { questions: QuestionsResult
   const cat = CATEGORY_CONFIG.find((c) => c.key === activeCategory)!;
   return (
     <View style={{ flex: 1 }}>
-      {/* Sub-header */}
       <TouchableOpacity
         onPress={() => { setActiveCategory(null); Haptics.selectionAsync(); }}
-        style={browseStyles.backRow}
+        style={browseStylesMemo.backRow}
         activeOpacity={0.7}
       >
-        <Feather name="arrow-left" size={16} color="#64748B" />
-        <Text style={browseStyles.backLabel}>{cat.icon}  {cat.label}</Text>
+        <Feather name="arrow-left" size={16} color={c.textMuted} />
+        <Text style={browseStylesMemo.backLabel}>{cat.icon}  {cat.label}</Text>
       </TouchableOpacity>
 
       <FlatList
         data={items}
         keyExtractor={(q) => q.id}
         style={{ flex: 1 }}
-        contentContainerStyle={styles.qList}
+        contentContainerStyle={mainStylesMemo.qList}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onSelectQuestion(item); }}
             activeOpacity={0.8}
-            style={styles.qCard}
+            style={mainStylesMemo.qCard}
           >
-            <View style={styles.qCardInner}>
-              <Text style={styles.qCardIcon}>{item.meta?.icon ?? "✦"}</Text>
-              <Text style={[styles.qCardTitle, { flex: 1 }]}>{item.title}</Text>
-              <Feather name="chevron-right" size={15} color="#CBD5E1" />
+            <View style={mainStylesMemo.qCardInner}>
+              <Text style={mainStylesMemo.qCardIcon}>{item.meta?.icon ?? "✦"}</Text>
+              <Text style={[mainStylesMemo.qCardTitle, { flex: 1 }]}>{item.title}</Text>
+              <Feather name="chevron-right" size={15} color={c.borderLight} />
             </View>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<View style={styles.emptyCategory}><Text style={styles.emptyCategoryText}>Loading…</Text></View>}
+        ListEmptyComponent={<View style={mainStylesMemo.emptyCategory}><Text style={mainStylesMemo.emptyCategoryText}>Loading…</Text></View>}
       />
     </View>
   );
 }
 
-const browseStyles = StyleSheet.create({
-  grid:          { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 20, gap: 12 },
-  gridHint:      { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", letterSpacing: 1.2, textTransform: "uppercase" },
-  gridRow:       { flexDirection: "row", gap: 10 },
-  catCard:       { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 16, gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
-  catCardEmoji:  { fontSize: 26 },
-  catCardLabel:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  catCardBadge:  { alignSelf: "flex-start", borderWidth: 1, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3 },
-  catCardCount:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-  backRow:       { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#F1F5F9" },
-  backLabel:     { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A" },
-});
+function createBrowseStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    grid:          { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 20, gap: 12 },
+    gridHint:      { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, letterSpacing: 1.2, textTransform: "uppercase" },
+    gridRow:       { flexDirection: "row", gap: 10 },
+    catCard:       { flex: 1, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 16, gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+    catCardEmoji:  { fontSize: 26 },
+    catCardLabel:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    catCardBadge:  { alignSelf: "flex-start", borderWidth: 1, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3 },
+    catCardCount:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
+    backRow:       { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 18, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: c.borderLight },
+    backLabel:     { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: c.text },
+  });
+}
 
 // ─── Typing indicator ─────────────────────────────────────────────────────────
 
 function TypingIndicator() {
+  const c = useColors();
+  const typingStylesMemo = useMemo(() => createTypingStyles(c), [c]);
   const dots = [
     useRef(new Animated.Value(0)).current,
     useRef(new Animated.Value(0)).current,
@@ -237,20 +268,31 @@ function TypingIndicator() {
   }, []);
 
   return (
-    <View style={styles.typingRow}>
-      <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />
-      <View style={styles.typingBubble}>
+    <View style={typingStylesMemo.typingRow}>
+      <Image source={require("../../assets/images/logo.png")} style={typingStylesMemo.botAvatar} resizeMode="cover" />
+      <View style={typingStylesMemo.typingBubble}>
         {dots.map((dot, i) => (
-          <Animated.View key={i} style={[styles.typingDot, { opacity: dot }]} />
+          <Animated.View key={i} style={[typingStylesMemo.typingDot, { opacity: dot }]} />
         ))}
       </View>
     </View>
   );
 }
 
+function createTypingStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    typingRow:    { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
+    typingBubble: { backgroundColor: c.card, borderRadius: 16, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: c.border, paddingHorizontal: 16, paddingVertical: 13, flexDirection: "row", gap: 6, alignItems: "center" },
+    typingDot:    { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#4A3DE8" },
+    botAvatar:    { width: 32, height: 32, borderRadius: 10, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
+  });
+}
+
 // ─── Streaming message bubble ─────────────────────────────────────────────────
 
 function StreamingBubble({ text, onDone }: { text: string; onDone: () => void }) {
+  const c = useColors();
+  const bubbleStylesMemo = useMemo(() => createBubbleStyles(c), [c]);
   const [displayed, setDisplayed] = useState("");
   const indexRef  = useRef(0);
   const doneRef   = useRef(false);
@@ -258,7 +300,6 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
 
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 160, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
-    // Stream character by character (~18ms per char, feels like real AI typing)
     const chars = text.split("");
     const timer = setInterval(() => {
       if (indexRef.current >= chars.length) {
@@ -266,7 +307,6 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
         if (!doneRef.current) { doneRef.current = true; onDone(); }
         return;
       }
-      // Reveal in small chunks (3 chars at a time) for smoother feel
       const end = Math.min(indexRef.current + 3, chars.length);
       indexRef.current = end;
       setDisplayed(chars.slice(0, end).join(""));
@@ -289,13 +329,13 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
   const isDone = displayed.length >= text.length;
 
   return (
-    <Animated.View style={[styles.bubbleRow, styles.bubbleRowBot, { opacity: fadeAnim }]}>
-      <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />
-      <View style={[styles.bubble, styles.bubbleBot]}>
+    <Animated.View style={[bubbleStylesMemo.bubbleRow, bubbleStylesMemo.bubbleRowBot, { opacity: fadeAnim }]}>
+      <Image source={require("../../assets/images/logo.png")} style={bubbleStylesMemo.botAvatar} resizeMode="cover" />
+      <View style={[bubbleStylesMemo.bubble, bubbleStylesMemo.bubbleBot]}>
         <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          <Text style={[styles.bubbleText, styles.bubbleTextBot]}>{displayed}</Text>
+          <Text style={[bubbleStylesMemo.bubbleText, bubbleStylesMemo.bubbleTextBot]}>{displayed}</Text>
           {!isDone && (
-            <Animated.View style={[styles.cursor, { opacity: cursorBlink }]} />
+            <Animated.View style={[bubbleStylesMemo.cursor, { opacity: cursorBlink }]} />
           )}
         </View>
       </View>
@@ -306,8 +346,11 @@ function StreamingBubble({ text, onDone }: { text: string; onDone: () => void })
 // ─── Structured bot response renderer ────────────────────────────────────────
 
 function StructuredBotContent({ text }: { text: string }) {
+  const c = useColors();
+  const mainStylesMemo = useMemo(() => createMainStyles(c), [c]);
+  const bubbleStylesMemo = useMemo(() => createBubbleStyles(c), [c]);
   if (!text.startsWith("Insight")) {
-    return <Text style={[styles.bubbleText, styles.bubbleTextBot]}>{text}</Text>;
+    return <Text style={[bubbleStylesMemo.bubbleText, bubbleStylesMemo.bubbleTextBot]}>{text}</Text>;
   }
 
   const sections = text.split("\n\n");
@@ -324,16 +367,16 @@ function StructuredBotContent({ text }: { text: string }) {
   return (
     <View style={{ gap: 14 }}>
       <View style={{ gap: 7 }}>
-        <Text style={styles.structLabel}>{insightLabel}</Text>
-        <Text style={styles.structInsight}>{insightBody}</Text>
+        <Text style={mainStylesMemo.structLabel}>{insightLabel}</Text>
+        <Text style={mainStylesMemo.structInsight}>{insightBody}</Text>
       </View>
-      <View style={styles.structDivider} />
+      <View style={mainStylesMemo.structDivider} />
       <View style={{ gap: 8 }}>
-        <Text style={styles.structLabel}>{actionLabel}</Text>
+        <Text style={mainStylesMemo.structLabel}>{actionLabel}</Text>
         {actions.map((action, i) => (
-          <View key={i} style={styles.structActionRow}>
-            <Text style={styles.structCheck}>✓</Text>
-            <Text style={styles.structActionText}>{action}</Text>
+          <View key={i} style={mainStylesMemo.structActionRow}>
+            <Text style={mainStylesMemo.structCheck}>✓</Text>
+            <Text style={mainStylesMemo.structActionText}>{action}</Text>
           </View>
         ))}
       </View>
@@ -344,6 +387,8 @@ function StructuredBotContent({ text }: { text: string }) {
 // ─── Static message bubble ────────────────────────────────────────────────────
 
 function MessageBubble({ message }: { message: GuidanceMessage }) {
+  const c = useColors();
+  const bubbleStylesMemo = useMemo(() => createBubbleStyles(c), [c]);
   const isUser   = message.role === "user";
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim= useRef(new Animated.Value(isUser ? 10 : -10)).current;
@@ -356,11 +401,11 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
   }, []);
 
   return (
-    <Animated.View style={[styles.bubbleRow, isUser ? styles.bubbleRowUser : styles.bubbleRowBot, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-      {!isUser && <Image source={require("../../assets/images/logo.png")} style={styles.botAvatar} resizeMode="cover" />}
-      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
+    <Animated.View style={[bubbleStylesMemo.bubbleRow, isUser ? bubbleStylesMemo.bubbleRowUser : bubbleStylesMemo.bubbleRowBot, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+      {!isUser && <Image source={require("../../assets/images/logo.png")} style={bubbleStylesMemo.botAvatar} resizeMode="cover" />}
+      <View style={[bubbleStylesMemo.bubble, isUser ? bubbleStylesMemo.bubbleUser : bubbleStylesMemo.bubbleBot]}>
         {isUser
-          ? <Text style={[styles.bubbleText, styles.bubbleTextUser]}>{message.text}</Text>
+          ? <Text style={[bubbleStylesMemo.bubbleText, bubbleStylesMemo.bubbleTextUser]}>{message.text}</Text>
           : <StructuredBotContent text={message.text} />
         }
       </View>
@@ -368,29 +413,120 @@ function MessageBubble({ message }: { message: GuidanceMessage }) {
   );
 }
 
+function createBubbleStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    bubbleRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
+    bubbleRowUser:  { justifyContent: "flex-end" },
+    bubbleRowBot:   { justifyContent: "flex-start" },
+    botAvatar:      { width: 32, height: 32, borderRadius: 10, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
+    bubble:         { maxWidth: "80%", borderRadius: 18, padding: 16, gap: 6 },
+    bubbleUser:     { backgroundColor: c.cta, borderBottomRightRadius: 5 },
+    bubbleBot:      { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderBottomLeftRadius: 5, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
+    bubbleText:     { lineHeight: 26 },
+    bubbleTextUser: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.ctaForeground },
+    bubbleTextBot:  { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody },
+    cursor:         { width: 2, height: 18, backgroundColor: "#4A3DE8", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
+  });
+}
+
 // ─── Follow-up suggestion row ─────────────────────────────────────────────────
 
 function FollowUpRow({ suggestions, onSelect, disabled }: { suggestions: string[]; onSelect: (s: string) => void; disabled: boolean }) {
+  const c = useColors();
+  const followUpStylesMemo = useMemo(() => createFollowUpStyles(c), [c]);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 280, delay: 120, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
   }, []);
 
   return (
-    <Animated.View style={[styles.followUpRow, { opacity: fadeAnim }]}>
+    <Animated.View style={[followUpStylesMemo.followUpRow, { opacity: fadeAnim }]}>
       {suggestions.map((s, i) => (
         <TouchableOpacity
           key={i}
           onPress={() => { if (!disabled) { Haptics.selectionAsync(); onSelect(s); } }}
-          style={[styles.followUpChip, disabled && { opacity: 0.4 }]}
+          style={[followUpStylesMemo.followUpChip, disabled && { opacity: 0.4 }]}
           activeOpacity={0.75}
           disabled={disabled}
         >
-          <Text style={styles.followUpText}>{s}</Text>
+          <Text style={followUpStylesMemo.followUpText}>{s}</Text>
         </TouchableOpacity>
       ))}
     </Animated.View>
   );
+}
+
+function createFollowUpStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    followUpRow:  { paddingHorizontal: 16, paddingTop: 6, gap: 7 },
+    followUpChip: { alignSelf: "flex-start", backgroundColor: c.primaryLight, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
+    followUpText: { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
+  });
+}
+
+// ─── Main styles factory ──────────────────────────────────────────────────────
+
+function createMainStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    header:            { paddingHorizontal: 18, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: c.border, backgroundColor: c.background },
+    headerLeft:        { flexDirection: "row", alignItems: "center", gap: 12 },
+    headerOrb:         { width: 40, height: 40, borderRadius: 14, overflow: "hidden" },
+    headerTitle:       { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.3 },
+    headerSub:         { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 2 },
+    headerRight:       { flexDirection: "row", alignItems: "center", gap: 8 },
+    modeToggle:        { flexDirection: "row", backgroundColor: c.card, borderRadius: 12, padding: 3, gap: 2, borderWidth: 1, borderColor: c.border },
+    modeBtn:           { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 9, alignItems: "center" },
+    modeBtnActive:     { backgroundColor: c.cta },
+    modeBtnText:       { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textFaint },
+    modeBtnTextActive: { color: c.ctaForeground },
+    clearBtn:          { width: 32, height: 32, borderRadius: 10, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center" },
+    // Browse
+    catScroll:     { flexGrow: 0, maxHeight: 48 },
+    catContent:    { paddingHorizontal: 18, paddingVertical: 6, gap: 8 },
+    catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 22, backgroundColor: c.card, borderWidth: 1, borderColor: c.border },
+    catChipIcon:   { fontSize: 14 },
+    catChipLabel:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textMuted },
+    qList:         { paddingHorizontal: 18, paddingTop: 10, gap: 8, paddingBottom: 20 },
+    qCard:         { borderRadius: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.card, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
+    qCardInner:    { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 14 },
+    qCardIcon:     { fontSize: 20, width: 28, textAlign: "center" },
+    qCardTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: c.text, lineHeight: 21 },
+    emptyCategory: { paddingTop: 40, alignItems: "center" },
+    emptyCategoryText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
+    // Ask empty state
+    emptyScroll:    { flexGrow: 1, paddingHorizontal: 18 },
+    emptyAsk:       { paddingTop: 28, gap: 18, alignItems: "center" },
+    lumbleWordmark: { fontSize: 30, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", letterSpacing: -0.5, marginBottom: 4 },
+    emptyTitle:     { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: c.text, letterSpacing: -0.3 },
+    emptySub:       { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, textAlign: "center", lineHeight: 24 },
+    emptyChips:     { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
+    emptyChip:      { backgroundColor: c.card, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
+    emptyChipText:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
+    // Messages
+    messageList:    { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
+    // Structured bot response
+    structLabel:      { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", letterSpacing: 1, textTransform: "uppercase" },
+    structInsight:    { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.text, lineHeight: 24, fontStyle: "italic" },
+    structDivider:    { height: 1, backgroundColor: c.borderLight },
+    structActionRow:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+    structCheck:      { fontSize: 13, color: "#10B981", fontFamily: "PlusJakartaSans_700Bold", marginTop: 1 },
+    structActionText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 22 },
+    // Limit
+    limitCard:  { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: c.roseLight, borderWidth: 1, borderColor: c.roseBorder, borderRadius: 16, padding: 16 },
+    limitIcon:  { fontSize: 22, color: "#F43F5E" },
+    limitTitle: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    limitSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, marginTop: 2 },
+    // Input
+    inputArea:    { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: c.border, gap: 10, backgroundColor: c.card },
+    chipsScroll:  { flexGrow: 0 },
+    chipsContent: { gap: 8, paddingRight: 8 },
+    chip:         { backgroundColor: c.primaryLight, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 8 },
+    chipText:     { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
+    inputRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end" },
+    inputField:   { flex: 1, backgroundColor: c.input, borderWidth: 1, borderColor: c.border, borderRadius: 16, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 13, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.text, maxHeight: 110 },
+    sendBtn:      { borderRadius: 14, overflow: "hidden" },
+    sendBtnInner: { width: 48, height: 48, backgroundColor: c.cta, alignItems: "center", justifyContent: "center", borderRadius: 14 },
+  });
 }
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
@@ -400,6 +536,8 @@ export default function GuidanceScreen() {
   const tabBarHeight = insets.bottom + 56;
   const { autoSend } = useLocalSearchParams<{ autoSend?: string }>();
   const { user, partner, guidanceMessages, addGuidanceMessage, clearGuidanceMessages, isPremium } = useApp();
+  const c = useColors();
+  const styles = useMemo(() => createMainStyles(c), [c]);
 
   const [mode,         setMode]         = useState<Mode>("browse");
   const [input,        setInput]        = useState("");
@@ -409,7 +547,6 @@ export default function GuidanceScreen() {
   const [streamingId,  setStreamingId]  = useState<string | null>(null);
   const [followUps,    setFollowUps]    = useState<string[]>([]);
 
-  // Clear the question sheet whenever the user navigates away from this tab
   useFocusEffect(
     useCallback(() => {
       return () => { setSelectedQ(null); };
@@ -459,7 +596,6 @@ export default function GuidanceScreen() {
     isTypingRef.current = true;
 
     try {
-      // Shorter, more natural delay (600-1200ms)
       const delay = 600 + Math.random() * 600 + Math.min(text.length * 4, 600);
       await new Promise((r) => setTimeout(r, delay));
 
@@ -472,8 +608,6 @@ export default function GuidanceScreen() {
       addGuidanceMessage({ id: botId, role: "assistant", text: responseText, timestamp: Date.now() });
       setStreamingId(botId);
 
-      // Prepare follow-up suggestions — set immediately. FollowUpRow only
-      // renders when !streamingId so they appear naturally when streaming ends.
       const intent = getIntentFromMessage(text);
       const suggestions = FOLLOW_UP_SUGGESTIONS[intent] ?? FOLLOW_UP_SUGGESTIONS["general"] ?? [];
       setFollowUps(suggestions as string[]);
@@ -487,7 +621,6 @@ export default function GuidanceScreen() {
     }
   }, [user, partner, guidanceMessages, addGuidanceMessage, isPremium]);
 
-  // Auto-send a question that arrived via router params (from home screen chips)
   useEffect(() => {
     if (autoSend && !autoSentRef.current && user && partner) {
       autoSentRef.current = true;
@@ -500,7 +633,7 @@ export default function GuidanceScreen() {
   const hasMessages = guidanceMessages.length > 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+    <View style={{ flex: 1, backgroundColor: c.background }}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={0}>
 
         {/* Header */}
@@ -642,7 +775,7 @@ export default function GuidanceScreen() {
               ]}
             >
               <View style={styles.sendBtnInner}>
-                <Feather name="send" size={15} color="#fff" />
+                <Feather name="send" size={15} color={c.ctaForeground} />
               </View>
             </Pressable>
           </View>
@@ -661,98 +794,3 @@ export default function GuidanceScreen() {
     </View>
   );
 }
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  header:            { paddingHorizontal: 18, paddingBottom: 14, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", borderBottomWidth: 1, borderBottomColor: "#E2E8F0", backgroundColor: "#F7F5F0" },
-  headerLeft:        { flexDirection: "row", alignItems: "center", gap: 12 },
-  headerOrb:         { width: 40, height: 40, borderRadius: 14, overflow: "hidden" },
-  headerTitle:       { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.3 },
-  headerSub:         { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
-  headerRight:       { flexDirection: "row", alignItems: "center", gap: 8 },
-  modeToggle:        { flexDirection: "row", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 3, gap: 2, borderWidth: 1, borderColor: "#E2E8F0" },
-  modeBtn:           { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 9, alignItems: "center" },
-  modeBtnActive:     { backgroundColor: "#0F172A" },
-  modeBtnText:       { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
-  modeBtnTextActive: { color: "#FFFFFF" },
-  clearBtn:          { width: 32, height: 32, borderRadius: 10, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
-  // Browse
-  catScroll:     { flexGrow: 0, maxHeight: 48 },
-  catContent:    { paddingHorizontal: 18, paddingVertical: 6, gap: 8 },
-  catChip:       { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 22, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0" },
-  catChipIcon:   { fontSize: 14 },
-  catChipLabel:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#64748B" },
-  qList:         { paddingHorizontal: 18, paddingTop: 10, gap: 8, paddingBottom: 20 },
-  qCard:         { borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#FFFFFF", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
-  qCardInner:    { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 14 },
-  qCardIcon:     { fontSize: 20, width: 28, textAlign: "center" },
-  qCardTitle:    { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A", lineHeight: 21 },
-  emptyCategory: { paddingTop: 40, alignItems: "center" },
-  emptyCategoryText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
-  // Sheet
-  sheet:          { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#FFFFFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: "#E2E8F0", padding: 28, paddingBottom: 52, gap: 16 },
-  sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: "#CBD5E1", alignSelf: "center", marginBottom: 8 },
-  sheetQ:         { fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 30, letterSpacing: -0.3 },
-  sheetDivider:   { height: 1, backgroundColor: "#F1F5F9" },
-  sheetAnswer:    { fontSize: 16, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 26 },
-  sheetActions:   { gap: 10 },
-  sheetAskBtn:    { borderRadius: 14, overflow: "hidden" },
-  sheetAskGrad:   { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0F172A", paddingVertical: 16, paddingLeft: 20, paddingRight: 8 },
-  sheetAskText:   { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
-  sheetAskArrow:  { width: 36, height: 36, borderRadius: 10, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
-  sheetCloseBtn:  { alignItems: "center", paddingVertical: 10 },
-  sheetCloseText: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
-  // Ask empty state
-  emptyScroll:    { flexGrow: 1, paddingHorizontal: 18 },
-  emptyAsk:       { paddingTop: 28, gap: 18, alignItems: "center" },
-  lumbleWordmark: { fontSize: 30, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", letterSpacing: -0.5, marginBottom: 4 },
-  emptyTitle:     { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", letterSpacing: -0.3 },
-  emptySub:       { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", textAlign: "center", lineHeight: 24 },
-  emptyChips:     { flexDirection: "row", flexWrap: "wrap", gap: 9, justifyContent: "center", marginTop: 6 },
-  emptyChip:      { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
-  emptyChipText:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
-  // Messages
-  messageList:    { paddingHorizontal: 16, paddingTop: 18, gap: 16 },
-  bubbleRow:      { flexDirection: "row", gap: 10, alignItems: "flex-end" },
-  bubbleRowUser:  { justifyContent: "flex-end" },
-  bubbleRowBot:   { justifyContent: "flex-start" },
-  botAvatar:      { width: 32, height: 32, borderRadius: 10, overflow: "hidden", flexShrink: 0, marginBottom: 2 },
-  bubble:         { maxWidth: "80%", borderRadius: 18, padding: 16, gap: 6 },
-  bubbleUser:     { backgroundColor: "#0F172A", borderBottomRightRadius: 5 },
-  bubbleBot:      { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", borderBottomLeftRadius: 5, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
-  bubbleText:     { lineHeight: 26 },
-  bubbleTextUser: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#FFFFFF" },
-  bubbleTextBot:  { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151" },
-  cursor:         { width: 2, height: 18, backgroundColor: "#4A3DE8", borderRadius: 1, marginLeft: 1, marginBottom: 1, alignSelf: "flex-end" },
-  // Structured bot response
-  structLabel:      { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", letterSpacing: 1, textTransform: "uppercase" },
-  structInsight:    { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#0F172A", lineHeight: 24, fontStyle: "italic" },
-  structDivider:    { height: 1, backgroundColor: "#F1F5F9" },
-  structActionRow:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-  structCheck:      { fontSize: 13, color: "#10B981", fontFamily: "PlusJakartaSans_700Bold", marginTop: 1 },
-  structActionText: { flex: 1, fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
-  // Typing
-  typingRow:    { flexDirection: "row", gap: 10, alignItems: "flex-end", paddingHorizontal: 16, paddingTop: 4 },
-  typingBubble: { backgroundColor: "#FFFFFF", borderRadius: 16, borderBottomLeftRadius: 5, borderWidth: 1, borderColor: "#E2E8F0", paddingHorizontal: 16, paddingVertical: 13, flexDirection: "row", gap: 6, alignItems: "center" },
-  typingDot:    { width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#4A3DE8" },
-  // Follow-up suggestions
-  followUpRow:  { paddingHorizontal: 16, paddingTop: 6, gap: 7 },
-  followUpChip: { alignSelf: "flex-start", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8 },
-  followUpText: { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
-  // Limit
-  limitCard:  { flexDirection: "row", alignItems: "center", gap: 14, marginHorizontal: 16, marginTop: 14, backgroundColor: "#FFF1F2", borderWidth: 1, borderColor: "#FECDD3", borderRadius: 16, padding: 16 },
-  limitIcon:  { fontSize: 22, color: "#F43F5E" },
-  limitTitle: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  limitSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", marginTop: 2 },
-  // Input
-  inputArea:    { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#E2E8F0", gap: 10, backgroundColor: "#FFFFFF" },
-  chipsScroll:  { flexGrow: 0 },
-  chipsContent: { gap: 8, paddingRight: 8 },
-  chip:         { backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 22, paddingHorizontal: 14, paddingVertical: 8 },
-  chipText:     { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
-  inputRow:     { flexDirection: "row", gap: 10, alignItems: "flex-end" },
-  inputField:   { flex: 1, backgroundColor: "#F8FAFC", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 16, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 13, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#0F172A", maxHeight: 110 },
-  sendBtn:      { borderRadius: 14, overflow: "hidden" },
-  sendBtnInner: { width: 48, height: 48, backgroundColor: "#0F172A", alignItems: "center", justifyContent: "center", borderRadius: 14 },
-});

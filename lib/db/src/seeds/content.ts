@@ -1,4 +1,5 @@
 import { db, contentTable } from "../index.js";
+import { EXPANSION_CONTENT } from "./content-expansion.js";
 
 interface ContentSeed {
   type: string;
@@ -1040,6 +1041,8 @@ export const ALL_CONTENT: ContentSeed[] = [
   ...compatibilityTexts,
   ...heroCards,
   ...rightNowContent,
+  // Expansion batch — additional kundli-tagged oracle, Q&A, and energy content
+  ...EXPANSION_CONTENT,
 ];
 
 export async function seedContent() {

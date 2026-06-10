@@ -1,11 +1,12 @@
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
+import { useColors } from "@/hooks/useColors";
 import { HP, IS_SMALL, rf, rs, SCREEN_W, webScrollStyle } from "@/constants/layout";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -39,7 +40,6 @@ const MONTHS = [
 
 const ITEM_H = 52;
 
-// Wheel widths scale for small screens
 const WW_MONTH = IS_SMALL ? 100 : 120;
 const WW_DAY   = IS_SMALL ? 52  : 60;
 const WW_YEAR  = IS_SMALL ? 72  : 80;
@@ -49,11 +49,13 @@ function WheelPicker({
   selectedIndex,
   onSelect,
   width = 90,
+  c,
 }: {
   items: string[];
   selectedIndex: number;
   onSelect: (index: number) => void;
   width?: number;
+  c: ReturnType<typeof useColors>;
 }) {
   const scrollRef = useRef<ScrollView>(null);
 
@@ -65,17 +67,17 @@ function WheelPicker({
     <View style={{ width, height: ITEM_H * 5, overflow: "hidden" }}>
       {/* Top fade */}
       <View pointerEvents="none" style={{ position: "absolute", top: 0, left: 0, right: 0, height: ITEM_H * 2, zIndex: 10 }}>
-        <LinearGradient colors={["rgba(247,245,240,0.97)", "rgba(247,245,240,0)"]} style={{ flex: 1 }} />
+        <LinearGradient colors={[c.background + "F7", c.background + "00"]} style={{ flex: 1 }} />
       </View>
       {/* Bottom fade */}
       <View pointerEvents="none" style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: ITEM_H * 2, zIndex: 10 }}>
-        <LinearGradient colors={["rgba(247,245,240,0)", "rgba(247,245,240,0.97)"]} style={{ flex: 1 }} />
+        <LinearGradient colors={[c.background + "00", c.background + "F7"]} style={{ flex: 1 }} />
       </View>
       {/* Selection highlight */}
       <View pointerEvents="none" style={{
         position: "absolute", top: ITEM_H * 2, left: 0, right: 0, height: ITEM_H,
-        borderTopWidth: 1, borderBottomWidth: 1, borderColor: "#C7D2FE", zIndex: 5,
-        backgroundColor: "#EEF2FF",
+        borderTopWidth: 1, borderBottomWidth: 1, borderColor: c.primaryBorder, zIndex: 5,
+        backgroundColor: c.primaryLight,
       }} />
       <ScrollView
         ref={scrollRef}
@@ -94,7 +96,7 @@ function WheelPicker({
           <View key={i} style={{ height: ITEM_H, alignItems: "center", justifyContent: "center" }}>
             <Text style={{
               fontSize: rf(16),
-              color: i === selectedIndex ? "#0F172A" : "rgba(17,24,39,0.3)",
+              color: i === selectedIndex ? c.text : c.textMuted,
               fontFamily: "PlusJakartaSans_600SemiBold",
               fontWeight: i === selectedIndex ? "700" : "400",
             }}>
@@ -107,7 +109,7 @@ function WheelPicker({
   );
 }
 
-function DatePicker({ value, onChange }: { value: Date; onChange: (d: Date) => void }) {
+function DatePicker({ value, onChange, c }: { value: Date; onChange: (d: Date) => void; c: ReturnType<typeof useColors> }) {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 60 }, (_, i) => String(currentYear - 15 - i));
   const days  = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -124,9 +126,9 @@ function DatePicker({ value, onChange }: { value: Date; onChange: (d: Date) => v
 
   return (
     <View style={{ flexDirection: "row", gap: IS_SMALL ? 4 : 8, alignItems: "center", justifyContent: "center" }}>
-      <WheelPicker items={MONTHS} selectedIndex={monthIndex} onSelect={(i) => update(i, dayIndex, yearIndex >= 0 ? yearIndex : 0)} width={WW_MONTH} />
-      <WheelPicker items={days}   selectedIndex={dayIndex}   onSelect={(i) => update(monthIndex, i, yearIndex >= 0 ? yearIndex : 0)} width={WW_DAY}   />
-      <WheelPicker items={years}  selectedIndex={yearIndex >= 0 ? yearIndex : 20} onSelect={(i) => update(monthIndex, dayIndex, i)} width={WW_YEAR}  />
+      <WheelPicker items={MONTHS} selectedIndex={monthIndex} onSelect={(i) => update(i, dayIndex, yearIndex >= 0 ? yearIndex : 0)} width={WW_MONTH} c={c} />
+      <WheelPicker items={days}   selectedIndex={dayIndex}   onSelect={(i) => update(monthIndex, i, yearIndex >= 0 ? yearIndex : 0)} width={WW_DAY} c={c} />
+      <WheelPicker items={years}  selectedIndex={yearIndex >= 0 ? yearIndex : 20} onSelect={(i) => update(monthIndex, dayIndex, i)} width={WW_YEAR} c={c} />
     </View>
   );
 }
@@ -145,6 +147,8 @@ export default function Onboarding() {
   const router = useRouter();
   const { completeOnboarding, syncProfileToServer } = useApp();
   const { jwtToken } = useAuth();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
 
   const [step, setStep] = useState(0);
   const fadeAnim    = useRef(new Animated.Value(1)).current;
@@ -238,7 +242,7 @@ export default function Onboarding() {
         value={form.userName}
         onChangeText={(t) => setForm((f) => ({ ...f, userName: t }))}
         placeholder="Your first name"
-        placeholderTextColor="#D1D5DB"
+        placeholderTextColor={c.borderLight}
         autoFocus
         maxLength={30}
       />
@@ -248,7 +252,7 @@ export default function Onboarding() {
     <View key={2} style={styles.stepContainer}>
       <Text style={styles.stepLabel}>When were you born?</Text>
       <Text style={styles.stepSub}>Your birth date maps your emotional style and personality type</Text>
-      <DatePicker value={form.userBirthDate} onChange={(d) => setForm((f) => ({ ...f, userBirthDate: d }))} />
+      <DatePicker value={form.userBirthDate} onChange={(d) => setForm((f) => ({ ...f, userBirthDate: d }))} c={c} />
     </View>,
 
     // 3: Birth time
@@ -260,7 +264,7 @@ export default function Onboarding() {
         value={form.userBirthTime}
         onChangeText={(t) => setForm((f) => ({ ...f, userBirthTime: t }))}
         placeholder="e.g. 3:45 PM  (optional)"
-        placeholderTextColor="#D1D5DB"
+        placeholderTextColor={c.borderLight}
       />
       <TouchableOpacity onPress={next} style={styles.skipBtn}>
         <Text style={styles.skipText}>Skip this</Text>
@@ -276,7 +280,7 @@ export default function Onboarding() {
         value={form.partnerName}
         onChangeText={(t) => setForm((f) => ({ ...f, partnerName: t }))}
         placeholder="Their first name"
-        placeholderTextColor="#D1D5DB"
+        placeholderTextColor={c.borderLight}
         autoFocus
         maxLength={30}
       />
@@ -288,7 +292,7 @@ export default function Onboarding() {
         {form.partnerName ? `When is ${form.partnerName}'s birthday?` : "When is their birthday?"}
       </Text>
       <Text style={styles.stepSub}>Approximate is fine if you're not sure</Text>
-      <DatePicker value={form.partnerBirthDate} onChange={(d) => setForm((f) => ({ ...f, partnerBirthDate: d }))} />
+      <DatePicker value={form.partnerBirthDate} onChange={(d) => setForm((f) => ({ ...f, partnerBirthDate: d }))} c={c} />
     </View>,
 
     // 6: Relationship type
@@ -310,14 +314,14 @@ export default function Onboarding() {
 
     // 7: Calculating
     <View key={7} style={[styles.stepContainer, { gap: 20 }]}>
-      <CalcAnimation name={form.partnerName} />
+      <CalcAnimation name={form.partnerName} c={c} styles={styles} />
     </View>,
   ];
 
   const isCalculating = step === TOTAL_STEPS - 1;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+    <View style={{ flex: 1, backgroundColor: c.background }}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView
           style={webScrollStyle}
@@ -333,7 +337,7 @@ export default function Onboarding() {
             <View style={styles.topNav}>
               {step > 0 ? (
                 <TouchableOpacity onPress={goBack} style={styles.backBtn} activeOpacity={0.7}>
-                  <Ionicons name="chevron-back" size={22} color="#64748B" />
+                  <Ionicons name="chevron-back" size={22} color={c.textMuted} />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.backBtnPlaceholder} />
@@ -368,7 +372,7 @@ export default function Onboarding() {
                 </Text>
                 {step > 0 && (
                   <View style={styles.nextBtnArrow}>
-                    <Ionicons name="arrow-forward" size={18} color="#0F172A" />
+                    <Ionicons name="arrow-forward" size={18} color={c.ctaForeground} />
                   </View>
                 )}
               </View>
@@ -380,7 +384,7 @@ export default function Onboarding() {
   );
 }
 
-function CalcAnimation({ name }: { name: string }) {
+function CalcAnimation({ name, c, styles }: { name: string; c: ReturnType<typeof useColors>; styles: any }) {
   const pulseAnim = useRef(new Animated.Value(0.6)).current;
   const [dots, setDots] = useState(0);
 
@@ -414,102 +418,104 @@ function CalcAnimation({ name }: { name: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: HP,
-    gap: 20,
-  },
-  topNav: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  backBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0",
-    alignItems: "center", justifyContent: "center",
-  },
-  backBtnPlaceholder: { width: 40, height: 40 },
-  progressRow: {
-    flexDirection: "row", gap: 5, alignItems: "center",
-    flex: 1, justifyContent: "center",
-  },
-  progressDot: {
-    width: 6, height: 6, borderRadius: 3, backgroundColor: "#E2E8F0",
-  },
-  progressDotActive:  { backgroundColor: "#C7D2FE" },
-  progressDotCurrent: { backgroundColor: "#4A3DE8", width: 18, borderRadius: 3 },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    container: {
+      flexGrow: 1,
+      paddingHorizontal: HP,
+      gap: 20,
+    },
+    topNav: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 4,
+    },
+    backBtn: {
+      width: 40, height: 40, borderRadius: 20,
+      backgroundColor: c.card, borderWidth: 1, borderColor: c.border,
+      alignItems: "center", justifyContent: "center",
+    },
+    backBtnPlaceholder: { width: 40, height: 40 },
+    progressRow: {
+      flexDirection: "row", gap: 5, alignItems: "center",
+      flex: 1, justifyContent: "center",
+    },
+    progressDot: {
+      width: 6, height: 6, borderRadius: 3, backgroundColor: c.border,
+    },
+    progressDotActive:  { backgroundColor: c.primaryBorder },
+    progressDotCurrent: { backgroundColor: "#4A3DE8", width: 18, borderRadius: 3 },
 
-  stepContainer: {
-    flex: 1, gap: 14, paddingTop: 16,
-    minHeight: 280, justifyContent: "center",
-  },
+    stepContainer: {
+      flex: 1, gap: 14, paddingTop: 16,
+      minHeight: 280, justifyContent: "center",
+    },
 
-  logoCircle: {
-    width: rs(96), height: rs(96), borderRadius: rs(48),
-    overflow: "hidden", alignSelf: "center", marginBottom: 4,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12, shadowRadius: 16, elevation: 5,
-  },
-  logoGradient: { flex: 1, alignItems: "center", justifyContent: "center" },
-  logoInitial: { fontSize: rf(42), fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+    logoCircle: {
+      width: rs(96), height: rs(96), borderRadius: rs(48),
+      overflow: "hidden", alignSelf: "center", marginBottom: 4,
+      shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12, shadowRadius: 16, elevation: 5,
+    },
+    logoGradient: { flex: 1, alignItems: "center", justifyContent: "center" },
+    logoInitial: { fontSize: rf(42), fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
 
-  appName: {
-    fontSize: rf(34), fontFamily: "PlusJakartaSans_800ExtraBold",
-    color: "#0F172A", textAlign: "center", letterSpacing: -0.8,
-  },
-  tagline: {
-    fontSize: rf(16), fontFamily: "PlusJakartaSans_400Regular",
-    color: "#64748B", textAlign: "center", lineHeight: rf(16) * 1.65,
-  },
-  stepLabel: {
-    fontSize: rf(26), fontFamily: "PlusJakartaSans_800ExtraBold",
-    color: "#0F172A", lineHeight: rf(26) * 1.3, letterSpacing: -0.4,
-  },
-  stepSub: {
-    fontSize: rf(15), fontFamily: "PlusJakartaSans_400Regular", color: "#64748B",
-  },
-  textInput: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1.5, borderColor: "#C7D2FE",
-    borderRadius: 14,
-    paddingHorizontal: 18, paddingVertical: 16,
-    fontSize: rf(18), fontFamily: "PlusJakartaSans_600SemiBold",
-    color: "#0F172A", marginTop: 8,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
-  },
-  skipBtn:  { alignSelf: "center", padding: 8 },
-  skipText: { fontSize: rf(14), color: "#94A3B8", fontFamily: "PlusJakartaSans_400Regular" },
+    appName: {
+      fontSize: rf(34), fontFamily: "PlusJakartaSans_800ExtraBold",
+      color: c.text, textAlign: "center", letterSpacing: -0.8,
+    },
+    tagline: {
+      fontSize: rf(16), fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textMuted, textAlign: "center", lineHeight: rf(16) * 1.65,
+    },
+    stepLabel: {
+      fontSize: rf(26), fontFamily: "PlusJakartaSans_800ExtraBold",
+      color: c.text, lineHeight: rf(26) * 1.3, letterSpacing: -0.4,
+    },
+    stepSub: {
+      fontSize: rf(15), fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted,
+    },
+    textInput: {
+      backgroundColor: c.card,
+      borderWidth: 1.5, borderColor: c.primaryBorder,
+      borderRadius: 14,
+      paddingHorizontal: 18, paddingVertical: 16,
+      fontSize: rf(18), fontFamily: "PlusJakartaSans_600SemiBold",
+      color: c.text, marginTop: 8,
+      shadowColor: "#000", shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
+    },
+    skipBtn:  { alignSelf: "center", padding: 8 },
+    skipText: { fontSize: rf(14), color: c.textFaint, fontFamily: "PlusJakartaSans_400Regular" },
 
-  relTypeCard: {
-    backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0",
-    borderRadius: 14, padding: 16, gap: 4,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
-  },
-  relTypeCardSelected: { borderColor: "#C7D2FE", backgroundColor: "#EEF2FF" },
-  relTypeLabel: { fontSize: rf(16), fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  relTypeDesc:  { fontSize: rf(13), fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
+    relTypeCard: {
+      backgroundColor: c.card, borderWidth: 1, borderColor: c.border,
+      borderRadius: 14, padding: 16, gap: 4,
+      shadowColor: "#000", shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    },
+    relTypeCardSelected: { borderColor: c.primaryBorder, backgroundColor: c.primaryLight },
+    relTypeLabel: { fontSize: rf(16), fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    relTypeDesc:  { fontSize: rf(13), fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted },
 
-  nextBtn:      { marginTop: 8, borderRadius: 16, overflow: "hidden" },
-  nextBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0F172A", paddingVertical: 17, paddingLeft: 22, paddingRight: 8 },
-  nextBtnText:  { fontSize: rf(16), fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
-  nextBtnArrow: { width: 38, height: 38, borderRadius: 11, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" },
+    nextBtn:      { marginTop: 8, borderRadius: 16, overflow: "hidden" },
+    nextBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: c.cta, paddingVertical: 17, paddingLeft: 22, paddingRight: 8 },
+    nextBtnText:  { fontSize: rf(16), fontFamily: "PlusJakartaSans_700Bold", color: c.ctaForeground },
+    nextBtnArrow: { width: 38, height: 38, borderRadius: 11, backgroundColor: c.card, alignItems: "center", justifyContent: "center" },
 
-  calcOrb: { width: rs(120), height: rs(120), borderRadius: rs(60) },
-  calcTitle: {
-    fontSize: rf(22), fontFamily: "PlusJakartaSans_700Bold",
-    color: "#0F172A", textAlign: "center",
-  },
-  calcSub: {
-    fontSize: rf(15), fontFamily: "PlusJakartaSans_400Regular",
-    color: "#64748B", textAlign: "center",
-  },
-  calcSub2: {
-    fontSize: rf(13), fontFamily: "PlusJakartaSans_400Regular",
-    color: "#4A3DE8", textAlign: "center", lineHeight: rf(13) * 1.7,
-  },
-});
+    calcOrb: { width: rs(120), height: rs(120), borderRadius: rs(60) },
+    calcTitle: {
+      fontSize: rf(22), fontFamily: "PlusJakartaSans_700Bold",
+      color: c.text, textAlign: "center",
+    },
+    calcSub: {
+      fontSize: rf(15), fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textMuted, textAlign: "center",
+    },
+    calcSub2: {
+      fontSize: rf(13), fontFamily: "PlusJakartaSans_400Regular",
+      color: "#4A3DE8", textAlign: "center", lineHeight: rf(13) * 1.7,
+    },
+  });
+}

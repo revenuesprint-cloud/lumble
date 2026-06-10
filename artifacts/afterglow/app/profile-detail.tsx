@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getAstrologyReading, RASHIS, NAKSHATRAS } from "@/utils/astrology";
 import {
   MOON_PROFILES_DEEP,
@@ -47,59 +48,70 @@ function resolveDasha(lord: string) {
   return DASHA_CHAPTERS[lord];
 }
 
-function Section({ title, accent, children }: { title: string; accent: string; children: React.ReactNode }) {
+function Section({ title, accent, children, c }: { title: string; accent: string; children: React.ReactNode; c: ReturnType<typeof useColors> }) {
+  const secStylesMemo = useMemo(() => createSecStyles(c), [c]);
   return (
-    <View style={secStyles.section}>
-      <View style={[secStyles.titleRow, { borderLeftColor: accent }]}>
-        <Text style={secStyles.title}>{title}</Text>
+    <View style={secStylesMemo.section}>
+      <View style={[secStylesMemo.titleRow, { borderLeftColor: accent }]}>
+        <Text style={secStylesMemo.title}>{title}</Text>
       </View>
-      <View style={secStyles.content}>{children}</View>
+      <View style={secStylesMemo.content}>{children}</View>
     </View>
   );
 }
 
-const secStyles = StyleSheet.create({
-  section:  { gap: 14 },
-  titleRow: { borderLeftWidth: 3, paddingLeft: 12 },
-  title:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
-  content:  { gap: 14, paddingLeft: 4 },
-});
+function createSecStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    section:  { gap: 14 },
+    titleRow: { borderLeftWidth: 3, paddingLeft: 12 },
+    title:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2 },
+    content:  { gap: 14, paddingLeft: 4 },
+  });
+}
 
-function DataRow({ label, value, accent }: { label: string; value: string; accent: string }) {
+function DataRow({ label, value, accent, c }: { label: string; value: string; accent: string; c: ReturnType<typeof useColors> }) {
+  const drStylesMemo = useMemo(() => createDrStyles(c), [c]);
   if (!value) return null;
   return (
-    <View style={drStyles.row}>
-      <Text style={drStyles.label}>{label}</Text>
-      <Text style={[drStyles.value, { color: accent }]}>{value}</Text>
+    <View style={drStylesMemo.row}>
+      <Text style={drStylesMemo.label}>{label}</Text>
+      <Text style={[drStylesMemo.value, { color: accent }]}>{value}</Text>
     </View>
   );
 }
 
-const drStyles = StyleSheet.create({
-  row:   { gap: 4 },
-  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
-  value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23, color: "#374151" },
-});
+function createDrStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    row:   { gap: 4 },
+    label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint },
+    value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23, color: c.textBody },
+  });
+}
 
-function QuoteBlock({ text, accent }: { text: string; accent: string }) {
+function QuoteBlock({ text, accent, c }: { text: string; accent: string; c: ReturnType<typeof useColors> }) {
+  const qbStylesMemo = useMemo(() => createQbStyles(c), [c]);
   if (!text) return null;
   return (
-    <View style={[qbStyles.wrap, { borderColor: accent + "30", backgroundColor: accent + "08" }]}>
-      <Text style={qbStyles.text}>"{text}"</Text>
+    <View style={[qbStylesMemo.wrap, { borderColor: accent + "30", backgroundColor: accent + "08" }]}>
+      <Text style={qbStylesMemo.text}>"{text}"</Text>
     </View>
   );
 }
 
-const qbStyles = StyleSheet.create({
-  wrap: { borderRadius: 14, borderWidth: 1, padding: 16 },
-  text: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 24, fontStyle: "italic" },
-});
+function createQbStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    wrap: { borderRadius: 14, borderWidth: 1, padding: 16 },
+    text: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 24, fontStyle: "italic" },
+  });
+}
 
 export default function ProfileDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { person } = useLocalSearchParams<{ person: string }>();
   const { user, partner } = useApp();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -123,14 +135,14 @@ export default function ProfileDetailScreen() {
   const accent = rashi.color;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+    <View style={{ flex: 1, backgroundColor: c.background }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7}
           style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="#64748B" />
+          <Feather name="arrow-left" size={20} color={c.textMuted} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{name}</Text>
         <View style={styles.headerSpacer} />
@@ -163,7 +175,7 @@ export default function ProfileDetailScreen() {
                 <Text style={[styles.nakText, { color: accent }]}>{nak.name} nakshatra</Text>
               </View>
               {!isPartner && (
-                <View style={[styles.nakChip, { backgroundColor: "#FFFBEB", borderColor: "#FDE68A" }]}>
+                <View style={[styles.nakChip, { backgroundColor: c.goldLight, borderColor: c.goldBorder }]}>
                   <Text style={[styles.nakText, { color: "#D97706" }]}>{kundliData.dasha.current} dasha</Text>
                 </View>
               )}
@@ -171,37 +183,37 @@ export default function ProfileDetailScreen() {
           </View>
         </View>
 
-        <Section title={`How ${name} loves`} accent={accent}>
-          <QuoteBlock text={mp.insight ?? ""} accent={accent} />
-          <DataRow label="What hurt them most"    value={mp.coreWound   ?? ""} accent={accent} />
-          <DataRow label="What they're scared of" value={mp.fear        ?? ""} accent={accent} />
-          <DataRow label="What they need to hear" value={mp.needsToHear ?? ""} accent={accent} />
+        <Section title={`How ${name} loves`} accent={accent} c={c}>
+          <QuoteBlock text={mp.insight ?? ""} accent={accent} c={c} />
+          <DataRow label="What hurt them most"    value={mp.coreWound   ?? ""} accent={accent} c={c} />
+          <DataRow label="What they're scared of" value={mp.fear        ?? ""} accent={accent} c={c} />
+          <DataRow label="What they need to hear" value={mp.needsToHear ?? ""} accent={accent} c={c} />
         </Section>
 
-        <Section title={`${name}'s love pattern — ${nak.name} nakshatra`} accent={accent}>
-          <DataRow label="What they do in love"             value={np.pattern  ?? ""} accent={accent} />
-          <DataRow label="What they're actually chasing"    value={np.craving  ?? ""} accent={accent} />
-          <DataRow label="Their real strength"              value={np.strength ?? ""} accent={accent} />
-          <DataRow label="Where they get stuck"             value={np.trap     ?? ""} accent={accent} />
-          <DataRow label="What they won't admit"            value={np.shadow   ?? ""} accent={accent} />
+        <Section title={`${name}'s love pattern — ${nak.name} nakshatra`} accent={accent} c={c}>
+          <DataRow label="What they do in love"             value={np.pattern  ?? ""} accent={accent} c={c} />
+          <DataRow label="What they're actually chasing"    value={np.craving  ?? ""} accent={accent} c={c} />
+          <DataRow label="Their real strength"              value={np.strength ?? ""} accent={accent} c={c} />
+          <DataRow label="Where they get stuck"             value={np.trap     ?? ""} accent={accent} c={c} />
+          <DataRow label="What they won't admit"            value={np.shadow   ?? ""} accent={accent} c={c} />
         </Section>
 
-        <Section title="Things they don't see" accent={accent}>
-          <DataRow label="What they can't see about themselves" value={mp.blindspot      ?? ""} accent={accent} />
-          <DataRow label="What they keep overlooking"          value={mp.redFlag        ?? ""} accent={accent} />
-          <DataRow label="How they act in relationships"       value={mp.attachment     ?? ""} accent={accent} />
-          <DataRow label="What makes them want to leave"       value={mp.dealbreaker    ?? ""} accent={accent} />
-          <DataRow label="What makes them feel most insecure"  value={mp.insecurityHook ?? ""} accent={accent} />
+        <Section title="Things they don't see" accent={accent} c={c}>
+          <DataRow label="What they can't see about themselves" value={mp.blindspot      ?? ""} accent={accent} c={c} />
+          <DataRow label="What they keep overlooking"          value={mp.redFlag        ?? ""} accent={accent} c={c} />
+          <DataRow label="How they act in relationships"       value={mp.attachment     ?? ""} accent={accent} c={c} />
+          <DataRow label="What makes them want to leave"       value={mp.dealbreaker    ?? ""} accent={accent} c={c} />
+          <DataRow label="What makes them feel most insecure"  value={mp.insecurityHook ?? ""} accent={accent} c={c} />
         </Section>
 
         {!isPartner && dc && (
-          <Section title={`Right now — ${kundliData.dasha.current} dasha`} accent="#F59E0B">
-            <QuoteBlock text={dc.headline ?? ""} accent="#F59E0B" />
-            <DataRow label="How this affects your relationship" value={dc.relationshipEffect ?? ""} accent="#D97706" />
-            <DataRow label="The gift of this period"            value={dc.gift              ?? ""} accent="#D97706" />
-            <DataRow label="The challenge"                      value={dc.challenge         ?? ""} accent="#D97706" />
-            <DataRow label="What to watch out for"             value={dc.warning           ?? ""} accent="#D97706" />
-            <DataRow label="What this means for love"          value={dc.lessonForLove     ?? ""} accent="#D97706" />
+          <Section title={`Right now — ${kundliData.dasha.current} dasha`} accent="#F59E0B" c={c}>
+            <QuoteBlock text={dc.headline ?? ""} accent="#F59E0B" c={c} />
+            <DataRow label="How this affects your relationship" value={dc.relationshipEffect ?? ""} accent="#D97706" c={c} />
+            <DataRow label="The gift of this period"            value={dc.gift              ?? ""} accent="#D97706" c={c} />
+            <DataRow label="The challenge"                      value={dc.challenge         ?? ""} accent="#D97706" c={c} />
+            <DataRow label="What to watch out for"             value={dc.warning           ?? ""} accent="#D97706" c={c} />
+            <DataRow label="What this means for love"          value={dc.lessonForLove     ?? ""} accent="#D97706" c={c} />
           </Section>
         )}
       </ScrollView>
@@ -209,23 +221,25 @@ export default function ProfileDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F7F5F0" },
-  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
-  headerTitle:     { flex: 1, fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", textAlign: "center" },
-  headerSpacer:    { width: 40 },
-  scroll:          { paddingHorizontal: 20, gap: 24 },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    header:          { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: c.background },
+    backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center" },
+    headerTitle:     { flex: 1, fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: c.text, textAlign: "center" },
+    headerSpacer:    { width: 40 },
+    scroll:          { paddingHorizontal: 20, gap: 24 },
 
-  moonHero:        { borderRadius: 20, borderWidth: 1, backgroundColor: "#FFFFFF", flexDirection: "row", overflow: "hidden",
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
-  moonHeroAccent:  { width: 4 },
-  moonHeroContent: { flex: 1, padding: 20, gap: 14 },
-  signsRow:        { flexDirection: "row", gap: 8 },
-  signPill:        { flex: 1, borderRadius: 14, borderWidth: 1, padding: 12, alignItems: "center", gap: 4 },
-  signIcon:        { fontSize: 18 },
-  signVal:         { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold" },
-  signLabel:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
-  nakRow:          { flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  nakChip:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
-  nakText:         { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium" },
-});
+    moonHero:        { borderRadius: 20, borderWidth: 1, backgroundColor: c.card, flexDirection: "row", overflow: "hidden",
+                       shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 2 },
+    moonHeroAccent:  { width: 4 },
+    moonHeroContent: { flex: 1, padding: 20, gap: 14 },
+    signsRow:        { flexDirection: "row", gap: 8 },
+    signPill:        { flex: 1, borderRadius: 14, borderWidth: 1, padding: 12, alignItems: "center", gap: 4 },
+    signIcon:        { fontSize: 18 },
+    signVal:         { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold" },
+    signLabel:       { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
+    nakRow:          { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+    nakChip:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
+    nakText:         { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium" },
+  });
+}

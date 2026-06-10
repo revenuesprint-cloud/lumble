@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useColors } from "@/hooks/useColors";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   Animated,
   Easing,
@@ -24,27 +25,26 @@ const FEATURES = [
     title: "Why you clash",
     sub:   "Moon signs, rising, and dasha phase decoded",
     color: "#4A3DE8",
-    bg:    "#EEF2FF",
   },
   {
     icon: "heart"          as const,
     title: "Emotional patterns",
     sub:   "What keeps repeating between you two, and why",
     color: "#F43F5E",
-    bg:    "#FFF1F2",
   },
   {
     icon: "message-circle" as const,
     title: "Honest answers",
     sub:   "Ask the questions you haven't said out loud yet",
     color: "#10B981",
-    bg:    "#ECFDF5",
   },
 ];
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
   const router  = useRouter();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
 
   const fadeAnim  = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(28)).current;
@@ -63,6 +63,8 @@ export default function WelcomeScreen() {
     await AsyncStorage.setItem(WELCOME_SEEN_KEY, "true");
     router.replace({ pathname: "/login", params: { mode } });
   };
+
+  const FEATURE_BG = [c.primaryLight, c.roseLight, c.emeraldLight];
 
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -93,7 +95,7 @@ export default function WelcomeScreen() {
         <Animated.View style={[styles.features, { opacity: fadeAnim }]}>
           {FEATURES.map((f, i) => (
             <View key={i} style={styles.featureRow}>
-              <View style={[styles.featureIcon, { backgroundColor: f.bg }]}>
+              <View style={[styles.featureIcon, { backgroundColor: FEATURE_BG[i] }]}>
                 <Feather name={f.icon} size={18} color={f.color} />
               </View>
               <View style={styles.featureText}>
@@ -110,7 +112,7 @@ export default function WelcomeScreen() {
           <TouchableOpacity onPress={() => go("register")} activeOpacity={0.88} style={styles.primaryBtn}>
             <Text style={styles.primaryBtnText}>Get Started Free</Text>
             <View style={styles.primaryBtnArrow}>
-              <Feather name="arrow-right" size={16} color="#0F172A" />
+              <Feather name="arrow-right" size={16} color={c.ctaForeground} />
             </View>
           </TouchableOpacity>
 
@@ -139,161 +141,163 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#F7F5F0",
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 36,
-    paddingBottom: 20,
-    justifyContent: "space-between",
-  },
-  webContainer: {
-    maxWidth: 480,
-    alignSelf: "center",
-    width: "100%",
-  },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    container: {
+      flex: 1,
+      paddingHorizontal: 24,
+      paddingTop: 36,
+      paddingBottom: 20,
+      justifyContent: "space-between",
+    },
+    webContainer: {
+      maxWidth: 480,
+      alignSelf: "center",
+      width: "100%",
+    },
 
-  // Brand
-  brand: {
-    alignItems: "center",
-    gap: 10,
-  },
-  logoWrap: {
-    width: 72, height: 72,
-    borderRadius: 20,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  logo: { width: "100%", height: "100%" },
-  appName: {
-    fontSize: 15,
-    fontFamily: "PlusJakartaSans_700Bold",
-    color: "#94A3B8",
-    letterSpacing: 4,
-    textTransform: "uppercase",
-  },
+    // Brand
+    brand: {
+      alignItems: "center",
+      gap: 10,
+    },
+    logoWrap: {
+      width: 72, height: 72,
+      borderRadius: 20,
+      overflow: "hidden",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 16,
+      elevation: 6,
+    },
+    logo: { width: "100%", height: "100%" },
+    appName: {
+      fontSize: 15,
+      fontFamily: "PlusJakartaSans_700Bold",
+      color: c.textFaint,
+      letterSpacing: 4,
+      textTransform: "uppercase",
+    },
 
-  // Headline
-  headlineBlock: { gap: 8 },
-  headlineLight: {
-    fontSize: 30,
-    fontFamily: "PlusJakartaSans_500Medium",
-    color: "#0F172A",
-    lineHeight: 38,
-    letterSpacing: -0.3,
-  },
-  headlineBold: {
-    fontSize: 30,
-    fontFamily: "PlusJakartaSans_800ExtraBold",
-    color: "#0F172A",
-    lineHeight: 38,
-    letterSpacing: -0.5,
-  },
-  subline: {
-    marginTop: 4,
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#64748B",
-    lineHeight: 22,
-  },
+    // Headline
+    headlineBlock: { gap: 8 },
+    headlineLight: {
+      fontSize: 30,
+      fontFamily: "PlusJakartaSans_500Medium",
+      color: c.text,
+      lineHeight: 38,
+      letterSpacing: -0.3,
+    },
+    headlineBold: {
+      fontSize: 30,
+      fontFamily: "PlusJakartaSans_800ExtraBold",
+      color: c.text,
+      lineHeight: 38,
+      letterSpacing: -0.5,
+    },
+    subline: {
+      marginTop: 4,
+      fontSize: 14,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textMuted,
+      lineHeight: 22,
+    },
 
-  // Features
-  features:    { gap: 16 },
-  featureRow:  { flexDirection: "row", alignItems: "center", gap: 14 },
-  featureIcon: {
-    width: 46, height: 46,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  featureText:  { flex: 1, gap: 2 },
-  featureTitle: {
-    fontSize: 15,
-    fontFamily: "PlusJakartaSans_700Bold",
-    color: "#0F172A",
-  },
-  featureSub: {
-    fontSize: 13,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#64748B",
-    lineHeight: 19,
-  },
+    // Features
+    features:    { gap: 16 },
+    featureRow:  { flexDirection: "row", alignItems: "center", gap: 14 },
+    featureIcon: {
+      width: 46, height: 46,
+      borderRadius: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+    },
+    featureText:  { flex: 1, gap: 2 },
+    featureTitle: {
+      fontSize: 15,
+      fontFamily: "PlusJakartaSans_700Bold",
+      color: c.text,
+    },
+    featureSub: {
+      fontSize: 13,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textMuted,
+      lineHeight: 19,
+    },
 
-  // CTA block
-  ctaBlock: { gap: 12 },
-  primaryBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#0F172A",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingLeft: 22,
-    paddingRight: 8,
-  },
-  primaryBtnText: {
-    fontSize: 16,
-    fontFamily: "PlusJakartaSans_700Bold",
-    color: "#FFFFFF",
-    letterSpacing: 0.2,
-  },
-  primaryBtnArrow: {
-    width: 38, height: 38,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    // CTA block
+    ctaBlock: { gap: 12 },
+    primaryBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: c.cta,
+      borderRadius: 16,
+      paddingVertical: 18,
+      paddingLeft: 22,
+      paddingRight: 8,
+    },
+    primaryBtnText: {
+      fontSize: 16,
+      fontFamily: "PlusJakartaSans_700Bold",
+      color: c.ctaForeground,
+      letterSpacing: 0.2,
+    },
+    primaryBtnArrow: {
+      width: 38, height: 38,
+      borderRadius: 12,
+      backgroundColor: c.card,
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  trustRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  trustText: {
-    fontSize: 12,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#94A3B8",
-  },
-  trustDot: {
-    width: 3, height: 3,
-    borderRadius: 2,
-    backgroundColor: "#CBD5E1",
-  },
+    trustRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+    },
+    trustText: {
+      fontSize: 12,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textFaint,
+    },
+    trustDot: {
+      width: 3, height: 3,
+      borderRadius: 2,
+      backgroundColor: c.borderLight,
+    },
 
-  signInRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 4,
-  },
-  signInText: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#94A3B8",
-  },
-  signInLink: {
-    fontSize: 14,
-    fontFamily: "PlusJakartaSans_700Bold",
-    color: "#4A3DE8",
-  },
+    signInRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: 4,
+    },
+    signInText: {
+      fontSize: 14,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.textFaint,
+    },
+    signInLink: {
+      fontSize: 14,
+      fontFamily: "PlusJakartaSans_700Bold",
+      color: "#4A3DE8",
+    },
 
-  // Footer
-  footer: {
-    fontSize: 11,
-    fontFamily: "PlusJakartaSans_400Regular",
-    color: "#CBD5E1",
-    textAlign: "center",
-    lineHeight: 16,
-  },
-});
+    // Footer
+    footer: {
+      fontSize: 11,
+      fontFamily: "PlusJakartaSans_400Regular",
+      color: c.borderLight,
+      textAlign: "center",
+      lineHeight: 16,
+    },
+  });
+}

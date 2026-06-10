@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getAstrologyReading, RASHIS, NAKSHATRAS } from "@/utils/astrology";
 import { getPersonalizedHero, getTodayBetweenYou } from "@/utils/personalization";
 import { DASHA_CHAPTERS } from "@/utils/content-library";
@@ -26,26 +27,31 @@ function resolveDasha(lord: string) {
   return DASHA_CHAPTERS[lord];
 }
 
-function Block({ label, value, color }: { label: string; value: string; color: string }) {
+function Block({ label, value, color, c }: { label: string; value: string; color: string; c: ReturnType<typeof useColors> }) {
+  const blkStylesMemo = useMemo(() => createBlkStyles(c), [c]);
   if (!value) return null;
   return (
-    <View style={blkStyles.wrap}>
-      <Text style={blkStyles.label}>{label}</Text>
-      <Text style={[blkStyles.value, { color }]}>{value}</Text>
+    <View style={blkStylesMemo.wrap}>
+      <Text style={blkStylesMemo.label}>{label}</Text>
+      <Text style={[blkStylesMemo.value, { color }]}>{value}</Text>
     </View>
   );
 }
 
-const blkStyles = StyleSheet.create({
-  wrap:  { gap: 4 },
-  label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
-  value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23 },
-});
+function createBlkStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    wrap:  { gap: 4 },
+    label: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint },
+    value: { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", lineHeight: 23 },
+  });
+}
 
 export default function ReadingDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, partner } = useApp();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
   const params = useLocalSearchParams<{ headline?: string; insight?: string; action?: string; moonTag?: string }>();
 
   const reading = useMemo(() => {
@@ -64,13 +70,13 @@ export default function ReadingDetailScreen() {
   const date     = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+    <View style={{ flex: 1, backgroundColor: c.background }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 80 : 16) }]}>
         <TouchableOpacity
           onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }}
           activeOpacity={0.7} style={styles.backBtn}
         >
-          <Feather name="arrow-left" size={20} color="#64748B" />
+          <Feather name="arrow-left" size={20} color={c.textMuted} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Today's read</Text>
@@ -93,13 +99,13 @@ export default function ReadingDetailScreen() {
         </View>
 
         {/* Main insight */}
-        <View style={[styles.insightBlock, { borderColor: "#C7D2FE", backgroundColor: "#EEF2FF" }]}>
+        <View style={[styles.insightBlock, { borderColor: c.primaryBorder, backgroundColor: c.primaryLight }]}>
           <Text style={styles.insightHeadline}>{hero.headline}</Text>
           <Text style={styles.insightBody}>{hero.insight}</Text>
         </View>
 
         {/* Today's action */}
-        <View style={styles.actionBlock}>
+        <View style={[styles.actionBlock, { backgroundColor: c.goldLight }]}>
           <View style={styles.actionIconRow}>
             <Feather name="sun" size={14} color="#F59E0B" />
             <Text style={styles.actionLabel}>What to do today</Text>
@@ -129,9 +135,9 @@ export default function ReadingDetailScreen() {
             <Text style={styles.sectionTitle}>Your life phase</Text>
             <View style={styles.dashaCard}>
               <Text style={styles.dashaHeadline}>{dc.headline}</Text>
-              <Block label="The gift"                value={dc.gift          ?? ""} color="#D97706" />
-              <Block label="The challenge"           value={dc.challenge     ?? ""} color="#D97706" />
-              <Block label="What this means for love" value={dc.lessonForLove ?? ""} color="#D97706" />
+              <Block label="The gift"                value={dc.gift          ?? ""} color="#D97706" c={c} />
+              <Block label="The challenge"           value={dc.challenge     ?? ""} color="#D97706" c={c} />
+              <Block label="What this means for love" value={dc.lessonForLove ?? ""} color="#D97706" c={c} />
             </View>
           </View>
         )}
@@ -148,44 +154,46 @@ export default function ReadingDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: "#F7F5F0" },
-  backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
-  scroll:          { paddingHorizontal: 20, gap: 18 },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    header:          { flexDirection: "row", alignItems: "flex-start", paddingHorizontal: 20, paddingBottom: 16, gap: 12, backgroundColor: c.background },
+    backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center", marginTop: 2 },
+    headerTitle:     { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 2 },
+    scroll:          { paddingHorizontal: 20, gap: 18 },
 
-  moonTagWrap:     { flexDirection: "row", alignItems: "center", gap: 10 },
-  moonTag:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
-  moonTagText:     { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
-  nakLabel:        { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
+    moonTagWrap:     { flexDirection: "row", alignItems: "center", gap: 10 },
+    moonTag:         { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
+    moonTagText:     { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold" },
+    nakLabel:        { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
 
-  insightBlock:    { borderRadius: 16, borderWidth: 1, padding: 18, gap: 10,
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
-  insightHeadline: { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 27, letterSpacing: -0.2 },
-  insightBody:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 24 },
+    insightBlock:    { borderRadius: 16, borderWidth: 1, padding: 18, gap: 10,
+                       shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+    insightHeadline: { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 27, letterSpacing: -0.2 },
+    insightBody:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 24 },
 
-  actionBlock:     { backgroundColor: "#FFFBEB", borderRadius: 14, padding: 14, gap: 6 },
-  actionIconRow:   { flexDirection: "row", alignItems: "center", gap: 8 },
-  actionLabel:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706" },
-  actionText:      { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 23 },
+    actionBlock:     { borderRadius: 14, padding: 14, gap: 6 },
+    actionIconRow:   { flexDirection: "row", alignItems: "center", gap: 8 },
+    actionLabel:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706" },
+    actionText:      { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 23 },
 
-  section:         { gap: 10 },
-  sectionTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
+    section:         { gap: 10 },
+    sectionTitle:    { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2 },
 
-  rnCard:          { backgroundColor: "#FFFFFF", borderRadius: 18, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 12,
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
-  rnRow:           { gap: 4 },
-  rnName:          { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
-  rnBody:          { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 23 },
-  rnDivider:       { height: 1, backgroundColor: "#F1F5F9" },
+    rnCard:          { backgroundColor: c.card, borderRadius: 18, borderWidth: 1, borderColor: c.border, padding: 18, gap: 12,
+                       shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
+    rnRow:           { gap: 4 },
+    rnName:          { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textFaint },
+    rnBody:          { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 23 },
+    rnDivider:       { height: 1, backgroundColor: c.borderLight },
 
-  dashaCard:       { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", padding: 16, gap: 12,
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 1 },
-  dashaHeadline:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A", lineHeight: 22 },
+    dashaCard:       { backgroundColor: c.card, borderRadius: 14, borderWidth: 1, borderColor: c.border, padding: 16, gap: 12,
+                       shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 1 },
+    dashaHeadline:   { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: c.text, lineHeight: 22 },
 
-  explainerCard:   { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 8,
-                     shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
-  explainerTitle:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#94A3B8" },
-  explainerBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 21 },
-});
+    explainerCard:   { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 18, gap: 8,
+                       shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 1 },
+    explainerTitle:  { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textFaint },
+    explainerBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, lineHeight: 21 },
+  });
+}

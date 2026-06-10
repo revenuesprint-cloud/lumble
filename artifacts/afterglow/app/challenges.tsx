@@ -1,4 +1,5 @@
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getLocalStates } from "@/utils/dbContent";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -41,40 +42,41 @@ const JOURNEY_STATE_META: Record<string, { icon: string; color: string; bg: stri
 };
 
 function ChallengeCard({
-  challenge, journeyState, onPress,
+  challenge, journeyState, onPress, c, cardStylesMemo,
 }: {
   challenge: Challenge; journeyState: string | null; onPress: () => void;
+  c: ReturnType<typeof useColors>; cardStylesMemo: any;
 }) {
   const color   = SEVERITY_COLOR[challenge.severity] ?? "#4A3DE8";
-  const colorBg = SEVERITY_BG[challenge.severity]    ?? "#EEF2FF";
+  const colorBg = SEVERITY_BG[challenge.severity]    ?? c.primaryLight;
   const js      = journeyState ? JOURNEY_STATE_META[journeyState] : null;
 
   return (
     <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.8}>
-      <View style={styles.card}>
-        <View style={[styles.cardAccent, { backgroundColor: color }]} />
-        <View style={styles.cardContent}>
-          <View style={styles.cardTop}>
-            <View style={[styles.severityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-              <View style={[styles.severityDot, { backgroundColor: color }]} />
-              <Text style={[styles.severityLabel, { color }]}>{challenge.severity}</Text>
+      <View style={cardStylesMemo.card}>
+        <View style={[cardStylesMemo.cardAccent, { backgroundColor: color }]} />
+        <View style={cardStylesMemo.cardContent}>
+          <View style={cardStylesMemo.cardTop}>
+            <View style={[cardStylesMemo.severityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
+              <View style={[cardStylesMemo.severityDot, { backgroundColor: color }]} />
+              <Text style={[cardStylesMemo.severityLabel, { color }]}>{challenge.severity}</Text>
             </View>
-            <Text style={styles.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
-            <View style={styles.categoryPill}>
-              <Text style={styles.categoryText}>{challenge.category}</Text>
+            <Text style={cardStylesMemo.severityMeaning}>{SEVERITY_MEANING[challenge.severity] ?? ""}</Text>
+            <View style={cardStylesMemo.categoryPill}>
+              <Text style={cardStylesMemo.categoryText}>{challenge.category}</Text>
             </View>
             {js && (
-              <View style={[styles.journeyBadge, { backgroundColor: js.bg, borderColor: js.color + "44" }]}>
+              <View style={[cardStylesMemo.journeyBadge, { backgroundColor: js.bg, borderColor: js.color + "44" }]}>
                 <Feather name={js.icon as any} size={10} color={js.color} />
-                <Text style={[styles.journeyBadgeText, { color: js.color }]}>{js.label}</Text>
+                <Text style={[cardStylesMemo.journeyBadgeText, { color: js.color }]}>{js.label}</Text>
               </View>
             )}
           </View>
-          <Text style={styles.cardTitle}>{challenge.title}</Text>
-          <Text style={styles.cardDesc} numberOfLines={2}>{challenge.description}</Text>
-          <View style={styles.cardFooter}>
-            <Text style={styles.solutionsHint}>{challenge.solutions?.length ?? 0} steps to try</Text>
-            <Feather name="chevron-right" size={16} color="#D1D5DB" />
+          <Text style={cardStylesMemo.cardTitle}>{challenge.title}</Text>
+          <Text style={cardStylesMemo.cardDesc} numberOfLines={2}>{challenge.description}</Text>
+          <View style={cardStylesMemo.cardFooter}>
+            <Text style={cardStylesMemo.solutionsHint}>{challenge.solutions?.length ?? 0} steps to try</Text>
+            <Feather name="chevron-right" size={16} color={c.borderLight} />
           </View>
         </View>
       </View>
@@ -82,10 +84,35 @@ function ChallengeCard({
   );
 }
 
+function createCardStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    card:           { backgroundColor: c.card, borderRadius: 20, borderWidth: 1, borderColor: c.border, flexDirection: "row", overflow: "hidden", marginHorizontal: 20,
+                      shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 2 },
+    cardAccent:     { width: 4 },
+    cardContent:    { flex: 1, padding: 18, gap: 10 },
+    cardTop:        { flexDirection: "row", alignItems: "center", gap: 7, flexWrap: "wrap" },
+    severityPill:   { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+    severityDot:    { width: 6, height: 6, borderRadius: 3 },
+    severityLabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
+    severityMeaning:{ fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, flex: 1 },
+    categoryPill:   { marginLeft: "auto", backgroundColor: c.primaryLight, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+    categoryText:   { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
+    journeyBadge:   { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 11, paddingHorizontal: 8, paddingVertical: 3 },
+    journeyBadgeText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
+    cardTitle:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: c.text, lineHeight: 24 },
+    cardDesc:       { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, lineHeight: 21 },
+    cardFooter:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    solutionsHint:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint },
+  });
+}
+
 export default function ChallengesScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { challenges, challengesLoading, loadChallenges } = useApp();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
+  const cardStylesMemo = useMemo(() => createCardStyles(c), [c]);
   const [activeCategory,   setActiveCategory]   = useState(ALL_CATEGORIES);
   const [activeJourneyTab, setActiveJourneyTab] = useState<typeof JOURNEY_TABS[number]>("All");
   const [journeyStates,    setJourneyStates]    = useState<Record<string, string>>({});
@@ -136,10 +163,10 @@ export default function ChallengesScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F7F5F0" }}>
+    <View style={{ flex: 1, backgroundColor: c.background }}>
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 16) }]}>
         <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.back(); }} style={styles.backBtn}>
-          <Feather name="arrow-left" size={22} color="#64748B" />
+          <Feather name="arrow-left" size={22} color={c.textMuted} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>Patterns & What Helps</Text>
@@ -248,6 +275,8 @@ export default function ChallengesScreen() {
               key={challenge.id}
               challenge={challenge}
               journeyState={journeyStates[challenge.id] ?? null}
+              c={c}
+              cardStylesMemo={cardStylesMemo}
               onPress={() => {
                 refreshStates();
                 router.push({ pathname: "/challenge-detail", params: { id: challenge.id, data: JSON.stringify(challenge) } });
@@ -260,66 +289,50 @@ export default function ChallengesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  header:          { flexDirection: "row", alignItems: "flex-start", gap: 14, paddingHorizontal: 20, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: "#E2E8F0", backgroundColor: "#F7F5F0" },
-  backBtn:         { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center", marginTop: 2 },
-  headerTitle:     { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", marginTop: 2 },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    header:          { flexDirection: "row", alignItems: "flex-start", gap: 14, paddingHorizontal: 20, paddingBottom: 18, borderBottomWidth: 1, borderBottomColor: c.border, backgroundColor: c.background },
+    backBtn:         { width: 40, height: 40, borderRadius: 14, backgroundColor: c.card, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center", marginTop: 2 },
+    headerTitle:     { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    headerSub:       { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 2 },
 
-  loadingContainer:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 18 },
-  loadingText:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
-  emptyContainer:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, paddingHorizontal: 40 },
-  emptyIconWrap:   { width: 72, height: 72, borderRadius: 36, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
-  emptyTitle:      { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  emptySub:        { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", textAlign: "center" },
-  fetchBtn:        { marginTop: 10, borderRadius: 26, overflow: "hidden" },
-  fetchBtnGradient:{ paddingHorizontal: 32, paddingVertical: 16, backgroundColor: "#0F172A" },
-  fetchBtnText:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: "#fff" },
+    loadingContainer:{ flex: 1, alignItems: "center", justifyContent: "center", gap: 18 },
+    loadingText:     { fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted },
+    emptyContainer:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, paddingHorizontal: 40 },
+    emptyIconWrap:   { width: 72, height: 72, borderRadius: 36, backgroundColor: c.primaryLight, alignItems: "center", justifyContent: "center" },
+    emptyTitle:      { fontSize: 20, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    emptySub:        { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, textAlign: "center" },
+    fetchBtn:        { marginTop: 10, borderRadius: 26, overflow: "hidden" },
+    fetchBtnGradient:{ paddingHorizontal: 32, paddingVertical: 16, backgroundColor: c.cta },
+    fetchBtnText:    { fontSize: 16, fontFamily: "PlusJakartaSans_700Bold", color: c.ctaForeground },
 
-  scroll:          { paddingTop: 16, gap: 12 },
+    scroll:          { paddingTop: 16, gap: 12 },
 
-  journeyBanner:    { marginHorizontal: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 18, padding: 16, gap: 12,
-                      shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
-  journeyBannerRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  journeyBannerTitle:{ fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#4A3DE8" },
-  journeyStats:     { flexDirection: "row", alignItems: "center" },
-  journeyStatItem:  { flex: 1, alignItems: "center", gap: 3 },
-  journeyStatNum:   { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold" },
-  journeyStatLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8", textTransform: "capitalize" },
-  journeyDivider:   { width: 1, height: 30, backgroundColor: "#E2E8F0" },
+    journeyBanner:    { marginHorizontal: 20, backgroundColor: c.card, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 18, padding: 16, gap: 12,
+                        shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 1 },
+    journeyBannerRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+    journeyBannerTitle:{ fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#4A3DE8" },
+    journeyStats:     { flexDirection: "row", alignItems: "center" },
+    journeyStatItem:  { flex: 1, alignItems: "center", gap: 3 },
+    journeyStatNum:   { fontSize: 22, fontFamily: "PlusJakartaSans_700Bold" },
+    journeyStatLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint, textTransform: "capitalize" },
+    journeyDivider:   { width: 1, height: 30, backgroundColor: c.border },
 
-  chips:        { marginBottom: 4 },
-  chip:         { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 8 },
-  chipActive:   { backgroundColor: "#EEF2FF", borderColor: "#C7D2FE" },
-  chipSmall:    { paddingHorizontal: 11, paddingVertical: 6 },
-  chipText:     { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#64748B" },
-  chipTextActive:{ color: "#4A3DE8", fontFamily: "PlusJakartaSans_600SemiBold" },
+    chips:        { marginBottom: 4 },
+    chip:         { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: 22, paddingHorizontal: 16, paddingVertical: 8 },
+    chipActive:   { backgroundColor: c.primaryLight, borderColor: c.primaryBorder },
+    chipSmall:    { paddingHorizontal: 11, paddingVertical: 6 },
+    chipText:     { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: c.textMuted },
+    chipTextActive:{ color: "#4A3DE8", fontFamily: "PlusJakartaSans_600SemiBold" },
 
-  statsRow:  { flexDirection: "row", gap: 10, paddingHorizontal: 20, marginBottom: 2 },
-  statItem:  { flex: 1, alignItems: "center", gap: 4, borderRadius: 14, paddingVertical: 12 },
-  statCount: { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold" },
-  statLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
+    statsRow:  { flexDirection: "row", gap: 10, paddingHorizontal: 20, marginBottom: 2 },
+    statItem:  { flex: 1, alignItems: "center", gap: 4, borderRadius: 14, paddingVertical: 12 },
+    statCount: { fontSize: 24, fontFamily: "PlusJakartaSans_700Bold" },
+    statLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
 
-  card:           { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E2E8F0", flexDirection: "row", overflow: "hidden", marginHorizontal: 20,
-                    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 12, elevation: 2 },
-  cardAccent:     { width: 4 },
-  cardContent:    { flex: 1, padding: 18, gap: 10 },
-  cardTop:        { flexDirection: "row", alignItems: "center", gap: 7, flexWrap: "wrap" },
-  severityPill:   { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-  severityDot:    { width: 6, height: 6, borderRadius: 3 },
-  severityLabel:  { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", textTransform: "capitalize" },
-  severityMeaning:{ fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", flex: 1 },
-  categoryPill:   { marginLeft: "auto", backgroundColor: "#EEF2FF", borderWidth: 1, borderColor: "#C7D2FE", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-  categoryText:   { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "#4A3DE8" },
-  journeyBadge:   { flexDirection: "row", alignItems: "center", gap: 4, borderWidth: 1, borderRadius: 11, paddingHorizontal: 8, paddingVertical: 3 },
-  journeyBadgeText:{ fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
-  cardTitle:      { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A", lineHeight: 24 },
-  cardDesc:       { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B", lineHeight: 21 },
-  cardFooter:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  solutionsHint:  { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "#94A3B8" },
-
-  emptyJourney:      { alignItems: "center", justifyContent: "center", padding: 40, gap: 12 },
-  emptyJourneyIcon:  { fontSize: 36, color: "#D1D5DB" },
-  emptyJourneyTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: "#64748B" },
-  emptyJourneySub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", lineHeight: 21 },
-});
+    emptyJourney:      { alignItems: "center", justifyContent: "center", padding: 40, gap: 12 },
+    emptyJourneyIcon:  { fontSize: 36, color: c.borderLight },
+    emptyJourneyTitle: { fontSize: 18, fontFamily: "PlusJakartaSans_700Bold", color: c.textMuted },
+    emptyJourneySub:   { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, textAlign: "center", lineHeight: 21 },
+  });
+}

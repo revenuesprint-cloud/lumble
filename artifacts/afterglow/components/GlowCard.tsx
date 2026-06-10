@@ -1,4 +1,5 @@
-import React from "react";
+import { useColors } from "@/hooks/useColors";
+import React, { useMemo } from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
 
 interface GlowCardProps {
@@ -10,6 +11,8 @@ interface GlowCardProps {
 }
 
 export function GlowCard({ children, style }: GlowCardProps) {
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
   return (
     <View style={[styles.card, style]}>
       {children}
@@ -17,16 +20,18 @@ export function GlowCard({ children, style }: GlowCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#EAECEF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
-  },
-});
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: c.card,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: c.border,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 14,
+      elevation: 3,
+    },
+  });
+}

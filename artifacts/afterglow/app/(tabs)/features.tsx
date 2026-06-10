@@ -1,5 +1,6 @@
 import { PremiumGate } from "@/components/PremiumGate";
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { getAstrologyReading } from "@/utils/astrology";
 import { getAllViralFeatures, ViralFeatureResult } from "@/utils/compatibility";
 import { getPersonalizedFeatureText } from "@/utils/personalization";
@@ -26,11 +27,6 @@ const CARD_COLORS = [
   "#10B981", "#F43F5E", "#4A3DE8", "#F59E0B",
   "#10B981", "#8B5CF6",
 ];
-const CARD_BG = [
-  "#FFF1F2", "#EEF2FF", "#F5F3FF", "#FFFBEB",
-  "#ECFDF5", "#FFF1F2", "#EEF2FF", "#FFFBEB",
-  "#ECFDF5", "#F5F3FF",
-];
 
 function intensityOf(score: number) {
   return score >= 70 ? "High" : score >= 52 ? "Moderate" : "Low";
@@ -43,26 +39,28 @@ function FeaturedCard({
 }: {
   feature: ViralFeatureResult; color: string; colorBg: string; onPress: () => void;
 }) {
+  const c = useColors();
+  const heroStylesMemo = useMemo(() => createHeroStyles(c), [c]);
   const intensity = intensityOf(feature.score);
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={heroStyles.card}>
-      <View style={heroStyles.topRow}>
-        <View style={[heroStyles.iconBox, { backgroundColor: colorBg }]}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={heroStylesMemo.card}>
+      <View style={heroStylesMemo.topRow}>
+        <View style={[heroStylesMemo.iconBox, { backgroundColor: colorBg }]}>
           <Feather name={feature.icon as any} size={22} color={color} />
         </View>
-        <View style={[heroStyles.scoreBadge, { backgroundColor: colorBg, borderColor: color + "40" }]}>
-          <Text style={[heroStyles.scoreNum, { color }]}>{feature.score}</Text>
-          <Text style={[heroStyles.scoreSub, { color }]}>/100</Text>
+        <View style={[heroStylesMemo.scoreBadge, { backgroundColor: colorBg, borderColor: color + "40" }]}>
+          <Text style={[heroStylesMemo.scoreNum, { color }]}>{feature.score}</Text>
+          <Text style={[heroStylesMemo.scoreSub, { color }]}>/100</Text>
         </View>
       </View>
-      <Text style={heroStyles.title}>{feature.title}</Text>
-      <Text style={heroStyles.body} numberOfLines={4}>{feature.text}</Text>
-      <View style={heroStyles.footer}>
-        <View style={[heroStyles.intensityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-          <Text style={[heroStyles.intensityText, { color }]}>{intensity} intensity</Text>
+      <Text style={heroStylesMemo.title}>{feature.title}</Text>
+      <Text style={heroStylesMemo.body} numberOfLines={4}>{feature.text}</Text>
+      <View style={heroStylesMemo.footer}>
+        <View style={[heroStylesMemo.intensityPill, { backgroundColor: colorBg, borderColor: color + "44" }]}>
+          <Text style={[heroStylesMemo.intensityText, { color }]}>{intensity} intensity</Text>
         </View>
-        <TouchableOpacity onPress={onPress} style={[heroStyles.cta, { backgroundColor: color }]} activeOpacity={0.85}>
-          <Text style={heroStyles.ctaTextWhite}>Read the full insight</Text>
+        <TouchableOpacity onPress={onPress} style={[heroStylesMemo.cta, { backgroundColor: color }]} activeOpacity={0.85}>
+          <Text style={heroStylesMemo.ctaTextWhite}>Read the full insight</Text>
           <Feather name="arrow-right" size={13} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
@@ -70,31 +68,35 @@ function FeaturedCard({
   );
 }
 
-const heroStyles = StyleSheet.create({
-  card:        { backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 18, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
-  topRow:      { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
-  iconBox:     { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  scoreBadge:  { flexDirection: "row", alignItems: "baseline", gap: 2, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1 },
-  scoreNum:    { fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold" },
-  scoreSub:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8" },
-  title:       { fontSize: 19, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", lineHeight: 26, letterSpacing: -0.3 },
-  body:        { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 22 },
-  footer:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  intensityPill: { borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  intensityText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
-  cta:           { flexDirection: "row", alignItems: "center", gap: 6, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
-  ctaTextWhite:  { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
-});
+function createHeroStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    card:        { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 18, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
+    topRow:      { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+    iconBox:     { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+    scoreBadge:  { flexDirection: "row", alignItems: "baseline", gap: 2, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, borderWidth: 1 },
+    scoreNum:    { fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold" },
+    scoreSub:    { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
+    title:       { fontSize: 19, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 26, letterSpacing: -0.3 },
+    body:        { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 22 },
+    footer:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    intensityPill: { borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+    intensityText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
+    cta:           { flexDirection: "row", alignItems: "center", gap: 6, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
+    ctaTextWhite:  { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+  });
+}
 
 // ─── Compact grid card (remaining insights) ───────────────────────────────────
 
 function CompactCard({
-  feature, index, isPremium, onPress,
+  feature, index, colorBg: colorBgProp, color: colorProp, isPremium, onPress,
 }: {
-  feature: ViralFeatureResult; index: number; isPremium: boolean; onPress: () => void;
+  feature: ViralFeatureResult; index: number; color: string; colorBg: string; isPremium: boolean; onPress: () => void;
 }) {
-  const color   = CARD_COLORS[index % CARD_COLORS.length];
-  const colorBg = CARD_BG[index % CARD_BG.length];
+  const c = useColors();
+  const cStylesMemo = useMemo(() => createCompactStyles(c), [c]);
+  const color   = colorProp;
+  const colorBg = colorBgProp;
   const isLocked = feature.locked && !isPremium;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -103,46 +105,48 @@ function CompactCard({
   }, []);
 
   return (
-    <Animated.View style={[{ opacity: fadeAnim }, cStyles.wrap]}>
-      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.82} style={cStyles.card}>
-        <View style={cStyles.row}>
-          <View style={[cStyles.iconBox, { backgroundColor: colorBg }]}>
+    <Animated.View style={[{ opacity: fadeAnim }, cStylesMemo.wrap]}>
+      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.82} style={cStylesMemo.card}>
+        <View style={cStylesMemo.row}>
+          <View style={[cStylesMemo.iconBox, { backgroundColor: colorBg }]}>
             <Feather name={feature.icon as any} size={16} color={color} />
           </View>
-          <View style={cStyles.mid}>
-            <Text style={cStyles.title} numberOfLines={2}>{feature.title}</Text>
+          <View style={cStylesMemo.mid}>
+            <Text style={cStylesMemo.title} numberOfLines={2}>{feature.title}</Text>
             {!isLocked && (
-              <Text style={[cStyles.readMore, { color }]}>Read more</Text>
+              <Text style={[cStylesMemo.readMore, { color }]}>Read more</Text>
             )}
           </View>
           {isLocked ? (
-            <View style={cStyles.lockBox}>
-              <Feather name="lock" size={11} color="#94A3B8" />
+            <View style={cStylesMemo.lockBox}>
+              <Feather name="lock" size={11} color={c.textFaint} />
             </View>
           ) : (
-            <View style={[cStyles.scoreBadge, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-              <Text style={[cStyles.scoreText, { color }]}>{feature.score}</Text>
+            <View style={[cStylesMemo.scoreBadge, { backgroundColor: colorBg, borderColor: color + "44" }]}>
+              <Text style={[cStylesMemo.scoreText, { color }]}>{feature.score}</Text>
             </View>
           )}
-          <Feather name="chevron-right" size={13} color="#CBD5E1" />
+          <Feather name="chevron-right" size={13} color={c.borderLight} />
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
-const cStyles = StyleSheet.create({
-  wrap:      { flex: 1 },
-  card:      { backgroundColor: "#FFFFFF", borderRadius: 14, borderWidth: 1, borderColor: "#E2E8F0", paddingHorizontal: 12, paddingVertical: 11, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
-  row:       { flexDirection: "row", alignItems: "center", gap: 10 },
-  iconBox:   { width: 32, height: 32, borderRadius: 9, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  mid:       { flex: 1, gap: 2 },
-  title:     { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: "#0F172A", lineHeight: 17 },
-  readMore:  { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
-  lockBox:   { width: 26, height: 26, borderRadius: 8, backgroundColor: "#F8FAFC", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
-  scoreBadge:{ paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
-  scoreText: { fontSize: 11, fontFamily: "PlusJakartaSans_800ExtraBold" },
-});
+function createCompactStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    wrap:      {},
+    card:      { backgroundColor: c.card, borderRadius: 14, borderWidth: 1, borderColor: c.border, paddingHorizontal: 14, paddingVertical: 13, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
+    row:       { flexDirection: "row", alignItems: "center", gap: 12 },
+    iconBox:   { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+    mid:       { flex: 1, gap: 2 },
+    title:     { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: c.text, lineHeight: 18 },
+    readMore:  { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
+    lockBox:   { width: 26, height: 26, borderRadius: 8, backgroundColor: c.input, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center" },
+    scoreBadge:{ paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20, borderWidth: 1 },
+    scoreText: { fontSize: 11, fontFamily: "PlusJakartaSans_800ExtraBold" },
+  });
+}
 
 // ─── Insights screen ──────────────────────────────────────────────────────────
 
@@ -150,6 +154,8 @@ export default function FeaturesScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, partner, isPremium } = useApp();
+  const c = useColors();
+  const s = useMemo(() => createStyles(c), [c]);
   const [showGate,    setShowGate]    = useState(false);
   const [gateFeature, setGateFeature] = useState<string | undefined>();
   const [, forceUpdate] = useState(0);
@@ -193,6 +199,12 @@ export default function FeaturesScreen() {
   const heroFeat = heroIdx >= 0 ? features[heroIdx] : features[0];
   const restFeats = features.filter((_, i) => i !== heroIdx);
 
+  const CARD_BG = [
+    c.roseLight, c.primaryLight, c.violetLight, c.goldLight,
+    c.emeraldLight, c.roseLight, c.primaryLight, c.goldLight,
+    c.emeraldLight, c.violetLight,
+  ];
+
   const handlePress = (feature: ViralFeatureResult) => {
     if (feature.locked && !isPremium) {
       setGateFeature(feature.title); setShowGate(true);
@@ -201,11 +213,6 @@ export default function FeaturesScreen() {
     }
   };
 
-  // Pair rest into rows of 2
-  const rows: [ViralFeatureResult, ViralFeatureResult | null][] = [];
-  for (let i = 0; i < restFeats.length; i += 2) {
-    rows.push([restFeats[i], restFeats[i + 1] ?? null]);
-  }
 
   return (
     <View style={s.root}>
@@ -236,19 +243,25 @@ export default function FeaturesScreen() {
           </>
         )}
 
-        {/* Compact grid */}
-        {rows.length > 0 && (
+        {/* Compact list */}
+        {restFeats.length > 0 && (
           <>
             <Text style={s.sectionLabel}>ALL INSIGHTS · {features.length}</Text>
             <View style={s.grid}>
-              {rows.map((row, ri) => (
-                <View key={ri} style={s.gridRow}>
-                  <CompactCard feature={row[0]} index={ri * 2 + (heroIdx >= 0 ? 1 : 0)} isPremium={isPremium} onPress={() => handlePress(row[0])} />
-                  {row[1]
-                    ? <CompactCard feature={row[1]} index={ri * 2 + 1 + (heroIdx >= 0 ? 1 : 0)} isPremium={isPremium} onPress={() => handlePress(row[1]!)} />
-                    : <View style={{ flex: 1 }} />}
-                </View>
-              ))}
+              {restFeats.map((feat, ri) => {
+                const realIdx = ri + (heroIdx >= 0 ? 1 : 0);
+                return (
+                  <CompactCard
+                    key={feat.key}
+                    feature={feat}
+                    index={ri}
+                    color={CARD_COLORS[realIdx % CARD_COLORS.length]}
+                    colorBg={CARD_BG[realIdx % CARD_BG.length]}
+                    isPremium={isPremium}
+                    onPress={() => handlePress(feat)}
+                  />
+                );
+              })}
             </View>
           </>
         )}
@@ -281,23 +294,24 @@ export default function FeaturesScreen() {
   );
 }
 
-const s = StyleSheet.create({
-  root:     { flex: 1, backgroundColor: "#F7F5F0" },
-  webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
-  scroll:   { paddingHorizontal: 18, gap: 14 },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    root:     { flex: 1, backgroundColor: c.background },
+    webScroll:{ maxWidth: 640, alignSelf: "center", width: "100%" },
+    scroll:   { paddingHorizontal: 18, gap: 14 },
 
-  header:       { gap: 3 },
-  title:        { fontSize: 24, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#0F172A", letterSpacing: -0.4 },
-  sub:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
-  sectionLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", letterSpacing: 1.2, textTransform: "uppercase" },
+    header:       { gap: 3 },
+    title:        { fontSize: 24, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.4 },
+    sub:          { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted },
+    sectionLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, letterSpacing: 1.2, textTransform: "uppercase" },
 
-  grid:    { gap: 8 },
-  gridRow: { flexDirection: "row", gap: 8 },
+    grid:    { gap: 8 },
 
-  premiumBanner:{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#FFFFFF", borderRadius: 16, borderWidth: 1, borderColor: "#C7D2FE", padding: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-  premiumLeft:  { flexDirection: "row", alignItems: "center", gap: 12 },
-  premiumIcon:  { width: 40, height: 40, borderRadius: 12, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
-  premiumTitle: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
-  premiumSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#64748B" },
-  premiumArrow: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#EEF2FF", alignItems: "center", justifyContent: "center" },
-});
+    premiumBanner:{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.primaryBorder, padding: 16, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+    premiumLeft:  { flexDirection: "row", alignItems: "center", gap: 12 },
+    premiumIcon:  { width: 40, height: 40, borderRadius: 12, backgroundColor: c.primaryLight, alignItems: "center", justifyContent: "center" },
+    premiumTitle: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    premiumSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted },
+    premiumArrow: { width: 36, height: 36, borderRadius: 10, backgroundColor: c.primaryLight, alignItems: "center", justifyContent: "center" },
+  });
+}

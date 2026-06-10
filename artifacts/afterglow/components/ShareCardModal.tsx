@@ -1,7 +1,8 @@
+import { useColors } from "@/hooks/useColors";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Modal,
   Platform,
@@ -72,6 +73,8 @@ export function ShareCardModal({
   userElement, partnerElement,
 }: Props) {
   const insets = useSafeAreaInsets();
+  const c = useColors();
+  const styles = useMemo(() => createStyles(c), [c]);
   const pct     = Math.round((compatibilityScore / 36) * 100);
   const tagline = getTagline(pct);
 
@@ -113,10 +116,10 @@ export function ShareCardModal({
 
           {/* Close */}
           <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7} hitSlop={8}>
-            <Feather name="x" size={18} color="#64748B" />
+            <Feather name="x" size={18} color={c.textMuted} />
           </TouchableOpacity>
 
-          {/* ── THE SHAREABLE CARD ─────────────────────────────── */}
+          {/* ── THE SHAREABLE CARD — dark gradient stays as-is ─── */}
           <LinearGradient
             colors={["#0f0a2e", "#1e1b4b", "#2d1f6e"]}
             start={{ x: 0.2, y: 0 }}
@@ -186,7 +189,7 @@ export function ShareCardModal({
 
           {/* CTA: share score */}
           <TouchableOpacity onPress={handleShareScore} style={styles.primaryBtn} activeOpacity={0.85}>
-            <Feather name="share-2" size={16} color="#fff" />
+            <Feather name="share-2" size={16} color={c.ctaForeground} />
             <Text style={styles.primaryBtnText}>Share your score</Text>
           </TouchableOpacity>
 
@@ -201,119 +204,121 @@ export function ShareCardModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.72)",
-    justifyContent: "flex-end",
-  },
-  sheet: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    alignItems: "center",
-    gap: 13,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#E2E8F0",
-    marginBottom: 2,
-  },
-  closeBtn: {
-    position: "absolute",
-    top: 16,
-    right: 20,
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: "#F8FAFC",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
-  },
+function createStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.72)",
+      justifyContent: "flex-end",
+    },
+    sheet: {
+      backgroundColor: c.card,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      alignItems: "center",
+      gap: 13,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: c.borderLight,
+      marginBottom: 2,
+    },
+    closeBtn: {
+      position: "absolute",
+      top: 16,
+      right: 20,
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      backgroundColor: c.input,
+      borderWidth: 1,
+      borderColor: c.border,
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 10,
+    },
 
-  // ── Card ──────────────────────────────────────────────────
-  card: {
-    width: "100%",
-    borderRadius: 20,
-    paddingVertical: 28,
-    paddingHorizontal: 24,
-    alignItems: "center",
-    gap: 11,
-    overflow: "hidden",
-  },
-  star: {
-    position: "absolute",
-    borderRadius: 99,
-    backgroundColor: "#FFFFFF",
-  },
-  moonTop:  { fontSize: 28, marginBottom: 2 },
+    // ── Card (dark gradient — stays as-is) ───────────────────────────────────
+    card: {
+      width: "100%",
+      borderRadius: 20,
+      paddingVertical: 28,
+      paddingHorizontal: 24,
+      alignItems: "center",
+      gap: 11,
+      overflow: "hidden",
+    },
+    star: {
+      position: "absolute",
+      borderRadius: 99,
+      backgroundColor: "#FFFFFF",
+    },
+    moonTop:  { fontSize: 28, marginBottom: 2 },
 
-  namesRow: { flexDirection: "row", alignItems: "center", gap: 14, width: "100%", justifyContent: "center" },
-  personBlock: { alignItems: "center", gap: 5, flex: 1 },
-  signEmoji:   { fontSize: 22 },
-  personName:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
-  elementBadge:{ borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3 },
-  elementText: { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
-  cross:       { fontSize: 22, color: "rgba(255,255,255,0.35)", fontFamily: "PlusJakartaSans_400Regular" },
+    namesRow: { flexDirection: "row", alignItems: "center", gap: 14, width: "100%", justifyContent: "center" },
+    personBlock: { alignItems: "center", gap: 5, flex: 1 },
+    signEmoji:   { fontSize: 22 },
+    personName:  { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+    elementBadge:{ borderRadius: 20, paddingHorizontal: 9, paddingVertical: 3 },
+    elementText: { fontSize: 10, fontFamily: "PlusJakartaSans_600SemiBold" },
+    cross:       { fontSize: 22, color: "rgba(255,255,255,0.35)", fontFamily: "PlusJakartaSans_400Regular" },
 
-  score:      { fontSize: 72, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#FFFFFF", lineHeight: 80, marginTop: 6 },
-  scorePct:   { fontSize: 32, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(255,255,255,0.55)" },
-  scoreLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: 1.6, marginTop: -6 },
+    score:      { fontSize: 72, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#FFFFFF", lineHeight: 80, marginTop: 6 },
+    scorePct:   { fontSize: 32, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(255,255,255,0.55)" },
+    scoreLabel: { fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: 1.6, marginTop: -6 },
 
-  taglinePill: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 9,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
-    marginTop: 2,
-  },
-  taglineText: { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "rgba(255,255,255,0.88)", textAlign: "center" },
+    taglinePill: {
+      backgroundColor: "rgba(255,255,255,0.1)",
+      borderRadius: 20,
+      paddingHorizontal: 18,
+      paddingVertical: 9,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.18)",
+      marginTop: 2,
+    },
+    taglineText: { fontSize: 13, fontFamily: "PlusJakartaSans_500Medium", color: "rgba(255,255,255,0.88)", textAlign: "center" },
 
-  signsLine: { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(255,255,255,0.45)", textAlign: "center", marginTop: 2 },
+    signsLine: { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: "rgba(255,255,255,0.45)", textAlign: "center", marginTop: 2 },
 
-  brand:     { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
-  brandDot:  { width: 6, height: 6, borderRadius: 3, backgroundColor: "#8B5CF6" },
-  brandName: { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "rgba(255,255,255,0.65)", letterSpacing: 0.6 },
+    brand:     { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
+    brandDot:  { width: 6, height: 6, borderRadius: 3, backgroundColor: "#8B5CF6" },
+    brandName: { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "rgba(255,255,255,0.65)", letterSpacing: 0.6 },
 
-  // ── Bottom actions ────────────────────────────────────────
-  hint: {
-    fontSize: 12,
-    fontFamily: "PlusJakartaSans_500Medium",
-    color: "#94A3B8",
-    textAlign: "center",
-  },
-  primaryBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#0F172A",
-    borderRadius: 14,
-    paddingVertical: 15,
-    width: "100%",
-  },
-  primaryBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+    // ── Bottom actions ────────────────────────────────────────────────────────
+    hint: {
+      fontSize: 12,
+      fontFamily: "PlusJakartaSans_500Medium",
+      color: c.textFaint,
+      textAlign: "center",
+    },
+    primaryBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      backgroundColor: c.cta,
+      borderRadius: 14,
+      paddingVertical: 15,
+      width: "100%",
+    },
+    primaryBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.ctaForeground },
 
-  secondaryBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#EEF2FF",
-    borderRadius: 14,
-    paddingVertical: 15,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#C7D2FE",
-  },
-  secondaryBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
-});
+    secondaryBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      backgroundColor: c.primaryLight,
+      borderRadius: 14,
+      paddingVertical: 15,
+      width: "100%",
+      borderWidth: 1,
+      borderColor: c.primaryBorder,
+    },
+    secondaryBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+  });
+}

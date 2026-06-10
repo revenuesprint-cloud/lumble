@@ -141,10 +141,6 @@ function PersonProfile({ name, kundliData, onOpenFull }: {
           <LinearGradient colors={[moonRashi.color + "12", "transparent"]} style={styles.cardGrad}>
             <Text style={styles.cardBodyText}>"{mp.insight}"</Text>
             <View style={styles.divider} />
-            <View style={styles.bulletRow}>
-              <Feather name="heart" size={13} color={moonRashi.color} />
-              <Text style={styles.bulletText}>{mp.needsToHear}</Text>
-            </View>
             {mp.coreWound ? (
               <View style={styles.bulletRow}>
                 <Feather name="anchor" size={13} color="rgba(240,235,248,0.35)" />
@@ -157,6 +153,18 @@ function PersonProfile({ name, kundliData, onOpenFull }: {
                 <Text style={styles.bulletText}>{mp.blindspot}</Text>
               </View>
             ) : null}
+            {mp.solution ? (
+              <View style={styles.bulletRow}>
+                <Feather name="compass" size={13} color="#52C8B8" />
+                <Text style={styles.bulletText}>
+                  <Text style={{ color: "#52C8B8" }}>Try this: </Text>{mp.solution}
+                </Text>
+              </View>
+            ) : null}
+            <View style={styles.bulletRow}>
+              <Feather name="heart" size={13} color={moonRashi.color} />
+              <Text style={[styles.bulletText, { color: "rgba(240,235,248,0.92)", fontFamily: "PlusJakartaSans_500Medium" }]}>{mp.needsToHear}</Text>
+            </View>
           </LinearGradient>
         </View>
       </View>
