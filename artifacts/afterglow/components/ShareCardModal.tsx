@@ -50,7 +50,7 @@ const STARS: { x: string; y: number; o: number; size: number }[] = [
   { x: "6%",  y: 220, o: 0.30, size: 1 },
 ];
 
-const APP_URL = "afterglow.app";
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.lumble.app";
 
 interface Props {
   visible: boolean;
@@ -82,7 +82,7 @@ export function ShareCardModal({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await Share.share({
-        message: `me & ${partnerName}: ${pct}% cosmically compatible 🌙\n\n"${tagline}"\n\ncheck your birth chart: ${APP_URL}`,
+        message: `me & ${partnerName}: ${pct}% cosmically compatible 🌙\n\n"${tagline}"\n\nget Lumble — download on the Play Store:\n${PLAY_STORE_URL}`,
         title:   `${userName} & ${partnerName} — ${pct}% compatible`,
       });
     } catch {}
@@ -90,14 +90,9 @@ export function ShareCardModal({
 
   const handleInvitePartner = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    const shareContent = Platform.OS === "ios"
-      ? {
-          message: `i checked if we're cosmically compatible 👀\n\nthe stars had thoughts about us… lmk if you wanna know: ${APP_URL}`,
-          url:     `https://${APP_URL}`,
-        }
-      : {
-          message: `i checked if we're cosmically compatible 👀\n\nthe stars had thoughts about us… lmk if you wanna know:\nhttps://${APP_URL}`,
-        };
+    const shareContent = {
+      message: `i checked if we're cosmically compatible 👀\n\nthe stars had thoughts about us… lmk if you wanna know\n\nget Lumble on the Play Store:\n${PLAY_STORE_URL}`,
+    };
     try {
       await Share.share(shareContent);
     } catch {}

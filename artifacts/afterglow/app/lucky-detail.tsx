@@ -89,7 +89,7 @@ export default function LuckyDetailScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await Share.share({
-        message: `my lucky number today is ${features.number} (${features.archetype}) and my color is ${features.color.name} ✦\n\nget yours on afterglow.app`,
+        message: `my lucky number today is ${features.number} (${features.archetype}) and my color is ${features.color.name} ✦\n\nget yours on Lumble — download on the Play Store:\nhttps://play.google.com/store/apps/details?id=com.lumble.app`,
         title:   "Today's Lucky",
       });
     } catch {}

@@ -118,7 +118,7 @@ export default function FeatureDetail() {
   const handleShare = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      await Share.share({ message: `${feature.title}\n\n${feature.text}\n\n— Lumble app`, title: feature.title });
+      await Share.share({ message: `${feature.title}\n\n${feature.text}\n\nget Lumble on the Play Store:\nhttps://play.google.com/store/apps/details?id=com.lumble.app`, title: feature.title });
     } catch {}
   };
 
@@ -218,7 +218,7 @@ export default function FeatureDetail() {
 
 const styles = StyleSheet.create({
   header:       { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingBottom: 8 },
-  backBtn:      { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
+  backBtn:      { width: 40, height: 40, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
   shareBtn:     { width: 40, height: 40, borderRadius: 20, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", alignItems: "center", justifyContent: "center" },
   scroll:       { paddingHorizontal: 20, paddingTop: 8 },
   titleSection: { alignItems: "center", gap: 12 },
