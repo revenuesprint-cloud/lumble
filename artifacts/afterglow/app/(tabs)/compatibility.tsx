@@ -12,6 +12,7 @@ import { getContentBundle, fetchContentBundle, applyVars } from "@/utils/dbConte
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { KundliLoading } from "@/components/KundliLoading";
+import { useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -82,14 +83,87 @@ const scoreStyles = StyleSheet.create({
   orbHint:     { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: "#94A3B8", textAlign: "center", marginTop: 1 },
 });
 
+// ─── Section deep content ─────────────────────────────────────────────────────
+
+const SECTION_DEEP: Record<string, { headline: string; points: string[]; askPrompt: string }> = {
+  "Emotional Chemistry": {
+    headline: "What this actually means for you",
+    points: [
+      "The pull you feel is real and grounded in how your emotional natures actually interact, not just surface attraction. That's what makes it harder to either ignore or resolve cleanly.",
+      "Chemistry without direction tends to become the thing that holds both people in place without moving forward. The most useful step is naming what you both want from this.",
+      "Try asking them: what drew you to me initially? Their answer will tell you whether you are reading the same connection or two different ones.",
+    ],
+    askPrompt: "Why does the chemistry between us feel so strong?",
+  },
+  "Communication Energy": {
+    headline: "How to actually bridge this gap",
+    points: [
+      "You process things differently: one of you leads with feeling, the other with logic. Neither approach is wrong. The breakdown happens when the slower processor stops signalling that they are still engaged.",
+      "The most common version of this: one person thinks the conversation is over, the other thinks it never really happened.",
+      "Before any important conversation, agree on whether you need to process together or separately first. That single step prevents most of the miscommunication between you.",
+    ],
+    askPrompt: "Why do we keep misunderstanding each other even when we're both trying?",
+  },
+  "Attachment Dynamics": {
+    headline: "Understanding the push and pull",
+    points: [
+      "One of you moves closer when things feel good and the other pulls back when things get real. This creates a rhythm that feels like electricity but is actually two people managing fear in opposite directions.",
+      "The moments of genuine closeness feel extraordinary precisely because of the uncertainty surrounding them. Your system can start to call that cycle love when it is actually a loop.",
+      "Name the pattern together when you are both calm. Saying 'I notice we do this thing where one of us gets close and then one of us steps back' changes the dynamic immediately.",
+    ],
+    askPrompt: "Why do I feel close to them one day and distant the next?",
+  },
+  "Emotional Tension": {
+    headline: "What the tension is actually telling you",
+    points: [
+      "Tension is almost never about what it looks like on the surface. It is where two or three specific unspoken things are living right now. Both of you know what those things are.",
+      "The tension does not go away by resolving the argument. It goes away when the underlying need or fear gets named directly.",
+      "In a calm moment, not in a fight, try saying: 'I notice there is something between us that keeps surfacing. Can we talk about what it actually is?' That question works.",
+    ],
+    askPrompt: "Why does the same tension keep coming up between us no matter what we do?",
+  },
+  "Long-Term Potential": {
+    headline: "What it would actually take",
+    points: [
+      "Long-term potential is present in this connection, but it is not automatic. The raw material is there. What it needs is both people choosing depth over comfort at the moment those two things start to feel different.",
+      "Most connections with real potential fail not because of incompatibility but because neither person was willing to go first into the vulnerable conversation.",
+      "The question to sit with is: are you both choosing this, or are you both waiting for the other person to make it safe to choose it? Only one of those leads somewhere.",
+    ],
+    askPrompt: "Do we actually have a future together, or are we just comfortable?",
+  },
+  "Why This Feels Addictive": {
+    headline: "What you are actually attached to",
+    points: [
+      "The addiction is specific. You found someone who makes you feel actually known, not just liked or wanted. That experience does not happen often. Once it does, the mind does not release it easily.",
+      "The pull back is almost always emotional recognition, the feeling of being fully seen. Once you have had that, ordinary connection can feel like it is missing something. Worth asking whether you are attached to this person or to that feeling.",
+      "This is not a reason to leave or to stay. It is information. Knowing what you are actually attached to gives you the ability to make a real choice rather than just responding to the pull.",
+    ],
+    askPrompt: "Why can't I stop thinking about them even when I know I should?",
+  },
+  "Hidden Relationship Pattern": {
+    headline: "The pattern underneath everything",
+    points: [
+      "Both of you are more afraid of getting exactly what you want here than of not getting it. That fear is the engine running most of the distance, ambiguity, and cycles between you.",
+      "There is likely a testing pattern: small actions and small withdrawals designed to find out if the other person will stay. The test never officially ends because neither of you has decided it is safe to stop running it.",
+      "The only move that changes this pattern is one person going first into genuine openness without a guarantee that it will be met the same way. Everything else keeps the loop going.",
+    ],
+    askPrompt: "What is the real pattern underneath everything between us?",
+  },
+};
+
 // ─── Section detail sheet ─────────────────────────────────────────────────────
 
 const SCREEN_H = Dimensions.get("window").height;
 
 function SectionDetailSheet({ section, onClose }: { section: CompatibilitySection; onClose: () => void }) {
   const insets    = useSafeAreaInsets();
+  const router    = useRouter();
+  const scrollRef = useRef<ScrollView>(null);
   const slideAnim = useRef(new Animated.Value(SCREEN_H)).current;
-  const lbl       = sectionStrength(section.score);
+  const expandAnim = useRef(new Animated.Value(0)).current;
+  const [expanded, setExpanded] = useState(false);
+  const lbl = sectionStrength(section.score);
+  const deep = SECTION_DEEP[section.label];
 
   useEffect(() => {
     Animated.spring(slideAnim, { toValue: 0, friction: 9, tension: 100, useNativeDriver: true }).start();
@@ -97,6 +171,19 @@ function SectionDetailSheet({ section, onClose }: { section: CompatibilitySectio
 
   const close = () => {
     Animated.timing(slideAnim, { toValue: SCREEN_H, duration: 280, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(onClose);
+  };
+
+  const handleKnowMore = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpanded(true);
+    Animated.timing(expandAnim, { toValue: 1, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+  };
+
+  const handleAskOracle = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    close();
+    setTimeout(() => router.push("/(tabs)/guidance"), 320);
   };
 
   return (
@@ -113,19 +200,50 @@ function SectionDetailSheet({ section, onClose }: { section: CompatibilitySectio
           <Text style={[sheetStyles.badgeText, { color: lbl.color }]}>{lbl.text}</Text>
         </View>
       </View>
+
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[sheetStyles.scroll, { paddingBottom: insets.bottom + 40 }]}
       >
         <AnimatedBar value={section.score} color={section.color} color2={section.color + "88"} delay={120} height={8} />
         <View style={sheetStyles.divider} />
         <Text style={sheetStyles.body}>{section.text}</Text>
+
+        {/* Expanded deep content */}
+        {expanded && deep && (
+          <View style={sheetStyles.deepBlock}>
+            <Text style={[sheetStyles.deepHeadline, { color: section.color }]}>{deep.headline}</Text>
+            {deep.points.map((pt, i) => (
+              <View key={i} style={sheetStyles.deepPoint}>
+                <View style={[sheetStyles.deepDot, { backgroundColor: section.color }]} />
+                <Text style={sheetStyles.deepText}>{pt}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         <View style={sheetStyles.ctaBlock}>
-          <Text style={sheetStyles.ctaLabel}>WHAT TO DO WITH THIS</Text>
-          <TouchableOpacity onPress={close} style={[sheetStyles.actionBtn, { backgroundColor: section.color }]} activeOpacity={0.8}>
-            <Text style={sheetStyles.actionBtnText}>Start this conversation</Text>
-            <Feather name="arrow-right" size={15} color="#FFFFFF" />
-          </TouchableOpacity>
+          {!expanded ? (
+            <TouchableOpacity
+              onPress={handleKnowMore}
+              style={[sheetStyles.knowMoreBtn, { backgroundColor: section.color }]}
+              activeOpacity={0.85}
+            >
+              <Text style={sheetStyles.knowMoreText}>Know more</Text>
+              <Feather name="chevron-down" size={16} color="#FFFFFF" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={handleAskOracle}
+              style={[sheetStyles.knowMoreBtn, { backgroundColor: section.color }]}
+              activeOpacity={0.85}
+            >
+              <Feather name="message-circle" size={16} color="#FFFFFF" />
+              <Text style={sheetStyles.knowMoreText}>Ask the oracle about this</Text>
+              <Feather name="arrow-right" size={15} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={close} style={sheetStyles.doneBtn} activeOpacity={0.7}>
             <Text style={sheetStyles.doneBtnText}>I already know this one</Text>
           </TouchableOpacity>
@@ -144,13 +262,20 @@ const sheetStyles = StyleSheet.create({
   title:     { flex: 1, fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: "#0F172A" },
   badge:     { borderRadius: 20, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 4 },
   badgeText: { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold" },
-  scroll:       { paddingHorizontal: 24, paddingTop: 28, gap: 24 },
-  divider:      { height: 1, backgroundColor: "#F1F5F9" },
-  body:         { fontSize: 17, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 29 },
+
+  scroll:    { paddingHorizontal: 24, paddingTop: 28, gap: 20 },
+  divider:   { height: 1, backgroundColor: "#F1F5F9" },
+  body:      { fontSize: 17, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 29 },
+
+  deepBlock:    { gap: 14, backgroundColor: "#F8FAFC", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0", padding: 18 },
+  deepHeadline: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", lineHeight: 20 },
+  deepPoint:    { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+  deepDot:      { width: 7, height: 7, borderRadius: 4, marginTop: 8, flexShrink: 0 },
+  deepText:     { flex: 1, fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: "#374151", lineHeight: 24 },
+
   ctaBlock:     { gap: 10 },
-  ctaLabel:     { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#94A3B8", textTransform: "uppercase", letterSpacing: 1.2 },
-  actionBtn:    { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: 16, paddingVertical: 16 },
-  actionBtnText:{ fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
+  knowMoreBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, borderRadius: 16, paddingVertical: 16 },
+  knowMoreText: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF" },
   doneBtn:      { alignItems: "center", paddingVertical: 16, backgroundColor: "#F8FAFC", borderRadius: 16, borderWidth: 1, borderColor: "#E2E8F0" },
   doneBtnText:  { fontSize: 15, fontFamily: "PlusJakartaSans_600SemiBold", color: "#64748B" },
 });
