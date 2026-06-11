@@ -196,6 +196,7 @@ export interface QuestionsResult {
   what_to_do:  QuestionItem[];
   patterns:    QuestionItem[];
   big_picture: QuestionItem[];
+  personality: QuestionItem[];
 }
 
 const CACHE_KEY_QUESTIONS = "@lumble_questions";
@@ -232,6 +233,7 @@ export async function fetchQuestions(tags: string[]): Promise<QuestionsResult | 
       what_to_do:  data.questions?.what_to_do  ?? [],
       patterns:    data.questions?.patterns    ?? [],
       big_picture: data.questions?.big_picture ?? [],
+      personality: data.questions?.personality ?? [],
     };
     await AsyncStorage.setItem(CACHE_KEY_QUESTIONS, JSON.stringify({ data: result, fetchedAt: Date.now() }));
     return result;

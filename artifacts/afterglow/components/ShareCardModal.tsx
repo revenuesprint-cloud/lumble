@@ -2,8 +2,10 @@ import { useColors } from "@/hooks/useColors";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useMemo } from "react";
+import * as Sharing from "expo-sharing";
+import React, { useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   Platform,
   Share,
@@ -13,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { captureRef } from "react-native-view-shot";
 
 const SIGN_EMOJI: Record<string, string> = {
   Aries: "♈", Taurus: "♉", Gemini: "♊", Cancer: "♋",
@@ -78,17 +81,49 @@ export function ShareCardModal({
   const pct     = Math.round((compatibilityScore / 36) * 100);
   const tagline = getTagline(pct);
 
+  const cardRef = useRef<View>(null);
+  const [capturing, setCapturing] = useState(false);
+
   const uColor = ELEMENT_COLOR[userElement]    ?? "#8B5CF6";
   const pColor = ELEMENT_COLOR[partnerElement] ?? "#8B5CF6";
 
-  const handleShareScore = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  const shareScoreText = async () => {
     try {
       await Share.share({
         message: `me & ${partnerName}: ${pct}% cosmically compatible 🌙\n\n"${tagline}"\n\nget Lumble — download on the Play Store:\n${PLAY_STORE_URL}`,
         title:   `${userName} & ${partnerName} — ${pct}% compatible`,
       });
     } catch {}
+  };
+
+  const handleShareScore = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    // On web, view capture isn't reliable — fall back to text share.
+    if (Platform.OS === "web" || !cardRef.current) {
+      await shareScoreText();
+      return;
+    }
+
+    try {
+      setCapturing(true);
+      const uri = await captureRef(cardRef, { format: "png", quality: 1 });
+      setCapturing(false);
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "image/png",
+          dialogTitle: `${userName} & ${partnerName} — ${pct}% compatible`,
+          UTI: "public.png",
+        });
+      } else {
+        await shareScoreText();
+      }
+    } catch {
+      setCapturing(false);
+      // If image capture/share fails, still let the user share something.
+      await shareScoreText();
+    }
   };
 
   const handleInvitePartner = async () => {
@@ -120,6 +155,7 @@ export function ShareCardModal({
           </TouchableOpacity>
 
           {/* ── THE SHAREABLE CARD — dark gradient stays as-is ─── */}
+          <View ref={cardRef} collapsable={false} style={styles.cardCapture}>
           <LinearGradient
             colors={["#0f0a2e", "#1e1b4b", "#2d1f6e"]}
             start={{ x: 0.2, y: 0 }}
@@ -183,14 +219,19 @@ export function ShareCardModal({
               <Text style={styles.brandName}>afterglow</Text>
             </View>
           </LinearGradient>
+          </View>
 
-          {/* Screenshot hint */}
-          <Text style={styles.hint}>Screenshot to share on Stories ✦</Text>
+          {/* Share hint */}
+          <Text style={styles.hint}>Share this card as an image ✦</Text>
 
           {/* CTA: share score */}
-          <TouchableOpacity onPress={handleShareScore} style={styles.primaryBtn} activeOpacity={0.85}>
-            <Feather name="share-2" size={16} color={c.ctaForeground} />
-            <Text style={styles.primaryBtnText}>Share your score</Text>
+          <TouchableOpacity onPress={handleShareScore} disabled={capturing} style={[styles.primaryBtn, capturing && styles.primaryBtnDisabled]} activeOpacity={0.85}>
+            {capturing ? (
+              <ActivityIndicator size="small" color={c.ctaForeground} />
+            ) : (
+              <Feather name="share-2" size={16} color={c.ctaForeground} />
+            )}
+            <Text style={styles.primaryBtnText}>{capturing ? "Preparing image…" : "Share your score"}</Text>
           </TouchableOpacity>
 
           {/* CTA: invite partner */}
@@ -243,6 +284,12 @@ function createStyles(c: ReturnType<typeof useColors>) {
     },
 
     // ── Card (dark gradient — stays as-is) ───────────────────────────────────
+    cardCapture: {
+      width: "100%",
+      borderRadius: 20,
+      overflow: "hidden",
+      backgroundColor: "#0f0a2e",
+    },
     card: {
       width: "100%",
       borderRadius: 20,
@@ -305,6 +352,7 @@ function createStyles(c: ReturnType<typeof useColors>) {
       paddingVertical: 15,
       width: "100%",
     },
+    primaryBtnDisabled: { opacity: 0.6 },
     primaryBtnText: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.ctaForeground },
 
     secondaryBtn: {

@@ -1,5 +1,6 @@
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { SCREEN_W } from "@/constants/layout";
 import { getAstrologyReading, RASHIS } from "@/utils/astrology";
 import {
   getDailyEnergyPersonalized,
@@ -9,6 +10,7 @@ import {
 import { fetchDailyContent, type DailyContent } from "@/utils/dbContent";
 import { extractKundliAttributes } from "@/utils/challenges";
 import { getLuckyFeatures, type LuckyFeatures } from "@/utils/lucky";
+import { recordDailyOpen, getDailyPrediction, type StreakState } from "@/utils/daily";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -24,147 +26,255 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// ─── Stats strip ──────────────────────────────────────────────────────────────
+// Card width for the swipe carousel — fills the padded content area exactly.
+const PAGE_W = SCREEN_W - 36;
 
-function StatsStrip({
-  compatPct, patternCount, dasha,
-}: { compatPct: number; patternCount: number; dasha: string }) {
+// ─── Streak chip (header) ─────────────────────────────────────────────────────
+
+function StreakChip({ streak }: { streak: number }) {
   const c = useColors();
-  const s = useMemo(() => createStatsStyles(c), [c]);
-  const items = [
-    { value: `${compatPct}%`, label: "Compatibility" },
-    { value: String(patternCount), label: "Patterns" },
-    { value: dasha, label: "Dasha Phase" },
-  ];
+  const s = useMemo(() => createStreakChipStyles(c), [c]);
   return (
-    <View style={s.statsRow}>
-      {items.map((item, i) => (
-        <View key={i} style={[s.statItem, i < items.length - 1 && s.statItemBorder]}>
-          <Text style={s.statValue}>{item.value}</Text>
-          <Text style={s.statLabel}>{item.label}</Text>
-        </View>
-      ))}
+    <View style={s.chip}>
+      <Text style={s.flame}>🔥</Text>
+      <Text style={s.num}>{streak}</Text>
     </View>
   );
 }
 
-function createStatsStyles(c: ReturnType<typeof useColors>) {
+function createStreakChipStyles(c: ReturnType<typeof useColors>) {
   return StyleSheet.create({
-    statsRow:       { flexDirection: "row", backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-    statItem:       { flex: 1, alignItems: "center", paddingVertical: 14 },
-    statItemBorder: { borderRightWidth: 1, borderRightColor: c.borderLight },
-    statValue:      { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.3 },
-    statLabel:      { marginTop: 2, fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint, textTransform: "uppercase", letterSpacing: 0.5 },
+    chip:  { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: c.goldLight, borderWidth: 1, borderColor: "#F59E0B44", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6 },
+    flame: { fontSize: 13 },
+    num:   { fontSize: 13, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#D97706" },
   });
 }
 
-// ─── Today's Focus hero card ──────────────────────────────────────────────────
+// ─── Daily loop banner (love weather) ─────────────────────────────────────────
 
-function TodayFocusCard({
-  moonTag, headline, insight, action, dailyMsg, onPress,
-}: {
-  moonTag: string; headline: string; insight: string;
-  action: string; dailyMsg: string | null; onPress: () => void;
+function DailyBanner({
+  score, streak, onPress,
+}: { score: number; streak: number; onPress: () => void }) {
+  const c = useColors();
+  const s = useMemo(() => createDailyStyles(c), [c]);
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.88}>
+      <LinearGradient
+        colors={["#4A3DE8", "#8B5CF6"]}
+        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+        style={s.banner}
+      >
+        <View style={s.scoreWrap}>
+          <Text style={s.scoreVal}>{score}</Text>
+          <Text style={s.scoreLabel}>LOVE{"\n"}WEATHER</Text>
+        </View>
+        <View style={s.bannerMid}>
+          <Text style={s.bannerTitle}>Your daily is ready</Text>
+          <Text style={s.bannerSub}>
+            {streak > 1 ? `${streak}-day streak · ` : ""}prediction, ritual & today's question
+          </Text>
+        </View>
+        <View style={s.bannerArrow}>
+          <Feather name="arrow-right" size={16} color="#4A3DE8" />
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
+
+function createDailyStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    banner:      { flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 16, padding: 16, shadowColor: "#4A3DE8", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 12, elevation: 5 },
+    scoreWrap:   { alignItems: "center", width: 50 },
+    scoreVal:    { fontSize: 30, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#FFFFFF", lineHeight: 32, letterSpacing: -0.8 },
+    scoreLabel:  { fontSize: 7.5, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFFCC", letterSpacing: 0.6, textAlign: "center", marginTop: 1 },
+    bannerMid:   { flex: 1 },
+    bannerTitle: { fontSize: 16, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#FFFFFF", letterSpacing: -0.2 },
+    bannerSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: "#FFFFFFDD", marginTop: 2, lineHeight: 17 },
+    bannerArrow: { width: 30, height: 30, borderRadius: 10, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  });
+}
+
+// ─── Swipe reads (30-second cards) ────────────────────────────────────────────
+
+interface Read {
+  kicker: string;
+  tag: string;
+  title: string;
+  body: string;
+  cta: string;
+  accent: string;
+  chipBg: string;
+}
+
+function SwipeReads({ reads, onOpen }: { reads: Read[]; onOpen: () => void }) {
+  const c = useColors();
+  const s = useMemo(() => createReadsStyles(c), [c]);
+  const [idx, setIdx] = useState(0);
+
+  return (
+    <View style={{ gap: 10 }}>
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) => {
+          const i = Math.round(e.nativeEvent.contentOffset.x / PAGE_W);
+          if (i !== idx) { setIdx(i); Haptics.selectionAsync(); }
+        }}
+      >
+        {reads.map((r, i) => (
+          <TouchableOpacity
+            key={i}
+            activeOpacity={0.9}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onOpen(); }}
+            style={[s.card, { width: PAGE_W }]}
+          >
+            <View style={s.top}>
+              <View style={[s.chip, { backgroundColor: r.chipBg, borderColor: r.accent + "44" }]}>
+                <Text style={[s.chipText, { color: r.accent }]}>{r.tag}</Text>
+              </View>
+              <Text style={s.kicker}>{r.kicker}</Text>
+            </View>
+            <Text style={s.title} numberOfLines={2}>{r.title}</Text>
+            <Text style={s.body} numberOfLines={3}>{r.body}</Text>
+            <View style={s.divider} />
+            <View style={s.footer}>
+              <Text style={[s.cta, { color: r.accent }]}>{r.cta}</Text>
+              <Feather name="arrow-right" size={13} color={r.accent} />
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <View style={s.dots}>
+        {reads.map((_, i) => (
+          <View key={i} style={[s.dot, i === idx && s.dotActive]} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function createReadsStyles(c: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    card:    { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 18, gap: 10, minHeight: 168, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
+    top:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    chip:    { borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+    chipText:{ fontSize: 11, fontFamily: "PlusJakartaSans_700Bold" },
+    kicker:  { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, letterSpacing: 1.2 },
+    title:   { fontSize: 19, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 25, letterSpacing: -0.3 },
+    body:    { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 21 },
+    divider: { height: 1, backgroundColor: c.borderLight, marginTop: 2 },
+    footer:  { flexDirection: "row", alignItems: "center", gap: 6 },
+    cta:     { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold" },
+    dots:    { flexDirection: "row", justifyContent: "center", gap: 6 },
+    dot:     { width: 6, height: 6, borderRadius: 3, backgroundColor: c.border },
+    dotActive:{ width: 18, backgroundColor: "#4A3DE8" },
+  });
+}
+
+// ─── Energy progress bars ─────────────────────────────────────────────────────
+
+interface Metric { label: string; value: number; color: string; }
+
+function EnergyBars({ metrics, compatPct, onPress }: {
+  metrics: Metric[]; compatPct: number; onPress: () => void;
 }) {
   const c = useColors();
-  const s = useMemo(() => createFocusStyles(c), [c]);
+  const s = useMemo(() => createEnergyStyles(c), [c]);
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={s.focusCard}>
-      {/* Tag row */}
-      <View style={s.focusTagRow}>
-        <View style={s.focusTag}>
-          <Text style={s.focusTagText}>{moonTag}</Text>
-        </View>
-        <View style={s.liveRow}>
-          <View style={s.liveDot} />
-          <Text style={s.liveText}>Today</Text>
+    <TouchableOpacity activeOpacity={0.85} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} style={s.card}>
+      <View style={s.header}>
+        <Text style={s.title}>Today's energy</Text>
+        <View style={s.compatPill}>
+          <Text style={s.compatText}>{compatPct}% match</Text>
         </View>
       </View>
-
-      {/* Headline */}
-      <Text style={s.focusHeadline}>{headline}</Text>
-
-      {/* Insight */}
-      <Text style={s.focusInsight} numberOfLines={3}>{insight}</Text>
-
-      {/* Divider + action */}
-      <View style={s.focusDivider} />
-      <View style={s.focusFooter}>
-        <Text style={s.focusSunIcon}>☀</Text>
-        <Text style={s.focusAction} numberOfLines={2}>{dailyMsg ?? action}</Text>
-        <View style={s.focusArrow}>
-          <Feather name="chevron-right" size={14} color="#4A3DE8" />
+      {metrics.map((m) => (
+        <View key={m.label} style={s.row}>
+          <Text style={s.label}>{m.label}</Text>
+          <View style={s.track}>
+            <View style={[s.fill, { width: `${Math.max(4, Math.min(100, m.value))}%`, backgroundColor: m.color }]} />
+          </View>
+          <Text style={[s.pct, { color: m.color }]}>{Math.round(m.value)}</Text>
         </View>
+      ))}
+      <View style={s.footer}>
+        <Text style={s.footerText}>See what's driving today</Text>
+        <Feather name="arrow-right" size={13} color={c.textFaint} />
       </View>
     </TouchableOpacity>
   );
 }
 
-function createFocusStyles(c: ReturnType<typeof useColors>) {
+function createEnergyStyles(c: ReturnType<typeof useColors>) {
   return StyleSheet.create({
-    focusCard:    { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 18, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3 },
-    focusTagRow:  { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-    focusTag:     { backgroundColor: c.primaryLight, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-    focusTagText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
-    liveRow:      { flexDirection: "row", alignItems: "center", gap: 5 },
-    liveDot:      { width: 6, height: 6, borderRadius: 3, backgroundColor: "#10B981" },
-    liveText:     { fontSize: 11, fontFamily: "PlusJakartaSans_600SemiBold", color: "#10B981" },
-    focusHeadline:{ fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 27, letterSpacing: -0.3 },
-    focusInsight: { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 22 },
-    focusDivider: { height: 1, backgroundColor: c.borderLight },
-    focusFooter:  { flexDirection: "row", alignItems: "flex-start", gap: 8 },
-    focusSunIcon: { fontSize: 14, color: "#F59E0B", marginTop: 1 },
-    focusAction:  { flex: 1, fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: "#D97706", lineHeight: 19 },
-    focusArrow:   { width: 26, height: 26, borderRadius: 8, backgroundColor: c.primaryLight, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+    card:       { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 16, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+    header:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    title:      { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    compatPill: { backgroundColor: c.primaryLight, borderWidth: 1, borderColor: c.primaryBorder, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+    compatText: { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+    row:        { flexDirection: "row", alignItems: "center", gap: 10 },
+    label:      { width: 96, fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textBody },
+    track:      { flex: 1, height: 8, borderRadius: 6, backgroundColor: c.borderLight, overflow: "hidden" },
+    fill:       { height: "100%", borderRadius: 6 },
+    pct:        { width: 26, textAlign: "right", fontSize: 12, fontFamily: "PlusJakartaSans_800ExtraBold" },
+    footer:     { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
+    footerText: { fontSize: 12, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textFaint },
   });
 }
 
-// ─── Right Now card ───────────────────────────────────────────────────────────
+// ─── Today's Luck row ────────────────────────────────────────────────────────
 
-function RightNowCard({
-  userName, partnerName, userMoment, partnerSignal,
-}: {
-  userName: string; partnerName: string;
-  userMoment: string; partnerSignal: string;
-}) {
+function LuckyRow({ features, onPress }: { features: LuckyFeatures; onPress: (focus: "number" | "color") => void }) {
   const c = useColors();
-  const s = useMemo(() => createRightNowStyles(c), [c]);
+  const s = useMemo(() => createLuckyStyles(c), [c]);
   return (
-    <View style={s.rightNowCard}>
-      <View style={s.rightNowHeader}>
-        <View style={s.rightNowPip} />
-        <Text style={s.rightNowTitle}>Right Now Between You</Text>
-      </View>
-      <View style={s.rightNowRow}>
-        <View style={s.rightNowBlock}>
-          <Text style={s.rightNowName}>{userName}</Text>
-          <Text style={s.rightNowBody}>{userMoment}</Text>
+    <View style={s.luckyRow}>
+      {/* Lucky Number card */}
+      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress("number"); }} activeOpacity={0.82} style={s.luckyCard}>
+        <Text style={s.luckyCardLabel}>TODAY'S NUMBER</Text>
+        <Text style={s.luckyNumber}>{features.number}</Text>
+        <Text style={s.luckyArchetype}>{features.archetype}</Text>
+        <View style={s.luckyTapRow}>
+          <Text style={s.luckyTap}>Reveal meaning</Text>
+          <Feather name="arrow-right" size={11} color="#4A3DE8" />
         </View>
-        <View style={s.rightNowDivider} />
-        <View style={s.rightNowBlock}>
-          <Text style={s.rightNowName}>{partnerName}</Text>
-          <Text style={s.rightNowBody}>{partnerSignal}</Text>
+      </TouchableOpacity>
+
+      {/* Lucky Color card */}
+      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress("color"); }} activeOpacity={0.82} style={s.luckyCard}>
+        <Text style={s.luckyCardLabel}>TODAY'S COLOR</Text>
+        <LinearGradient
+          colors={features.color.gradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={s.colorSwatch}
+        />
+        <Text style={s.luckyArchetype}>{features.color.name}</Text>
+        <View style={s.luckyTapRow}>
+          <Text style={s.luckyTap}>See meaning</Text>
+          <Feather name="arrow-right" size={11} color="#4A3DE8" />
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
 
-function createRightNowStyles(c: ReturnType<typeof useColors>) {
+function createLuckyStyles(c: ReturnType<typeof useColors>) {
   return StyleSheet.create({
-    rightNowCard:   { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 16, gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-    rightNowHeader: { flexDirection: "row", alignItems: "center", gap: 7 },
-    rightNowPip:    { width: 6, height: 6, borderRadius: 3, backgroundColor: "#4A3DE8" },
-    rightNowTitle:  { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8", textTransform: "uppercase", letterSpacing: 0.8 },
-    rightNowRow:    { flexDirection: "row", gap: 14 },
-    rightNowBlock:  { flex: 1, gap: 4 },
-    rightNowName:   { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 0.6 },
-    rightNowBody:   { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textBody, lineHeight: 19 },
-    rightNowDivider:{ width: 1, backgroundColor: c.borderLight },
+    luckyRow:       { flexDirection: "row", gap: 12 },
+    luckyCard:      { flex: 1, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 14, gap: 6, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
+    luckyCardLabel: { fontSize: 9, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 },
+    luckyNumber:    { fontSize: 46, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", lineHeight: 52, letterSpacing: -1 },
+    luckyArchetype: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    luckyTapRow:    { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
+    luckyTap:       { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+    colorSwatch:    { height: 40, borderRadius: 10, marginBottom: 2 },
   });
 }
 
-// ─── Quick access grid ────────────────────────────────────────────────────────
+// ─── Quick access grid (trimmed) ──────────────────────────────────────────────
 
 type NavItem = {
   icon: keyof typeof Feather.glyphMap;
@@ -175,70 +285,19 @@ type NavItem = {
   route: string;
 };
 
-function QuickAccessGrid({
-  compatPct, patternCount, onPress,
-}: {
-  compatPct: number; patternCount: number; onPress: (route: string) => void;
-}) {
+function QuickAccessGrid({ compatPct, onPress }: { compatPct: number; onPress: (route: string) => void }) {
   const c = useColors();
   const s = useMemo(() => createGridStyles(c), [c]);
 
   const items: NavItem[] = [
-    {
-      icon:     "heart",
-      label:    "Us",
-      sublabel: `${compatPct}% compatibility`,
-      color:    "#4A3DE8",
-      bg:       c.primaryLight,
-      route:    "/(tabs)/compatibility",
-    },
-    {
-      icon:     "layers",
-      label:    "Patterns",
-      sublabel: `${patternCount} detected`,
-      color:    "#F43F5E",
-      bg:       c.roseLight,
-      route:    "/(tabs)/patterns",
-    },
-    {
-      icon:     "zap",
-      label:    "Insights",
-      sublabel: "10 things about you two",
-      color:    "#F59E0B",
-      bg:       c.goldLight,
-      route:    "/(tabs)/features",
-    },
-    {
-      icon:     "message-circle",
-      label:    "Ask",
-      sublabel: "Oracle guidance",
-      color:    "#10B981",
-      bg:       c.emeraldLight,
-      route:    "/(tabs)/guidance",
-    },
-    {
-      icon:     "activity",
-      label:    "Energy",
-      sublabel: "Today's metrics",
-      color:    "#8B5CF6",
-      bg:       c.violetLight,
-      route:    "/energy-detail",
-    },
-    {
-      icon:     "user",
-      label:    "Your Chart",
-      sublabel: "Moon & nakshatra",
-      color:    "#64748B",
-      bg:       c.borderLight,
-      route:    "profile-detail",
-    },
+    { icon: "heart",          label: "Us",         sublabel: `${compatPct}% compatibility`, color: "#4A3DE8", bg: c.primaryLight, route: "/(tabs)/compatibility" },
+    { icon: "zap",            label: "Insights",   sublabel: "10 things about you",          color: "#F59E0B", bg: c.goldLight,    route: "/(tabs)/features" },
+    { icon: "message-circle", label: "Ask",        sublabel: "Oracle guidance",              color: "#10B981", bg: c.emeraldLight, route: "/(tabs)/guidance" },
+    { icon: "user",           label: "Your Chart", sublabel: "Moon & nakshatra",             color: "#8B5CF6", bg: c.violetLight,  route: "profile-detail" },
   ];
 
-  // render as 2-column grid
   const rows: NavItem[][] = [];
-  for (let i = 0; i < items.length; i += 2) {
-    rows.push(items.slice(i, i + 2));
-  }
+  for (let i = 0; i < items.length; i += 2) rows.push(items.slice(i, i + 2));
 
   return (
     <View style={s.gridWrap}>
@@ -279,59 +338,6 @@ function createGridStyles(c: ReturnType<typeof useColors>) {
   });
 }
 
-// ─── Today's Luck row ────────────────────────────────────────────────────────
-
-function LuckyRow({ features, onPress }: { features: LuckyFeatures; onPress: () => void }) {
-  const c = useColors();
-  const s = useMemo(() => createLuckyStyles(c), [c]);
-  return (
-    <View style={s.luckyRow}>
-      {/* Lucky Number card */}
-      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.82} style={s.luckyCard}>
-        <Text style={s.luckyCardLabel}>TODAY'S NUMBER</Text>
-        <Text style={s.luckyNumber}>{features.number}</Text>
-        <Text style={s.luckyArchetype}>{features.archetype}</Text>
-        <Text style={s.luckyEnergy} numberOfLines={1}>{features.energy}</Text>
-        <View style={s.luckyTapRow}>
-          <Text style={s.luckyTap}>Reveal meaning</Text>
-          <Feather name="arrow-right" size={11} color="#4A3DE8" />
-        </View>
-      </TouchableOpacity>
-
-      {/* Lucky Color card */}
-      <TouchableOpacity onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); onPress(); }} activeOpacity={0.82} style={s.luckyCard}>
-        <Text style={s.luckyCardLabel}>TODAY'S COLOR</Text>
-        <LinearGradient
-          colors={features.color.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={s.colorSwatch}
-        />
-        <Text style={s.luckyArchetype}>{features.color.name}</Text>
-        <Text style={s.luckyEnergy} numberOfLines={1}>♄ {features.planet}</Text>
-        <View style={s.luckyTapRow}>
-          <Text style={s.luckyTap}>See meaning</Text>
-          <Feather name="arrow-right" size={11} color="#4A3DE8" />
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-function createLuckyStyles(c: ReturnType<typeof useColors>) {
-  return StyleSheet.create({
-    luckyRow:       { flexDirection: "row", gap: 12 },
-    luckyCard:      { flex: 1, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 14, gap: 6, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
-    luckyCardLabel: { fontSize: 9, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 2 },
-    luckyNumber:    { fontSize: 52, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#4A3DE8", lineHeight: 58, letterSpacing: -1 },
-    luckyArchetype: { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
-    luckyEnergy:    { fontSize: 11, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
-    luckyTapRow:    { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
-    luckyTap:       { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
-    colorSwatch:    { height: 44, borderRadius: 10, marginBottom: 2 },
-  });
-}
-
 // ─── Home screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
@@ -354,28 +360,48 @@ export default function HomeScreen() {
     fetchDailyContent(tags).then((d) => { if (d) setDbContent(d); });
   }, [reading]);
 
+  const [streak, setStreak] = useState<StreakState | null>(null);
+  useEffect(() => { recordDailyOpen().then(setStreak).catch(() => {}); }, []);
+
   if (!user || !partner || !reading) return null;
 
   const hero      = getPersonalizedHero(user.name, partner.name, reading, partner.relationshipType);
   const rightNow  = getTodayBetweenYou(reading, partner.relationshipType, user.name, partner.name);
   const energy    = getDailyEnergyPersonalized(reading, reading.user.dasha.current);
 
-  const uRashi       = RASHIS[reading.user.moonRashi];
+  const uRashi        = RASHIS[reading.user.moonRashi];
   const luckyFeatures = getLuckyFeatures(user.birthDate, uRashi.element);
 
-  const compatPct    = Math.round((reading.guna.total / 36) * 100);
-  const patternCount = (challenges ?? []).length;
-  const dashaShort   = reading.user.dasha.current.split(" ")[0];
-  const dailyMsg     = dbContent?.message?.body ?? null;
+  const compatPct  = Math.round((reading.guna.total / 36) * 100);
+  const dailyMsg   = dbContent?.message?.body ?? null;
+  const prediction = getDailyPrediction(reading, partner.relationshipType);
 
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? "Good morning," : hour < 18 ? "Good afternoon," : "Good evening,";
 
   const haptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const navigate = (route: string) => router.push(route as any);
 
-  const navigate = (route: string) => {
-    router.push(route as any);
+  const openReading = () => {
+    haptic();
+    router.push({
+      pathname: "/reading-detail",
+      params: { headline: hero.headline, insight: hero.insight, action: hero.action, moonTag: hero.moonTag },
+    });
   };
+
+  const reads: Read[] = [
+    { kicker: "TODAY'S FOCUS", tag: hero.moonTag, title: hero.headline, body: dailyMsg ?? hero.insight, cta: "Read the full insight", accent: "#4A3DE8", chipBg: c.primaryLight },
+    { kicker: "RIGHT NOW", tag: user.name, title: "Where you are today", body: rightNow.userMoment, cta: "See what's between you", accent: "#10B981", chipBg: c.emeraldLight },
+    { kicker: "RIGHT NOW", tag: partner.name, title: `Where ${partner.name} is today`, body: rightNow.partnerSignal, cta: "See what's between you", accent: "#F43F5E", chipBg: c.roseLight },
+  ];
+
+  const metrics: Metric[] = [
+    { label: "Closeness",     value: energy.closeness,     color: "#F43F5E" },
+    { label: "Communication", value: energy.communication, color: "#4A3DE8" },
+    { label: "Attraction",    value: energy.attraction,    color: "#F59E0B" },
+    { label: "Trust",         value: energy.trust,         color: "#10B981" },
+  ];
 
   return (
     <View style={s.root}>
@@ -394,68 +420,49 @@ export default function HomeScreen() {
             <Text style={s.greeting}>{greeting}</Text>
             <Text style={s.userName}>{user.name}</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => { haptic(); router.push("/profile"); }}
-            activeOpacity={0.75}
-            style={s.avatarWrap}
-          >
-            <View style={s.avatar}>
-              <Text style={s.avatarInitial}>{user.name.charAt(0)?.toUpperCase() || "?"}</Text>
-            </View>
-            <View style={s.avatarChevron}>
-              <Feather name="chevron-right" size={8} color="#4A3DE8" />
-            </View>
-          </TouchableOpacity>
+          <View style={s.headerRight}>
+            <StreakChip streak={streak?.current ?? 1} />
+            <TouchableOpacity
+              onPress={() => { haptic(); router.push("/profile"); }}
+              activeOpacity={0.75}
+              style={s.avatarWrap}
+            >
+              <View style={s.avatar}>
+                <Text style={s.avatarInitial}>{user.name.charAt(0)?.toUpperCase() || "?"}</Text>
+              </View>
+              <View style={s.avatarChevron}>
+                <Feather name="chevron-right" size={8} color="#4A3DE8" />
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* ── Stats strip ── */}
-        <StatsStrip
-          compatPct={compatPct}
-          patternCount={patternCount}
-          dasha={dashaShort}
+        {/* ── Daily loop banner ── */}
+        <DailyBanner
+          score={prediction.score}
+          streak={streak?.current ?? 1}
+          onPress={() => { haptic(); router.push("/(tabs)/together" as any); }}
         />
 
-        {/* ── Today's Focus ── */}
+        {/* ── Swipe reads ── */}
         <View style={s.section}>
-          <Text style={s.sectionLabel}>TODAY'S FOCUS</Text>
-          <TodayFocusCard
-            moonTag={hero.moonTag}
-            headline={hero.headline}
-            insight={hero.insight}
-            action={hero.action}
-            dailyMsg={dailyMsg}
-            onPress={() => {
-              haptic();
-              router.push({
-                pathname: "/reading-detail",
-                params: { headline: hero.headline, insight: hero.insight, action: hero.action, moonTag: hero.moonTag },
-              });
-            }}
-          />
+          <Text style={s.sectionLabel}>SWIPE TODAY'S READS</Text>
+          <SwipeReads reads={reads} onOpen={openReading} />
         </View>
 
-        {/* ── Right Now ── */}
-        <RightNowCard
-          userName={user.name}
-          partnerName={partner.name}
-          userMoment={rightNow.userMoment}
-          partnerSignal={rightNow.partnerSignal}
-        />
+        {/* ── Energy progress ── */}
+        <EnergyBars metrics={metrics} compatPct={compatPct} onPress={() => navigate("/energy-detail")} />
 
         {/* ── Today's Luck ── */}
         <View style={s.section}>
           <Text style={s.sectionLabel}>TODAY'S LUCK</Text>
-          <LuckyRow features={luckyFeatures} onPress={() => { haptic(); navigate("/lucky-detail"); }} />
+          <LuckyRow features={luckyFeatures} onPress={(focus) => { haptic(); router.push({ pathname: "/lucky-detail", params: { focus } } as any); }} />
         </View>
 
         {/* ── Explore ── */}
         <View style={s.section}>
           <Text style={s.sectionLabel}>EXPLORE</Text>
-          <QuickAccessGrid
-            compatPct={compatPct}
-            patternCount={patternCount}
-            onPress={navigate}
-          />
+          <QuickAccessGrid compatPct={compatPct} onPress={navigate} />
         </View>
 
       </ScrollView>
@@ -470,7 +477,8 @@ function createStyles(c: ReturnType<typeof useColors>) {
     scroll:   { paddingHorizontal: 18, gap: 16 },
 
     // Header
-    header:        { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+    header:        { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    headerRight:   { flexDirection: "row", alignItems: "center", gap: 10 },
     greeting:      { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
     userName:      { fontSize: 28, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.5 },
     avatarWrap:    { position: "relative" },

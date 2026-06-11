@@ -281,6 +281,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       "@lumble_content_daily",
       "@lumble_questions",
       "@lumble_content_bundle",
+      "@lumble_streak",
+      "@lumble_together_since",
     ]);
     setContentBundle(null);
     setUser(null);

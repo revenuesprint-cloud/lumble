@@ -63,6 +63,16 @@ const LOCAL_QUESTIONS: QuestionsResult = {
     { id:"l18", title:"Will I ever find someone who actually stays?", body:"Yes. But the question underneath that one is usually: am I the kind of person that someone who is right for me would choose? That is different from asking whether you are enough. It is asking whether you are showing up in a way that is honest about what you actually want.", meta:{ question:"Will I ever find someone who actually stays?", shortAnswer:"Yes. The question is whether you are showing up honestly.", category:"big_picture", icon:"⭐" }, tags:["universal"], match_score:1 },
     { id:"l19", title:"Why is love always this hard for me?", body:"Love feels hard when there is a gap between what you believe you deserve and what you actually want. If part of you believes you have to earn love, then every relationship becomes a test you are always afraid of failing. That belief is the thing to address. Not the relationship.", meta:{ question:"Why is love always this hard for me?", shortAnswer:"The gap between what you believe you deserve and what you want.", category:"big_picture", icon:"💙" }, tags:["universal"], match_score:1 },
   ],
+  personality: [
+    { id:"p1", title:"Why do I shut down when I feel criticised?", body:"Shutting down under criticism is not weakness — it is a learned protection. At some point, staying open when you felt judged cost you something, and your system learned to close the door first. The shutdown is not about the current situation. It is a reflex from an older one. Recognising the reflex is the first step to choosing something different.", meta:{ question:"Why do I shut down when I feel criticised?", shortAnswer:"A learned protection, not a character flaw.", category:"personality", icon:"🧊" }, tags:["universal"], match_score:1 },
+    { id:"p2", title:"Why do I need so much alone time to feel okay?", body:"Needing alone time is not antisocial. It means you recharge through solitude rather than company, and that is a deeply valid way to be wired. The challenge in relationships is that a partner may read your withdrawal as rejection when it is actually self-preservation. Naming this explicitly to them — before you disappear, not after — changes the dynamic completely.", meta:{ question:"Why do I need so much alone time to feel okay?", shortAnswer:"You recharge alone. That is valid — name it to your partner before you withdraw.", category:"personality", icon:"🌙" }, tags:["universal"], match_score:1 },
+    { id:"p3", title:"Why do I always feel like I have to fix everyone?", body:"The impulse to fix people is almost always rooted in an earlier experience where keeping the peace or solving someone's problem felt like your job. It gave you control in situations where you had none. It is a form of love, but also a way of avoiding your own feelings by staying busy with theirs. The hardest and most important question: whose problem are you actually solving?", meta:{ question:"Why do I always feel like I have to fix everyone?", shortAnswer:"It is love and a control mechanism. Whose problem are you actually solving?", category:"personality", icon:"🔧" }, tags:["universal"], match_score:1 },
+    { id:"p4", title:"Why do I say yes when I mean no?", body:"Saying yes when you mean no is people-pleasing, and people-pleasing is almost always driven by a fear that saying no will cost you the relationship or the approval. At some point, expressing a boundary got you a negative response, and the lesson you took from it was: compliance is safer. The cost of that strategy compounds over time in resentment you can not explain to anyone.", meta:{ question:"Why do I say yes when I mean no?", shortAnswer:"Fear of losing approval. The resentment that builds is the price.", category:"personality", icon:"😶" }, tags:["universal"], match_score:1 },
+    { id:"p5", title:"Why do I overthink everything in relationships?", body:"Overthinking in relationships is anxiety that has dressed itself up as analysis. You are not trying to figure something out — you are trying to feel safe. The thought loop feels productive because it is doing something, even if it is not moving you anywhere. The only thing that breaks it is action: asking the question, saying the thing, making the decision. Staying in your head is just another way of delaying the answer you are afraid of.", meta:{ question:"Why do I overthink everything in relationships?", shortAnswer:"Anxiety wearing the mask of logic. Action is the only exit.", category:"personality", icon:"🌀" }, tags:["universal"], match_score:1 },
+    { id:"p6", title:"Why do I get attached so fast?", body:"Attaching quickly usually means you are leading with hope rather than evidence. You see who someone could be — at their best, in the right light — and you respond to that version before they have shown you who they actually are consistently. It is not a flaw in your character. It is a sign that you want connection deeply, which is a good thing. The work is slowing down the gap between feeling and knowing.", meta:{ question:"Why do I get attached so fast?", shortAnswer:"You respond to potential rather than consistency. Slow down the gap between feeling and knowing.", category:"personality", icon:"🪝" }, tags:["universal"], match_score:1 },
+    { id:"p7", title:"Why do I test people before I can trust them?", body:"Testing is a reasonable response to having trusted and been hurt. You learned at some point that people do not always mean what they say, so you developed a system for finding out before you invest. The problem is that the test never officially ends, and some people who would have been trustworthy leave before they pass it. The antidote is not blind trust — it is deciding what one real act of transparency would look like and doing it first.", meta:{ question:"Why do I test people before I can trust them?", shortAnswer:"A rational response to past hurt. The test never officially ends — that is the problem.", category:"personality", icon:"🧪" }, tags:["universal"], match_score:1 },
+    { id:"p8", title:"Why do I feel so guilty when I put myself first?", body:"Feeling guilty for prioritising yourself usually means you were taught — explicitly or through experience — that your worth was connected to what you gave. Self-care felt selfish because someone around you needed you to believe it was. That lesson made sense then. It no longer serves you now, and unlearning it is not selfish. It is necessary.", meta:{ question:"Why do I feel so guilty when I put myself first?", shortAnswer:"You were taught your worth came from giving. Unlearning that is not selfish.", category:"personality", icon:"🌱" }, tags:["universal"], match_score:1 },
+  ],
 };
 
 const CATEGORY_CONFIG: { key: keyof QuestionsResult; label: string; icon: string; color: string }[] = [
@@ -71,6 +81,7 @@ const CATEGORY_CONFIG: { key: keyof QuestionsResult; label: string; icon: string
   { key: "what_to_do",  label: "What To Do",   icon: "⚡", color: "#52C8B8" },
   { key: "patterns",    label: "Patterns",     icon: "🔄", color: "#F5A623" },
   { key: "big_picture", label: "Big Picture",  icon: "🔮", color: "#7C52C8" },
+  { key: "personality", label: "Personality",  icon: "🧠", color: "#10B981" },
 ];
 
 // ─── Question Answer Sheet ────────────────────────────────────────────────────
@@ -101,8 +112,9 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
   }, []);
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim, zIndex: 50, elevation: 50 }]}>
-      <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.65)" }]} onPress={close} />
+    <Animated.View style={[StyleSheet.absoluteFill, { opacity: fadeAnim, zIndex: 50, elevation: 50, flexDirection: "column" }]}>
+      {/* Backdrop — only covers area above the sheet, so it never intercepts sheet touches */}
+      <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.65)" }} onPress={close} />
       <Animated.View style={[sheetStylesMemo.sheet, { transform: [{ translateY: slideAnim }] }]}>
         <View style={sheetStylesMemo.sheetHandle} />
         <Text style={sheetStylesMemo.sheetQ}>{question.title}</Text>
@@ -113,7 +125,7 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
             <View style={sheetStylesMemo.sheetAskGrad}>
               <Text style={sheetStylesMemo.sheetAskText}>Ask the Guide for more</Text>
               <View style={sheetStylesMemo.sheetAskArrow}>
-                <Feather name="arrow-right" size={16} color={c.ctaForeground} />
+                <Feather name="arrow-right" size={16} color="#4A3DE8" />
               </View>
             </View>
           </TouchableOpacity>
@@ -128,7 +140,7 @@ function QuestionSheet({ question, onAsk, onClose }: { question: QuestionItem; o
 
 function createSheetStyles(c: ReturnType<typeof useColors>) {
   return StyleSheet.create({
-    sheet:          { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: c.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: c.border, padding: 28, paddingBottom: 52, gap: 16 },
+    sheet:          { backgroundColor: c.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, borderTopWidth: 1, borderColor: c.border, padding: 28, paddingBottom: 52, gap: 16 },
     sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: c.borderLight, alignSelf: "center", marginBottom: 8 },
     sheetQ:         { fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 30, letterSpacing: -0.3 },
     sheetDivider:   { height: 1, backgroundColor: c.borderLight },

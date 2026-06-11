@@ -63,6 +63,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="together"
+        options={{
+          title: "Daily",
+          tabBarIcon: ({ color }) => <Feather name="sun" size={21} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="compatibility"
         options={{
           title: "Us",

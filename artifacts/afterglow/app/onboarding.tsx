@@ -27,9 +27,11 @@ type RelType = "crush" | "situationship" | "relationship" | "ex";
 interface FormData {
   userName: string;
   userBirthDate: Date;
+  userDobSet: boolean;
   userBirthTime: string;
   partnerName: string;
   partnerBirthDate: Date;
+  partnerDobSet: boolean;
   relationshipType: RelType;
 }
 
@@ -142,6 +144,10 @@ function toLocalDateString(d: Date): string {
   return `${y}-${m}-${dd}`;
 }
 
+function formatDob(d: Date): string {
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -164,9 +170,11 @@ export default function Onboarding() {
   const [form, setForm] = useState<FormData>({
     userName: "",
     userBirthDate: defaultUserDate,
+    userDobSet: false,
     userBirthTime: "",
     partnerName: "",
     partnerBirthDate: defaultPartnerDate,
+    partnerDobSet: false,
     relationshipType: "crush",
   });
 
@@ -210,7 +218,9 @@ export default function Onboarding() {
 
   const canProceed = (): boolean => {
     if (step === 1) return form.userName.trim().length >= 2;
+    if (step === 2) return form.userDobSet;       // DOB is required — no proceeding on the default
     if (step === 4) return form.partnerName.trim().length >= 2;
+    if (step === 5) return form.partnerDobSet;     // partner DOB required too
     return true;
   };
 
@@ -251,8 +261,11 @@ export default function Onboarding() {
     // 2: Your birthday
     <View key={2} style={styles.stepContainer}>
       <Text style={styles.stepLabel}>When were you born?</Text>
-      <Text style={styles.stepSub}>Your birth date maps your emotional style and personality type</Text>
-      <DatePicker value={form.userBirthDate} onChange={(d) => setForm((f) => ({ ...f, userBirthDate: d }))} c={c} />
+      <Text style={styles.stepSub}>Set your real birth date — every insight is built from it</Text>
+      <DatePicker value={form.userBirthDate} onChange={(d) => setForm((f) => ({ ...f, userBirthDate: d, userDobSet: true }))} c={c} />
+      <Text style={[styles.dobConfirm, !form.userDobSet && styles.dobConfirmPending]}>
+        {form.userDobSet ? `✓ ${formatDob(form.userBirthDate)}` : "Scroll to set your date of birth"}
+      </Text>
     </View>,
 
     // 3: Birth time
@@ -292,7 +305,10 @@ export default function Onboarding() {
         {form.partnerName ? `When is ${form.partnerName}'s birthday?` : "When is their birthday?"}
       </Text>
       <Text style={styles.stepSub}>Approximate is fine if you're not sure</Text>
-      <DatePicker value={form.partnerBirthDate} onChange={(d) => setForm((f) => ({ ...f, partnerBirthDate: d }))} c={c} />
+      <DatePicker value={form.partnerBirthDate} onChange={(d) => setForm((f) => ({ ...f, partnerBirthDate: d, partnerDobSet: true }))} c={c} />
+      <Text style={[styles.dobConfirm, !form.partnerDobSet && styles.dobConfirmPending]}>
+        {form.partnerDobSet ? `✓ ${formatDob(form.partnerBirthDate)}` : "Scroll to set their date of birth"}
+      </Text>
     </View>,
 
     // 6: Relationship type
@@ -488,6 +504,9 @@ function createStyles(c: ReturnType<typeof useColors>) {
     },
     skipBtn:  { alignSelf: "center", padding: 8 },
     skipText: { fontSize: rf(14), color: c.textFaint, fontFamily: "PlusJakartaSans_400Regular" },
+
+    dobConfirm:        { fontSize: rf(14), fontFamily: "PlusJakartaSans_700Bold", color: "#10B981", textAlign: "center", marginTop: 10 },
+    dobConfirmPending: { color: c.textFaint, fontFamily: "PlusJakartaSans_400Regular" },
 
     relTypeCard: {
       backgroundColor: c.card, borderWidth: 1, borderColor: c.border,

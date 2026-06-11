@@ -19,20 +19,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const SEV_COLOR: Record<string, string> = {
-  mild:     "#10B981",
-  moderate: "#F59E0B",
-  severe:   "#F43F5E",
-};
 const SEV_BG: Record<string, string> = {
   mild:     "#ECFDF5",
   moderate: "#FFFBEB",
   severe:   "#FFF1F2",
-};
-const SEV_LABEL: Record<string, string> = {
-  mild:     "Worth knowing",
-  moderate: "Actively present",
-  severe:   "At the core",
 };
 const SEV_ICON: Record<string, string> = {
   mild:     "🌱",
@@ -54,8 +44,7 @@ function ChallengeCard({ challenge, journeyState, onPress }: {
 }) {
   const c = useColors();
   const cStylesMemo = useMemo(() => createChallengeCardStyles(c), [c]);
-  const color   = SEV_COLOR[challenge.severity] ?? "#4A3DE8";
-  const colorBg = SEV_BG[challenge.severity]   ?? c.primaryLight;
+  const colorBg = SEV_BG[challenge.severity] ?? c.primaryLight;
   const icon    = SEV_ICON[challenge.severity]  ?? "◦";
   const js      = journeyState ? JOURNEY_META[journeyState] : null;
 
@@ -84,9 +73,6 @@ function ChallengeCard({ challenge, journeyState, onPress }: {
             <Text style={cStylesMemo.remediesHint}>{challenge.solutions?.length ?? 0} steps to try</Text>
           </View>
         </View>
-        <View style={[cStylesMemo.sevBadge, { backgroundColor: colorBg, borderColor: color + "44" }]}>
-          <Text style={[cStylesMemo.sevBadgeText, { color }]}>{SEV_LABEL[challenge.severity]}</Text>
-        </View>
         <Feather name="chevron-right" size={15} color={c.borderLight} />
       </View>
     </TouchableOpacity>
@@ -106,8 +92,6 @@ function createChallengeCardStyles(c: ReturnType<typeof useColors>) {
     journeyBadge: { flexDirection: "row", alignItems: "center", gap: 3, borderWidth: 1, borderRadius: 20, paddingHorizontal: 7, paddingVertical: 3 },
     journeyBadgeText: { fontSize: 9, fontFamily: "PlusJakartaSans_600SemiBold" },
     remediesHint: { fontSize: 10, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint },
-    sevBadge:     { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20, borderWidth: 1, flexShrink: 0 },
-    sevBadgeText: { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold" },
   });
 }
 
@@ -122,6 +106,9 @@ export default function PatternsScreen() {
   const [activeJourneyTab, setActiveJourneyTab] = useState<typeof JOURNEY_TABS[number]>("All");
   const [journeyStates,    setJourneyStates]    = useState<Record<string, string>>({});
   const [refreshing,       setRefreshing]       = useState(false);
+  const [showAll,          setShowAll]          = useState(false);
+
+  const MAX_VISIBLE = 10;
 
   const refreshStates = useCallback(() => { getLocalStates().then(setJourneyStates); }, []);
   useEffect(() => { refreshStates(); }, []);
@@ -160,18 +147,8 @@ export default function PatternsScreen() {
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.screenTitle}>Your Patterns</Text>
-            <Text style={styles.screenSub}>
-              {challenges.length > 0
-                ? `${challenges.length} patterns identified, each with steps you can try`
-                : "What keeps repeating between you two"}
-            </Text>
+            <Text style={styles.screenSub}>What keeps repeating between you two</Text>
           </View>
-          {challenges.length > 0 && (
-            <View style={styles.totalBadge}>
-              <Text style={styles.totalBadgeNum}>{challenges.length}</Text>
-              <Text style={styles.totalBadgeLabel}>total</Text>
-            </View>
-          )}
         </View>
       </View>
 
@@ -263,8 +240,8 @@ export default function PatternsScreen() {
             </View>
           )}
 
-          {/* Pattern cards */}
-          {filtered.map((challenge) => (
+          {/* Pattern cards — capped at MAX_VISIBLE unless expanded */}
+          {(showAll ? filtered : filtered.slice(0, MAX_VISIBLE)).map((challenge) => (
             <ChallengeCard
               key={challenge.id}
               challenge={challenge}
@@ -275,6 +252,17 @@ export default function PatternsScreen() {
               }}
             />
           ))}
+
+          {!showAll && filtered.length > MAX_VISIBLE && (
+            <TouchableOpacity
+              onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setShowAll(true); }}
+              style={styles.showMoreBtn}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.showMoreText}>Show {filtered.length - MAX_VISIBLE} more patterns</Text>
+              <Feather name="chevron-down" size={14} color="#4A3DE8" />
+            </TouchableOpacity>
+          )}
 
         </ScrollView>
       )}
@@ -291,10 +279,6 @@ function createStyles(c: ReturnType<typeof useColors>) {
     headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
     screenTitle:{ fontSize: 26, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, letterSpacing: -0.4 },
     screenSub:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, marginTop: 3 },
-    totalBadge: { alignItems: "center", backgroundColor: c.card, borderRadius: 12, borderWidth: 1, borderColor: c.border, paddingHorizontal: 12, paddingVertical: 8 },
-    totalBadgeNum:  { fontSize: 20, fontFamily: "PlusJakartaSans_800ExtraBold", color: c.text, lineHeight: 24 },
-    totalBadgeLabel:{ fontSize: 10, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint, textTransform: "uppercase", letterSpacing: 0.5 },
-
     loadingBox: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
     loadingText:{ fontSize: 15, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted },
 
@@ -325,5 +309,8 @@ function createStyles(c: ReturnType<typeof useColors>) {
     emptyJourneyBox:  { alignItems: "center", padding: 32, gap: 10 },
     emptyJourneyTitle:{ fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: c.textMuted },
     emptyJourneySub:  { fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, textAlign: "center", lineHeight: 20 },
+
+    showMoreBtn:  { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: c.primaryLight, borderRadius: 12, borderWidth: 1, borderColor: c.primaryBorder, paddingVertical: 14 },
+    showMoreText: { fontSize: 14, fontFamily: "PlusJakartaSans_600SemiBold", color: "#4A3DE8" },
   });
 }

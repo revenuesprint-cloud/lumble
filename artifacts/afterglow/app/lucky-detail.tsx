@@ -5,7 +5,7 @@ import { getLuckyFeatures, lifePathNumber, todayVibration } from "@/utils/lucky"
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -45,7 +45,7 @@ function AnimatedNumber({ target, st }: { target: number; st: any }) {
 
 // ─── Section with fade-in ─────────────────────────────────────────────────────
 
-function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function FadeSection({ children, delay = 0, onLayout }: { children: React.ReactNode; delay?: number; onLayout?: (e: any) => void }) {
   const opacity = useRef(new Animated.Value(0)).current;
   const slide   = useRef(new Animated.Value(14)).current;
 
@@ -57,7 +57,7 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
   }, []);
 
   return (
-    <Animated.View style={{ opacity, transform: [{ translateY: slide }] }}>
+    <Animated.View onLayout={onLayout} style={{ opacity, transform: [{ translateY: slide }] }}>
       {children}
     </Animated.View>
   );
@@ -68,9 +68,14 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
 export default function LuckyDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
   const { user, partner } = useApp();
   const c = useColors();
   const st = useMemo(() => createStyles(c), [c]);
+
+  const scrollRef  = useRef<ScrollView>(null);
+  const colorCardY = useRef(0);
+  const didScroll  = useRef(false);
 
   const reading = useMemo(() => {
     if (!user || !partner) return null;
@@ -124,6 +129,7 @@ export default function LuckyDetailScreen() {
       </LinearGradient>
 
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         style={Platform.OS === "web" ? st.webScroll : undefined}
         contentContainerStyle={[st.scroll, { paddingBottom: insets.bottom + 40 }]}
@@ -206,7 +212,18 @@ export default function LuckyDetailScreen() {
         </FadeSection>
 
         {/* ── Lucky Color card ────────────────────────────────────────── */}
-        <FadeSection delay={200}>
+        <FadeSection
+          delay={200}
+          onLayout={(e) => {
+            colorCardY.current = e.nativeEvent.layout.y;
+            if (focus === "color" && !didScroll.current) {
+              didScroll.current = true;
+              requestAnimationFrame(() => {
+                scrollRef.current?.scrollTo({ y: colorCardY.current - 8, animated: true });
+              });
+            }
+          }}
+        >
           <View style={st.card}>
             {/* Card header */}
             <View style={st.cardHeader}>
