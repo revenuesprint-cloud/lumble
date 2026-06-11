@@ -151,7 +151,7 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
 
-          {/* Back + toggle row */}
+          {/* Back row */}
           <View style={styles.topRow}>
             <TouchableOpacity
               onPress={() => router.back()}
@@ -160,27 +160,6 @@ export default function LoginScreen() {
             >
               <Feather name="arrow-left" size={20} color={c.text} />
             </TouchableOpacity>
-
-            <View style={styles.toggle}>
-              <TouchableOpacity
-                onPress={() => switchMode("register")}
-                style={[styles.toggleBtn, mode === "register" && styles.toggleBtnActive]}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.toggleText, mode === "register" && styles.toggleTextActive]}>
-                  New Account
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => switchMode("signin")}
-                style={[styles.toggleBtn, mode === "signin" && styles.toggleBtnActive]}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.toggleText, mode === "signin" && styles.toggleTextActive]}>
-                  Sign In
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
 
           {/* Heading */}
@@ -344,20 +323,6 @@ function createStyles(c: ReturnType<typeof useColors>) {
       alignItems: "center",
       justifyContent: "center",
     },
-    toggle: {
-      flex: 1,
-      flexDirection: "row",
-      backgroundColor: c.card,
-      borderRadius: 14,
-      padding: 3,
-      borderWidth: 1,
-      borderColor: c.border,
-    },
-    toggleBtn:       { flex: 1, paddingVertical: 10, borderRadius: 11, alignItems: "center" },
-    toggleBtnActive: { backgroundColor: c.cta },
-    toggleText:      { fontSize: 13, fontFamily: "PlusJakartaSans_600SemiBold", color: c.textFaint },
-    toggleTextActive:{ color: c.ctaForeground },
-
     // Heading
     headingBlock: { gap: 6 },
     heading: {
