@@ -6,12 +6,14 @@ import * as Haptics from "expo-haptics";
 import { Redirect, Tabs } from "expo-router";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const isWeb = Platform.OS === "web";
   const { isAuthenticated, isAuthLoading } = useAuth();
   const { hasCompletedOnboarding, isLoading: appLoading } = useApp();
   const c = useColors();
+  const insets = useSafeAreaInsets();
 
   if (!isAuthLoading && !appLoading) {
     if (!isAuthenticated) return <Redirect href="/login" />;
@@ -37,8 +39,8 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.07,
           shadowRadius: 16,
-          height: isWeb ? 64 : undefined,
-          paddingBottom: isWeb ? 8 : undefined,
+          height: isWeb ? 64 : 56 + insets.bottom,
+          paddingBottom: isWeb ? 8 : insets.bottom,
         },
         tabBarBackground: () =>
           isWeb ? (

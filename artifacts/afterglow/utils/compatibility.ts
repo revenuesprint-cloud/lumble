@@ -236,13 +236,13 @@ export function calculateCompatibility(
   const seed = dateToNum(userBirthDate) * 31 + dateToNum(partnerBirthDate) * 17;
   const rng = seededRng(seed);
 
-  const emotionalScore = score(rng, 38, 84);
-  const commScore      = score(rng, 36, 82);
-  const attachScore    = score(rng, 34, 80);
-  const tensionScore   = score(rng, 33, 78);
-  const ltScore        = score(rng, 37, 83);
-  const addictiveScore = score(rng, 42, 84);
-  const patternScore   = score(rng, 36, 82);
+  const emotionalScore = score(rng, 62, 96);
+  const commScore      = score(rng, 58, 94);
+  const attachScore    = score(rng, 57, 93);
+  const tensionScore   = score(rng, 54, 90);
+  const ltScore        = score(rng, 60, 95);
+  const addictiveScore = score(rng, 65, 97);
+  const patternScore   = score(rng, 58, 94);
 
   const overall = Math.round(
     (emotionalScore + commScore + attachScore + ltScore + addictiveScore) / 5

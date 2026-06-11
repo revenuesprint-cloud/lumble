@@ -59,9 +59,17 @@ function sortedKootas(guna: AstrologyReading["guna"]) {
 
 // ─── Daily energy bars ────────────────────────────────────────────────────────
 
-function dailyMod(base: number, seed: number): number {
-  const s = ((seed * 1664525 + 1013904223) & 0x7fffffff) % 37 - 18;
-  return Math.max(54, Math.min(92, base + s));
+// Returns an optimistic energy metric that is unique per couple AND per metric.
+// coupleMetricOffset (0-15) is derived from nakshatra pair + metric index,
+// so two metrics for the same couple are always different, and same metric
+// differs across couples.
+function energyMetric(base: number, daySeed: number, nakU: number, nakP: number, metricIdx: number): number {
+  const coupleOffset = (((nakU * 7 + nakP * 11 + metricIdx * 17) * 2654435761) >>> 0) % 16;
+  const dailySeed    = daySeed * 31337 + nakU * 1000003 + nakP * 999983 + metricIdx * 100003;
+  const lcg          = ((dailySeed * 1664525 + 1013904223) & 0x7fffffff);
+  const dailySpread  = (lcg % 26) - 5;                     // -5..+20 (net positive)
+  const optBase      = 62 + Math.round(base * 0.22);       // 62 (base=0) → 84 (base=100)
+  return Math.max(67, Math.min(97, optBase + dailySpread + coupleOffset));
 }
 
 export interface EnergyBars {
@@ -90,17 +98,18 @@ export function getDailyEnergyPersonalized(
   // Positivity: overall emotional optimism in the connection (guna health + absence of doshas)
   const positivityBase    = Math.min(85, Math.round((guna.total / 36) * 60 + (guna.nadiDosha ? 0 : 20) + (guna.mangalDosha ? 0 : 20)));
 
-  const today = new Date();
-  const daySeed  = today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate();
-  const baseSeed = daySeed * 31 + (reading.user.nakshatra * 7 + reading.partner.nakshatra * 13);
+  const today   = new Date();
+  const daySeed = today.getFullYear() * 366 + today.getMonth() * 31 + today.getDate();
+  const nakU    = reading.user.nakshatra;
+  const nakP    = reading.partner.nakshatra;
 
-  const closeness     = dailyMod(closenessBase,    baseSeed);
-  const attraction    = dailyMod(attractionBase,   baseSeed + 1);
-  const communication = dailyMod(commBase,         baseSeed + 2);
-  const reconnection  = dailyMod(reconnectionBase, baseSeed + 3);
-  const tension       = Math.min(85, dailyMod(tensionBase, baseSeed + 4));
-  const trust         = dailyMod(trustBase,        baseSeed + 5);
-  const positivity    = dailyMod(positivityBase,   baseSeed + 6);
+  const closeness     = energyMetric(closenessBase,    daySeed, nakU, nakP, 0);
+  const attraction    = energyMetric(attractionBase,   daySeed, nakU, nakP, 1);
+  const communication = energyMetric(commBase,         daySeed, nakU, nakP, 2);
+  const reconnection  = energyMetric(reconnectionBase, daySeed, nakU, nakP, 3);
+  const tension       = Math.min(82, energyMetric(tensionBase,  daySeed, nakU, nakP, 4));
+  const trust         = energyMetric(trustBase,        daySeed, nakU, nakP, 5);
+  const positivity    = energyMetric(positivityBase,   daySeed, nakU, nakP, 6);
 
   const moonU = RASHIS[reading.user.moonRashi].en;
   const moonP = RASHIS[reading.partner.moonRashi].en;
@@ -121,7 +130,8 @@ export function getDailyEnergyPersonalized(
     const condTag = tension > 65 ? "condition:high_tension" : closeness > 72 ? "condition:high_closeness" : "universal";
     const pool = bundle.energyMessages.filter((i) => (i.tags as string[]).includes(condTag) || (i.tags as string[]).includes("universal"));
     const src = pool.length ? pool : bundle.energyMessages;
-    return applyVars(src[baseSeed % src.length].body, { um: moonU, pm: moonP });
+    const seed = daySeed * 31 + nakU * 7 + nakP * 13;
+    return applyVars(src[seed % src.length].body, { um: moonU, pm: moonP });
   })();
 
   const message = dbMsg ?? MESSAGES[0] ?? MESSAGES[MESSAGES.length - 1];

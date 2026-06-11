@@ -109,7 +109,7 @@ export async function setStartDate(stamp: string): Promise<void> {
 export interface Milestone { target: number; label: string; }
 
 // Fixed early milestones, then every 100 up to 1000, then yearly after.
-function milestoneList(daysTogether: number): Milestone[] {
+function milestoneList(_daysTogether: number): Milestone[] {
   const list: Milestone[] = [
     { target: 50,   label: "50 days" },
     { target: 100,  label: "100 days" },
@@ -324,9 +324,10 @@ export function getDailyPrediction(reading: AstrologyReading, relType: Relations
   const h = hash(seed);
 
   // Base score nudged by overall guna health, then varied per day.
-  const gunaBase = Math.round((reading.guna.total / 36) * 30) + 55; // 55..85
-  const variance = (h % 31) - 13; // -13..+17
-  const score = Math.max(48, Math.min(98, gunaBase + variance));
+  // Floor raised so even low-guna couples see positive, engaging numbers.
+  const gunaBase = Math.round((reading.guna.total / 36) * 22) + 68; // 68..90
+  const variance = (h % 21) - 6;  // -6..+14 (net positive bias)
+  const score = Math.max(60, Math.min(98, gunaBase + variance));
   const band = bandFor(score);
 
   const moonU = RASHIS[reading.user.moonRashi].en;
