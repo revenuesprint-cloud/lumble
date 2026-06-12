@@ -5,6 +5,9 @@ import {
   recordDailyOpen, streakLine, type StreakState,
   getStartDate, setStartDate, getTimelineInfo, type TimelineInfo,
   getDailyPrediction, getDailyRitual, getDailyQuestion,
+  getDailyChallenge, getGameState, isChallengeDone, completeDailyChallenge,
+  levelFor, getPatternUnlock, getDeepPattern, PATTERN_UNLOCK_DAYS,
+  type CoupleChallenge, type GameState, type LevelInfo, type PatternUnlock, type DeepPattern,
 } from "@/utils/daily";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -51,6 +54,116 @@ function StreakChip({ streak }: { streak: StreakState }) {
           <Text style={s.streakBestLabel}>BEST</Text>
         </View>
       )}
+    </View>
+  );
+}
+
+// ─── Level / XP bar ───────────────────────────────────────────────────────────
+
+function LevelBar({ level }: { level: LevelInfo }) {
+  const c = useColors();
+  const s = useMemo(() => createStyles(c), [c]);
+  return (
+    <View style={s.levelCard}>
+      <View style={s.levelBadge}>
+        <Text style={s.levelNum}>{level.level}</Text>
+      </View>
+      <View style={{ flex: 1 }}>
+        <View style={s.levelTopRow}>
+          <Text style={s.levelTitle}>Level {level.level} · {level.title}</Text>
+          <Text style={s.levelXp}>{level.totalXp} XP</Text>
+        </View>
+        <View style={s.levelTrack}>
+          <View style={[s.levelFill, { width: `${Math.max(4, level.pct * 100)}%` }]} />
+        </View>
+        <Text style={s.levelHint}>{level.xpForLevel - level.xpIntoLevel} XP to level {level.level + 1}</Text>
+      </View>
+    </View>
+  );
+}
+
+// ─── Today's Challenge card ───────────────────────────────────────────────────
+
+function ChallengeCard({ challenge, done, onComplete }: {
+  challenge: CoupleChallenge; done: boolean; onComplete: () => void;
+}) {
+  const c = useColors();
+  const s = useMemo(() => createStyles(c), [c]);
+  return (
+    <View style={[s.challengeCard, done && s.challengeCardDone]}>
+      <View style={s.challengeTop}>
+        <View style={s.challengeKickerRow}>
+          <Text style={s.challengeEmoji}>{challenge.emoji}</Text>
+          <Text style={s.challengeKicker}>TODAY'S CHALLENGE</Text>
+        </View>
+        <View style={s.xpBadge}>
+          <Feather name="zap" size={11} color="#D97706" />
+          <Text style={s.xpBadgeText}>+{challenge.xp} XP</Text>
+        </View>
+      </View>
+      <Text style={s.challengePrompt}>{challenge.prompt}</Text>
+      <Text style={s.challengeWhy}>{challenge.why}</Text>
+      {done ? (
+        <View style={s.challengeDoneRow}>
+          <Feather name="check-circle" size={16} color="#10B981" />
+          <Text style={s.challengeDoneText}>Done today · +{challenge.xp} XP earned</Text>
+        </View>
+      ) : (
+        <TouchableOpacity onPress={onComplete} activeOpacity={0.85} style={s.challengeBtn}>
+          <Text style={s.challengeBtnText}>Mark done</Text>
+          <Feather name="check" size={16} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+// ─── 30-day pattern unlock card ───────────────────────────────────────────────
+
+function PatternUnlockCard({ unlock, deep, revealed, onReveal }: {
+  unlock: PatternUnlock; deep: DeepPattern; revealed: boolean; onReveal: () => void;
+}) {
+  const c = useColors();
+  const s = useMemo(() => createStyles(c), [c]);
+
+  if (unlock.unlocked) {
+    return (
+      <LinearGradient colors={["#10B981", "#4A3DE8"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.unlockCard}>
+        <View style={s.unlockHead}>
+          <Feather name="unlock" size={15} color="#FFFFFF" />
+          <Text style={s.unlockKicker}>30-DAY PATTERN UNLOCKED</Text>
+        </View>
+        {revealed ? (
+          <>
+            <Text style={s.unlockTitle}>{deep.title}</Text>
+            <Text style={s.unlockBody}>{deep.body}</Text>
+          </>
+        ) : (
+          <TouchableOpacity onPress={onReveal} activeOpacity={0.85} style={s.unlockRevealBtn}>
+            <Text style={s.unlockRevealText}>Reveal your deepest pattern</Text>
+            <Feather name="eye" size={15} color="#10B981" />
+          </TouchableOpacity>
+        )}
+      </LinearGradient>
+    );
+  }
+
+  return (
+    <View style={s.lockCard}>
+      <View style={s.lockHead}>
+        <View style={s.lockIcon}><Feather name="lock" size={15} color="#8B5CF6" /></View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.lockTitle}>Your deepest pattern</Text>
+          <Text style={s.lockSub}>Unlocks after {unlock.target} days of showing up</Text>
+        </View>
+        <Text style={s.lockCount}>{unlock.daysUsed}/{unlock.target}</Text>
+      </View>
+      <View style={s.lockTrack}>
+        <View style={[s.lockFill, { width: `${Math.max(3, unlock.pct * 100)}%` }]} />
+      </View>
+      <Text style={s.lockHint}>
+        {unlock.daysLeft} {unlock.daysLeft === 1 ? "day" : "days"} to go — keep your daily going.
+      </Text>
     </View>
   );
 }
@@ -255,10 +368,13 @@ export default function TogetherScreen() {
   const [startStamp, setStartStamp] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [revealQ, setRevealQ] = useState(false);
+  const [game, setGame] = useState<GameState | null>(null);
+  const [deepRevealed, setDeepRevealed] = useState(false);
 
   useEffect(() => {
     recordDailyOpen().then(setStreak).catch(() => {});
     getStartDate().then(setStartStamp).catch(() => {});
+    getGameState().then(setGame).catch(() => {});
   }, []);
 
   if (!user || !partner || !reading) return null;
@@ -267,6 +383,17 @@ export default function TogetherScreen() {
   const ritual     = getDailyRitual(reading);
   const question   = getDailyQuestion(reading);
   const timeline   = startStamp ? getTimelineInfo(startStamp) : null;
+  const challenge  = getDailyChallenge(reading);
+  const level      = levelFor(game?.xp ?? 0);
+  const challengeDone = game ? isChallengeDone(game) : false;
+  const unlock     = getPatternUnlock(streak?.totalDays ?? 1);
+  const deep       = getDeepPattern(reading);
+
+  const onCompleteChallenge = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const next = await completeDailyChallenge(challenge.xp);
+    setGame(next);
+  };
 
   const grad = BAND_GRADIENT[prediction.band] ?? BAND_GRADIENT.steady;
   const haptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -307,6 +434,9 @@ export default function TogetherScreen() {
         {/* Streak */}
         {streak && <StreakChip streak={streak} />}
 
+        {/* Level / XP */}
+        <LevelBar level={level} />
+
         {/* Couple timeline */}
         {timeline
           ? <TimelineCard info={timeline} userName={user.name} partnerName={partner.name} onEdit={() => { haptic(); setSheetOpen(true); }} onShare={shareTimeline} />
@@ -345,6 +475,9 @@ export default function TogetherScreen() {
           </View>
         </LinearGradient>
 
+        {/* Today's challenge */}
+        <ChallengeCard challenge={challenge} done={challengeDone} onComplete={onCompleteChallenge} />
+
         {/* Today's ritual */}
         <SectionCard icon="heart" iconColor="#F43F5E" iconBg={c.roseLight} label="TODAY'S RITUAL">
           <View style={s.ritualHead}>
@@ -372,7 +505,15 @@ export default function TogetherScreen() {
           )}
         </SectionCard>
 
-        {/* Couple challenges link */}
+        {/* 30-day pattern unlock */}
+        <PatternUnlockCard
+          unlock={unlock}
+          deep={deep}
+          revealed={deepRevealed}
+          onReveal={() => { haptic(); setDeepRevealed(true); }}
+        />
+
+        {/* Patterns & remedies link */}
         <TouchableOpacity
           onPress={() => { haptic(); router.push("/challenges"); }}
           activeOpacity={0.85}
@@ -382,7 +523,7 @@ export default function TogetherScreen() {
             <Feather name="target" size={16} color="#10B981" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={s.challengeTitle}>Couple challenges</Text>
+            <Text style={s.challengeTitle}>Patterns & remedies</Text>
             <Text style={s.challengeSub}>
               {(challenges?.length ?? 0) > 0 ? `${challenges.length} matched to your charts` : "Personalized to your connection"}
             </Text>
@@ -484,6 +625,53 @@ function createStyles(c: ReturnType<typeof useColors>) {
     challengeRow:   { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
     challengeTitle: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
     challengeSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 1 },
+
+    // Level / XP
+    levelCard:   { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+    levelBadge:  { width: 40, height: 40, borderRadius: 20, backgroundColor: "#4A3DE8", alignItems: "center", justifyContent: "center" },
+    levelNum:    { fontSize: 18, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#FFFFFF" },
+    levelTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 5 },
+    levelTitle:  { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    levelXp:     { fontSize: 12, fontFamily: "PlusJakartaSans_700Bold", color: "#4A3DE8" },
+    levelTrack:  { height: 7, borderRadius: 4, backgroundColor: c.borderLight, overflow: "hidden" },
+    levelFill:   { height: 7, borderRadius: 4, backgroundColor: "#4A3DE8" },
+    levelHint:   { fontSize: 10.5, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint, marginTop: 4 },
+
+    // Today's challenge
+    challengeCard:     { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.primaryBorder, padding: 16, gap: 8, shadowColor: "#4A3DE8", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 2 },
+    challengeCardDone: { borderColor: "#10B98155" },
+    challengeTop:      { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    challengeKickerRow:{ flexDirection: "row", alignItems: "center", gap: 7 },
+    challengeEmoji:    { fontSize: 16 },
+    challengeKicker:   { fontSize: 11, fontFamily: "PlusJakartaSans_700Bold", color: c.textFaint, letterSpacing: 1 },
+    xpBadge:           { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: c.goldLight, borderRadius: 20, paddingHorizontal: 9, paddingVertical: 4 },
+    xpBadgeText:       { fontSize: 11, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#D97706" },
+    challengePrompt:   { fontSize: 17, fontFamily: "PlusJakartaSans_700Bold", color: c.text, lineHeight: 24, letterSpacing: -0.2 },
+    challengeWhy:      { fontSize: 12.5, fontFamily: "PlusJakartaSans_400Regular", color: c.textMuted, lineHeight: 18 },
+    challengeBtn:      { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: c.cta, borderRadius: 12, paddingVertical: 13, marginTop: 4 },
+    challengeBtnText:  { fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: c.ctaForeground },
+    challengeDoneRow:  { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: c.emeraldLight, borderRadius: 12, paddingVertical: 12, justifyContent: "center", marginTop: 4 },
+    challengeDoneText: { fontSize: 13, fontFamily: "PlusJakartaSans_700Bold", color: "#10B981" },
+
+    // 30-day unlock (unlocked)
+    unlockCard:      { borderRadius: 18, padding: 18, gap: 10, shadowColor: "#10B981", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 12, elevation: 4 },
+    unlockHead:      { flexDirection: "row", alignItems: "center", gap: 8 },
+    unlockKicker:    { fontSize: 10, fontFamily: "PlusJakartaSans_700Bold", color: "#FFFFFF", letterSpacing: 0.8 },
+    unlockTitle:     { fontSize: 19, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#FFFFFF", lineHeight: 25, letterSpacing: -0.3 },
+    unlockBody:      { fontSize: 14, fontFamily: "PlusJakartaSans_400Regular", color: "#FFFFFFEE", lineHeight: 22 },
+    unlockRevealBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#FFFFFF", borderRadius: 12, paddingVertical: 14 },
+    unlockRevealText:{ fontSize: 14, fontFamily: "PlusJakartaSans_700Bold", color: "#10B981" },
+
+    // 30-day unlock (locked)
+    lockCard:  { backgroundColor: c.card, borderRadius: 16, borderWidth: 1, borderColor: c.border, padding: 16, gap: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+    lockHead:  { flexDirection: "row", alignItems: "center", gap: 12 },
+    lockIcon:  { width: 32, height: 32, borderRadius: 10, backgroundColor: c.violetLight, alignItems: "center", justifyContent: "center" },
+    lockTitle: { fontSize: 15, fontFamily: "PlusJakartaSans_700Bold", color: c.text },
+    lockSub:   { fontSize: 12, fontFamily: "PlusJakartaSans_400Regular", color: c.textFaint, marginTop: 1 },
+    lockCount: { fontSize: 14, fontFamily: "PlusJakartaSans_800ExtraBold", color: "#8B5CF6" },
+    lockTrack: { height: 8, borderRadius: 4, backgroundColor: c.borderLight, overflow: "hidden" },
+    lockFill:  { height: 8, borderRadius: 4, backgroundColor: "#8B5CF6" },
+    lockHint:  { fontSize: 12, fontFamily: "PlusJakartaSans_500Medium", color: c.textMuted },
 
     footerHint: { textAlign: "center", fontSize: 11, fontFamily: "PlusJakartaSans_500Medium", color: c.textFaint, marginTop: 4 },
 

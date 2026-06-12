@@ -50,6 +50,7 @@ export interface StreakState {
   current: number;   // consecutive days including today
   longest: number;   // best run ever
   lastOpen: string;  // last day stamp recorded
+  totalDays: number; // distinct days ever opened (drives the 30-day unlock)
   isNewDay: boolean; // true the first time it's recorded on a fresh day
 }
 
@@ -66,19 +67,21 @@ export async function recordDailyOpen(): Promise<StreakState> {
   } catch {}
 
   if (!prev) {
-    const fresh = { current: 1, longest: 1, lastOpen: today };
+    const fresh = { current: 1, longest: 1, lastOpen: today, totalDays: 1 };
     await persistStreak(fresh);
     return { ...fresh, isNewDay: true };
   }
 
+  const prevTotal = prev.totalDays ?? prev.current; // back-compat for old saves
+
   if (prev.lastOpen === today) {
-    return { ...prev, isNewDay: false };
+    return { ...prev, totalDays: prevTotal, isNewDay: false };
   }
 
   const gap = daysBetween(parseStamp(prev.lastOpen), parseStamp(today));
   const current = gap === 1 ? prev.current + 1 : 1; // missed a day → reset to 1
   const longest = Math.max(prev.longest, current);
-  const next = { current, longest, lastOpen: today };
+  const next = { current, longest, lastOpen: today, totalDays: prevTotal + 1 };
   await persistStreak(next);
   return { ...next, isNewDay: true };
 }
@@ -399,4 +402,142 @@ const QUESTIONS: string[] = [
 export function getDailyQuestion(reading: AstrologyReading): string {
   const seed = `${coupleSeed(reading)}-q-${todayStamp()}`;
   return pick(QUESTIONS, seed);
+}
+
+// ─── 6. Couple Challenge of the day (gamified, earns XP) ───────────────────────
+
+export interface CoupleChallenge {
+  id: string;
+  prompt: string;   // the action to do together today
+  why: string;      // a one-line reason it matters
+  xp: number;
+  emoji: string;
+}
+
+const CHALLENGES: CoupleChallenge[] = [
+  { id: "ch01", emoji: "🧒", prompt: "Ask them about a childhood memory they rarely talk about.", why: "New stories deepen old love.", xp: 10 },
+  { id: "ch02", emoji: "💬", prompt: "Tell them one specific thing you admired about them this week.", why: "Specific praise lands harder than sweet.", xp: 10 },
+  { id: "ch03", emoji: "📵", prompt: "Spend 15 minutes together with both phones in another room.", why: "Undivided attention is the rarest gift.", xp: 15 },
+  { id: "ch04", emoji: "🎶", prompt: "Send them a song that reminds you of them — no explanation.", why: "It says 'you live in my head' without the pressure.", xp: 10 },
+  { id: "ch05", emoji: "🫂", prompt: "Hold a hug past six seconds today.", why: "Six seconds is when oxytocin actually releases.", xp: 10 },
+  { id: "ch06", emoji: "❓", prompt: "Ask them: what do you need more of from me lately?", why: "Then just listen — don't fix.", xp: 15 },
+  { id: "ch07", emoji: "🙏", prompt: "Each name one thing you were grateful for this week.", why: "Couples who do this feel closer within days.", xp: 10 },
+  { id: "ch08", emoji: "📸", prompt: "Find an old photo of you two and send it with a memory.", why: "Nostalgia, used on purpose, reignites things.", xp: 10 },
+  { id: "ch09", emoji: "🗓️", prompt: "Put one small plan on the calendar together — even a walk.", why: "Shared anticipation is its own kind of glue.", xp: 10 },
+  { id: "ch10", emoji: "💌", prompt: "Text them the thing you've been feeling but haven't said.", why: "Unspoken things get heavier the longer they sit.", xp: 15 },
+  { id: "ch11", emoji: "👀", prompt: "Make eye contact for a full minute, no talking.", why: "Awkward for ten seconds, intimate for fifty.", xp: 10 },
+  { id: "ch12", emoji: "🍳", prompt: "Do one small chore that's usually theirs, unprompted.", why: "Acts of service speak when words don't.", xp: 10 },
+  { id: "ch13", emoji: "🌙", prompt: "Ask: when did you first know you actually liked me?", why: "The answer is always worth hearing again.", xp: 10 },
+  { id: "ch14", emoji: "✨", prompt: "Give them a compliment about who they are, not what they do.", why: "Being seen beats being useful.", xp: 10 },
+  { id: "ch15", emoji: "☕", prompt: "Bring them something they like without being asked.", why: "Small, specific care is remembered for days.", xp: 10 },
+  { id: "ch16", emoji: "🔮", prompt: "Share one thing you're looking forward to about your future together.", why: "Hope spoken out loud becomes a plan.", xp: 10 },
+  { id: "ch17", emoji: "😂", prompt: "Recreate an inside joke or a 'first' from early on.", why: "Reliving a first reignites the spark.", xp: 10 },
+  { id: "ch18", emoji: "🤝", prompt: "Say sorry for one small thing you never properly addressed.", why: "Closing tiny loops prevents big ones.", xp: 15 },
+  { id: "ch19", emoji: "💭", prompt: "Ask what a perfect ordinary day with you looks like to them.", why: "Their answer is a map to their heart.", xp: 10 },
+  { id: "ch20", emoji: "🌟", prompt: "Tell them one way they've made you a better person.", why: "Few things bond people like being credited.", xp: 15 },
+];
+
+export function getDailyChallenge(reading: AstrologyReading): CoupleChallenge {
+  const seed = `${coupleSeed(reading)}-challenge-${todayStamp()}`;
+  return pick(CHALLENGES, seed);
+}
+
+// ─── 7. XP, levels & challenge completion ─────────────────────────────────────
+
+const GAME_KEY = "@lumble_game";
+
+export interface GameState {
+  xp: number;
+  completedDays: string[];   // stamps on which the daily challenge was done
+}
+
+async function readGame(): Promise<GameState> {
+  try {
+    const raw = await AsyncStorage.getItem(GAME_KEY);
+    if (raw) {
+      const g = JSON.parse(raw);
+      return { xp: g.xp ?? 0, completedDays: Array.isArray(g.completedDays) ? g.completedDays : [] };
+    }
+  } catch {}
+  return { xp: 0, completedDays: [] };
+}
+
+export async function getGameState(): Promise<GameState> {
+  return readGame();
+}
+
+export function isChallengeDone(state: GameState, stamp: string = todayStamp()): boolean {
+  return state.completedDays.includes(stamp);
+}
+
+/** Marks today's challenge complete and awards XP. Idempotent per day. */
+export async function completeDailyChallenge(xp: number): Promise<GameState> {
+  const state = await readGame();
+  const t = todayStamp();
+  if (!state.completedDays.includes(t)) {
+    state.completedDays.push(t);
+    state.xp += xp;
+    try { await AsyncStorage.setItem(GAME_KEY, JSON.stringify(state)); } catch {}
+  }
+  return state;
+}
+
+export interface LevelInfo {
+  level: number;       // 1-based
+  title: string;
+  totalXp: number;
+  xpIntoLevel: number; // xp earned within the current level
+  xpForLevel: number;  // xp needed to clear the current level
+  pct: number;         // 0..1 progress to next level
+}
+
+const XP_PER_LEVEL = 100;
+const LEVEL_TITLES = ["Spark", "Ember", "Glow", "Flame", "Blaze", "Radiance", "Beacon", "Supernova", "Eternal"];
+
+export function levelFor(xp: number): LevelInfo {
+  const idx = Math.floor(xp / XP_PER_LEVEL);
+  const level = idx + 1;
+  const title = LEVEL_TITLES[Math.min(idx, LEVEL_TITLES.length - 1)];
+  const xpIntoLevel = xp - idx * XP_PER_LEVEL;
+  return { level, title, totalXp: xp, xpIntoLevel, xpForLevel: XP_PER_LEVEL, pct: xpIntoLevel / XP_PER_LEVEL };
+}
+
+// ─── 8. 30-day pattern unlock ──────────────────────────────────────────────────
+// Keep showing up and, at day 30, a deeper relationship pattern unlocks.
+
+export const PATTERN_UNLOCK_DAYS = 30;
+
+export interface PatternUnlock {
+  daysUsed: number;
+  target: number;
+  daysLeft: number;
+  pct: number;      // 0..1
+  unlocked: boolean;
+}
+
+export function getPatternUnlock(totalDays: number): PatternUnlock {
+  const daysUsed = Math.max(0, totalDays);
+  const unlocked = daysUsed >= PATTERN_UNLOCK_DAYS;
+  return {
+    daysUsed,
+    target: PATTERN_UNLOCK_DAYS,
+    daysLeft: Math.max(0, PATTERN_UNLOCK_DAYS - daysUsed),
+    pct: Math.min(1, daysUsed / PATTERN_UNLOCK_DAYS),
+    unlocked,
+  };
+}
+
+export interface DeepPattern { title: string; body: string; }
+
+const DEEP_PATTERNS: DeepPattern[] = [
+  { title: "The pursue–withdraw loop", body: "Under stress, one of you moves toward and one moves away — and each move makes the other's stronger. It isn't a flaw in either of you; it's a rhythm you fell into. Name it out loud the next time it starts ('we're in the loop') and it loses most of its power." },
+  { title: "The unspoken expectation", body: "A recurring friction between you traces back to a need that was never said plainly, only hoped for. The person hoping feels unseen; the other feels they can't win. Replace one standing expectation with one clear request this week and watch the temperature drop." },
+  { title: "Love languages crossing wires", body: "You give love the way you most want to receive it — but it may not be their currency. The care is real; the translation is off. Ask them directly what makes them feel most loved, then aim there instead of where it feels natural to you." },
+  { title: "The repair gap", body: "It isn't conflict that wears couples down — it's how long the gap stays open afterward. Your pattern is to let small ruptures sit. Shorten the time-to-repair, even with a single sentence, and almost everything else gets easier." },
+  { title: "Carrying the invisible load", body: "One of you tends to hold the emotional thread — remembering, checking in, smoothing things over — and it's quietly tiring even when unspoken. Name the imbalance without blame and trade off who initiates. Being seen for the invisible work changes the whole dynamic." },
+];
+
+/** The reward for 30 days of use — a deterministic deeper pattern for this couple. */
+export function getDeepPattern(reading: AstrologyReading): DeepPattern {
+  return pick(DEEP_PATTERNS, `${coupleSeed(reading)}-deep`);
 }

@@ -11,6 +11,7 @@ import { fetchDailyContent, type DailyContent } from "@/utils/dbContent";
 import { extractKundliAttributes } from "@/utils/challenges";
 import { getLuckyFeatures, type LuckyFeatures } from "@/utils/lucky";
 import { recordDailyOpen, getDailyPrediction, type StreakState } from "@/utils/daily";
+import { ensureDailyNotifications } from "@/utils/notifications";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -361,7 +362,10 @@ export default function HomeScreen() {
   }, [reading]);
 
   const [streak, setStreak] = useState<StreakState | null>(null);
-  useEffect(() => { recordDailyOpen().then(setStreak).catch(() => {}); }, []);
+  useEffect(() => {
+    recordDailyOpen().then(setStreak).catch(() => {});
+    ensureDailyNotifications().catch(() => {});
+  }, []);
 
   if (!user || !partner || !reading) return null;
 
