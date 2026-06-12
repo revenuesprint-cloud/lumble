@@ -180,7 +180,7 @@ export default function LoginScreen() {
                   value={email}
                   onChangeText={(t) => { setEmail(t); clear(); }}
                   placeholder="Email address"
-                  placeholderTextColor={c.borderLight}
+                  placeholderTextColor={c.textFaint}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -198,7 +198,7 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={(t) => { setPassword(t); clear(); }}
                   placeholder={mode === "register" ? "Password (min. 6 chars)" : "Password"}
-                  placeholderTextColor={c.borderLight}
+                  placeholderTextColor={c.textFaint}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   returnKeyType={mode === "register" ? "next" : "done"}
@@ -220,7 +220,7 @@ export default function LoginScreen() {
                     value={confirm}
                     onChangeText={(t) => { setConfirm(t); clear(); }}
                     placeholder="Confirm password"
-                    placeholderTextColor={c.borderLight}
+                    placeholderTextColor={c.textFaint}
                     secureTextEntry={!showConfirm}
                     autoCapitalize="none"
                     returnKeyType="done"
@@ -255,7 +255,7 @@ export default function LoginScreen() {
               </Text>
               {!loading && (
                 <View style={styles.submitArrow}>
-                  <Feather name="arrow-right" size={16} color={c.ctaForeground} />
+                  <Feather name="arrow-right" size={16} color={c.cta} />
                 </View>
               )}
             </TouchableOpacity>

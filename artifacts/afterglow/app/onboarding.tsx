@@ -252,7 +252,7 @@ export default function Onboarding() {
         value={form.userName}
         onChangeText={(t) => setForm((f) => ({ ...f, userName: t }))}
         placeholder="Your first name"
-        placeholderTextColor={c.borderLight}
+        placeholderTextColor={c.textFaint}
         autoFocus
         maxLength={30}
       />
@@ -277,7 +277,7 @@ export default function Onboarding() {
         value={form.userBirthTime}
         onChangeText={(t) => setForm((f) => ({ ...f, userBirthTime: t }))}
         placeholder="e.g. 3:45 PM  (optional)"
-        placeholderTextColor={c.borderLight}
+        placeholderTextColor={c.textFaint}
       />
       <TouchableOpacity onPress={next} style={styles.skipBtn}>
         <Text style={styles.skipText}>Skip this</Text>
@@ -293,7 +293,7 @@ export default function Onboarding() {
         value={form.partnerName}
         onChangeText={(t) => setForm((f) => ({ ...f, partnerName: t }))}
         placeholder="Their first name"
-        placeholderTextColor={c.borderLight}
+        placeholderTextColor={c.textFaint}
         autoFocus
         maxLength={30}
       />
@@ -388,7 +388,7 @@ export default function Onboarding() {
                 </Text>
                 {step > 0 && (
                   <View style={styles.nextBtnArrow}>
-                    <Ionicons name="arrow-forward" size={18} color={c.ctaForeground} />
+                    <Ionicons name="arrow-forward" size={18} color={c.cta} />
                   </View>
                 )}
               </View>
